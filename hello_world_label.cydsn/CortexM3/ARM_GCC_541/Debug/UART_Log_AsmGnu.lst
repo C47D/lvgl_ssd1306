@@ -1,0 +1,149 @@
+ARM GAS  Generated_Source\PSoC5\UART_Log_AsmGnu.s 			page 1
+
+
+   1              	/******************************************************************************
+   2              	* File Name: UART_Log_AsmGnu.s
+   3              	* Version 1.50
+   4              	*
+   5              	*  Description:
+   6              	*   GNU assembly routines for PSoC 5LP.
+   7              	*
+   8              	*******************************************************************************
+   9              	* Copyright 2013-2015, Cypress Semiconductor Corporation.  All rights reserved.
+  10              	* You may use this file only in accordance with the license, terms, conditions,
+  11              	* disclaimers, and limitations in the end user license agreement accompanying
+  12              	* the software package with which this file was provided.
+  13              	******************************************************************************/
+  14              	
+  15              	
+  16              	.syntax unified
+  17              	.text
+  18              	.thumb
+  19              	
+  20              	
+  21              	/******************************************************************************
+  22              	* Function Name: UART_Log_PutChar
+  23              	*******************************************************************************
+  24              	*
+  25              	* Summary:
+  26              	*  Sends one byte via the Tx pin.
+  27              	*
+  28              	* Parameters:
+  29              	*  TxDataByte: Byte to send
+  30              	*
+  31              	* Return:
+  32              	*  None
+  33              	*
+  34              	******************************************************************************/
+  35              	/* void UART_Log_PutChar(uint8 txDataByte) */
+  36              	.align 3                     /* Align to 8 byte boundary (2^n) */
+  37              	.global UART_Log_PutChar
+  38              	.func UART_Log_PutChar, UART_Log_PutChar
+  39              	.type UART_Log_PutChar, %function
+  40              	.thumb_func
+  41              	UART_Log_PutChar:
+  42              	SetPinMode:
+  43 0000 FEB5     	    PUSH {r1, r2, r3, r4, r5, r6, r7, lr}
+  44 0002 4946     	    MOV r1, r9
+  45 0004 5246     	    MOV r2, r10
+  46 0006 5B46     	    MOV r3, r11
+  47 0008 0EB4     	    PUSH {r1, r2, r3}
+  48              	                                      /* cycles  bytes */
+  49 000a 0746     	    MOV r7, r0                        /*   1       2  */
+  50 000c 2449     	    LDR r1, PORT_DR_ADDRESS           /*   2       2  */
+  51 000e 0968     	    LDR r1, [r1, #0]                  /*   2       2  */
+  52 0010 8A46     	    MOV r10, r1                       /*   1       2   Save pin DR base address [r10]  */
+  53              	
+  54 0012 244A     	    LDR r2, FREQ                      /*   2       2   Calculate CPU cycles to wait between bits:  
+  55 0014 1268     	    LDR r2, [r2, #0]                  /*   2       2   (CPU Frequency + (UARTBaudRate/2)) / UARTBau
+  56 0016 2448     	    LDR r0, BAUD_RATE                 /*   2       2  */
+  57              	
+ARM GAS  Generated_Source\PSoC5\UART_Log_AsmGnu.s 			page 2
+
+
+  58 0018 0221     	    MOVS r1, #2                       /*   1       2  */
+  59 001a FFF7FEFF 	    BL __aeabi_uidiv                  /*   4       2  */
+  60 001e 0300     	    MOVS r3, r0                       /*   1       2  */
+  61 0020 2048     	    LDR r0, FREQ                      /*   2       2  */
+  62 0022 0068     	    LDR r0, [r0, #0]                  /*   2       2  */
+  63 0024 C018     	    ADDS r0, r0, r3                   /*   1       2  */
+  64 0026 2049     	    LDR r1, BAUD_RATE                 /*   2       2  */
+  65 0028 FFF7FEFF 	    BL __aeabi_uidiv                  /*   4       2  */
+  66 002c 1438     	    SUBS r0, r0, #20                  /*   1       2  Remove overhead   */
+  67 002e 8346     	    MOV r11, r0                       /*   1       2  Save delay value to [r11]  */
+  68              	
+  69 0030 0121     	    MOVS r1, #1                       /*   1       2  */
+  70 0032 C943     	    MVNS r1, r1                       /*   1       2  */
+  71 0034 0C46     	    MOV r4, r1                        /*   1       2   Save pin state mask to [r4]  */
+  72 0036 0125     	    MOVS r5, #1                       /*   1       2   Prepare lower bit mask [r5]  */
+  73 0038 0026     	    MOVS r6, #0                       /*   1       2   Prepare register for counter  */
+  74              	    
+  75 003a FFF7FEFF 	    BL CyEnterCriticalSection         /*   4       2   Disable interrupts  */
+  76 003e 8146     	    MOV r9, r0                        /*   1       2  */
+  77              	
+  78              	                                      /*               Transmitting start bit  */
+  79 0040 5146     	    MOV r1, r10                       /*   1       2   Set pin DR to "0"  */
+  80 0042 0B78     	    LDRB r3, [r1, #0]                 /*   2       2  */
+  81 0044 2340     	    ANDS r3, r3, r4                   /*   1       2  */
+  82 0046 0B70     	    STRB r3, [r1, #0]                 /*   2       2  */
+  83 0048 5846     	    MOV r0, r11                       /*   1       2  */
+  84 004a 0130     	    ADDS r0, #1                       /*   1       2  */
+  85 004c FFF7FEFF 	    BL CyDelayCycles                  /*   4       2  */
+  86              	
+  87              	bitTxLoop:
+  88              	                                      /*               Transmit bit loop  */
+  89 0050 3800     	    MOVS r0, r7                       /*   1       2   Move byte to [r0]  */
+  90 0052 F040     	    LSRS r0, r0, r6                   /*   1       2   Shift [r0] by counter  */
+  91 0054 2840     	    ANDS r0, r0, r5                   /*   1       2   Extract lower bit  */
+  92 0056 0B78     	    LDRB r3, [r1, #0]                 /*   2       2   Load current pin data reg  */
+  93 0058 2340     	    ANDS r3, r3, r4                   /*   1       2   Apply mask to clear pin state bit  */
+  94 005a 0343     	    ORRS r3, r3, r0                   /*   1       2   OR result with shifted bit value  */
+  95 005c 0B70     	    STRB r3, [r1, #0]                 /*   2       2   Write register value  */
+  96 005e 5846     	    MOV r0, r11                       /*   1       2   Move delay value to [r0]  */
+  97 0060 FFF7FEFF 	    BL CyDelayCycles                  /*   4       2   Call delay function  */
+  98              	
+  99 0064 0136     	    ADDS r6, r6, #1                   /*   1       2   Increment counter  */
+ 100 0066 072E     	    CMP r6, #7                        /*   1       2   Compare counter  */
+ 101 0068 F2D9     	    BLS bitTxLoop                     /*   3(1)    2   Jump to the start of the loop  */
+ 102              	    
+ 103 006a 0020     	    MOVS r0, #0                       /*   1       2   Wait 4 extra cycles  */
+ 104 006c 0130     	    ADDS r0, #1                       /*   1       2  */
+ 105 006e 0138     	    SUBS r0, #1                       /*   1       2  */
+ 106 0070 0130     	    ADDS r0, #1                       /*   1       2  */
+ 107              	
+ 108              	                                      /*               Transmitting STOP bit  */
+ 109 0072 0120     	    MOVS r0, #1                       /*   1       2  */
+ 110 0074 0B78     	    LDRB r3, [r1, #0]                 /*   2       2  */
+ 111 0076 2340     	    ANDS r3, r3, r4                   /*   1       2  */
+ 112 0078 0343     	    ORRS r3, r3, r0                   /*   1       2  */
+ 113 007a 0B70     	    STRB r3, [r1, #0]                 /*   2       2  */
+ 114 007c 5846     	    MOV r0, r11                       /*   1       2  */
+ARM GAS  Generated_Source\PSoC5\UART_Log_AsmGnu.s 			page 3
+
+
+ 115 007e 0430     	    ADDS r0, #4                       /*   1       2   Adjust delay  */
+ 116 0080 FFF7FEFF 	    BL CyDelayCycles                  /*   4       2  */
+ 117              	
+ 118 0084 4846     	    MOV r0, r9                        /*   1       2  */
+ 119 0086 FFF7FEFF 	    BL CyExitCriticalSection          /*   4       2   Restore interrupt state  */
+ 120 008a 00BF     	    NOP                               /*   1       2  */
+ 121 008c 00BF     	    NOP                               /*   1       2  */
+ 122 008e 00BF     	    NOP                               /*   1       2  */
+ 123              	    
+ 124 0090 0EBC     	    POP {r1, r2, r3}
+ 125 0092 8946     	    MOV r9, r1
+ 126 0094 9246     	    MOV r10, r2
+ 127 0096 9B46     	    MOV r11, r3
+ 128 0098 FEBD     	    POP {r1, r2, r3, r4, r5, r6, r7, pc}
+ 129 009a 00BFAFF3 	    .align 3
+ 129      0080
+ 130              	PORT_DR_ADDRESS:
+ 131 00a0 00000000 	    .word UART_Log_pinDrAdress
+ 132              	FREQ:
+ 133 00a4 00000000 	    .word cydelay_freq_hz
+ 134              	BAUD_RATE:
+ 135 00a8 00C20100 	    .word 115200
+ 136              	.endfunc
+ 137              	
+ 138              	
+ 139              	/* [] END OF FILE */

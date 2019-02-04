@@ -1,0 +1,2405 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_draw_triangle.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.point_swap,"ax",%progbits
+  20              		.align	2
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	point_swap, %function
+  24              	point_swap:
+  25              	.LFB13:
+  26              		.file 1 "..\\lvgl\\lv_draw\\lv_draw_triangle.c"
+   1:..\lvgl\lv_draw/lv_draw_triangle.c **** /**
+   2:..\lvgl\lv_draw/lv_draw_triangle.c ****  * @file lv_draw_triangle.c
+   3:..\lvgl\lv_draw/lv_draw_triangle.c ****  *
+   4:..\lvgl\lv_draw/lv_draw_triangle.c ****  */
+   5:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+   6:..\lvgl\lv_draw/lv_draw_triangle.c **** /*********************
+   7:..\lvgl\lv_draw/lv_draw_triangle.c ****  *      INCLUDES
+   8:..\lvgl\lv_draw/lv_draw_triangle.c ****  *********************/
+   9:..\lvgl\lv_draw/lv_draw_triangle.c **** #include "lv_draw_triangle.h"
+  10:..\lvgl\lv_draw/lv_draw_triangle.c **** #include "../lv_misc/lv_math.h"
+  11:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  12:..\lvgl\lv_draw/lv_draw_triangle.c **** /*********************
+  13:..\lvgl\lv_draw/lv_draw_triangle.c ****  *      DEFINES
+  14:..\lvgl\lv_draw/lv_draw_triangle.c ****  *********************/
+  15:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  16:..\lvgl\lv_draw/lv_draw_triangle.c **** /**********************
+  17:..\lvgl\lv_draw/lv_draw_triangle.c ****  *      TYPEDEFS
+  18:..\lvgl\lv_draw/lv_draw_triangle.c ****  **********************/
+  19:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  20:..\lvgl\lv_draw/lv_draw_triangle.c **** /**********************
+  21:..\lvgl\lv_draw/lv_draw_triangle.c ****  *  STATIC PROTOTYPES
+  22:..\lvgl\lv_draw/lv_draw_triangle.c ****  **********************/
+  23:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  24:..\lvgl\lv_draw/lv_draw_triangle.c **** /**********************
+  25:..\lvgl\lv_draw/lv_draw_triangle.c ****  *  STATIC VARIABLES
+  26:..\lvgl\lv_draw/lv_draw_triangle.c ****  **********************/
+  27:..\lvgl\lv_draw/lv_draw_triangle.c **** static void point_swap(lv_point_t * p1, lv_point_t * p2);
+  28:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  29:..\lvgl\lv_draw/lv_draw_triangle.c **** /**********************
+  30:..\lvgl\lv_draw/lv_draw_triangle.c ****  *      MACROS
+  31:..\lvgl\lv_draw/lv_draw_triangle.c ****  **********************/
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 2
+
+
+  32:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  33:..\lvgl\lv_draw/lv_draw_triangle.c **** /**********************
+  34:..\lvgl\lv_draw/lv_draw_triangle.c ****  *   GLOBAL FUNCTIONS
+  35:..\lvgl\lv_draw/lv_draw_triangle.c ****  **********************/
+  36:..\lvgl\lv_draw/lv_draw_triangle.c **** #if USE_LV_TRIANGLE != 0
+  37:..\lvgl\lv_draw/lv_draw_triangle.c **** /**
+  38:..\lvgl\lv_draw/lv_draw_triangle.c ****  *
+  39:..\lvgl\lv_draw/lv_draw_triangle.c ****  * @param points pointer to an array with 3 points
+  40:..\lvgl\lv_draw/lv_draw_triangle.c ****  * @param mask the triangle will be drawn only in this mask
+  41:..\lvgl\lv_draw/lv_draw_triangle.c ****  * @param color color of the triangle
+  42:..\lvgl\lv_draw/lv_draw_triangle.c ****  */
+  43:..\lvgl\lv_draw/lv_draw_triangle.c **** void lv_draw_triangle(const lv_point_t * points, const lv_area_t * mask, lv_color_t color)
+  44:..\lvgl\lv_draw/lv_draw_triangle.c **** {
+  45:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_point_t tri[3];
+  46:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  47:..\lvgl\lv_draw/lv_draw_triangle.c ****     memcpy(tri, points, sizeof(tri));
+  48:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  49:..\lvgl\lv_draw/lv_draw_triangle.c ****     /*Sort the vertices according to their y coordinate (0: y max, 1: y mid, 2:y min)*/
+  50:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[1].y < tri[0].y) point_swap(&tri[1], &tri[0]);
+  51:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[2].y < tri[1].y) point_swap(&tri[2], &tri[1]);
+  52:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[1].y < tri[0].y) point_swap(&tri[1], &tri[0]);
+  53:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  54:..\lvgl\lv_draw/lv_draw_triangle.c ****     /*Return is the triangle is degenerated*/
+  55:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[0].x == tri[1].x && tri[0].y == tri[1].y) return;
+  56:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[1].x == tri[2].x && tri[1].y == tri[2].y) return;
+  57:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[0].x == tri[2].x && tri[0].y == tri[2].y) return;
+  58:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  59:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[0].x == tri[1].x && tri[1].x == tri[2].x) return;
+  60:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[0].y == tri[1].y && tri[1].y == tri[2].y) return;
+  61:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  62:..\lvgl\lv_draw/lv_draw_triangle.c ****     /*Draw the triangle*/
+  63:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_point_t edge1;
+  64:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t dx1 = LV_MATH_ABS(tri[0].x - tri[1].x);
+  65:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t sx1 = tri[0].x < tri[1].x ? 1 : -1;
+  66:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t dy1 = LV_MATH_ABS(tri[0].y - tri[1].y);
+  67:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t sy1 = tri[0].y < tri[1].y ? 1 : -1;
+  68:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err1 = (dx1 > dy1 ? dx1 : -dy1) / 2;
+  69:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err_tmp1;
+  70:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  71:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_point_t edge2;
+  72:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t dx2 = LV_MATH_ABS(tri[0].x - tri[2].x);
+  73:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t sx2 = tri[0].x < tri[2].x ? 1 : -1;
+  74:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t dy2 = LV_MATH_ABS(tri[0].y - tri[2].y);
+  75:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t sy2 = tri[0].y < tri[2].y ? 1 : -1;
+  76:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err2 = (dx1 > dy2 ? dx2 : -dy2) / 2;
+  77:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err_tmp2;
+  78:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  79:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t y1_tmp;
+  80:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t y2_tmp;
+  81:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  82:..\lvgl\lv_draw/lv_draw_triangle.c ****     edge1.x = tri[0].x;
+  83:..\lvgl\lv_draw/lv_draw_triangle.c ****     edge1.y = tri[0].y;
+  84:..\lvgl\lv_draw/lv_draw_triangle.c ****     edge2.x = tri[0].x;
+  85:..\lvgl\lv_draw/lv_draw_triangle.c ****     edge2.y = tri[0].y;
+  86:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_area_t act_area;
+  87:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_area_t draw_area;
+  88:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 3
+
+
+  89:..\lvgl\lv_draw/lv_draw_triangle.c ****     while(1) {
+  90:..\lvgl\lv_draw/lv_draw_triangle.c ****         act_area.x1 = edge1.x;
+  91:..\lvgl\lv_draw/lv_draw_triangle.c ****         act_area.x2 = edge2.x ;
+  92:..\lvgl\lv_draw/lv_draw_triangle.c ****         act_area.y1 = edge1.y;
+  93:..\lvgl\lv_draw/lv_draw_triangle.c ****         act_area.y2 = edge2.y ;
+  94:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  95:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  96:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.x1 = LV_MATH_MIN(act_area.x1, act_area.x2);
+  97:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.x2 = LV_MATH_MAX(act_area.x1, act_area.x2);
+  98:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.y1 = LV_MATH_MIN(act_area.y1, act_area.y2);
+  99:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.y2 = LV_MATH_MAX(act_area.y1, act_area.y2);
+ 100:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.x2--; /*Do not draw most right pixel because it will be drawn by the adjacent tri
+ 101:..\lvgl\lv_draw/lv_draw_triangle.c ****         fill_fp(&draw_area, mask, color, LV_OPA_50);
+ 102:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 103:..\lvgl\lv_draw/lv_draw_triangle.c ****         /*Calc. the next point of edge1*/
+ 104:..\lvgl\lv_draw/lv_draw_triangle.c ****         y1_tmp = edge1.y;
+ 105:..\lvgl\lv_draw/lv_draw_triangle.c ****         do {
+ 106:..\lvgl\lv_draw/lv_draw_triangle.c ****             if(edge1.x == tri[1].x && edge1.y == tri[1].y) {
+ 107:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 108:..\lvgl\lv_draw/lv_draw_triangle.c ****                 dx1 = LV_MATH_ABS(tri[1].x - tri[2].x);
+ 109:..\lvgl\lv_draw/lv_draw_triangle.c ****                 sx1 = tri[1].x < tri[2].x ? 1 : -1;
+ 110:..\lvgl\lv_draw/lv_draw_triangle.c ****                 dy1 = LV_MATH_ABS(tri[1].y - tri[2].y);
+ 111:..\lvgl\lv_draw/lv_draw_triangle.c ****                 sy1 = tri[1].y < tri[2].y ? 1 : -1;
+ 112:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err1 = (dx1 > dy1 ? dx1 : -dy1) / 2;
+ 113:..\lvgl\lv_draw/lv_draw_triangle.c ****             } else if(edge1.x == tri[2].x && edge1.y == tri[2].y) return;
+ 114:..\lvgl\lv_draw/lv_draw_triangle.c ****             err_tmp1 = err1;
+ 115:..\lvgl\lv_draw/lv_draw_triangle.c ****             if(err_tmp1 > -dx1) {
+ 116:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err1 -= dy1;
+ 117:..\lvgl\lv_draw/lv_draw_triangle.c ****                 edge1.x += sx1;
+ 118:..\lvgl\lv_draw/lv_draw_triangle.c ****             }
+ 119:..\lvgl\lv_draw/lv_draw_triangle.c ****             if(err_tmp1 < dy1) {
+ 120:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err1 += dx1;
+ 121:..\lvgl\lv_draw/lv_draw_triangle.c ****                 edge1.y += sy1;
+ 122:..\lvgl\lv_draw/lv_draw_triangle.c ****             }
+ 123:..\lvgl\lv_draw/lv_draw_triangle.c ****         } while(edge1.y == y1_tmp);
+ 124:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 125:..\lvgl\lv_draw/lv_draw_triangle.c ****         /*Calc. the next point of edge2*/
+ 126:..\lvgl\lv_draw/lv_draw_triangle.c ****         y2_tmp = edge2.y;
+ 127:..\lvgl\lv_draw/lv_draw_triangle.c ****         do {
+ 128:..\lvgl\lv_draw/lv_draw_triangle.c ****             if(edge2.x == tri[2].x && edge2.y == tri[2].y) return;
+ 129:..\lvgl\lv_draw/lv_draw_triangle.c ****             err_tmp2 = err2;
+ 130:..\lvgl\lv_draw/lv_draw_triangle.c ****             if(err_tmp2 > -dx2) {
+ 131:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err2 -= dy2;
+ 132:..\lvgl\lv_draw/lv_draw_triangle.c ****                 edge2.x += sx2;
+ 133:..\lvgl\lv_draw/lv_draw_triangle.c ****             }
+ 134:..\lvgl\lv_draw/lv_draw_triangle.c ****             if(err_tmp2 < dy2) {
+ 135:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err2 += dx2;
+ 136:..\lvgl\lv_draw/lv_draw_triangle.c ****                 edge2.y += sy2;
+ 137:..\lvgl\lv_draw/lv_draw_triangle.c ****             }
+ 138:..\lvgl\lv_draw/lv_draw_triangle.c ****         } while(edge2.y == y2_tmp);
+ 139:..\lvgl\lv_draw/lv_draw_triangle.c ****     }
+ 140:..\lvgl\lv_draw/lv_draw_triangle.c **** }
+ 141:..\lvgl\lv_draw/lv_draw_triangle.c **** #endif
+ 142:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 143:..\lvgl\lv_draw/lv_draw_triangle.c **** /**********************
+ 144:..\lvgl\lv_draw/lv_draw_triangle.c ****  *   STATIC FUNCTIONS
+ 145:..\lvgl\lv_draw/lv_draw_triangle.c ****  **********************/
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 4
+
+
+ 146:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 147:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 148:..\lvgl\lv_draw/lv_draw_triangle.c **** #if USE_LV_TRIANGLE != 0
+ 149:..\lvgl\lv_draw/lv_draw_triangle.c **** /**
+ 150:..\lvgl\lv_draw/lv_draw_triangle.c ****  * Swap two points
+ 151:..\lvgl\lv_draw/lv_draw_triangle.c ****  * p1 pointer to the first point
+ 152:..\lvgl\lv_draw/lv_draw_triangle.c ****  * p2 pointer to the second point
+ 153:..\lvgl\lv_draw/lv_draw_triangle.c ****  */
+ 154:..\lvgl\lv_draw/lv_draw_triangle.c **** static void point_swap(lv_point_t * p1, lv_point_t * p2)
+ 155:..\lvgl\lv_draw/lv_draw_triangle.c **** {
+  27              		.loc 1 155 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+  33 0000 10B4     		push	{r4}
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 4, -4
+ 156:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_point_t tmp;
+ 157:..\lvgl\lv_draw/lv_draw_triangle.c ****     tmp.x = p1->x;
+  36              		.loc 1 157 0
+  37 0002 B0F90020 		ldrsh	r2, [r0]
+ 158:..\lvgl\lv_draw/lv_draw_triangle.c ****     tmp.y = p1->y;
+  38              		.loc 1 158 0
+  39 0006 B0F90230 		ldrsh	r3, [r0, #2]
+ 159:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 160:..\lvgl\lv_draw/lv_draw_triangle.c ****     p1->x = p2->x;
+  40              		.loc 1 160 0
+  41 000a B1F90040 		ldrsh	r4, [r1]
+  42 000e 0480     		strh	r4, [r0]	@ movhi
+ 161:..\lvgl\lv_draw/lv_draw_triangle.c ****     p1->y = p2->y;
+  43              		.loc 1 161 0
+  44 0010 B1F90240 		ldrsh	r4, [r1, #2]
+  45 0014 4480     		strh	r4, [r0, #2]	@ movhi
+ 162:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 163:..\lvgl\lv_draw/lv_draw_triangle.c ****     p2->x = tmp.x;
+  46              		.loc 1 163 0
+  47 0016 0A80     		strh	r2, [r1]	@ movhi
+ 164:..\lvgl\lv_draw/lv_draw_triangle.c ****     p2->y = tmp.y;
+  48              		.loc 1 164 0
+  49 0018 4B80     		strh	r3, [r1, #2]	@ movhi
+ 165:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 166:..\lvgl\lv_draw/lv_draw_triangle.c **** }
+  50              		.loc 1 166 0
+  51 001a 10BC     		pop	{r4}
+  52              		.cfi_restore 4
+  53              		.cfi_def_cfa_offset 0
+  54 001c 7047     		bx	lr
+  55              		.cfi_endproc
+  56              	.LFE13:
+  57              		.size	point_swap, .-point_swap
+  58 001e 00BF     		.section	.text.lv_draw_triangle,"ax",%progbits
+  59              		.align	2
+  60              		.global	lv_draw_triangle
+  61              		.thumb
+  62              		.thumb_func
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 5
+
+
+  63              		.type	lv_draw_triangle, %function
+  64              	lv_draw_triangle:
+  65              	.LFB12:
+  44:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_point_t tri[3];
+  66              		.loc 1 44 0
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 72
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  70              	.LVL1:
+  71 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  72              		.cfi_def_cfa_offset 36
+  73              		.cfi_offset 4, -36
+  74              		.cfi_offset 5, -32
+  75              		.cfi_offset 6, -28
+  76              		.cfi_offset 7, -24
+  77              		.cfi_offset 8, -20
+  78              		.cfi_offset 9, -16
+  79              		.cfi_offset 10, -12
+  80              		.cfi_offset 11, -8
+  81              		.cfi_offset 14, -4
+  82 0004 93B0     		sub	sp, sp, #76
+  83              		.cfi_def_cfa_offset 112
+  84 0006 0446     		mov	r4, r0
+  85 0008 0891     		str	r1, [sp, #32]
+  86 000a 8DF82720 		strb	r2, [sp, #39]
+  47:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+  87              		.loc 1 47 0
+  88 000e 0FAB     		add	r3, sp, #60
+  89 0010 0068     		ldr	r0, [r0]	@ unaligned
+  90              	.LVL2:
+  91 0012 6168     		ldr	r1, [r4, #4]	@ unaligned
+  92              	.LVL3:
+  93 0014 A268     		ldr	r2, [r4, #8]	@ unaligned
+  94              	.LVL4:
+  95 0016 07C3     		stmia	r3!, {r0, r1, r2}
+  50:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[2].y < tri[1].y) point_swap(&tri[2], &tri[1]);
+  96              		.loc 1 50 0
+  97 0018 BDF94220 		ldrsh	r2, [sp, #66]
+  98 001c BDF93E30 		ldrsh	r3, [sp, #62]
+  99 0020 9A42     		cmp	r2, r3
+ 100 0022 03DA     		bge	.L4
+  50:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[2].y < tri[1].y) point_swap(&tri[2], &tri[1]);
+ 101              		.loc 1 50 0 is_stmt 0 discriminator 1
+ 102 0024 0FA9     		add	r1, sp, #60
+ 103 0026 10A8     		add	r0, sp, #64
+ 104 0028 FFF7FEFF 		bl	point_swap
+ 105              	.LVL5:
+ 106              	.L4:
+  51:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[1].y < tri[0].y) point_swap(&tri[1], &tri[0]);
+ 107              		.loc 1 51 0 is_stmt 1
+ 108 002c BDF94620 		ldrsh	r2, [sp, #70]
+ 109 0030 BDF94230 		ldrsh	r3, [sp, #66]
+ 110 0034 9A42     		cmp	r2, r3
+ 111 0036 03DA     		bge	.L5
+  51:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[1].y < tri[0].y) point_swap(&tri[1], &tri[0]);
+ 112              		.loc 1 51 0 is_stmt 0 discriminator 1
+ 113 0038 10A9     		add	r1, sp, #64
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 6
+
+
+ 114 003a 11A8     		add	r0, sp, #68
+ 115 003c FFF7FEFF 		bl	point_swap
+ 116              	.LVL6:
+ 117              	.L5:
+  52:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 118              		.loc 1 52 0 is_stmt 1
+ 119 0040 BDF94220 		ldrsh	r2, [sp, #66]
+ 120 0044 BDF93E30 		ldrsh	r3, [sp, #62]
+ 121 0048 9A42     		cmp	r2, r3
+ 122 004a 03DA     		bge	.L6
+  52:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 123              		.loc 1 52 0 is_stmt 0 discriminator 1
+ 124 004c 0FA9     		add	r1, sp, #60
+ 125 004e 10A8     		add	r0, sp, #64
+ 126 0050 FFF7FEFF 		bl	point_swap
+ 127              	.LVL7:
+ 128              	.L6:
+  55:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[1].x == tri[2].x && tri[1].y == tri[2].y) return;
+ 129              		.loc 1 55 0 is_stmt 1
+ 130 0054 BDF93C30 		ldrsh	r3, [sp, #60]
+ 131 0058 BDF94010 		ldrsh	r1, [sp, #64]
+ 132 005c 8B42     		cmp	r3, r1
+ 133 005e 06D1     		bne	.L7
+  55:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[1].x == tri[2].x && tri[1].y == tri[2].y) return;
+ 134              		.loc 1 55 0 is_stmt 0 discriminator 1
+ 135 0060 BDF93E00 		ldrsh	r0, [sp, #62]
+ 136 0064 BDF94220 		ldrsh	r2, [sp, #66]
+ 137 0068 9042     		cmp	r0, r2
+ 138 006a 00F03581 		beq	.L3
+ 139              	.L7:
+  56:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[0].x == tri[2].x && tri[0].y == tri[2].y) return;
+ 140              		.loc 1 56 0 is_stmt 1
+ 141 006e BDF94400 		ldrsh	r0, [sp, #68]
+ 142 0072 8142     		cmp	r1, r0
+ 143 0074 06D1     		bne	.L9
+  56:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[0].x == tri[2].x && tri[0].y == tri[2].y) return;
+ 144              		.loc 1 56 0 is_stmt 0 discriminator 1
+ 145 0076 BDF94240 		ldrsh	r4, [sp, #66]
+ 146              	.LVL8:
+ 147 007a BDF94620 		ldrsh	r2, [sp, #70]
+ 148 007e 9442     		cmp	r4, r2
+ 149 0080 00F02A81 		beq	.L3
+ 150              	.L9:
+  57:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 151              		.loc 1 57 0 is_stmt 1
+ 152 0084 8342     		cmp	r3, r0
+ 153 0086 06D1     		bne	.L10
+  57:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 154              		.loc 1 57 0 is_stmt 0 discriminator 1
+ 155 0088 BDF93E40 		ldrsh	r4, [sp, #62]
+ 156 008c BDF94620 		ldrsh	r2, [sp, #70]
+ 157 0090 9442     		cmp	r4, r2
+ 158 0092 00F02181 		beq	.L3
+ 159              	.L10:
+  59:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[0].y == tri[1].y && tri[1].y == tri[2].y) return;
+ 160              		.loc 1 59 0 is_stmt 1
+ 161 0096 8B42     		cmp	r3, r1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 7
+
+
+ 162 0098 02D1     		bne	.L11
+  59:..\lvgl\lv_draw/lv_draw_triangle.c ****     if(tri[0].y == tri[1].y && tri[1].y == tri[2].y) return;
+ 163              		.loc 1 59 0 is_stmt 0 discriminator 1
+ 164 009a 8142     		cmp	r1, r0
+ 165 009c 00F01C81 		beq	.L3
+ 166              	.L11:
+  60:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 167              		.loc 1 60 0 is_stmt 1
+ 168 00a0 BDF93E20 		ldrsh	r2, [sp, #62]
+ 169 00a4 BDF94240 		ldrsh	r4, [sp, #66]
+ 170 00a8 A242     		cmp	r2, r4
+ 171 00aa 04D1     		bne	.L12
+  60:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 172              		.loc 1 60 0 is_stmt 0 discriminator 1
+ 173 00ac BDF94650 		ldrsh	r5, [sp, #70]
+ 174 00b0 AC42     		cmp	r4, r5
+ 175 00b2 00F01181 		beq	.L3
+ 176              	.L12:
+  64:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t sx1 = tri[0].x < tri[1].x ? 1 : -1;
+ 177              		.loc 1 64 0 is_stmt 1
+ 178 00b6 5E1A     		subs	r6, r3, r1
+ 179 00b8 002E     		cmp	r6, #0
+ 180 00ba B8BF     		it	lt
+ 181 00bc 7642     		rsblt	r6, r6, #0
+ 182 00be 36B2     		sxth	r6, r6
+ 183              	.LVL9:
+  65:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t dy1 = LV_MATH_ABS(tri[0].y - tri[1].y);
+ 184              		.loc 1 65 0
+ 185 00c0 8B42     		cmp	r3, r1
+ 186 00c2 02DA     		bge	.L34
+ 187 00c4 0121     		movs	r1, #1
+ 188 00c6 0191     		str	r1, [sp, #4]
+ 189 00c8 02E0     		b	.L13
+ 190              	.L34:
+ 191 00ca 4FF0FF31 		mov	r1, #-1
+ 192 00ce 0191     		str	r1, [sp, #4]
+ 193              	.L13:
+ 194              	.LVL10:
+  66:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t sy1 = tri[0].y < tri[1].y ? 1 : -1;
+ 195              		.loc 1 66 0 discriminator 4
+ 196 00d0 171B     		subs	r7, r2, r4
+ 197 00d2 002F     		cmp	r7, #0
+ 198 00d4 B8BF     		it	lt
+ 199 00d6 7F42     		rsblt	r7, r7, #0
+ 200 00d8 3FB2     		sxth	r7, r7
+ 201              	.LVL11:
+  67:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err1 = (dx1 > dy1 ? dx1 : -dy1) / 2;
+ 202              		.loc 1 67 0 discriminator 4
+ 203 00da A242     		cmp	r2, r4
+ 204 00dc 02DA     		bge	.L35
+  67:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err1 = (dx1 > dy1 ? dx1 : -dy1) / 2;
+ 205              		.loc 1 67 0 is_stmt 0
+ 206 00de 0121     		movs	r1, #1
+ 207 00e0 0291     		str	r1, [sp, #8]
+ 208 00e2 02E0     		b	.L14
+ 209              	.L35:
+ 210 00e4 4FF0FF31 		mov	r1, #-1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 8
+
+
+ 211 00e8 0291     		str	r1, [sp, #8]
+ 212              	.L14:
+ 213              	.LVL12:
+  68:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err_tmp1;
+ 214              		.loc 1 68 0 is_stmt 1 discriminator 4
+ 215 00ea BE42     		cmp	r6, r7
+ 216 00ec 03DD     		ble	.L15
+  68:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err_tmp1;
+ 217              		.loc 1 68 0 is_stmt 0 discriminator 1
+ 218 00ee 06EBD674 		add	r4, r6, r6, lsr #31
+ 219 00f2 6410     		asrs	r4, r4, #1
+ 220 00f4 04E0     		b	.L16
+ 221              	.L15:
+  68:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err_tmp1;
+ 222              		.loc 1 68 0 discriminator 2
+ 223 00f6 7C42     		negs	r4, r7
+ 224 00f8 04EBD474 		add	r4, r4, r4, lsr #31
+ 225 00fc 44F34F04 		sbfx	r4, r4, #1, #16
+ 226              	.L16:
+ 227              	.LVL13:
+  72:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t sx2 = tri[0].x < tri[2].x ? 1 : -1;
+ 228              		.loc 1 72 0 is_stmt 1 discriminator 4
+ 229 0100 191A     		subs	r1, r3, r0
+ 230 0102 0029     		cmp	r1, #0
+ 231 0104 B8BF     		it	lt
+ 232 0106 4942     		rsblt	r1, r1, #0
+ 233 0108 0491     		str	r1, [sp, #16]
+ 234 010a 0FFA81FB 		sxth	fp, r1
+ 235              	.LVL14:
+  73:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t dy2 = LV_MATH_ABS(tri[0].y - tri[2].y);
+ 236              		.loc 1 73 0 discriminator 4
+ 237 010e 8342     		cmp	r3, r0
+ 238 0110 02DA     		bge	.L36
+  73:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t dy2 = LV_MATH_ABS(tri[0].y - tri[2].y);
+ 239              		.loc 1 73 0 is_stmt 0
+ 240 0112 0121     		movs	r1, #1
+ 241 0114 0691     		str	r1, [sp, #24]
+ 242 0116 02E0     		b	.L17
+ 243              	.L36:
+ 244 0118 4FF0FF31 		mov	r1, #-1
+ 245 011c 0691     		str	r1, [sp, #24]
+ 246              	.L17:
+ 247              	.LVL15:
+  74:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t sy2 = tri[0].y < tri[2].y ? 1 : -1;
+ 248              		.loc 1 74 0 is_stmt 1 discriminator 4
+ 249 011e BDF94610 		ldrsh	r1, [sp, #70]
+ 250 0122 501A     		subs	r0, r2, r1
+ 251 0124 0028     		cmp	r0, #0
+ 252 0126 B8BF     		it	lt
+ 253 0128 4042     		rsblt	r0, r0, #0
+ 254 012a 0590     		str	r0, [sp, #20]
+ 255 012c 0FFA80FA 		sxth	r10, r0
+ 256              	.LVL16:
+  75:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err2 = (dx1 > dy2 ? dx2 : -dy2) / 2;
+ 257              		.loc 1 75 0 discriminator 4
+ 258 0130 8A42     		cmp	r2, r1
+ 259 0132 02DA     		bge	.L37
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 9
+
+
+  75:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err2 = (dx1 > dy2 ? dx2 : -dy2) / 2;
+ 260              		.loc 1 75 0 is_stmt 0
+ 261 0134 0121     		movs	r1, #1
+ 262 0136 0791     		str	r1, [sp, #28]
+ 263 0138 02E0     		b	.L18
+ 264              	.L37:
+ 265 013a 4FF0FF31 		mov	r1, #-1
+ 266 013e 0791     		str	r1, [sp, #28]
+ 267              	.L18:
+ 268              	.LVL17:
+  76:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err_tmp2;
+ 269              		.loc 1 76 0 is_stmt 1 discriminator 4
+ 270 0140 5645     		cmp	r6, r10
+ 271 0142 03DD     		ble	.L19
+  76:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err_tmp2;
+ 272              		.loc 1 76 0 is_stmt 0 discriminator 1
+ 273 0144 0BEBDB75 		add	r5, fp, fp, lsr #31
+ 274 0148 6D10     		asrs	r5, r5, #1
+ 275 014a 05E0     		b	.L20
+ 276              	.L19:
+  76:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_coord_t err_tmp2;
+ 277              		.loc 1 76 0 discriminator 2
+ 278 014c CAF10005 		rsb	r5, r10, #0
+ 279 0150 05EBD575 		add	r5, r5, r5, lsr #31
+ 280 0154 45F34F05 		sbfx	r5, r5, #1, #16
+ 281              	.L20:
+ 282              	.LVL18:
+  82:..\lvgl\lv_draw/lv_draw_triangle.c ****     edge1.y = tri[0].y;
+ 283              		.loc 1 82 0 is_stmt 1 discriminator 4
+ 284 0158 ADF83830 		strh	r3, [sp, #56]	@ movhi
+  83:..\lvgl\lv_draw/lv_draw_triangle.c ****     edge2.x = tri[0].x;
+ 285              		.loc 1 83 0 discriminator 4
+ 286 015c ADF83A20 		strh	r2, [sp, #58]	@ movhi
+  84:..\lvgl\lv_draw/lv_draw_triangle.c ****     edge2.y = tri[0].y;
+ 287              		.loc 1 84 0 discriminator 4
+ 288 0160 ADF83430 		strh	r3, [sp, #52]	@ movhi
+  85:..\lvgl\lv_draw/lv_draw_triangle.c ****     lv_area_t act_area;
+ 289              		.loc 1 85 0 discriminator 4
+ 290 0164 ADF83620 		strh	r2, [sp, #54]	@ movhi
+ 291 0168 0394     		str	r4, [sp, #12]
+ 292              	.LVL19:
+ 293              	.L33:
+  90:..\lvgl\lv_draw/lv_draw_triangle.c ****         act_area.x2 = edge2.x ;
+ 294              		.loc 1 90 0
+ 295 016a BDF93820 		ldrsh	r2, [sp, #56]
+  91:..\lvgl\lv_draw/lv_draw_triangle.c ****         act_area.y1 = edge1.y;
+ 296              		.loc 1 91 0
+ 297 016e BDF93430 		ldrsh	r3, [sp, #52]
+  92:..\lvgl\lv_draw/lv_draw_triangle.c ****         act_area.y2 = edge2.y ;
+ 298              		.loc 1 92 0
+ 299 0172 BDF93A80 		ldrsh	r8, [sp, #58]
+  93:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 300              		.loc 1 93 0
+ 301 0176 BDF93690 		ldrsh	r9, [sp, #54]
+  96:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.x2 = LV_MATH_MAX(act_area.x1, act_area.x2);
+ 302              		.loc 1 96 0
+ 303 017a 1146     		mov	r1, r2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 10
+
+
+ 304 017c 9A42     		cmp	r2, r3
+ 305 017e A8BF     		it	ge
+ 306 0180 1946     		movge	r1, r3
+ 307 0182 ADF82C10 		strh	r1, [sp, #44]	@ movhi
+  97:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.y1 = LV_MATH_MIN(act_area.y1, act_area.y2);
+ 308              		.loc 1 97 0
+ 309 0186 9342     		cmp	r3, r2
+ 310 0188 B8BF     		it	lt
+ 311 018a 1346     		movlt	r3, r2
+  98:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.y2 = LV_MATH_MAX(act_area.y1, act_area.y2);
+ 312              		.loc 1 98 0
+ 313 018c 4246     		mov	r2, r8
+ 314 018e C845     		cmp	r8, r9
+ 315 0190 A8BF     		it	ge
+ 316 0192 4A46     		movge	r2, r9
+ 317 0194 ADF82E20 		strh	r2, [sp, #46]	@ movhi
+  99:..\lvgl\lv_draw/lv_draw_triangle.c ****         draw_area.x2--; /*Do not draw most right pixel because it will be drawn by the adjacent tri
+ 318              		.loc 1 99 0
+ 319 0198 4246     		mov	r2, r8
+ 320 019a C845     		cmp	r8, r9
+ 321 019c B8BF     		it	lt
+ 322 019e 4A46     		movlt	r2, r9
+ 323 01a0 ADF83220 		strh	r2, [sp, #50]	@ movhi
+ 100:..\lvgl\lv_draw/lv_draw_triangle.c ****         fill_fp(&draw_area, mask, color, LV_OPA_50);
+ 324              		.loc 1 100 0
+ 325 01a4 013B     		subs	r3, r3, #1
+ 326 01a6 ADF83030 		strh	r3, [sp, #48]	@ movhi
+ 101:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 327              		.loc 1 101 0
+ 328 01aa 4D4B     		ldr	r3, .L45
+ 329 01ac 1B68     		ldr	r3, [r3]
+ 330 01ae 1C46     		mov	r4, r3
+ 331 01b0 7F23     		movs	r3, #127
+ 332 01b2 9DF82720 		ldrb	r2, [sp, #39]	@ zero_extendqisi2
+ 333 01b6 0899     		ldr	r1, [sp, #32]
+ 334 01b8 0BA8     		add	r0, sp, #44
+ 335 01ba A047     		blx	r4
+ 336              	.LVL20:
+ 337 01bc 0199     		ldr	r1, [sp, #4]
+ 338 01be 0298     		ldr	r0, [sp, #8]
+ 339 01c0 039C     		ldr	r4, [sp, #12]
+ 340              	.LVL21:
+ 341              	.L28:
+ 106:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 342              		.loc 1 106 0
+ 343 01c2 BDF93830 		ldrsh	r3, [sp, #56]
+ 344 01c6 BDF94020 		ldrsh	r2, [sp, #64]
+ 345 01ca 9342     		cmp	r3, r2
+ 346 01cc 2CD1     		bne	.L21
+ 106:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 347              		.loc 1 106 0 is_stmt 0 discriminator 1
+ 348 01ce BDF93AC0 		ldrsh	ip, [sp, #58]
+ 349 01d2 BDF942E0 		ldrsh	lr, [sp, #66]
+ 350 01d6 F445     		cmp	ip, lr
+ 351 01d8 26D1     		bne	.L21
+ 108:..\lvgl\lv_draw/lv_draw_triangle.c ****                 sx1 = tri[1].x < tri[2].x ? 1 : -1;
+ 352              		.loc 1 108 0 is_stmt 1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 11
+
+
+ 353 01da BDF94410 		ldrsh	r1, [sp, #68]
+ 354              	.LVL22:
+ 355 01de 561A     		subs	r6, r2, r1
+ 356              	.LVL23:
+ 357 01e0 002E     		cmp	r6, #0
+ 358 01e2 B8BF     		it	lt
+ 359 01e4 7642     		rsblt	r6, r6, #0
+ 360 01e6 36B2     		sxth	r6, r6
+ 361              	.LVL24:
+ 109:..\lvgl\lv_draw/lv_draw_triangle.c ****                 dy1 = LV_MATH_ABS(tri[1].y - tri[2].y);
+ 362              		.loc 1 109 0
+ 363 01e8 8A42     		cmp	r2, r1
+ 364 01ea 01DA     		bge	.L38
+ 365 01ec 0121     		movs	r1, #1
+ 366 01ee 01E0     		b	.L22
+ 367              	.L38:
+ 368 01f0 4FF0FF31 		mov	r1, #-1
+ 369              	.L22:
+ 370              	.LVL25:
+ 110:..\lvgl\lv_draw/lv_draw_triangle.c ****                 sy1 = tri[1].y < tri[2].y ? 1 : -1;
+ 371              		.loc 1 110 0 discriminator 4
+ 372 01f4 BDF94620 		ldrsh	r2, [sp, #70]
+ 373 01f8 C2EB0E07 		rsb	r7, r2, lr
+ 374              	.LVL26:
+ 375 01fc 002F     		cmp	r7, #0
+ 376 01fe B8BF     		it	lt
+ 377 0200 7F42     		rsblt	r7, r7, #0
+ 378 0202 3FB2     		sxth	r7, r7
+ 379              	.LVL27:
+ 111:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err1 = (dx1 > dy1 ? dx1 : -dy1) / 2;
+ 380              		.loc 1 111 0 discriminator 4
+ 381 0204 9645     		cmp	lr, r2
+ 382 0206 01DA     		bge	.L39
+ 111:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err1 = (dx1 > dy1 ? dx1 : -dy1) / 2;
+ 383              		.loc 1 111 0 is_stmt 0
+ 384 0208 0120     		movs	r0, #1
+ 385              	.LVL28:
+ 386 020a 01E0     		b	.L23
+ 387              	.LVL29:
+ 388              	.L39:
+ 389 020c 4FF0FF30 		mov	r0, #-1
+ 390              	.LVL30:
+ 391              	.L23:
+ 112:..\lvgl\lv_draw/lv_draw_triangle.c ****             } else if(edge1.x == tri[2].x && edge1.y == tri[2].y) return;
+ 392              		.loc 1 112 0 is_stmt 1 discriminator 4
+ 393 0210 BE42     		cmp	r6, r7
+ 394 0212 03DD     		ble	.L24
+ 112:..\lvgl\lv_draw/lv_draw_triangle.c ****             } else if(edge1.x == tri[2].x && edge1.y == tri[2].y) return;
+ 395              		.loc 1 112 0 is_stmt 0 discriminator 1
+ 396 0214 06EBD674 		add	r4, r6, r6, lsr #31
+ 397              	.LVL31:
+ 398 0218 6410     		asrs	r4, r4, #1
+ 399 021a 0FE0     		b	.L25
+ 400              	.LVL32:
+ 401              	.L24:
+ 112:..\lvgl\lv_draw/lv_draw_triangle.c ****             } else if(edge1.x == tri[2].x && edge1.y == tri[2].y) return;
+ 402              		.loc 1 112 0 discriminator 2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 12
+
+
+ 403 021c 7C42     		negs	r4, r7
+ 404              	.LVL33:
+ 405 021e 04EBD474 		add	r4, r4, r4, lsr #31
+ 406 0222 44F34F04 		sbfx	r4, r4, #1, #16
+ 407 0226 09E0     		b	.L25
+ 408              	.LVL34:
+ 409              	.L21:
+ 113:..\lvgl\lv_draw/lv_draw_triangle.c ****             err_tmp1 = err1;
+ 410              		.loc 1 113 0 is_stmt 1
+ 411 0228 BDF94420 		ldrsh	r2, [sp, #68]
+ 412 022c 9342     		cmp	r3, r2
+ 413 022e 05D1     		bne	.L25
+ 113:..\lvgl\lv_draw/lv_draw_triangle.c ****             err_tmp1 = err1;
+ 414              		.loc 1 113 0 is_stmt 0 discriminator 1
+ 415 0230 BDF93AE0 		ldrsh	lr, [sp, #58]
+ 416 0234 BDF94620 		ldrsh	r2, [sp, #70]
+ 417 0238 9645     		cmp	lr, r2
+ 418 023a 4DD0     		beq	.L3
+ 419              	.LVL35:
+ 420              	.L25:
+ 115:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err1 -= dy1;
+ 421              		.loc 1 115 0 is_stmt 1
+ 422 023c 7242     		negs	r2, r6
+ 423 023e 9442     		cmp	r4, r2
+ 424 0240 05DD     		ble	.L40
+ 116:..\lvgl\lv_draw/lv_draw_triangle.c ****                 edge1.x += sx1;
+ 425              		.loc 1 116 0
+ 426 0242 E21B     		subs	r2, r4, r7
+ 427 0244 12B2     		sxth	r2, r2
+ 428              	.LVL36:
+ 117:..\lvgl\lv_draw/lv_draw_triangle.c ****             }
+ 429              		.loc 1 117 0
+ 430 0246 0B44     		add	r3, r3, r1
+ 431 0248 ADF83830 		strh	r3, [sp, #56]	@ movhi
+ 432 024c 00E0     		b	.L26
+ 433              	.LVL37:
+ 434              	.L40:
+ 435 024e 2246     		mov	r2, r4
+ 436              	.LVL38:
+ 437              	.L26:
+ 119:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err1 += dx1;
+ 438              		.loc 1 119 0
+ 439 0250 A742     		cmp	r7, r4
+ 440 0252 07DD     		ble	.L41
+ 120:..\lvgl\lv_draw/lv_draw_triangle.c ****                 edge1.y += sy1;
+ 441              		.loc 1 120 0
+ 442 0254 9419     		adds	r4, r2, r6
+ 443              	.LVL39:
+ 444 0256 24B2     		sxth	r4, r4
+ 445              	.LVL40:
+ 121:..\lvgl\lv_draw/lv_draw_triangle.c ****             }
+ 446              		.loc 1 121 0
+ 447 0258 BDF83A30 		ldrh	r3, [sp, #58]
+ 448 025c 0344     		add	r3, r3, r0
+ 449 025e ADF83A30 		strh	r3, [sp, #58]	@ movhi
+ 450 0262 00E0     		b	.L27
+ 451              	.LVL41:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 13
+
+
+ 452              	.L41:
+ 453 0264 1446     		mov	r4, r2
+ 454              	.LVL42:
+ 455              	.L27:
+ 123:..\lvgl\lv_draw/lv_draw_triangle.c **** 
+ 456              		.loc 1 123 0
+ 457 0266 BDF93A30 		ldrsh	r3, [sp, #58]
+ 458 026a 9845     		cmp	r8, r3
+ 459 026c A9D0     		beq	.L28
+ 460 026e 0191     		str	r1, [sp, #4]
+ 461 0270 0290     		str	r0, [sp, #8]
+ 462 0272 069A     		ldr	r2, [sp, #24]
+ 463 0274 0799     		ldr	r1, [sp, #28]
+ 464              	.LVL43:
+ 465 0276 0498     		ldr	r0, [sp, #16]
+ 466              	.LVL44:
+ 467 0278 DDF814E0 		ldr	lr, [sp, #20]
+ 468              	.LVL45:
+ 469              	.L32:
+ 128:..\lvgl\lv_draw/lv_draw_triangle.c ****             err_tmp2 = err2;
+ 470              		.loc 1 128 0
+ 471 027c BDF934C0 		ldrsh	ip, [sp, #52]
+ 472 0280 BDF94430 		ldrsh	r3, [sp, #68]
+ 473 0284 9C45     		cmp	ip, r3
+ 474 0286 05D1     		bne	.L29
+ 128:..\lvgl\lv_draw/lv_draw_triangle.c ****             err_tmp2 = err2;
+ 475              		.loc 1 128 0 is_stmt 0 discriminator 1
+ 476 0288 BDF93680 		ldrsh	r8, [sp, #54]
+ 477 028c BDF94630 		ldrsh	r3, [sp, #70]
+ 478 0290 9845     		cmp	r8, r3
+ 479 0292 21D0     		beq	.L3
+ 480              	.L29:
+ 481              	.LVL46:
+ 130:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err2 -= dy2;
+ 482              		.loc 1 130 0 is_stmt 1
+ 483 0294 CBF10003 		rsb	r3, fp, #0
+ 484 0298 9D42     		cmp	r5, r3
+ 485 029a 06DD     		ble	.L42
+ 131:..\lvgl\lv_draw/lv_draw_triangle.c ****                 edge2.x += sx2;
+ 486              		.loc 1 131 0
+ 487 029c CEEB0503 		rsb	r3, lr, r5
+ 488 02a0 1BB2     		sxth	r3, r3
+ 489              	.LVL47:
+ 132:..\lvgl\lv_draw/lv_draw_triangle.c ****             }
+ 490              		.loc 1 132 0
+ 491 02a2 9444     		add	ip, ip, r2
+ 492 02a4 ADF834C0 		strh	ip, [sp, #52]	@ movhi
+ 493 02a8 00E0     		b	.L30
+ 494              	.LVL48:
+ 495              	.L42:
+ 496 02aa 2B46     		mov	r3, r5
+ 497              	.LVL49:
+ 498              	.L30:
+ 134:..\lvgl\lv_draw/lv_draw_triangle.c ****                 err2 += dx2;
+ 499              		.loc 1 134 0
+ 500 02ac 5545     		cmp	r5, r10
+ 501 02ae 07DA     		bge	.L43
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 14
+
+
+ 135:..\lvgl\lv_draw/lv_draw_triangle.c ****                 edge2.y += sy2;
+ 502              		.loc 1 135 0
+ 503 02b0 1D18     		adds	r5, r3, r0
+ 504              	.LVL50:
+ 505 02b2 2DB2     		sxth	r5, r5
+ 506              	.LVL51:
+ 136:..\lvgl\lv_draw/lv_draw_triangle.c ****             }
+ 507              		.loc 1 136 0
+ 508 02b4 BDF83630 		ldrh	r3, [sp, #54]
+ 509 02b8 0B44     		add	r3, r3, r1
+ 510 02ba ADF83630 		strh	r3, [sp, #54]	@ movhi
+ 511 02be 00E0     		b	.L31
+ 512              	.LVL52:
+ 513              	.L43:
+ 514 02c0 1D46     		mov	r5, r3
+ 515              	.LVL53:
+ 516              	.L31:
+ 138:..\lvgl\lv_draw/lv_draw_triangle.c ****     }
+ 517              		.loc 1 138 0
+ 518 02c2 BDF93630 		ldrsh	r3, [sp, #54]
+ 519 02c6 9945     		cmp	r9, r3
+ 520 02c8 D8D0     		beq	.L32
+ 521 02ca 0394     		str	r4, [sp, #12]
+ 522 02cc 0692     		str	r2, [sp, #24]
+ 523 02ce 0791     		str	r1, [sp, #28]
+ 524 02d0 0490     		str	r0, [sp, #16]
+ 525 02d2 CDF814E0 		str	lr, [sp, #20]
+ 526 02d6 48E7     		b	.L33
+ 527              	.LVL54:
+ 528              	.L3:
+ 140:..\lvgl\lv_draw/lv_draw_triangle.c **** #endif
+ 529              		.loc 1 140 0
+ 530 02d8 13B0     		add	sp, sp, #76
+ 531              		.cfi_def_cfa_offset 36
+ 532              		@ sp needed
+ 533 02da BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 534              	.LVL55:
+ 535              	.L46:
+ 536 02de 00BF     		.align	2
+ 537              	.L45:
+ 538 02e0 00000000 		.word	fill_fp
+ 539              		.cfi_endproc
+ 540              	.LFE12:
+ 541              		.size	lv_draw_triangle, .-lv_draw_triangle
+ 542              		.text
+ 543              	.Letext0:
+ 544              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 545              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 546              		.file 4 "..\\lvgl\\lv_draw\\../lv_core/../lv_misc/lv_color.h"
+ 547              		.file 5 "..\\lvgl\\lv_draw\\../lv_core/../lv_misc/lv_area.h"
+ 548              		.file 6 "..\\lvgl\\lv_draw\\lv_draw.h"
+ 549              		.section	.debug_info,"",%progbits
+ 550              	.Ldebug_info0:
+ 551 0000 3F040000 		.4byte	0x43f
+ 552 0004 0400     		.2byte	0x4
+ 553 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 554 000a 04       		.byte	0x4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 15
+
+
+ 555 000b 01       		.uleb128 0x1
+ 556 000c 7F020000 		.4byte	.LASF52
+ 557 0010 0C       		.byte	0xc
+ 558 0011 E3000000 		.4byte	.LASF53
+ 559 0015 2F020000 		.4byte	.LASF54
+ 560 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 561 001d 00000000 		.4byte	0
+ 562 0021 00000000 		.4byte	.Ldebug_line0
+ 563 0025 02       		.uleb128 0x2
+ 564 0026 01       		.byte	0x1
+ 565 0027 06       		.byte	0x6
+ 566 0028 14010000 		.4byte	.LASF0
+ 567 002c 03       		.uleb128 0x3
+ 568 002d B3000000 		.4byte	.LASF2
+ 569 0031 02       		.byte	0x2
+ 570 0032 1D       		.byte	0x1d
+ 571 0033 37000000 		.4byte	0x37
+ 572 0037 02       		.uleb128 0x2
+ 573 0038 01       		.byte	0x1
+ 574 0039 08       		.byte	0x8
+ 575 003a 06010000 		.4byte	.LASF1
+ 576 003e 03       		.uleb128 0x3
+ 577 003f 12020000 		.4byte	.LASF3
+ 578 0043 02       		.byte	0x2
+ 579 0044 29       		.byte	0x29
+ 580 0045 49000000 		.4byte	0x49
+ 581 0049 02       		.uleb128 0x2
+ 582 004a 02       		.byte	0x2
+ 583 004b 05       		.byte	0x5
+ 584 004c 00000000 		.4byte	.LASF4
+ 585 0050 02       		.uleb128 0x2
+ 586 0051 02       		.byte	0x2
+ 587 0052 07       		.byte	0x7
+ 588 0053 B5010000 		.4byte	.LASF5
+ 589 0057 02       		.uleb128 0x2
+ 590 0058 04       		.byte	0x4
+ 591 0059 05       		.byte	0x5
+ 592 005a AA000000 		.4byte	.LASF6
+ 593 005e 02       		.uleb128 0x2
+ 594 005f 04       		.byte	0x4
+ 595 0060 07       		.byte	0x7
+ 596 0061 E6010000 		.4byte	.LASF7
+ 597 0065 02       		.uleb128 0x2
+ 598 0066 08       		.byte	0x8
+ 599 0067 05       		.byte	0x5
+ 600 0068 91000000 		.4byte	.LASF8
+ 601 006c 02       		.uleb128 0x2
+ 602 006d 08       		.byte	0x8
+ 603 006e 07       		.byte	0x7
+ 604 006f 20010000 		.4byte	.LASF9
+ 605 0073 04       		.uleb128 0x4
+ 606 0074 04       		.byte	0x4
+ 607 0075 05       		.byte	0x5
+ 608 0076 696E7400 		.ascii	"int\000"
+ 609 007a 02       		.uleb128 0x2
+ 610 007b 04       		.byte	0x4
+ 611 007c 07       		.byte	0x7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 16
+
+
+ 612 007d 40010000 		.4byte	.LASF10
+ 613 0081 03       		.uleb128 0x3
+ 614 0082 6C000000 		.4byte	.LASF11
+ 615 0086 03       		.byte	0x3
+ 616 0087 18       		.byte	0x18
+ 617 0088 2C000000 		.4byte	0x2c
+ 618 008c 03       		.uleb128 0x3
+ 619 008d C8010000 		.4byte	.LASF12
+ 620 0091 03       		.byte	0x3
+ 621 0092 20       		.byte	0x20
+ 622 0093 3E000000 		.4byte	0x3e
+ 623 0097 05       		.uleb128 0x5
+ 624 0098 01       		.byte	0x1
+ 625 0099 37000000 		.4byte	0x37
+ 626 009d 04       		.byte	0x4
+ 627 009e 3C       		.byte	0x3c
+ 628 009f F2000000 		.4byte	0xf2
+ 629 00a3 06       		.uleb128 0x6
+ 630 00a4 9C010000 		.4byte	.LASF13
+ 631 00a8 00       		.byte	0
+ 632 00a9 06       		.uleb128 0x6
+ 633 00aa F8010000 		.4byte	.LASF14
+ 634 00ae 00       		.byte	0
+ 635 00af 06       		.uleb128 0x6
+ 636 00b0 67010000 		.4byte	.LASF15
+ 637 00b4 19       		.byte	0x19
+ 638 00b5 06       		.uleb128 0x6
+ 639 00b6 1C020000 		.4byte	.LASF16
+ 640 00ba 33       		.byte	0x33
+ 641 00bb 06       		.uleb128 0x6
+ 642 00bc 22000000 		.4byte	.LASF17
+ 643 00c0 4C       		.byte	0x4c
+ 644 00c1 06       		.uleb128 0x6
+ 645 00c2 5D010000 		.4byte	.LASF18
+ 646 00c6 66       		.byte	0x66
+ 647 00c7 06       		.uleb128 0x6
+ 648 00c8 53010000 		.4byte	.LASF19
+ 649 00cc 7F       		.byte	0x7f
+ 650 00cd 06       		.uleb128 0x6
+ 651 00ce 75020000 		.4byte	.LASF20
+ 652 00d2 99       		.byte	0x99
+ 653 00d3 06       		.uleb128 0x6
+ 654 00d4 3E000000 		.4byte	.LASF21
+ 655 00d8 B2       		.byte	0xb2
+ 656 00d9 06       		.uleb128 0x6
+ 657 00da 0D030000 		.4byte	.LASF22
+ 658 00de CC       		.byte	0xcc
+ 659 00df 06       		.uleb128 0x6
+ 660 00e0 DC010000 		.4byte	.LASF23
+ 661 00e4 E5       		.byte	0xe5
+ 662 00e5 06       		.uleb128 0x6
+ 663 00e6 71010000 		.4byte	.LASF24
+ 664 00ea FF       		.byte	0xff
+ 665 00eb 06       		.uleb128 0x6
+ 666 00ec CA000000 		.4byte	.LASF25
+ 667 00f0 FF       		.byte	0xff
+ 668 00f1 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 17
+
+
+ 669 00f2 07       		.uleb128 0x7
+ 670 00f3 01       		.byte	0x1
+ 671 00f4 04       		.byte	0x4
+ 672 00f5 5F       		.byte	0x5f
+ 673 00f6 33010000 		.4byte	0x133
+ 674 00fa 08       		.uleb128 0x8
+ 675 00fb 48000000 		.4byte	.LASF26
+ 676 00ff 04       		.byte	0x4
+ 677 0100 61       		.byte	0x61
+ 678 0101 81000000 		.4byte	0x81
+ 679 0105 01       		.byte	0x1
+ 680 0106 01       		.byte	0x1
+ 681 0107 07       		.byte	0x7
+ 682 0108 08       		.uleb128 0x8
+ 683 0109 BD000000 		.4byte	.LASF27
+ 684 010d 04       		.byte	0x4
+ 685 010e 62       		.byte	0x62
+ 686 010f 81000000 		.4byte	0x81
+ 687 0113 01       		.byte	0x1
+ 688 0114 01       		.byte	0x1
+ 689 0115 07       		.byte	0x7
+ 690 0116 09       		.uleb128 0x9
+ 691 0117 72656400 		.ascii	"red\000"
+ 692 011b 04       		.byte	0x4
+ 693 011c 63       		.byte	0x63
+ 694 011d 81000000 		.4byte	0x81
+ 695 0121 01       		.byte	0x1
+ 696 0122 01       		.byte	0x1
+ 697 0123 07       		.byte	0x7
+ 698 0124 08       		.uleb128 0x8
+ 699 0125 0D020000 		.4byte	.LASF28
+ 700 0129 04       		.byte	0x4
+ 701 012a 64       		.byte	0x64
+ 702 012b 81000000 		.4byte	0x81
+ 703 012f 01       		.byte	0x1
+ 704 0130 01       		.byte	0x1
+ 705 0131 07       		.byte	0x7
+ 706 0132 00       		.byte	0
+ 707 0133 03       		.uleb128 0x3
+ 708 0134 85010000 		.4byte	.LASF29
+ 709 0138 04       		.byte	0x4
+ 710 0139 65       		.byte	0x65
+ 711 013a F2000000 		.4byte	0xf2
+ 712 013e 03       		.uleb128 0x3
+ 713 013f 56000000 		.4byte	.LASF30
+ 714 0143 04       		.byte	0x4
+ 715 0144 92       		.byte	0x92
+ 716 0145 33010000 		.4byte	0x133
+ 717 0149 03       		.uleb128 0x3
+ 718 014a 4D000000 		.4byte	.LASF31
+ 719 014e 04       		.byte	0x4
+ 720 014f A0       		.byte	0xa0
+ 721 0150 81000000 		.4byte	0x81
+ 722 0154 02       		.uleb128 0x2
+ 723 0155 08       		.byte	0x8
+ 724 0156 04       		.byte	0x4
+ 725 0157 D7000000 		.4byte	.LASF32
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 18
+
+
+ 726 015b 02       		.uleb128 0x2
+ 727 015c 04       		.byte	0x4
+ 728 015d 07       		.byte	0x7
+ 729 015e 26020000 		.4byte	.LASF33
+ 730 0162 02       		.uleb128 0x2
+ 731 0163 01       		.byte	0x1
+ 732 0164 08       		.byte	0x8
+ 733 0165 91010000 		.4byte	.LASF34
+ 734 0169 03       		.uleb128 0x3
+ 735 016a AA010000 		.4byte	.LASF35
+ 736 016e 05       		.byte	0x5
+ 737 016f 1E       		.byte	0x1e
+ 738 0170 8C000000 		.4byte	0x8c
+ 739 0174 0A       		.uleb128 0xa
+ 740 0175 04       		.byte	0x4
+ 741 0176 05       		.byte	0x5
+ 742 0177 20       		.byte	0x20
+ 743 0178 91010000 		.4byte	0x191
+ 744 017c 0B       		.uleb128 0xb
+ 745 017d 7800     		.ascii	"x\000"
+ 746 017f 05       		.byte	0x5
+ 747 0180 22       		.byte	0x22
+ 748 0181 69010000 		.4byte	0x169
+ 749 0185 00       		.byte	0
+ 750 0186 0B       		.uleb128 0xb
+ 751 0187 7900     		.ascii	"y\000"
+ 752 0189 05       		.byte	0x5
+ 753 018a 23       		.byte	0x23
+ 754 018b 69010000 		.4byte	0x169
+ 755 018f 02       		.byte	0x2
+ 756 0190 00       		.byte	0
+ 757 0191 03       		.uleb128 0x3
+ 758 0192 61000000 		.4byte	.LASF36
+ 759 0196 05       		.byte	0x5
+ 760 0197 24       		.byte	0x24
+ 761 0198 74010000 		.4byte	0x174
+ 762 019c 0A       		.uleb128 0xa
+ 763 019d 08       		.byte	0x8
+ 764 019e 05       		.byte	0x5
+ 765 019f 26       		.byte	0x26
+ 766 01a0 D1010000 		.4byte	0x1d1
+ 767 01a4 0B       		.uleb128 0xb
+ 768 01a5 783100   		.ascii	"x1\000"
+ 769 01a8 05       		.byte	0x5
+ 770 01a9 28       		.byte	0x28
+ 771 01aa 69010000 		.4byte	0x169
+ 772 01ae 00       		.byte	0
+ 773 01af 0B       		.uleb128 0xb
+ 774 01b0 793100   		.ascii	"y1\000"
+ 775 01b3 05       		.byte	0x5
+ 776 01b4 29       		.byte	0x29
+ 777 01b5 69010000 		.4byte	0x169
+ 778 01b9 02       		.byte	0x2
+ 779 01ba 0B       		.uleb128 0xb
+ 780 01bb 783200   		.ascii	"x2\000"
+ 781 01be 05       		.byte	0x5
+ 782 01bf 2A       		.byte	0x2a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 19
+
+
+ 783 01c0 69010000 		.4byte	0x169
+ 784 01c4 04       		.byte	0x4
+ 785 01c5 0B       		.uleb128 0xb
+ 786 01c6 793200   		.ascii	"y2\000"
+ 787 01c9 05       		.byte	0x5
+ 788 01ca 2B       		.byte	0x2b
+ 789 01cb 69010000 		.4byte	0x169
+ 790 01cf 06       		.byte	0x6
+ 791 01d0 00       		.byte	0
+ 792 01d1 03       		.uleb128 0x3
+ 793 01d2 34000000 		.4byte	.LASF37
+ 794 01d6 05       		.byte	0x5
+ 795 01d7 2C       		.byte	0x2c
+ 796 01d8 9C010000 		.4byte	0x19c
+ 797 01dc 02       		.uleb128 0x2
+ 798 01dd 01       		.byte	0x1
+ 799 01de 02       		.byte	0x2
+ 800 01df D0010000 		.4byte	.LASF38
+ 801 01e3 0C       		.uleb128 0xc
+ 802 01e4 04       		.byte	0x4
+ 803 01e5 E9010000 		.4byte	0x1e9
+ 804 01e9 0D       		.uleb128 0xd
+ 805 01ea D1010000 		.4byte	0x1d1
+ 806 01ee 0E       		.uleb128 0xe
+ 807 01ef 9F000000 		.4byte	.LASF55
+ 808 01f3 01       		.byte	0x1
+ 809 01f4 9A       		.byte	0x9a
+ 810 01f5 00000000 		.4byte	.LFB13
+ 811 01f9 1E000000 		.4byte	.LFE13-.LFB13
+ 812 01fd 01       		.uleb128 0x1
+ 813 01fe 9C       		.byte	0x9c
+ 814 01ff 27020000 		.4byte	0x227
+ 815 0203 0F       		.uleb128 0xf
+ 816 0204 703100   		.ascii	"p1\000"
+ 817 0207 01       		.byte	0x1
+ 818 0208 9A       		.byte	0x9a
+ 819 0209 27020000 		.4byte	0x227
+ 820 020d 01       		.uleb128 0x1
+ 821 020e 50       		.byte	0x50
+ 822 020f 0F       		.uleb128 0xf
+ 823 0210 703200   		.ascii	"p2\000"
+ 824 0213 01       		.byte	0x1
+ 825 0214 9A       		.byte	0x9a
+ 826 0215 27020000 		.4byte	0x227
+ 827 0219 01       		.uleb128 0x1
+ 828 021a 51       		.byte	0x51
+ 829 021b 10       		.uleb128 0x10
+ 830 021c 746D7000 		.ascii	"tmp\000"
+ 831 0220 01       		.byte	0x1
+ 832 0221 9C       		.byte	0x9c
+ 833 0222 91010000 		.4byte	0x191
+ 834 0226 00       		.byte	0
+ 835 0227 0C       		.uleb128 0xc
+ 836 0228 04       		.byte	0x4
+ 837 0229 91010000 		.4byte	0x191
+ 838 022d 11       		.uleb128 0x11
+ 839 022e 11000000 		.4byte	.LASF56
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 20
+
+
+ 840 0232 01       		.byte	0x1
+ 841 0233 2B       		.byte	0x2b
+ 842 0234 00000000 		.4byte	.LFB12
+ 843 0238 E4020000 		.4byte	.LFE12-.LFB12
+ 844 023c 01       		.uleb128 0x1
+ 845 023d 9C       		.byte	0x9c
+ 846 023e F7030000 		.4byte	0x3f7
+ 847 0242 12       		.uleb128 0x12
+ 848 0243 0A000000 		.4byte	.LASF39
+ 849 0247 01       		.byte	0x1
+ 850 0248 2B       		.byte	0x2b
+ 851 0249 F7030000 		.4byte	0x3f7
+ 852 024d 00000000 		.4byte	.LLST0
+ 853 0251 12       		.uleb128 0x12
+ 854 0252 08020000 		.4byte	.LASF40
+ 855 0256 01       		.byte	0x1
+ 856 0257 2B       		.byte	0x2b
+ 857 0258 E3010000 		.4byte	0x1e3
+ 858 025c 2C000000 		.4byte	.LLST1
+ 859 0260 12       		.uleb128 0x12
+ 860 0261 4D010000 		.4byte	.LASF41
+ 861 0265 01       		.byte	0x1
+ 862 0266 2B       		.byte	0x2b
+ 863 0267 3E010000 		.4byte	0x13e
+ 864 026b 59000000 		.4byte	.LLST2
+ 865 026f 13       		.uleb128 0x13
+ 866 0270 74726900 		.ascii	"tri\000"
+ 867 0274 01       		.byte	0x1
+ 868 0275 2D       		.byte	0x2d
+ 869 0276 02040000 		.4byte	0x402
+ 870 027a 02       		.uleb128 0x2
+ 871 027b 91       		.byte	0x91
+ 872 027c 4C       		.sleb128 -52
+ 873 027d 14       		.uleb128 0x14
+ 874 027e 96010000 		.4byte	.LASF42
+ 875 0282 01       		.byte	0x1
+ 876 0283 3F       		.byte	0x3f
+ 877 0284 91010000 		.4byte	0x191
+ 878 0288 02       		.uleb128 0x2
+ 879 0289 91       		.byte	0x91
+ 880 028a 48       		.sleb128 -56
+ 881 028b 15       		.uleb128 0x15
+ 882 028c 64783100 		.ascii	"dx1\000"
+ 883 0290 01       		.byte	0x1
+ 884 0291 40       		.byte	0x40
+ 885 0292 69010000 		.4byte	0x169
+ 886 0296 6C000000 		.4byte	.LLST3
+ 887 029a 15       		.uleb128 0x15
+ 888 029b 73783100 		.ascii	"sx1\000"
+ 889 029f 01       		.byte	0x1
+ 890 02a0 41       		.byte	0x41
+ 891 02a1 69010000 		.4byte	0x169
+ 892 02a5 8A000000 		.4byte	.LLST4
+ 893 02a9 15       		.uleb128 0x15
+ 894 02aa 64793100 		.ascii	"dy1\000"
+ 895 02ae 01       		.byte	0x1
+ 896 02af 42       		.byte	0x42
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 21
+
+
+ 897 02b0 69010000 		.4byte	0x169
+ 898 02b4 B5000000 		.4byte	.LLST5
+ 899 02b8 15       		.uleb128 0x15
+ 900 02b9 73793100 		.ascii	"sy1\000"
+ 901 02bd 01       		.byte	0x1
+ 902 02be 43       		.byte	0x43
+ 903 02bf 69010000 		.4byte	0x169
+ 904 02c3 D3000000 		.4byte	.LLST6
+ 905 02c7 16       		.uleb128 0x16
+ 906 02c8 74000000 		.4byte	.LASF43
+ 907 02cc 01       		.byte	0x1
+ 908 02cd 44       		.byte	0x44
+ 909 02ce 69010000 		.4byte	0x169
+ 910 02d2 FE000000 		.4byte	.LLST7
+ 911 02d6 16       		.uleb128 0x16
+ 912 02d7 7E000000 		.4byte	.LASF44
+ 913 02db 01       		.byte	0x1
+ 914 02dc 45       		.byte	0x45
+ 915 02dd 69010000 		.4byte	0x169
+ 916 02e1 81010000 		.4byte	.LLST8
+ 917 02e5 14       		.uleb128 0x14
+ 918 02e6 D6010000 		.4byte	.LASF45
+ 919 02ea 01       		.byte	0x1
+ 920 02eb 47       		.byte	0x47
+ 921 02ec 91010000 		.4byte	0x191
+ 922 02f0 02       		.uleb128 0x2
+ 923 02f1 91       		.byte	0x91
+ 924 02f2 44       		.sleb128 -60
+ 925 02f3 15       		.uleb128 0x15
+ 926 02f4 64783200 		.ascii	"dx2\000"
+ 927 02f8 01       		.byte	0x1
+ 928 02f9 48       		.byte	0x48
+ 929 02fa 69010000 		.4byte	0x169
+ 930 02fe 9F010000 		.4byte	.LLST9
+ 931 0302 15       		.uleb128 0x15
+ 932 0303 73783200 		.ascii	"sx2\000"
+ 933 0307 01       		.byte	0x1
+ 934 0308 49       		.byte	0x49
+ 935 0309 69010000 		.4byte	0x169
+ 936 030d B2010000 		.4byte	.LLST10
+ 937 0311 15       		.uleb128 0x15
+ 938 0312 64793200 		.ascii	"dy2\000"
+ 939 0316 01       		.byte	0x1
+ 940 0317 4A       		.byte	0x4a
+ 941 0318 69010000 		.4byte	0x169
+ 942 031c C7010000 		.4byte	.LLST11
+ 943 0320 15       		.uleb128 0x15
+ 944 0321 73793200 		.ascii	"sy2\000"
+ 945 0325 01       		.byte	0x1
+ 946 0326 4B       		.byte	0x4b
+ 947 0327 69010000 		.4byte	0x169
+ 948 032b DA010000 		.4byte	.LLST12
+ 949 032f 16       		.uleb128 0x16
+ 950 0330 79000000 		.4byte	.LASF46
+ 951 0334 01       		.byte	0x1
+ 952 0335 4C       		.byte	0x4c
+ 953 0336 69010000 		.4byte	0x169
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 22
+
+
+ 954 033a EF010000 		.4byte	.LLST13
+ 955 033e 16       		.uleb128 0x16
+ 956 033f 7C010000 		.4byte	.LASF47
+ 957 0343 01       		.byte	0x1
+ 958 0344 4D       		.byte	0x4d
+ 959 0345 69010000 		.4byte	0x169
+ 960 0349 44020000 		.4byte	.LLST14
+ 961 034d 16       		.uleb128 0x16
+ 962 034e C3000000 		.4byte	.LASF48
+ 963 0352 01       		.byte	0x1
+ 964 0353 4F       		.byte	0x4f
+ 965 0354 69010000 		.4byte	0x169
+ 966 0358 62020000 		.4byte	.LLST15
+ 967 035c 17       		.uleb128 0x17
+ 968 035d 01020000 		.4byte	.LASF49
+ 969 0361 01       		.byte	0x1
+ 970 0362 50       		.byte	0x50
+ 971 0363 69010000 		.4byte	0x169
+ 972 0367 17       		.uleb128 0x17
+ 973 0368 37010000 		.4byte	.LASF50
+ 974 036c 01       		.byte	0x1
+ 975 036d 56       		.byte	0x56
+ 976 036e D1010000 		.4byte	0x1d1
+ 977 0372 14       		.uleb128 0x14
+ 978 0373 87000000 		.4byte	.LASF51
+ 979 0377 01       		.byte	0x1
+ 980 0378 57       		.byte	0x57
+ 981 0379 D1010000 		.4byte	0x1d1
+ 982 037d 03       		.uleb128 0x3
+ 983 037e 91       		.byte	0x91
+ 984 037f BC7F     		.sleb128 -68
+ 985 0381 18       		.uleb128 0x18
+ 986 0382 2C000000 		.4byte	.LVL5
+ 987 0386 EE010000 		.4byte	0x1ee
+ 988 038a 9B030000 		.4byte	0x39b
+ 989 038e 19       		.uleb128 0x19
+ 990 038f 01       		.uleb128 0x1
+ 991 0390 50       		.byte	0x50
+ 992 0391 02       		.uleb128 0x2
+ 993 0392 91       		.byte	0x91
+ 994 0393 50       		.sleb128 -48
+ 995 0394 19       		.uleb128 0x19
+ 996 0395 01       		.uleb128 0x1
+ 997 0396 51       		.byte	0x51
+ 998 0397 02       		.uleb128 0x2
+ 999 0398 91       		.byte	0x91
+ 1000 0399 4C       		.sleb128 -52
+ 1001 039a 00       		.byte	0
+ 1002 039b 18       		.uleb128 0x18
+ 1003 039c 40000000 		.4byte	.LVL6
+ 1004 03a0 EE010000 		.4byte	0x1ee
+ 1005 03a4 B5030000 		.4byte	0x3b5
+ 1006 03a8 19       		.uleb128 0x19
+ 1007 03a9 01       		.uleb128 0x1
+ 1008 03aa 50       		.byte	0x50
+ 1009 03ab 02       		.uleb128 0x2
+ 1010 03ac 91       		.byte	0x91
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 23
+
+
+ 1011 03ad 54       		.sleb128 -44
+ 1012 03ae 19       		.uleb128 0x19
+ 1013 03af 01       		.uleb128 0x1
+ 1014 03b0 51       		.byte	0x51
+ 1015 03b1 02       		.uleb128 0x2
+ 1016 03b2 91       		.byte	0x91
+ 1017 03b3 50       		.sleb128 -48
+ 1018 03b4 00       		.byte	0
+ 1019 03b5 18       		.uleb128 0x18
+ 1020 03b6 54000000 		.4byte	.LVL7
+ 1021 03ba EE010000 		.4byte	0x1ee
+ 1022 03be CF030000 		.4byte	0x3cf
+ 1023 03c2 19       		.uleb128 0x19
+ 1024 03c3 01       		.uleb128 0x1
+ 1025 03c4 50       		.byte	0x50
+ 1026 03c5 02       		.uleb128 0x2
+ 1027 03c6 91       		.byte	0x91
+ 1028 03c7 50       		.sleb128 -48
+ 1029 03c8 19       		.uleb128 0x19
+ 1030 03c9 01       		.uleb128 0x1
+ 1031 03ca 51       		.byte	0x51
+ 1032 03cb 02       		.uleb128 0x2
+ 1033 03cc 91       		.byte	0x91
+ 1034 03cd 4C       		.sleb128 -52
+ 1035 03ce 00       		.byte	0
+ 1036 03cf 1A       		.uleb128 0x1a
+ 1037 03d0 BC010000 		.4byte	.LVL20
+ 1038 03d4 02       		.uleb128 0x2
+ 1039 03d5 74       		.byte	0x74
+ 1040 03d6 00       		.sleb128 0
+ 1041 03d7 19       		.uleb128 0x19
+ 1042 03d8 01       		.uleb128 0x1
+ 1043 03d9 50       		.byte	0x50
+ 1044 03da 03       		.uleb128 0x3
+ 1045 03db 91       		.byte	0x91
+ 1046 03dc BC7F     		.sleb128 -68
+ 1047 03de 19       		.uleb128 0x19
+ 1048 03df 01       		.uleb128 0x1
+ 1049 03e0 51       		.byte	0x51
+ 1050 03e1 04       		.uleb128 0x4
+ 1051 03e2 91       		.byte	0x91
+ 1052 03e3 B07F     		.sleb128 -80
+ 1053 03e5 06       		.byte	0x6
+ 1054 03e6 19       		.uleb128 0x19
+ 1055 03e7 01       		.uleb128 0x1
+ 1056 03e8 52       		.byte	0x52
+ 1057 03e9 05       		.uleb128 0x5
+ 1058 03ea 91       		.byte	0x91
+ 1059 03eb B77F     		.sleb128 -73
+ 1060 03ed 94       		.byte	0x94
+ 1061 03ee 01       		.byte	0x1
+ 1062 03ef 19       		.uleb128 0x19
+ 1063 03f0 01       		.uleb128 0x1
+ 1064 03f1 53       		.byte	0x53
+ 1065 03f2 02       		.uleb128 0x2
+ 1066 03f3 08       		.byte	0x8
+ 1067 03f4 7F       		.byte	0x7f
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 24
+
+
+ 1068 03f5 00       		.byte	0
+ 1069 03f6 00       		.byte	0
+ 1070 03f7 0C       		.uleb128 0xc
+ 1071 03f8 04       		.byte	0x4
+ 1072 03f9 FD030000 		.4byte	0x3fd
+ 1073 03fd 0D       		.uleb128 0xd
+ 1074 03fe 91010000 		.4byte	0x191
+ 1075 0402 1B       		.uleb128 0x1b
+ 1076 0403 91010000 		.4byte	0x191
+ 1077 0407 12040000 		.4byte	0x412
+ 1078 040b 1C       		.uleb128 0x1c
+ 1079 040c 5B010000 		.4byte	0x15b
+ 1080 0410 02       		.byte	0x2
+ 1081 0411 00       		.byte	0
+ 1082 0412 1D       		.uleb128 0x1d
+ 1083 0413 2C040000 		.4byte	0x42c
+ 1084 0417 1E       		.uleb128 0x1e
+ 1085 0418 E3010000 		.4byte	0x1e3
+ 1086 041c 1E       		.uleb128 0x1e
+ 1087 041d E3010000 		.4byte	0x1e3
+ 1088 0421 1E       		.uleb128 0x1e
+ 1089 0422 3E010000 		.4byte	0x13e
+ 1090 0426 1E       		.uleb128 0x1e
+ 1091 0427 49010000 		.4byte	0x149
+ 1092 042b 00       		.byte	0
+ 1093 042c 1F       		.uleb128 0x1f
+ 1094 042d 2C000000 		.4byte	.LASF57
+ 1095 0431 06       		.byte	0x6
+ 1096 0432 5C       		.byte	0x5c
+ 1097 0433 3D040000 		.4byte	0x43d
+ 1098 0437 0C       		.uleb128 0xc
+ 1099 0438 04       		.byte	0x4
+ 1100 0439 12040000 		.4byte	0x412
+ 1101 043d 0D       		.uleb128 0xd
+ 1102 043e 37040000 		.4byte	0x437
+ 1103 0442 00       		.byte	0
+ 1104              		.section	.debug_abbrev,"",%progbits
+ 1105              	.Ldebug_abbrev0:
+ 1106 0000 01       		.uleb128 0x1
+ 1107 0001 11       		.uleb128 0x11
+ 1108 0002 01       		.byte	0x1
+ 1109 0003 25       		.uleb128 0x25
+ 1110 0004 0E       		.uleb128 0xe
+ 1111 0005 13       		.uleb128 0x13
+ 1112 0006 0B       		.uleb128 0xb
+ 1113 0007 03       		.uleb128 0x3
+ 1114 0008 0E       		.uleb128 0xe
+ 1115 0009 1B       		.uleb128 0x1b
+ 1116 000a 0E       		.uleb128 0xe
+ 1117 000b 55       		.uleb128 0x55
+ 1118 000c 17       		.uleb128 0x17
+ 1119 000d 11       		.uleb128 0x11
+ 1120 000e 01       		.uleb128 0x1
+ 1121 000f 10       		.uleb128 0x10
+ 1122 0010 17       		.uleb128 0x17
+ 1123 0011 00       		.byte	0
+ 1124 0012 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 25
+
+
+ 1125 0013 02       		.uleb128 0x2
+ 1126 0014 24       		.uleb128 0x24
+ 1127 0015 00       		.byte	0
+ 1128 0016 0B       		.uleb128 0xb
+ 1129 0017 0B       		.uleb128 0xb
+ 1130 0018 3E       		.uleb128 0x3e
+ 1131 0019 0B       		.uleb128 0xb
+ 1132 001a 03       		.uleb128 0x3
+ 1133 001b 0E       		.uleb128 0xe
+ 1134 001c 00       		.byte	0
+ 1135 001d 00       		.byte	0
+ 1136 001e 03       		.uleb128 0x3
+ 1137 001f 16       		.uleb128 0x16
+ 1138 0020 00       		.byte	0
+ 1139 0021 03       		.uleb128 0x3
+ 1140 0022 0E       		.uleb128 0xe
+ 1141 0023 3A       		.uleb128 0x3a
+ 1142 0024 0B       		.uleb128 0xb
+ 1143 0025 3B       		.uleb128 0x3b
+ 1144 0026 0B       		.uleb128 0xb
+ 1145 0027 49       		.uleb128 0x49
+ 1146 0028 13       		.uleb128 0x13
+ 1147 0029 00       		.byte	0
+ 1148 002a 00       		.byte	0
+ 1149 002b 04       		.uleb128 0x4
+ 1150 002c 24       		.uleb128 0x24
+ 1151 002d 00       		.byte	0
+ 1152 002e 0B       		.uleb128 0xb
+ 1153 002f 0B       		.uleb128 0xb
+ 1154 0030 3E       		.uleb128 0x3e
+ 1155 0031 0B       		.uleb128 0xb
+ 1156 0032 03       		.uleb128 0x3
+ 1157 0033 08       		.uleb128 0x8
+ 1158 0034 00       		.byte	0
+ 1159 0035 00       		.byte	0
+ 1160 0036 05       		.uleb128 0x5
+ 1161 0037 04       		.uleb128 0x4
+ 1162 0038 01       		.byte	0x1
+ 1163 0039 0B       		.uleb128 0xb
+ 1164 003a 0B       		.uleb128 0xb
+ 1165 003b 49       		.uleb128 0x49
+ 1166 003c 13       		.uleb128 0x13
+ 1167 003d 3A       		.uleb128 0x3a
+ 1168 003e 0B       		.uleb128 0xb
+ 1169 003f 3B       		.uleb128 0x3b
+ 1170 0040 0B       		.uleb128 0xb
+ 1171 0041 01       		.uleb128 0x1
+ 1172 0042 13       		.uleb128 0x13
+ 1173 0043 00       		.byte	0
+ 1174 0044 00       		.byte	0
+ 1175 0045 06       		.uleb128 0x6
+ 1176 0046 28       		.uleb128 0x28
+ 1177 0047 00       		.byte	0
+ 1178 0048 03       		.uleb128 0x3
+ 1179 0049 0E       		.uleb128 0xe
+ 1180 004a 1C       		.uleb128 0x1c
+ 1181 004b 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 26
+
+
+ 1182 004c 00       		.byte	0
+ 1183 004d 00       		.byte	0
+ 1184 004e 07       		.uleb128 0x7
+ 1185 004f 17       		.uleb128 0x17
+ 1186 0050 01       		.byte	0x1
+ 1187 0051 0B       		.uleb128 0xb
+ 1188 0052 0B       		.uleb128 0xb
+ 1189 0053 3A       		.uleb128 0x3a
+ 1190 0054 0B       		.uleb128 0xb
+ 1191 0055 3B       		.uleb128 0x3b
+ 1192 0056 0B       		.uleb128 0xb
+ 1193 0057 01       		.uleb128 0x1
+ 1194 0058 13       		.uleb128 0x13
+ 1195 0059 00       		.byte	0
+ 1196 005a 00       		.byte	0
+ 1197 005b 08       		.uleb128 0x8
+ 1198 005c 0D       		.uleb128 0xd
+ 1199 005d 00       		.byte	0
+ 1200 005e 03       		.uleb128 0x3
+ 1201 005f 0E       		.uleb128 0xe
+ 1202 0060 3A       		.uleb128 0x3a
+ 1203 0061 0B       		.uleb128 0xb
+ 1204 0062 3B       		.uleb128 0x3b
+ 1205 0063 0B       		.uleb128 0xb
+ 1206 0064 49       		.uleb128 0x49
+ 1207 0065 13       		.uleb128 0x13
+ 1208 0066 0B       		.uleb128 0xb
+ 1209 0067 0B       		.uleb128 0xb
+ 1210 0068 0D       		.uleb128 0xd
+ 1211 0069 0B       		.uleb128 0xb
+ 1212 006a 0C       		.uleb128 0xc
+ 1213 006b 0B       		.uleb128 0xb
+ 1214 006c 00       		.byte	0
+ 1215 006d 00       		.byte	0
+ 1216 006e 09       		.uleb128 0x9
+ 1217 006f 0D       		.uleb128 0xd
+ 1218 0070 00       		.byte	0
+ 1219 0071 03       		.uleb128 0x3
+ 1220 0072 08       		.uleb128 0x8
+ 1221 0073 3A       		.uleb128 0x3a
+ 1222 0074 0B       		.uleb128 0xb
+ 1223 0075 3B       		.uleb128 0x3b
+ 1224 0076 0B       		.uleb128 0xb
+ 1225 0077 49       		.uleb128 0x49
+ 1226 0078 13       		.uleb128 0x13
+ 1227 0079 0B       		.uleb128 0xb
+ 1228 007a 0B       		.uleb128 0xb
+ 1229 007b 0D       		.uleb128 0xd
+ 1230 007c 0B       		.uleb128 0xb
+ 1231 007d 0C       		.uleb128 0xc
+ 1232 007e 0B       		.uleb128 0xb
+ 1233 007f 00       		.byte	0
+ 1234 0080 00       		.byte	0
+ 1235 0081 0A       		.uleb128 0xa
+ 1236 0082 13       		.uleb128 0x13
+ 1237 0083 01       		.byte	0x1
+ 1238 0084 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 27
+
+
+ 1239 0085 0B       		.uleb128 0xb
+ 1240 0086 3A       		.uleb128 0x3a
+ 1241 0087 0B       		.uleb128 0xb
+ 1242 0088 3B       		.uleb128 0x3b
+ 1243 0089 0B       		.uleb128 0xb
+ 1244 008a 01       		.uleb128 0x1
+ 1245 008b 13       		.uleb128 0x13
+ 1246 008c 00       		.byte	0
+ 1247 008d 00       		.byte	0
+ 1248 008e 0B       		.uleb128 0xb
+ 1249 008f 0D       		.uleb128 0xd
+ 1250 0090 00       		.byte	0
+ 1251 0091 03       		.uleb128 0x3
+ 1252 0092 08       		.uleb128 0x8
+ 1253 0093 3A       		.uleb128 0x3a
+ 1254 0094 0B       		.uleb128 0xb
+ 1255 0095 3B       		.uleb128 0x3b
+ 1256 0096 0B       		.uleb128 0xb
+ 1257 0097 49       		.uleb128 0x49
+ 1258 0098 13       		.uleb128 0x13
+ 1259 0099 38       		.uleb128 0x38
+ 1260 009a 0B       		.uleb128 0xb
+ 1261 009b 00       		.byte	0
+ 1262 009c 00       		.byte	0
+ 1263 009d 0C       		.uleb128 0xc
+ 1264 009e 0F       		.uleb128 0xf
+ 1265 009f 00       		.byte	0
+ 1266 00a0 0B       		.uleb128 0xb
+ 1267 00a1 0B       		.uleb128 0xb
+ 1268 00a2 49       		.uleb128 0x49
+ 1269 00a3 13       		.uleb128 0x13
+ 1270 00a4 00       		.byte	0
+ 1271 00a5 00       		.byte	0
+ 1272 00a6 0D       		.uleb128 0xd
+ 1273 00a7 26       		.uleb128 0x26
+ 1274 00a8 00       		.byte	0
+ 1275 00a9 49       		.uleb128 0x49
+ 1276 00aa 13       		.uleb128 0x13
+ 1277 00ab 00       		.byte	0
+ 1278 00ac 00       		.byte	0
+ 1279 00ad 0E       		.uleb128 0xe
+ 1280 00ae 2E       		.uleb128 0x2e
+ 1281 00af 01       		.byte	0x1
+ 1282 00b0 03       		.uleb128 0x3
+ 1283 00b1 0E       		.uleb128 0xe
+ 1284 00b2 3A       		.uleb128 0x3a
+ 1285 00b3 0B       		.uleb128 0xb
+ 1286 00b4 3B       		.uleb128 0x3b
+ 1287 00b5 0B       		.uleb128 0xb
+ 1288 00b6 27       		.uleb128 0x27
+ 1289 00b7 19       		.uleb128 0x19
+ 1290 00b8 11       		.uleb128 0x11
+ 1291 00b9 01       		.uleb128 0x1
+ 1292 00ba 12       		.uleb128 0x12
+ 1293 00bb 06       		.uleb128 0x6
+ 1294 00bc 40       		.uleb128 0x40
+ 1295 00bd 18       		.uleb128 0x18
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 28
+
+
+ 1296 00be 9742     		.uleb128 0x2117
+ 1297 00c0 19       		.uleb128 0x19
+ 1298 00c1 01       		.uleb128 0x1
+ 1299 00c2 13       		.uleb128 0x13
+ 1300 00c3 00       		.byte	0
+ 1301 00c4 00       		.byte	0
+ 1302 00c5 0F       		.uleb128 0xf
+ 1303 00c6 05       		.uleb128 0x5
+ 1304 00c7 00       		.byte	0
+ 1305 00c8 03       		.uleb128 0x3
+ 1306 00c9 08       		.uleb128 0x8
+ 1307 00ca 3A       		.uleb128 0x3a
+ 1308 00cb 0B       		.uleb128 0xb
+ 1309 00cc 3B       		.uleb128 0x3b
+ 1310 00cd 0B       		.uleb128 0xb
+ 1311 00ce 49       		.uleb128 0x49
+ 1312 00cf 13       		.uleb128 0x13
+ 1313 00d0 02       		.uleb128 0x2
+ 1314 00d1 18       		.uleb128 0x18
+ 1315 00d2 00       		.byte	0
+ 1316 00d3 00       		.byte	0
+ 1317 00d4 10       		.uleb128 0x10
+ 1318 00d5 34       		.uleb128 0x34
+ 1319 00d6 00       		.byte	0
+ 1320 00d7 03       		.uleb128 0x3
+ 1321 00d8 08       		.uleb128 0x8
+ 1322 00d9 3A       		.uleb128 0x3a
+ 1323 00da 0B       		.uleb128 0xb
+ 1324 00db 3B       		.uleb128 0x3b
+ 1325 00dc 0B       		.uleb128 0xb
+ 1326 00dd 49       		.uleb128 0x49
+ 1327 00de 13       		.uleb128 0x13
+ 1328 00df 00       		.byte	0
+ 1329 00e0 00       		.byte	0
+ 1330 00e1 11       		.uleb128 0x11
+ 1331 00e2 2E       		.uleb128 0x2e
+ 1332 00e3 01       		.byte	0x1
+ 1333 00e4 3F       		.uleb128 0x3f
+ 1334 00e5 19       		.uleb128 0x19
+ 1335 00e6 03       		.uleb128 0x3
+ 1336 00e7 0E       		.uleb128 0xe
+ 1337 00e8 3A       		.uleb128 0x3a
+ 1338 00e9 0B       		.uleb128 0xb
+ 1339 00ea 3B       		.uleb128 0x3b
+ 1340 00eb 0B       		.uleb128 0xb
+ 1341 00ec 27       		.uleb128 0x27
+ 1342 00ed 19       		.uleb128 0x19
+ 1343 00ee 11       		.uleb128 0x11
+ 1344 00ef 01       		.uleb128 0x1
+ 1345 00f0 12       		.uleb128 0x12
+ 1346 00f1 06       		.uleb128 0x6
+ 1347 00f2 40       		.uleb128 0x40
+ 1348 00f3 18       		.uleb128 0x18
+ 1349 00f4 9742     		.uleb128 0x2117
+ 1350 00f6 19       		.uleb128 0x19
+ 1351 00f7 01       		.uleb128 0x1
+ 1352 00f8 13       		.uleb128 0x13
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 29
+
+
+ 1353 00f9 00       		.byte	0
+ 1354 00fa 00       		.byte	0
+ 1355 00fb 12       		.uleb128 0x12
+ 1356 00fc 05       		.uleb128 0x5
+ 1357 00fd 00       		.byte	0
+ 1358 00fe 03       		.uleb128 0x3
+ 1359 00ff 0E       		.uleb128 0xe
+ 1360 0100 3A       		.uleb128 0x3a
+ 1361 0101 0B       		.uleb128 0xb
+ 1362 0102 3B       		.uleb128 0x3b
+ 1363 0103 0B       		.uleb128 0xb
+ 1364 0104 49       		.uleb128 0x49
+ 1365 0105 13       		.uleb128 0x13
+ 1366 0106 02       		.uleb128 0x2
+ 1367 0107 17       		.uleb128 0x17
+ 1368 0108 00       		.byte	0
+ 1369 0109 00       		.byte	0
+ 1370 010a 13       		.uleb128 0x13
+ 1371 010b 34       		.uleb128 0x34
+ 1372 010c 00       		.byte	0
+ 1373 010d 03       		.uleb128 0x3
+ 1374 010e 08       		.uleb128 0x8
+ 1375 010f 3A       		.uleb128 0x3a
+ 1376 0110 0B       		.uleb128 0xb
+ 1377 0111 3B       		.uleb128 0x3b
+ 1378 0112 0B       		.uleb128 0xb
+ 1379 0113 49       		.uleb128 0x49
+ 1380 0114 13       		.uleb128 0x13
+ 1381 0115 02       		.uleb128 0x2
+ 1382 0116 18       		.uleb128 0x18
+ 1383 0117 00       		.byte	0
+ 1384 0118 00       		.byte	0
+ 1385 0119 14       		.uleb128 0x14
+ 1386 011a 34       		.uleb128 0x34
+ 1387 011b 00       		.byte	0
+ 1388 011c 03       		.uleb128 0x3
+ 1389 011d 0E       		.uleb128 0xe
+ 1390 011e 3A       		.uleb128 0x3a
+ 1391 011f 0B       		.uleb128 0xb
+ 1392 0120 3B       		.uleb128 0x3b
+ 1393 0121 0B       		.uleb128 0xb
+ 1394 0122 49       		.uleb128 0x49
+ 1395 0123 13       		.uleb128 0x13
+ 1396 0124 02       		.uleb128 0x2
+ 1397 0125 18       		.uleb128 0x18
+ 1398 0126 00       		.byte	0
+ 1399 0127 00       		.byte	0
+ 1400 0128 15       		.uleb128 0x15
+ 1401 0129 34       		.uleb128 0x34
+ 1402 012a 00       		.byte	0
+ 1403 012b 03       		.uleb128 0x3
+ 1404 012c 08       		.uleb128 0x8
+ 1405 012d 3A       		.uleb128 0x3a
+ 1406 012e 0B       		.uleb128 0xb
+ 1407 012f 3B       		.uleb128 0x3b
+ 1408 0130 0B       		.uleb128 0xb
+ 1409 0131 49       		.uleb128 0x49
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 30
+
+
+ 1410 0132 13       		.uleb128 0x13
+ 1411 0133 02       		.uleb128 0x2
+ 1412 0134 17       		.uleb128 0x17
+ 1413 0135 00       		.byte	0
+ 1414 0136 00       		.byte	0
+ 1415 0137 16       		.uleb128 0x16
+ 1416 0138 34       		.uleb128 0x34
+ 1417 0139 00       		.byte	0
+ 1418 013a 03       		.uleb128 0x3
+ 1419 013b 0E       		.uleb128 0xe
+ 1420 013c 3A       		.uleb128 0x3a
+ 1421 013d 0B       		.uleb128 0xb
+ 1422 013e 3B       		.uleb128 0x3b
+ 1423 013f 0B       		.uleb128 0xb
+ 1424 0140 49       		.uleb128 0x49
+ 1425 0141 13       		.uleb128 0x13
+ 1426 0142 02       		.uleb128 0x2
+ 1427 0143 17       		.uleb128 0x17
+ 1428 0144 00       		.byte	0
+ 1429 0145 00       		.byte	0
+ 1430 0146 17       		.uleb128 0x17
+ 1431 0147 34       		.uleb128 0x34
+ 1432 0148 00       		.byte	0
+ 1433 0149 03       		.uleb128 0x3
+ 1434 014a 0E       		.uleb128 0xe
+ 1435 014b 3A       		.uleb128 0x3a
+ 1436 014c 0B       		.uleb128 0xb
+ 1437 014d 3B       		.uleb128 0x3b
+ 1438 014e 0B       		.uleb128 0xb
+ 1439 014f 49       		.uleb128 0x49
+ 1440 0150 13       		.uleb128 0x13
+ 1441 0151 00       		.byte	0
+ 1442 0152 00       		.byte	0
+ 1443 0153 18       		.uleb128 0x18
+ 1444 0154 898201   		.uleb128 0x4109
+ 1445 0157 01       		.byte	0x1
+ 1446 0158 11       		.uleb128 0x11
+ 1447 0159 01       		.uleb128 0x1
+ 1448 015a 31       		.uleb128 0x31
+ 1449 015b 13       		.uleb128 0x13
+ 1450 015c 01       		.uleb128 0x1
+ 1451 015d 13       		.uleb128 0x13
+ 1452 015e 00       		.byte	0
+ 1453 015f 00       		.byte	0
+ 1454 0160 19       		.uleb128 0x19
+ 1455 0161 8A8201   		.uleb128 0x410a
+ 1456 0164 00       		.byte	0
+ 1457 0165 02       		.uleb128 0x2
+ 1458 0166 18       		.uleb128 0x18
+ 1459 0167 9142     		.uleb128 0x2111
+ 1460 0169 18       		.uleb128 0x18
+ 1461 016a 00       		.byte	0
+ 1462 016b 00       		.byte	0
+ 1463 016c 1A       		.uleb128 0x1a
+ 1464 016d 898201   		.uleb128 0x4109
+ 1465 0170 01       		.byte	0x1
+ 1466 0171 11       		.uleb128 0x11
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 31
+
+
+ 1467 0172 01       		.uleb128 0x1
+ 1468 0173 9342     		.uleb128 0x2113
+ 1469 0175 18       		.uleb128 0x18
+ 1470 0176 00       		.byte	0
+ 1471 0177 00       		.byte	0
+ 1472 0178 1B       		.uleb128 0x1b
+ 1473 0179 01       		.uleb128 0x1
+ 1474 017a 01       		.byte	0x1
+ 1475 017b 49       		.uleb128 0x49
+ 1476 017c 13       		.uleb128 0x13
+ 1477 017d 01       		.uleb128 0x1
+ 1478 017e 13       		.uleb128 0x13
+ 1479 017f 00       		.byte	0
+ 1480 0180 00       		.byte	0
+ 1481 0181 1C       		.uleb128 0x1c
+ 1482 0182 21       		.uleb128 0x21
+ 1483 0183 00       		.byte	0
+ 1484 0184 49       		.uleb128 0x49
+ 1485 0185 13       		.uleb128 0x13
+ 1486 0186 2F       		.uleb128 0x2f
+ 1487 0187 0B       		.uleb128 0xb
+ 1488 0188 00       		.byte	0
+ 1489 0189 00       		.byte	0
+ 1490 018a 1D       		.uleb128 0x1d
+ 1491 018b 15       		.uleb128 0x15
+ 1492 018c 01       		.byte	0x1
+ 1493 018d 27       		.uleb128 0x27
+ 1494 018e 19       		.uleb128 0x19
+ 1495 018f 01       		.uleb128 0x1
+ 1496 0190 13       		.uleb128 0x13
+ 1497 0191 00       		.byte	0
+ 1498 0192 00       		.byte	0
+ 1499 0193 1E       		.uleb128 0x1e
+ 1500 0194 05       		.uleb128 0x5
+ 1501 0195 00       		.byte	0
+ 1502 0196 49       		.uleb128 0x49
+ 1503 0197 13       		.uleb128 0x13
+ 1504 0198 00       		.byte	0
+ 1505 0199 00       		.byte	0
+ 1506 019a 1F       		.uleb128 0x1f
+ 1507 019b 34       		.uleb128 0x34
+ 1508 019c 00       		.byte	0
+ 1509 019d 03       		.uleb128 0x3
+ 1510 019e 0E       		.uleb128 0xe
+ 1511 019f 3A       		.uleb128 0x3a
+ 1512 01a0 0B       		.uleb128 0xb
+ 1513 01a1 3B       		.uleb128 0x3b
+ 1514 01a2 0B       		.uleb128 0xb
+ 1515 01a3 49       		.uleb128 0x49
+ 1516 01a4 13       		.uleb128 0x13
+ 1517 01a5 3F       		.uleb128 0x3f
+ 1518 01a6 19       		.uleb128 0x19
+ 1519 01a7 3C       		.uleb128 0x3c
+ 1520 01a8 19       		.uleb128 0x19
+ 1521 01a9 00       		.byte	0
+ 1522 01aa 00       		.byte	0
+ 1523 01ab 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 32
+
+
+ 1524              		.section	.debug_loc,"",%progbits
+ 1525              	.Ldebug_loc0:
+ 1526              	.LLST0:
+ 1527 0000 00000000 		.4byte	.LVL1
+ 1528 0004 12000000 		.4byte	.LVL2
+ 1529 0008 0100     		.2byte	0x1
+ 1530 000a 50       		.byte	0x50
+ 1531 000b 12000000 		.4byte	.LVL2
+ 1532 000f 7A000000 		.4byte	.LVL8
+ 1533 0013 0100     		.2byte	0x1
+ 1534 0015 54       		.byte	0x54
+ 1535 0016 7A000000 		.4byte	.LVL8
+ 1536 001a E4020000 		.4byte	.LFE12
+ 1537 001e 0400     		.2byte	0x4
+ 1538 0020 F3       		.byte	0xf3
+ 1539 0021 01       		.uleb128 0x1
+ 1540 0022 50       		.byte	0x50
+ 1541 0023 9F       		.byte	0x9f
+ 1542 0024 00000000 		.4byte	0
+ 1543 0028 00000000 		.4byte	0
+ 1544              	.LLST1:
+ 1545 002c 00000000 		.4byte	.LVL1
+ 1546 0030 14000000 		.4byte	.LVL3
+ 1547 0034 0100     		.2byte	0x1
+ 1548 0036 51       		.byte	0x51
+ 1549 0037 14000000 		.4byte	.LVL3
+ 1550 003b DE020000 		.4byte	.LVL55
+ 1551 003f 0300     		.2byte	0x3
+ 1552 0041 91       		.byte	0x91
+ 1553 0042 B07F     		.sleb128 -80
+ 1554 0044 DE020000 		.4byte	.LVL55
+ 1555 0048 E4020000 		.4byte	.LFE12
+ 1556 004c 0300     		.2byte	0x3
+ 1557 004e 7D       		.byte	0x7d
+ 1558 004f B07F     		.sleb128 -80
+ 1559 0051 00000000 		.4byte	0
+ 1560 0055 00000000 		.4byte	0
+ 1561              	.LLST2:
+ 1562 0059 00000000 		.4byte	.LVL1
+ 1563 005d 16000000 		.4byte	.LVL4
+ 1564 0061 0100     		.2byte	0x1
+ 1565 0063 52       		.byte	0x52
+ 1566 0064 00000000 		.4byte	0
+ 1567 0068 00000000 		.4byte	0
+ 1568              	.LLST3:
+ 1569 006c C0000000 		.4byte	.LVL9
+ 1570 0070 E0010000 		.4byte	.LVL23
+ 1571 0074 0100     		.2byte	0x1
+ 1572 0076 56       		.byte	0x56
+ 1573 0077 E8010000 		.4byte	.LVL24
+ 1574 007b D8020000 		.4byte	.LVL54
+ 1575 007f 0100     		.2byte	0x1
+ 1576 0081 56       		.byte	0x56
+ 1577 0082 00000000 		.4byte	0
+ 1578 0086 00000000 		.4byte	0
+ 1579              	.LLST4:
+ 1580 008a D0000000 		.4byte	.LVL10
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 33
+
+
+ 1581 008e C2010000 		.4byte	.LVL21
+ 1582 0092 0300     		.2byte	0x3
+ 1583 0094 91       		.byte	0x91
+ 1584 0095 947F     		.sleb128 -108
+ 1585 0097 C2010000 		.4byte	.LVL21
+ 1586 009b DE010000 		.4byte	.LVL22
+ 1587 009f 0100     		.2byte	0x1
+ 1588 00a1 51       		.byte	0x51
+ 1589 00a2 F4010000 		.4byte	.LVL25
+ 1590 00a6 76020000 		.4byte	.LVL43
+ 1591 00aa 0100     		.2byte	0x1
+ 1592 00ac 51       		.byte	0x51
+ 1593 00ad 00000000 		.4byte	0
+ 1594 00b1 00000000 		.4byte	0
+ 1595              	.LLST5:
+ 1596 00b5 DA000000 		.4byte	.LVL11
+ 1597 00b9 FC010000 		.4byte	.LVL26
+ 1598 00bd 0100     		.2byte	0x1
+ 1599 00bf 57       		.byte	0x57
+ 1600 00c0 04020000 		.4byte	.LVL27
+ 1601 00c4 D8020000 		.4byte	.LVL54
+ 1602 00c8 0100     		.2byte	0x1
+ 1603 00ca 57       		.byte	0x57
+ 1604 00cb 00000000 		.4byte	0
+ 1605 00cf 00000000 		.4byte	0
+ 1606              	.LLST6:
+ 1607 00d3 EA000000 		.4byte	.LVL12
+ 1608 00d7 C2010000 		.4byte	.LVL21
+ 1609 00db 0300     		.2byte	0x3
+ 1610 00dd 91       		.byte	0x91
+ 1611 00de 987F     		.sleb128 -104
+ 1612 00e0 C2010000 		.4byte	.LVL21
+ 1613 00e4 0A020000 		.4byte	.LVL28
+ 1614 00e8 0100     		.2byte	0x1
+ 1615 00ea 50       		.byte	0x50
+ 1616 00eb 0C020000 		.4byte	.LVL29
+ 1617 00ef 78020000 		.4byte	.LVL44
+ 1618 00f3 0100     		.2byte	0x1
+ 1619 00f5 50       		.byte	0x50
+ 1620 00f6 00000000 		.4byte	0
+ 1621 00fa 00000000 		.4byte	0
+ 1622              	.LLST7:
+ 1623 00fe 00010000 		.4byte	.LVL13
+ 1624 0102 6A010000 		.4byte	.LVL19
+ 1625 0106 0100     		.2byte	0x1
+ 1626 0108 54       		.byte	0x54
+ 1627 0109 6A010000 		.4byte	.LVL19
+ 1628 010d C2010000 		.4byte	.LVL21
+ 1629 0111 0300     		.2byte	0x3
+ 1630 0113 91       		.byte	0x91
+ 1631 0114 9C7F     		.sleb128 -100
+ 1632 0116 C2010000 		.4byte	.LVL21
+ 1633 011a 18020000 		.4byte	.LVL31
+ 1634 011e 0100     		.2byte	0x1
+ 1635 0120 54       		.byte	0x54
+ 1636 0121 1C020000 		.4byte	.LVL32
+ 1637 0125 1E020000 		.4byte	.LVL33
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 34
+
+
+ 1638 0129 0100     		.2byte	0x1
+ 1639 012b 54       		.byte	0x54
+ 1640 012c 28020000 		.4byte	.LVL34
+ 1641 0130 46020000 		.4byte	.LVL36
+ 1642 0134 0100     		.2byte	0x1
+ 1643 0136 54       		.byte	0x54
+ 1644 0137 46020000 		.4byte	.LVL36
+ 1645 013b 4E020000 		.4byte	.LVL37
+ 1646 013f 0100     		.2byte	0x1
+ 1647 0141 52       		.byte	0x52
+ 1648 0142 4E020000 		.4byte	.LVL37
+ 1649 0146 50020000 		.4byte	.LVL38
+ 1650 014a 0100     		.2byte	0x1
+ 1651 014c 54       		.byte	0x54
+ 1652 014d 50020000 		.4byte	.LVL38
+ 1653 0151 58020000 		.4byte	.LVL40
+ 1654 0155 0100     		.2byte	0x1
+ 1655 0157 52       		.byte	0x52
+ 1656 0158 58020000 		.4byte	.LVL40
+ 1657 015c 64020000 		.4byte	.LVL41
+ 1658 0160 0100     		.2byte	0x1
+ 1659 0162 54       		.byte	0x54
+ 1660 0163 64020000 		.4byte	.LVL41
+ 1661 0167 66020000 		.4byte	.LVL42
+ 1662 016b 0100     		.2byte	0x1
+ 1663 016d 52       		.byte	0x52
+ 1664 016e 66020000 		.4byte	.LVL42
+ 1665 0172 D8020000 		.4byte	.LVL54
+ 1666 0176 0100     		.2byte	0x1
+ 1667 0178 54       		.byte	0x54
+ 1668 0179 00000000 		.4byte	0
+ 1669 017d 00000000 		.4byte	0
+ 1670              	.LLST8:
+ 1671 0181 3C020000 		.4byte	.LVL35
+ 1672 0185 56020000 		.4byte	.LVL39
+ 1673 0189 0100     		.2byte	0x1
+ 1674 018b 54       		.byte	0x54
+ 1675 018c 64020000 		.4byte	.LVL41
+ 1676 0190 66020000 		.4byte	.LVL42
+ 1677 0194 0100     		.2byte	0x1
+ 1678 0196 54       		.byte	0x54
+ 1679 0197 00000000 		.4byte	0
+ 1680 019b 00000000 		.4byte	0
+ 1681              	.LLST9:
+ 1682 019f 0E010000 		.4byte	.LVL14
+ 1683 01a3 D8020000 		.4byte	.LVL54
+ 1684 01a7 0100     		.2byte	0x1
+ 1685 01a9 5B       		.byte	0x5b
+ 1686 01aa 00000000 		.4byte	0
+ 1687 01ae 00000000 		.4byte	0
+ 1688              	.LLST10:
+ 1689 01b2 1E010000 		.4byte	.LVL15
+ 1690 01b6 6A010000 		.4byte	.LVL19
+ 1691 01ba 0300     		.2byte	0x3
+ 1692 01bc 91       		.byte	0x91
+ 1693 01bd A87F     		.sleb128 -88
+ 1694 01bf 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 35
+
+
+ 1695 01c3 00000000 		.4byte	0
+ 1696              	.LLST11:
+ 1697 01c7 30010000 		.4byte	.LVL16
+ 1698 01cb D8020000 		.4byte	.LVL54
+ 1699 01cf 0100     		.2byte	0x1
+ 1700 01d1 5A       		.byte	0x5a
+ 1701 01d2 00000000 		.4byte	0
+ 1702 01d6 00000000 		.4byte	0
+ 1703              	.LLST12:
+ 1704 01da 40010000 		.4byte	.LVL17
+ 1705 01de 6A010000 		.4byte	.LVL19
+ 1706 01e2 0300     		.2byte	0x3
+ 1707 01e4 91       		.byte	0x91
+ 1708 01e5 AC7F     		.sleb128 -84
+ 1709 01e7 00000000 		.4byte	0
+ 1710 01eb 00000000 		.4byte	0
+ 1711              	.LLST13:
+ 1712 01ef 58010000 		.4byte	.LVL18
+ 1713 01f3 A2020000 		.4byte	.LVL47
+ 1714 01f7 0100     		.2byte	0x1
+ 1715 01f9 55       		.byte	0x55
+ 1716 01fa A2020000 		.4byte	.LVL47
+ 1717 01fe AA020000 		.4byte	.LVL48
+ 1718 0202 0100     		.2byte	0x1
+ 1719 0204 53       		.byte	0x53
+ 1720 0205 AA020000 		.4byte	.LVL48
+ 1721 0209 AC020000 		.4byte	.LVL49
+ 1722 020d 0100     		.2byte	0x1
+ 1723 020f 55       		.byte	0x55
+ 1724 0210 AC020000 		.4byte	.LVL49
+ 1725 0214 B4020000 		.4byte	.LVL51
+ 1726 0218 0100     		.2byte	0x1
+ 1727 021a 53       		.byte	0x53
+ 1728 021b B4020000 		.4byte	.LVL51
+ 1729 021f C0020000 		.4byte	.LVL52
+ 1730 0223 0100     		.2byte	0x1
+ 1731 0225 55       		.byte	0x55
+ 1732 0226 C0020000 		.4byte	.LVL52
+ 1733 022a C2020000 		.4byte	.LVL53
+ 1734 022e 0100     		.2byte	0x1
+ 1735 0230 53       		.byte	0x53
+ 1736 0231 C2020000 		.4byte	.LVL53
+ 1737 0235 D8020000 		.4byte	.LVL54
+ 1738 0239 0100     		.2byte	0x1
+ 1739 023b 55       		.byte	0x55
+ 1740 023c 00000000 		.4byte	0
+ 1741 0240 00000000 		.4byte	0
+ 1742              	.LLST14:
+ 1743 0244 94020000 		.4byte	.LVL46
+ 1744 0248 B2020000 		.4byte	.LVL50
+ 1745 024c 0100     		.2byte	0x1
+ 1746 024e 55       		.byte	0x55
+ 1747 024f C0020000 		.4byte	.LVL52
+ 1748 0253 C2020000 		.4byte	.LVL53
+ 1749 0257 0100     		.2byte	0x1
+ 1750 0259 55       		.byte	0x55
+ 1751 025a 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 36
+
+
+ 1752 025e 00000000 		.4byte	0
+ 1753              	.LLST15:
+ 1754 0262 BC010000 		.4byte	.LVL20
+ 1755 0266 7C020000 		.4byte	.LVL45
+ 1756 026a 0100     		.2byte	0x1
+ 1757 026c 58       		.byte	0x58
+ 1758 026d 00000000 		.4byte	0
+ 1759 0271 00000000 		.4byte	0
+ 1760              		.section	.debug_aranges,"",%progbits
+ 1761 0000 24000000 		.4byte	0x24
+ 1762 0004 0200     		.2byte	0x2
+ 1763 0006 00000000 		.4byte	.Ldebug_info0
+ 1764 000a 04       		.byte	0x4
+ 1765 000b 00       		.byte	0
+ 1766 000c 0000     		.2byte	0
+ 1767 000e 0000     		.2byte	0
+ 1768 0010 00000000 		.4byte	.LFB13
+ 1769 0014 1E000000 		.4byte	.LFE13-.LFB13
+ 1770 0018 00000000 		.4byte	.LFB12
+ 1771 001c E4020000 		.4byte	.LFE12-.LFB12
+ 1772 0020 00000000 		.4byte	0
+ 1773 0024 00000000 		.4byte	0
+ 1774              		.section	.debug_ranges,"",%progbits
+ 1775              	.Ldebug_ranges0:
+ 1776 0000 00000000 		.4byte	.LFB13
+ 1777 0004 1E000000 		.4byte	.LFE13
+ 1778 0008 00000000 		.4byte	.LFB12
+ 1779 000c E4020000 		.4byte	.LFE12
+ 1780 0010 00000000 		.4byte	0
+ 1781 0014 00000000 		.4byte	0
+ 1782              		.section	.debug_line,"",%progbits
+ 1783              	.Ldebug_line0:
+ 1784 0000 A1020000 		.section	.debug_str,"MS",%progbits,1
+ 1784      02008401 
+ 1784      00000201 
+ 1784      FB0E0D00 
+ 1784      01010101 
+ 1785              	.LASF4:
+ 1786 0000 73686F72 		.ascii	"short int\000"
+ 1786      7420696E 
+ 1786      7400
+ 1787              	.LASF39:
+ 1788 000a 706F696E 		.ascii	"points\000"
+ 1788      747300
+ 1789              	.LASF56:
+ 1790 0011 6C765F64 		.ascii	"lv_draw_triangle\000"
+ 1790      7261775F 
+ 1790      74726961 
+ 1790      6E676C65 
+ 1790      00
+ 1791              	.LASF17:
+ 1792 0022 4C565F4F 		.ascii	"LV_OPA_30\000"
+ 1792      50415F33 
+ 1792      3000
+ 1793              	.LASF57:
+ 1794 002c 66696C6C 		.ascii	"fill_fp\000"
+ 1794      5F667000 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 37
+
+
+ 1795              	.LASF37:
+ 1796 0034 6C765F61 		.ascii	"lv_area_t\000"
+ 1796      7265615F 
+ 1796      7400
+ 1797              	.LASF21:
+ 1798 003e 4C565F4F 		.ascii	"LV_OPA_70\000"
+ 1798      50415F37 
+ 1798      3000
+ 1799              	.LASF26:
+ 1800 0048 626C7565 		.ascii	"blue\000"
+ 1800      00
+ 1801              	.LASF31:
+ 1802 004d 6C765F6F 		.ascii	"lv_opa_t\000"
+ 1802      70615F74 
+ 1802      00
+ 1803              	.LASF30:
+ 1804 0056 6C765F63 		.ascii	"lv_color_t\000"
+ 1804      6F6C6F72 
+ 1804      5F7400
+ 1805              	.LASF36:
+ 1806 0061 6C765F70 		.ascii	"lv_point_t\000"
+ 1806      6F696E74 
+ 1806      5F7400
+ 1807              	.LASF11:
+ 1808 006c 75696E74 		.ascii	"uint8_t\000"
+ 1808      385F7400 
+ 1809              	.LASF43:
+ 1810 0074 65727231 		.ascii	"err1\000"
+ 1810      00
+ 1811              	.LASF46:
+ 1812 0079 65727232 		.ascii	"err2\000"
+ 1812      00
+ 1813              	.LASF44:
+ 1814 007e 6572725F 		.ascii	"err_tmp1\000"
+ 1814      746D7031 
+ 1814      00
+ 1815              	.LASF51:
+ 1816 0087 64726177 		.ascii	"draw_area\000"
+ 1816      5F617265 
+ 1816      6100
+ 1817              	.LASF8:
+ 1818 0091 6C6F6E67 		.ascii	"long long int\000"
+ 1818      206C6F6E 
+ 1818      6720696E 
+ 1818      7400
+ 1819              	.LASF55:
+ 1820 009f 706F696E 		.ascii	"point_swap\000"
+ 1820      745F7377 
+ 1820      617000
+ 1821              	.LASF6:
+ 1822 00aa 6C6F6E67 		.ascii	"long int\000"
+ 1822      20696E74 
+ 1822      00
+ 1823              	.LASF2:
+ 1824 00b3 5F5F7569 		.ascii	"__uint8_t\000"
+ 1824      6E74385F 
+ 1824      7400
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 38
+
+
+ 1825              	.LASF27:
+ 1826 00bd 67726565 		.ascii	"green\000"
+ 1826      6E00
+ 1827              	.LASF48:
+ 1828 00c3 79315F74 		.ascii	"y1_tmp\000"
+ 1828      6D7000
+ 1829              	.LASF25:
+ 1830 00ca 4C565F4F 		.ascii	"LV_OPA_COVER\000"
+ 1830      50415F43 
+ 1830      4F564552 
+ 1830      00
+ 1831              	.LASF32:
+ 1832 00d7 6C6F6E67 		.ascii	"long double\000"
+ 1832      20646F75 
+ 1832      626C6500 
+ 1833              	.LASF53:
+ 1834 00e3 2E2E5C6C 		.ascii	"..\\lvgl\\lv_draw\\lv_draw_triangle.c\000"
+ 1834      76676C5C 
+ 1834      6C765F64 
+ 1834      7261775C 
+ 1834      6C765F64 
+ 1835              	.LASF1:
+ 1836 0106 756E7369 		.ascii	"unsigned char\000"
+ 1836      676E6564 
+ 1836      20636861 
+ 1836      7200
+ 1837              	.LASF0:
+ 1838 0114 7369676E 		.ascii	"signed char\000"
+ 1838      65642063 
+ 1838      68617200 
+ 1839              	.LASF9:
+ 1840 0120 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1840      206C6F6E 
+ 1840      6720756E 
+ 1840      7369676E 
+ 1840      65642069 
+ 1841              	.LASF50:
+ 1842 0137 6163745F 		.ascii	"act_area\000"
+ 1842      61726561 
+ 1842      00
+ 1843              	.LASF10:
+ 1844 0140 756E7369 		.ascii	"unsigned int\000"
+ 1844      676E6564 
+ 1844      20696E74 
+ 1844      00
+ 1845              	.LASF41:
+ 1846 014d 636F6C6F 		.ascii	"color\000"
+ 1846      7200
+ 1847              	.LASF19:
+ 1848 0153 4C565F4F 		.ascii	"LV_OPA_50\000"
+ 1848      50415F35 
+ 1848      3000
+ 1849              	.LASF18:
+ 1850 015d 4C565F4F 		.ascii	"LV_OPA_40\000"
+ 1850      50415F34 
+ 1850      3000
+ 1851              	.LASF15:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 39
+
+
+ 1852 0167 4C565F4F 		.ascii	"LV_OPA_10\000"
+ 1852      50415F31 
+ 1852      3000
+ 1853              	.LASF24:
+ 1854 0171 4C565F4F 		.ascii	"LV_OPA_100\000"
+ 1854      50415F31 
+ 1854      303000
+ 1855              	.LASF47:
+ 1856 017c 6572725F 		.ascii	"err_tmp2\000"
+ 1856      746D7032 
+ 1856      00
+ 1857              	.LASF29:
+ 1858 0185 6C765F63 		.ascii	"lv_color1_t\000"
+ 1858      6F6C6F72 
+ 1858      315F7400 
+ 1859              	.LASF34:
+ 1860 0191 63686172 		.ascii	"char\000"
+ 1860      00
+ 1861              	.LASF42:
+ 1862 0196 65646765 		.ascii	"edge1\000"
+ 1862      3100
+ 1863              	.LASF13:
+ 1864 019c 4C565F4F 		.ascii	"LV_OPA_TRANSP\000"
+ 1864      50415F54 
+ 1864      52414E53 
+ 1864      5000
+ 1865              	.LASF35:
+ 1866 01aa 6C765F63 		.ascii	"lv_coord_t\000"
+ 1866      6F6F7264 
+ 1866      5F7400
+ 1867              	.LASF5:
+ 1868 01b5 73686F72 		.ascii	"short unsigned int\000"
+ 1868      7420756E 
+ 1868      7369676E 
+ 1868      65642069 
+ 1868      6E7400
+ 1869              	.LASF12:
+ 1870 01c8 696E7431 		.ascii	"int16_t\000"
+ 1870      365F7400 
+ 1871              	.LASF38:
+ 1872 01d0 5F426F6F 		.ascii	"_Bool\000"
+ 1872      6C00
+ 1873              	.LASF45:
+ 1874 01d6 65646765 		.ascii	"edge2\000"
+ 1874      3200
+ 1875              	.LASF23:
+ 1876 01dc 4C565F4F 		.ascii	"LV_OPA_90\000"
+ 1876      50415F39 
+ 1876      3000
+ 1877              	.LASF7:
+ 1878 01e6 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1878      20756E73 
+ 1878      69676E65 
+ 1878      6420696E 
+ 1878      7400
+ 1879              	.LASF14:
+ 1880 01f8 4C565F4F 		.ascii	"LV_OPA_0\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 40
+
+
+ 1880      50415F30 
+ 1880      00
+ 1881              	.LASF49:
+ 1882 0201 79325F74 		.ascii	"y2_tmp\000"
+ 1882      6D7000
+ 1883              	.LASF40:
+ 1884 0208 6D61736B 		.ascii	"mask\000"
+ 1884      00
+ 1885              	.LASF28:
+ 1886 020d 66756C6C 		.ascii	"full\000"
+ 1886      00
+ 1887              	.LASF3:
+ 1888 0212 5F5F696E 		.ascii	"__int16_t\000"
+ 1888      7431365F 
+ 1888      7400
+ 1889              	.LASF16:
+ 1890 021c 4C565F4F 		.ascii	"LV_OPA_20\000"
+ 1890      50415F32 
+ 1890      3000
+ 1891              	.LASF33:
+ 1892 0226 73697A65 		.ascii	"sizetype\000"
+ 1892      74797065 
+ 1892      00
+ 1893              	.LASF54:
+ 1894 022f 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 1894      73657273 
+ 1894      5C643362 
+ 1894      75675C44 
+ 1894      6F63756D 
+ 1895 025d 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 1895      6F5F776F 
+ 1895      726C645F 
+ 1895      6C616265 
+ 1895      6C2E6379 
+ 1896              	.LASF20:
+ 1897 0275 4C565F4F 		.ascii	"LV_OPA_60\000"
+ 1897      50415F36 
+ 1897      3000
+ 1898              	.LASF52:
+ 1899 027f 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 1899      43313120 
+ 1899      352E342E 
+ 1899      31203230 
+ 1899      31363036 
+ 1900 02b2 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 1900      20726576 
+ 1900      6973696F 
+ 1900      6E203233 
+ 1900      37373135 
+ 1901 02e5 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1901      66756E63 
+ 1901      74696F6E 
+ 1901      2D736563 
+ 1901      74696F6E 
+ 1902              	.LASF22:
+ 1903 030d 4C565F4F 		.ascii	"LV_OPA_80\000"
+ 1903      50415F38 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccojd9dS.s 			page 41
+
+
+ 1903      3000
+ 1904              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

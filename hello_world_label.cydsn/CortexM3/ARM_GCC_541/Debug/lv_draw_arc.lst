@@ -1,0 +1,5338 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_draw_arc.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.fast_atan2,"ax",%progbits
+  20              		.align	2
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	fast_atan2, %function
+  24              	fast_atan2:
+  25              	.LFB13:
+  26              		.file 1 "..\\lvgl\\lv_draw\\lv_draw_arc.c"
+   1:..\lvgl\lv_draw/lv_draw_arc.c **** /**
+   2:..\lvgl\lv_draw/lv_draw_arc.c ****  * @file lv_draw_arc.c
+   3:..\lvgl\lv_draw/lv_draw_arc.c ****  *
+   4:..\lvgl\lv_draw/lv_draw_arc.c ****  */
+   5:..\lvgl\lv_draw/lv_draw_arc.c **** 
+   6:..\lvgl\lv_draw/lv_draw_arc.c **** /*********************
+   7:..\lvgl\lv_draw/lv_draw_arc.c ****  *      INCLUDES
+   8:..\lvgl\lv_draw/lv_draw_arc.c ****  *********************/
+   9:..\lvgl\lv_draw/lv_draw_arc.c **** #include "lv_draw_arc.h"
+  10:..\lvgl\lv_draw/lv_draw_arc.c **** #include "../lv_misc/lv_math.h"
+  11:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  12:..\lvgl\lv_draw/lv_draw_arc.c **** /*********************
+  13:..\lvgl\lv_draw/lv_draw_arc.c ****  *      DEFINES
+  14:..\lvgl\lv_draw/lv_draw_arc.c ****  *********************/
+  15:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  16:..\lvgl\lv_draw/lv_draw_arc.c **** /**********************
+  17:..\lvgl\lv_draw/lv_draw_arc.c ****  *      TYPEDEFS
+  18:..\lvgl\lv_draw/lv_draw_arc.c ****  **********************/
+  19:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  20:..\lvgl\lv_draw/lv_draw_arc.c **** /**********************
+  21:..\lvgl\lv_draw/lv_draw_arc.c ****  *  STATIC PROTOTYPES
+  22:..\lvgl\lv_draw/lv_draw_arc.c ****  **********************/
+  23:..\lvgl\lv_draw/lv_draw_arc.c **** static uint16_t fast_atan2(int x, int y);
+  24:..\lvgl\lv_draw/lv_draw_arc.c **** static void ver_line(lv_coord_t x, lv_coord_t y, const lv_area_t * mask, lv_coord_t len, lv_color_t
+  25:..\lvgl\lv_draw/lv_draw_arc.c **** static void hor_line(lv_coord_t x, lv_coord_t y, const lv_area_t * mask, lv_coord_t len, lv_color_t
+  26:..\lvgl\lv_draw/lv_draw_arc.c **** static bool deg_test_norm(uint16_t deg, uint16_t start, uint16_t end);
+  27:..\lvgl\lv_draw/lv_draw_arc.c **** static bool deg_test_inv(uint16_t deg, uint16_t start, uint16_t end);
+  28:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  29:..\lvgl\lv_draw/lv_draw_arc.c **** /**********************
+  30:..\lvgl\lv_draw/lv_draw_arc.c ****  *  STATIC VARIABLES
+  31:..\lvgl\lv_draw/lv_draw_arc.c ****  **********************/
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 2
+
+
+  32:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  33:..\lvgl\lv_draw/lv_draw_arc.c **** /**********************
+  34:..\lvgl\lv_draw/lv_draw_arc.c ****  *      MACROS
+  35:..\lvgl\lv_draw/lv_draw_arc.c ****  **********************/
+  36:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  37:..\lvgl\lv_draw/lv_draw_arc.c **** /**********************
+  38:..\lvgl\lv_draw/lv_draw_arc.c ****  *   GLOBAL FUNCTIONS
+  39:..\lvgl\lv_draw/lv_draw_arc.c ****  **********************/
+  40:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  41:..\lvgl\lv_draw/lv_draw_arc.c **** /**
+  42:..\lvgl\lv_draw/lv_draw_arc.c ****  * Draw an arc. (Can draw pie too with great thickness.)
+  43:..\lvgl\lv_draw/lv_draw_arc.c ****  * @param center_x the x coordinate of the center of the arc
+  44:..\lvgl\lv_draw/lv_draw_arc.c ****  * @param center_y the y coordinate of the center of the arc
+  45:..\lvgl\lv_draw/lv_draw_arc.c ****  * @param radius the radius of the arc
+  46:..\lvgl\lv_draw/lv_draw_arc.c ****  * @param mask the arc will be drawn only in this mask
+  47:..\lvgl\lv_draw/lv_draw_arc.c ****  * @param start_angle the start angle of the arc (0 deg on the bottom, 90 deg on the right)
+  48:..\lvgl\lv_draw/lv_draw_arc.c ****  * @param end_angle the end angle of the arc
+  49:..\lvgl\lv_draw/lv_draw_arc.c ****  * @param style style of the arc (`body.thickness`, `body.main_color`, `body.opa` is used)
+  50:..\lvgl\lv_draw/lv_draw_arc.c ****  * @param opa_scale scale down all opacities by the factor
+  51:..\lvgl\lv_draw/lv_draw_arc.c ****  */
+  52:..\lvgl\lv_draw/lv_draw_arc.c **** void lv_draw_arc(lv_coord_t center_x, lv_coord_t center_y, uint16_t radius, const lv_area_t * mask,
+  53:..\lvgl\lv_draw/lv_draw_arc.c ****                  uint16_t start_angle, uint16_t end_angle, const lv_style_t * style, lv_opa_t opa_s
+  54:..\lvgl\lv_draw/lv_draw_arc.c **** {
+  55:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_coord_t thickness = style->line.width;
+  56:..\lvgl\lv_draw/lv_draw_arc.c ****     if(thickness > radius) thickness = radius;
+  57:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  58:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_coord_t r_out = radius;
+  59:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_coord_t r_in = r_out - thickness;
+  60:..\lvgl\lv_draw/lv_draw_arc.c ****     int16_t deg_base;
+  61:..\lvgl\lv_draw/lv_draw_arc.c ****     int16_t deg;
+  62:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_coord_t x_start[4];
+  63:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_coord_t x_end[4];
+  64:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  65:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_color_t color = style->line.color;
+  66:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_opa_t opa = opa_scale == LV_OPA_COVER ? style->body.opa : (uint16_t)((uint16_t) style->body.
+  67:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  68:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  69:..\lvgl\lv_draw/lv_draw_arc.c ****     bool (*deg_test)(uint16_t, uint16_t, uint16_t);
+  70:..\lvgl\lv_draw/lv_draw_arc.c ****     if(start_angle <= end_angle) deg_test = deg_test_norm;
+  71:..\lvgl\lv_draw/lv_draw_arc.c ****     else deg_test = deg_test_inv;
+  72:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  73:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(270, start_angle, end_angle))  hor_line(center_x - r_out + 1, center_y, mask, thick
+  74:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(90, start_angle, end_angle))   hor_line(center_x + r_in, center_y,  mask, thickness
+  75:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(180, start_angle, end_angle))  ver_line(center_x, center_y - r_out + 1,  mask, thic
+  76:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(0, start_angle, end_angle))    ver_line(center_x, center_y + r_in,  mask, thickness
+  77:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  78:..\lvgl\lv_draw/lv_draw_arc.c ****     uint32_t r_out_sqr = r_out * r_out;
+  79:..\lvgl\lv_draw/lv_draw_arc.c ****     uint32_t r_in_sqr = r_in * r_in;
+  80:..\lvgl\lv_draw/lv_draw_arc.c ****     int16_t xi;
+  81:..\lvgl\lv_draw/lv_draw_arc.c ****     int16_t yi;
+  82:..\lvgl\lv_draw/lv_draw_arc.c ****     for(yi = -r_out; yi < 0; yi++) {
+  83:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[0] = LV_COORD_MIN;
+  84:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[1] = LV_COORD_MIN;
+  85:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[2] = LV_COORD_MIN;
+  86:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[3] = LV_COORD_MIN;
+  87:..\lvgl\lv_draw/lv_draw_arc.c ****         x_end[0] = LV_COORD_MIN;
+  88:..\lvgl\lv_draw/lv_draw_arc.c ****         x_end[1] = LV_COORD_MIN;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 3
+
+
+  89:..\lvgl\lv_draw/lv_draw_arc.c ****         x_end[2] = LV_COORD_MIN;
+  90:..\lvgl\lv_draw/lv_draw_arc.c ****         x_end[3] = LV_COORD_MIN;
+  91:..\lvgl\lv_draw/lv_draw_arc.c ****         for(xi = -r_out; xi < 0; xi++) {
+  92:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  93:..\lvgl\lv_draw/lv_draw_arc.c ****             uint32_t r_act_sqr = xi * xi + yi * yi;
+  94:..\lvgl\lv_draw/lv_draw_arc.c ****             if(r_act_sqr > r_out_sqr) continue;
+  95:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  96:..\lvgl\lv_draw/lv_draw_arc.c ****             deg_base =  fast_atan2(xi, yi) - 180;
+  97:..\lvgl\lv_draw/lv_draw_arc.c **** 
+  98:..\lvgl\lv_draw/lv_draw_arc.c ****             deg = 180 + deg_base;
+  99:..\lvgl\lv_draw/lv_draw_arc.c ****             if(deg_test(deg, start_angle, end_angle)) {
+ 100:..\lvgl\lv_draw/lv_draw_arc.c ****                 if(x_start[0] == LV_COORD_MIN) x_start[0] = xi;
+ 101:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[0] != LV_COORD_MIN && x_end[0] == LV_COORD_MIN) {
+ 102:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[0] = xi - 1;
+ 103:..\lvgl\lv_draw/lv_draw_arc.c ****             }
+ 104:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 105:..\lvgl\lv_draw/lv_draw_arc.c ****             deg = 360 - deg_base;
+ 106:..\lvgl\lv_draw/lv_draw_arc.c ****             if(deg_test(deg, start_angle, end_angle)) {
+ 107:..\lvgl\lv_draw/lv_draw_arc.c ****                 if(x_start[1] == LV_COORD_MIN) x_start[1] = xi;
+ 108:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[1] != LV_COORD_MIN && x_end[1] == LV_COORD_MIN) {
+ 109:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[1] = xi - 1;
+ 110:..\lvgl\lv_draw/lv_draw_arc.c ****             }
+ 111:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 112:..\lvgl\lv_draw/lv_draw_arc.c ****             deg = 180 - deg_base;
+ 113:..\lvgl\lv_draw/lv_draw_arc.c ****             if(deg_test(deg, start_angle, end_angle)) {
+ 114:..\lvgl\lv_draw/lv_draw_arc.c ****                 if(x_start[2] == LV_COORD_MIN) x_start[2] = xi;
+ 115:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[2] != LV_COORD_MIN && x_end[2] == LV_COORD_MIN) {
+ 116:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[2] = xi - 1;
+ 117:..\lvgl\lv_draw/lv_draw_arc.c ****             }
+ 118:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 119:..\lvgl\lv_draw/lv_draw_arc.c ****             deg = deg_base;
+ 120:..\lvgl\lv_draw/lv_draw_arc.c ****             if(deg_test(deg, start_angle, end_angle)) {
+ 121:..\lvgl\lv_draw/lv_draw_arc.c ****                 if(x_start[3] == LV_COORD_MIN) x_start[3] = xi;
+ 122:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[3] != LV_COORD_MIN && x_end[3] == LV_COORD_MIN) {
+ 123:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[3] = xi - 1;
+ 124:..\lvgl\lv_draw/lv_draw_arc.c ****             }
+ 125:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 126:..\lvgl\lv_draw/lv_draw_arc.c ****             if(r_act_sqr < r_in_sqr) break; /*No need to continue the iteration in x once we found 
+ 127:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 128:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 129:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 130:..\lvgl\lv_draw/lv_draw_arc.c ****         if(x_start[0] != LV_COORD_MIN) {
+ 131:..\lvgl\lv_draw/lv_draw_arc.c ****             if(x_end[0] == LV_COORD_MIN) x_end[0] = xi - 1;
+ 132:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x + x_start[0], center_y + yi, mask, x_end[0] - x_start[0], color, opa)
+ 133:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 134:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 135:..\lvgl\lv_draw/lv_draw_arc.c ****         if(x_start[1] != LV_COORD_MIN) {
+ 136:..\lvgl\lv_draw/lv_draw_arc.c ****             if(x_end[1] == LV_COORD_MIN) x_end[1] = xi - 1;
+ 137:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x + x_start[1], center_y - yi, mask, x_end[1] - x_start[1], color, opa)
+ 138:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 139:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 140:..\lvgl\lv_draw/lv_draw_arc.c ****         if(x_start[2] != LV_COORD_MIN) {
+ 141:..\lvgl\lv_draw/lv_draw_arc.c ****             if(x_end[2] == LV_COORD_MIN) x_end[2] = xi - 1;
+ 142:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x - x_end[2], center_y + yi, mask, LV_MATH_ABS(x_end[2] - x_start[2]), 
+ 143:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 144:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 145:..\lvgl\lv_draw/lv_draw_arc.c ****         if(x_start[3] != LV_COORD_MIN) {
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 4
+
+
+ 146:..\lvgl\lv_draw/lv_draw_arc.c ****             if(x_end[3] == LV_COORD_MIN) x_end[3] = xi - 1;
+ 147:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x - x_end[3], center_y - yi, mask, LV_MATH_ABS(x_end[3] - x_start[3]), 
+ 148:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 149:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 150:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 151:..\lvgl\lv_draw/lv_draw_arc.c **** #if LV_ANTIALIAS
+ 152:..\lvgl\lv_draw/lv_draw_arc.c ****         /*TODO*/
+ 153:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 154:..\lvgl\lv_draw/lv_draw_arc.c **** #endif
+ 155:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 156:..\lvgl\lv_draw/lv_draw_arc.c ****     }
+ 157:..\lvgl\lv_draw/lv_draw_arc.c **** }
+ 158:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 159:..\lvgl\lv_draw/lv_draw_arc.c **** static uint16_t fast_atan2(int x, int y)
+ 160:..\lvgl\lv_draw/lv_draw_arc.c **** {
+  27              		.loc 1 160 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+ 161:..\lvgl\lv_draw/lv_draw_arc.c ****     // Fast XY vector to integer degree algorithm - Jan 2011 www.RomanBlack.com
+ 162:..\lvgl\lv_draw/lv_draw_arc.c ****     // Converts any XY values including 0 to a degree value that should be
+ 163:..\lvgl\lv_draw/lv_draw_arc.c ****     // within +/- 1 degree of the accurate value without needing
+ 164:..\lvgl\lv_draw/lv_draw_arc.c ****     // large slow trig functions like ArcTan() or ArcCos().
+ 165:..\lvgl\lv_draw/lv_draw_arc.c ****     // NOTE! at least one of the X or Y values must be non-zero!
+ 166:..\lvgl\lv_draw/lv_draw_arc.c ****     // This is the full version, for all 4 quadrants and will generate
+ 167:..\lvgl\lv_draw/lv_draw_arc.c ****     // the angle in integer degrees from 0-360.
+ 168:..\lvgl\lv_draw/lv_draw_arc.c ****     // Any values of X and Y are usable including negative values provided
+ 169:..\lvgl\lv_draw/lv_draw_arc.c ****     // they are between -1456 and 1456 so the 16bit multiply does not overflow.
+ 170:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 171:..\lvgl\lv_draw/lv_draw_arc.c ****     unsigned char negflag;
+ 172:..\lvgl\lv_draw/lv_draw_arc.c ****     unsigned char tempdegree;
+ 173:..\lvgl\lv_draw/lv_draw_arc.c ****     unsigned char comp;
+ 174:..\lvgl\lv_draw/lv_draw_arc.c ****     unsigned int degree;     // this will hold the result
+ 175:..\lvgl\lv_draw/lv_draw_arc.c ****     //signed int x;            // these hold the XY vector at the start
+ 176:..\lvgl\lv_draw/lv_draw_arc.c ****     //signed int y;            // (and they will be destroyed)
+ 177:..\lvgl\lv_draw/lv_draw_arc.c ****     unsigned int ux;
+ 178:..\lvgl\lv_draw/lv_draw_arc.c ****     unsigned int uy;
+ 179:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 180:..\lvgl\lv_draw/lv_draw_arc.c ****     // Save the sign flags then remove signs and get XY as unsigned ints
+ 181:..\lvgl\lv_draw/lv_draw_arc.c ****     negflag = 0;
+ 182:..\lvgl\lv_draw/lv_draw_arc.c ****     if(x < 0) {
+  33              		.loc 1 182 0
+  34 0000 0028     		cmp	r0, #0
+  35 0002 02DA     		bge	.L18
+  36              	.LVL1:
+ 183:..\lvgl\lv_draw/lv_draw_arc.c ****         negflag += 0x01;    // x flag bit
+ 184:..\lvgl\lv_draw/lv_draw_arc.c ****         x = (0 - x);        // is now +
+  37              		.loc 1 184 0
+  38 0004 4042     		negs	r0, r0
+  39              	.LVL2:
+ 183:..\lvgl\lv_draw/lv_draw_arc.c ****         negflag += 0x01;    // x flag bit
+  40              		.loc 1 183 0
+  41 0006 0123     		movs	r3, #1
+  42 0008 00E0     		b	.L2
+  43              	.LVL3:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 5
+
+
+  44              	.L18:
+ 181:..\lvgl\lv_draw/lv_draw_arc.c ****     if(x < 0) {
+  45              		.loc 1 181 0
+  46 000a 0023     		movs	r3, #0
+  47              	.LVL4:
+  48              	.L2:
+ 185:..\lvgl\lv_draw/lv_draw_arc.c ****     }
+ 186:..\lvgl\lv_draw/lv_draw_arc.c ****     ux = x;                // copy to unsigned var before multiply
+ 187:..\lvgl\lv_draw/lv_draw_arc.c ****     if(y < 0) {
+  49              		.loc 1 187 0
+  50 000c 0029     		cmp	r1, #0
+  51 000e 02DA     		bge	.L3
+ 188:..\lvgl\lv_draw/lv_draw_arc.c ****         negflag += 0x02;    // y flag bit
+  52              		.loc 1 188 0
+  53 0010 0233     		adds	r3, r3, #2
+  54              	.LVL5:
+  55 0012 DBB2     		uxtb	r3, r3
+  56              	.LVL6:
+ 189:..\lvgl\lv_draw/lv_draw_arc.c ****         y = (0 - y);        // is now +
+  57              		.loc 1 189 0
+  58 0014 4942     		negs	r1, r1
+  59              	.LVL7:
+  60              	.L3:
+ 190:..\lvgl\lv_draw/lv_draw_arc.c ****     }
+ 191:..\lvgl\lv_draw/lv_draw_arc.c ****     uy = y;                // copy to unsigned var before multiply
+ 192:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 193:..\lvgl\lv_draw/lv_draw_arc.c ****     // 1. Calc the scaled "degrees"
+ 194:..\lvgl\lv_draw/lv_draw_arc.c ****     if(ux > uy) {
+  61              		.loc 1 194 0
+  62 0016 8842     		cmp	r0, r1
+  63 0018 08D9     		bls	.L4
+ 195:..\lvgl\lv_draw/lv_draw_arc.c ****         degree = (uy * 45) / ux;   // degree result will be 0-45 range
+  64              		.loc 1 195 0
+  65 001a 01EB4101 		add	r1, r1, r1, lsl #1
+  66              	.LVL8:
+  67 001e C1EB0111 		rsb	r1, r1, r1, lsl #4
+  68 0022 B1FBF0F1 		udiv	r1, r1, r0
+  69              	.LVL9:
+ 196:..\lvgl\lv_draw/lv_draw_arc.c ****         negflag += 0x10;    // octant flag bit
+  70              		.loc 1 196 0
+  71 0026 1033     		adds	r3, r3, #16
+  72              	.LVL10:
+  73 0028 DBB2     		uxtb	r3, r3
+  74              	.LVL11:
+  75 002a 05E0     		b	.L5
+  76              	.LVL12:
+  77              	.L4:
+ 197:..\lvgl\lv_draw/lv_draw_arc.c ****     } else {
+ 198:..\lvgl\lv_draw/lv_draw_arc.c ****         degree = (ux * 45) / uy;   // degree result will be 0-45 range
+  78              		.loc 1 198 0
+  79 002c 00EB4000 		add	r0, r0, r0, lsl #1
+  80              	.LVL13:
+  81 0030 C0EB0010 		rsb	r0, r0, r0, lsl #4
+  82 0034 B0FBF1F1 		udiv	r1, r0, r1
+  83              	.LVL14:
+  84              	.L5:
+ 199:..\lvgl\lv_draw/lv_draw_arc.c ****     }
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 6
+
+
+ 200:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 201:..\lvgl\lv_draw/lv_draw_arc.c ****     // 2. Compensate for the 4 degree error curve
+ 202:..\lvgl\lv_draw/lv_draw_arc.c ****     comp = 0;
+ 203:..\lvgl\lv_draw/lv_draw_arc.c ****     tempdegree = degree;    // use an unsigned char for speed!
+  85              		.loc 1 203 0
+  86 0038 CAB2     		uxtb	r2, r1
+  87              	.LVL15:
+ 204:..\lvgl\lv_draw/lv_draw_arc.c ****     if(tempdegree > 22) {    // if top half of range
+  88              		.loc 1 204 0
+  89 003a 162A     		cmp	r2, #22
+  90 003c 11D9     		bls	.L6
+ 205:..\lvgl\lv_draw/lv_draw_arc.c ****         if(tempdegree <= 44) comp++;
+  91              		.loc 1 205 0
+  92 003e 2C2A     		cmp	r2, #44
+  93 0040 01D9     		bls	.L19
+ 202:..\lvgl\lv_draw/lv_draw_arc.c ****     tempdegree = degree;    // use an unsigned char for speed!
+  94              		.loc 1 202 0
+  95 0042 0020     		movs	r0, #0
+  96 0044 00E0     		b	.L7
+  97              	.L19:
+  98              		.loc 1 205 0
+  99 0046 0120     		movs	r0, #1
+ 100              	.L7:
+ 101              	.LVL16:
+ 206:..\lvgl\lv_draw/lv_draw_arc.c ****         if(tempdegree <= 41) comp++;
+ 102              		.loc 1 206 0
+ 103 0048 292A     		cmp	r2, #41
+ 104 004a 01D8     		bhi	.L8
+ 105              		.loc 1 206 0 is_stmt 0 discriminator 1
+ 106 004c 0130     		adds	r0, r0, #1
+ 107              	.LVL17:
+ 108 004e C0B2     		uxtb	r0, r0
+ 109              	.LVL18:
+ 110              	.L8:
+ 207:..\lvgl\lv_draw/lv_draw_arc.c ****         if(tempdegree <= 37) comp++;
+ 111              		.loc 1 207 0 is_stmt 1
+ 112 0050 252A     		cmp	r2, #37
+ 113 0052 01D8     		bhi	.L9
+ 114              		.loc 1 207 0 is_stmt 0 discriminator 1
+ 115 0054 0130     		adds	r0, r0, #1
+ 116              	.LVL19:
+ 117 0056 C0B2     		uxtb	r0, r0
+ 118              	.LVL20:
+ 119              	.L9:
+ 208:..\lvgl\lv_draw/lv_draw_arc.c ****         if(tempdegree <= 32) comp++;  // max is 4 degrees compensated
+ 120              		.loc 1 208 0 is_stmt 1
+ 121 0058 202A     		cmp	r2, #32
+ 122 005a 13D8     		bhi	.L10
+ 123              		.loc 1 208 0 is_stmt 0 discriminator 1
+ 124 005c 0130     		adds	r0, r0, #1
+ 125              	.LVL21:
+ 126 005e C0B2     		uxtb	r0, r0
+ 127              	.LVL22:
+ 128 0060 10E0     		b	.L10
+ 129              	.LVL23:
+ 130              	.L6:
+ 209:..\lvgl\lv_draw/lv_draw_arc.c ****     } else { // else is lower half of range
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 7
+
+
+ 210:..\lvgl\lv_draw/lv_draw_arc.c ****         if(tempdegree >= 2) comp++;
+ 131              		.loc 1 210 0 is_stmt 1
+ 132 0062 012A     		cmp	r2, #1
+ 133 0064 01D8     		bhi	.L20
+ 202:..\lvgl\lv_draw/lv_draw_arc.c ****     tempdegree = degree;    // use an unsigned char for speed!
+ 134              		.loc 1 202 0
+ 135 0066 0020     		movs	r0, #0
+ 136 0068 00E0     		b	.L11
+ 137              	.L20:
+ 138              		.loc 1 210 0
+ 139 006a 0120     		movs	r0, #1
+ 140              	.L11:
+ 141              	.LVL24:
+ 211:..\lvgl\lv_draw/lv_draw_arc.c ****         if(tempdegree >= 6) comp++;
+ 142              		.loc 1 211 0
+ 143 006c 052A     		cmp	r2, #5
+ 144 006e 01D9     		bls	.L12
+ 145              		.loc 1 211 0 is_stmt 0 discriminator 1
+ 146 0070 0130     		adds	r0, r0, #1
+ 147              	.LVL25:
+ 148 0072 C0B2     		uxtb	r0, r0
+ 149              	.LVL26:
+ 150              	.L12:
+ 212:..\lvgl\lv_draw/lv_draw_arc.c ****         if(tempdegree >= 10) comp++;
+ 151              		.loc 1 212 0 is_stmt 1
+ 152 0074 092A     		cmp	r2, #9
+ 153 0076 01D9     		bls	.L13
+ 154              		.loc 1 212 0 is_stmt 0 discriminator 1
+ 155 0078 0130     		adds	r0, r0, #1
+ 156              	.LVL27:
+ 157 007a C0B2     		uxtb	r0, r0
+ 158              	.LVL28:
+ 159              	.L13:
+ 213:..\lvgl\lv_draw/lv_draw_arc.c ****         if(tempdegree >= 15) comp++;  // max is 4 degrees compensated
+ 160              		.loc 1 213 0 is_stmt 1
+ 161 007c 0E2A     		cmp	r2, #14
+ 162 007e 01D9     		bls	.L10
+ 163              		.loc 1 213 0 is_stmt 0 discriminator 1
+ 164 0080 0130     		adds	r0, r0, #1
+ 165              	.LVL29:
+ 166 0082 C0B2     		uxtb	r0, r0
+ 167              	.LVL30:
+ 168              	.L10:
+ 214:..\lvgl\lv_draw/lv_draw_arc.c ****     }
+ 215:..\lvgl\lv_draw/lv_draw_arc.c ****     degree += comp;   // degree is now accurate to +/- 1 degree!
+ 169              		.loc 1 215 0 is_stmt 1
+ 170 0084 0844     		add	r0, r0, r1
+ 171              	.LVL31:
+ 216:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 217:..\lvgl\lv_draw/lv_draw_arc.c ****     // Invert degree if it was X>Y octant, makes 0-45 into 90-45
+ 218:..\lvgl\lv_draw/lv_draw_arc.c ****     if(negflag & 0x10) degree = (90 - degree);
+ 172              		.loc 1 218 0
+ 173 0086 13F0100F 		tst	r3, #16
+ 174 008a 01D0     		beq	.L14
+ 175              		.loc 1 218 0 is_stmt 0 discriminator 1
+ 176 008c C0F15A00 		rsb	r0, r0, #90
+ 177              	.LVL32:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 8
+
+
+ 178              	.L14:
+ 219:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 220:..\lvgl\lv_draw/lv_draw_arc.c ****     // 3. Degree is now 0-90 range for this quadrant,
+ 221:..\lvgl\lv_draw/lv_draw_arc.c ****     // need to invert it for whichever quadrant it was in
+ 222:..\lvgl\lv_draw/lv_draw_arc.c ****     if(negflag & 0x02) { // if -Y
+ 179              		.loc 1 222 0 is_stmt 1
+ 180 0090 13F0020F 		tst	r3, #2
+ 181 0094 07D0     		beq	.L15
+ 223:..\lvgl\lv_draw/lv_draw_arc.c ****         if(negflag & 0x01)   // if -Y -X
+ 182              		.loc 1 223 0
+ 183 0096 13F0010F 		tst	r3, #1
+ 184 009a 01D0     		beq	.L16
+ 224:..\lvgl\lv_draw/lv_draw_arc.c ****             degree = (180 + degree);
+ 185              		.loc 1 224 0
+ 186 009c B430     		adds	r0, r0, #180
+ 187              	.LVL33:
+ 188 009e 07E0     		b	.L17
+ 189              	.L16:
+ 225:..\lvgl\lv_draw/lv_draw_arc.c ****         else        // else is -Y +X
+ 226:..\lvgl\lv_draw/lv_draw_arc.c ****             degree = (180 - degree);
+ 190              		.loc 1 226 0
+ 191 00a0 C0F1B400 		rsb	r0, r0, #180
+ 192              	.LVL34:
+ 193 00a4 04E0     		b	.L17
+ 194              	.L15:
+ 227:..\lvgl\lv_draw/lv_draw_arc.c ****     } else { // else is +Y
+ 228:..\lvgl\lv_draw/lv_draw_arc.c ****         if(negflag & 0x01)   // if +Y -X
+ 195              		.loc 1 228 0
+ 196 00a6 13F0010F 		tst	r3, #1
+ 197 00aa 01D0     		beq	.L17
+ 229:..\lvgl\lv_draw/lv_draw_arc.c ****             degree = (360 - degree);
+ 198              		.loc 1 229 0
+ 199 00ac C0F5B470 		rsb	r0, r0, #360
+ 200              	.LVL35:
+ 201              	.L17:
+ 230:..\lvgl\lv_draw/lv_draw_arc.c ****     }
+ 231:..\lvgl\lv_draw/lv_draw_arc.c ****     return degree;
+ 232:..\lvgl\lv_draw/lv_draw_arc.c **** }
+ 202              		.loc 1 232 0
+ 203 00b0 80B2     		uxth	r0, r0
+ 204              	.LVL36:
+ 205 00b2 7047     		bx	lr
+ 206              		.cfi_endproc
+ 207              	.LFE13:
+ 208              		.size	fast_atan2, .-fast_atan2
+ 209              		.section	.text.deg_test_norm,"ax",%progbits
+ 210              		.align	2
+ 211              		.thumb
+ 212              		.thumb_func
+ 213              		.type	deg_test_norm, %function
+ 214              	deg_test_norm:
+ 215              	.LFB16:
+ 233:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 234:..\lvgl\lv_draw/lv_draw_arc.c **** /**********************
+ 235:..\lvgl\lv_draw/lv_draw_arc.c ****  *   STATIC FUNCTIONS
+ 236:..\lvgl\lv_draw/lv_draw_arc.c ****  **********************/
+ 237:..\lvgl\lv_draw/lv_draw_arc.c **** static void ver_line(lv_coord_t x, lv_coord_t y, const lv_area_t * mask, lv_coord_t len, lv_color_t
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 9
+
+
+ 238:..\lvgl\lv_draw/lv_draw_arc.c **** {
+ 239:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_area_t area;
+ 240:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_area_set(&area, x, y, x, y + len);
+ 241:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 242:..\lvgl\lv_draw/lv_draw_arc.c ****     fill_fp(&area, mask, color, opa);
+ 243:..\lvgl\lv_draw/lv_draw_arc.c **** }
+ 244:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 245:..\lvgl\lv_draw/lv_draw_arc.c **** static void hor_line(lv_coord_t x, lv_coord_t y, const lv_area_t * mask, lv_coord_t len, lv_color_t
+ 246:..\lvgl\lv_draw/lv_draw_arc.c **** {
+ 247:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_area_t area;
+ 248:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_area_set(&area, x, y, x + len, y);
+ 249:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 250:..\lvgl\lv_draw/lv_draw_arc.c ****     fill_fp(&area, mask, color, opa);
+ 251:..\lvgl\lv_draw/lv_draw_arc.c **** }
+ 252:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 253:..\lvgl\lv_draw/lv_draw_arc.c **** static bool deg_test_norm(uint16_t deg, uint16_t start, uint16_t end)
+ 254:..\lvgl\lv_draw/lv_draw_arc.c **** {
+ 216              		.loc 1 254 0
+ 217              		.cfi_startproc
+ 218              		@ args = 0, pretend = 0, frame = 0
+ 219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 220              		@ link register save eliminated.
+ 221              	.LVL37:
+ 255:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg >= start && deg <= end) return true;
+ 222              		.loc 1 255 0
+ 223 0000 8842     		cmp	r0, r1
+ 224 0002 03D3     		bcc	.L23
+ 225              		.loc 1 255 0 is_stmt 0 discriminator 1
+ 226 0004 9042     		cmp	r0, r2
+ 227 0006 03D9     		bls	.L24
+ 256:..\lvgl\lv_draw/lv_draw_arc.c ****     else return false;
+ 228              		.loc 1 256 0 is_stmt 1
+ 229 0008 0020     		movs	r0, #0
+ 230              	.LVL38:
+ 231 000a 7047     		bx	lr
+ 232              	.LVL39:
+ 233              	.L23:
+ 234 000c 0020     		movs	r0, #0
+ 235              	.LVL40:
+ 236 000e 7047     		bx	lr
+ 237              	.LVL41:
+ 238              	.L24:
+ 255:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg >= start && deg <= end) return true;
+ 239              		.loc 1 255 0
+ 240 0010 0120     		movs	r0, #1
+ 241              	.LVL42:
+ 257:..\lvgl\lv_draw/lv_draw_arc.c **** }
+ 242              		.loc 1 257 0
+ 243 0012 7047     		bx	lr
+ 244              		.cfi_endproc
+ 245              	.LFE16:
+ 246              		.size	deg_test_norm, .-deg_test_norm
+ 247              		.section	.text.deg_test_inv,"ax",%progbits
+ 248              		.align	2
+ 249              		.thumb
+ 250              		.thumb_func
+ 251              		.type	deg_test_inv, %function
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 10
+
+
+ 252              	deg_test_inv:
+ 253              	.LFB17:
+ 258:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 259:..\lvgl\lv_draw/lv_draw_arc.c **** static bool deg_test_inv(uint16_t deg, uint16_t start, uint16_t end)
+ 260:..\lvgl\lv_draw/lv_draw_arc.c **** {
+ 254              		.loc 1 260 0
+ 255              		.cfi_startproc
+ 256              		@ args = 0, pretend = 0, frame = 0
+ 257              		@ frame_needed = 0, uses_anonymous_args = 0
+ 258              		@ link register save eliminated.
+ 259              	.LVL43:
+ 261:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg >= start || deg <= end) {
+ 260              		.loc 1 261 0
+ 261 0000 8842     		cmp	r0, r1
+ 262 0002 03D2     		bcs	.L27
+ 263              		.loc 1 261 0 is_stmt 0 discriminator 1
+ 264 0004 9042     		cmp	r0, r2
+ 265 0006 03D8     		bhi	.L28
+ 262:..\lvgl\lv_draw/lv_draw_arc.c ****         return true;
+ 266              		.loc 1 262 0 is_stmt 1
+ 267 0008 0120     		movs	r0, #1
+ 268              	.LVL44:
+ 269 000a 7047     		bx	lr
+ 270              	.LVL45:
+ 271              	.L27:
+ 272 000c 0120     		movs	r0, #1
+ 273              	.LVL46:
+ 274 000e 7047     		bx	lr
+ 275              	.LVL47:
+ 276              	.L28:
+ 263:..\lvgl\lv_draw/lv_draw_arc.c ****     } else return false;
+ 277              		.loc 1 263 0
+ 278 0010 0020     		movs	r0, #0
+ 279              	.LVL48:
+ 264:..\lvgl\lv_draw/lv_draw_arc.c **** }
+ 280              		.loc 1 264 0
+ 281 0012 7047     		bx	lr
+ 282              		.cfi_endproc
+ 283              	.LFE17:
+ 284              		.size	deg_test_inv, .-deg_test_inv
+ 285              		.section	.text.ver_line,"ax",%progbits
+ 286              		.align	2
+ 287              		.thumb
+ 288              		.thumb_func
+ 289              		.type	ver_line, %function
+ 290              	ver_line:
+ 291              	.LFB14:
+ 238:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_area_t area;
+ 292              		.loc 1 238 0
+ 293              		.cfi_startproc
+ 294              		@ args = 8, pretend = 0, frame = 8
+ 295              		@ frame_needed = 0, uses_anonymous_args = 0
+ 296              	.LVL49:
+ 297 0000 70B5     		push	{r4, r5, r6, lr}
+ 298              		.cfi_def_cfa_offset 16
+ 299              		.cfi_offset 4, -16
+ 300              		.cfi_offset 5, -12
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 11
+
+
+ 301              		.cfi_offset 6, -8
+ 302              		.cfi_offset 14, -4
+ 303 0002 84B0     		sub	sp, sp, #16
+ 304              		.cfi_def_cfa_offset 32
+ 305 0004 1546     		mov	r5, r2
+ 306 0006 9DF82060 		ldrb	r6, [sp, #32]	@ zero_extendqisi2
+ 307              	.LVL50:
+ 240:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 308              		.loc 1 240 0
+ 309 000a 0B44     		add	r3, r3, r1
+ 310              	.LVL51:
+ 311 000c 1BB2     		sxth	r3, r3
+ 312 000e 0093     		str	r3, [sp]
+ 313 0010 0346     		mov	r3, r0
+ 314 0012 0A46     		mov	r2, r1
+ 315              	.LVL52:
+ 316 0014 0146     		mov	r1, r0
+ 317              	.LVL53:
+ 318 0016 02A8     		add	r0, sp, #8
+ 319              	.LVL54:
+ 320 0018 FFF7FEFF 		bl	lv_area_set
+ 321              	.LVL55:
+ 242:..\lvgl\lv_draw/lv_draw_arc.c **** }
+ 322              		.loc 1 242 0
+ 323 001c 044B     		ldr	r3, .L31
+ 324 001e 1C68     		ldr	r4, [r3]
+ 325 0020 9DF82430 		ldrb	r3, [sp, #36]	@ zero_extendqisi2
+ 326              	.LVL56:
+ 327 0024 3246     		mov	r2, r6
+ 328 0026 2946     		mov	r1, r5
+ 329 0028 02A8     		add	r0, sp, #8
+ 330 002a A047     		blx	r4
+ 331              	.LVL57:
+ 243:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 332              		.loc 1 243 0
+ 333 002c 04B0     		add	sp, sp, #16
+ 334              		.cfi_def_cfa_offset 16
+ 335              		@ sp needed
+ 336 002e 70BD     		pop	{r4, r5, r6, pc}
+ 337              	.LVL58:
+ 338              	.L32:
+ 339              		.align	2
+ 340              	.L31:
+ 341 0030 00000000 		.word	fill_fp
+ 342              		.cfi_endproc
+ 343              	.LFE14:
+ 344              		.size	ver_line, .-ver_line
+ 345              		.section	.text.hor_line,"ax",%progbits
+ 346              		.align	2
+ 347              		.thumb
+ 348              		.thumb_func
+ 349              		.type	hor_line, %function
+ 350              	hor_line:
+ 351              	.LFB15:
+ 246:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_area_t area;
+ 352              		.loc 1 246 0
+ 353              		.cfi_startproc
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 12
+
+
+ 354              		@ args = 8, pretend = 0, frame = 8
+ 355              		@ frame_needed = 0, uses_anonymous_args = 0
+ 356              	.LVL59:
+ 357 0000 70B5     		push	{r4, r5, r6, lr}
+ 358              		.cfi_def_cfa_offset 16
+ 359              		.cfi_offset 4, -16
+ 360              		.cfi_offset 5, -12
+ 361              		.cfi_offset 6, -8
+ 362              		.cfi_offset 14, -4
+ 363 0002 84B0     		sub	sp, sp, #16
+ 364              		.cfi_def_cfa_offset 32
+ 365 0004 1546     		mov	r5, r2
+ 366 0006 9DF82060 		ldrb	r6, [sp, #32]	@ zero_extendqisi2
+ 367              	.LVL60:
+ 248:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 368              		.loc 1 248 0
+ 369 000a 0344     		add	r3, r3, r0
+ 370              	.LVL61:
+ 371 000c 0091     		str	r1, [sp]
+ 372 000e 1BB2     		sxth	r3, r3
+ 373 0010 0A46     		mov	r2, r1
+ 374              	.LVL62:
+ 375 0012 0146     		mov	r1, r0
+ 376              	.LVL63:
+ 377 0014 02A8     		add	r0, sp, #8
+ 378              	.LVL64:
+ 379 0016 FFF7FEFF 		bl	lv_area_set
+ 380              	.LVL65:
+ 250:..\lvgl\lv_draw/lv_draw_arc.c **** }
+ 381              		.loc 1 250 0
+ 382 001a 054B     		ldr	r3, .L35
+ 383 001c 1C68     		ldr	r4, [r3]
+ 384 001e 9DF82430 		ldrb	r3, [sp, #36]	@ zero_extendqisi2
+ 385              	.LVL66:
+ 386 0022 3246     		mov	r2, r6
+ 387 0024 2946     		mov	r1, r5
+ 388 0026 02A8     		add	r0, sp, #8
+ 389 0028 A047     		blx	r4
+ 390              	.LVL67:
+ 251:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 391              		.loc 1 251 0
+ 392 002a 04B0     		add	sp, sp, #16
+ 393              		.cfi_def_cfa_offset 16
+ 394              		@ sp needed
+ 395 002c 70BD     		pop	{r4, r5, r6, pc}
+ 396              	.LVL68:
+ 397              	.L36:
+ 398 002e 00BF     		.align	2
+ 399              	.L35:
+ 400 0030 00000000 		.word	fill_fp
+ 401              		.cfi_endproc
+ 402              	.LFE15:
+ 403              		.size	hor_line, .-hor_line
+ 404              		.section	.text.lv_draw_arc,"ax",%progbits
+ 405              		.align	2
+ 406              		.global	lv_draw_arc
+ 407              		.thumb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 13
+
+
+ 408              		.thumb_func
+ 409              		.type	lv_draw_arc, %function
+ 410              	lv_draw_arc:
+ 411              	.LFB12:
+  54:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_coord_t thickness = style->line.width;
+ 412              		.loc 1 54 0
+ 413              		.cfi_startproc
+ 414              		@ args = 16, pretend = 0, frame = 48
+ 415              		@ frame_needed = 0, uses_anonymous_args = 0
+ 416              	.LVL69:
+ 417 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 418              		.cfi_def_cfa_offset 36
+ 419              		.cfi_offset 4, -36
+ 420              		.cfi_offset 5, -32
+ 421              		.cfi_offset 6, -28
+ 422              		.cfi_offset 7, -24
+ 423              		.cfi_offset 8, -20
+ 424              		.cfi_offset 9, -16
+ 425              		.cfi_offset 10, -12
+ 426              		.cfi_offset 11, -8
+ 427              		.cfi_offset 14, -4
+ 428 0004 8FB0     		sub	sp, sp, #60
+ 429              		.cfi_def_cfa_offset 96
+ 430 0006 8346     		mov	fp, r0
+ 431 0008 0691     		str	r1, [sp, #24]
+ 432 000a 1446     		mov	r4, r2
+ 433 000c 0793     		str	r3, [sp, #28]
+ 434 000e BDF86030 		ldrh	r3, [sp, #96]
+ 435              	.LVL70:
+ 436 0012 0393     		str	r3, [sp, #12]
+ 437 0014 BDF86430 		ldrh	r3, [sp, #100]
+ 438 0018 0493     		str	r3, [sp, #16]
+ 439 001a 1A9B     		ldr	r3, [sp, #104]
+ 440 001c 9DF86C20 		ldrb	r2, [sp, #108]	@ zero_extendqisi2
+ 441              	.LVL71:
+  55:..\lvgl\lv_draw/lv_draw_arc.c ****     if(thickness > radius) thickness = radius;
+ 442              		.loc 1 55 0
+ 443 0020 B3F93250 		ldrsh	r5, [r3, #50]
+ 444              	.LVL72:
+  56:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 445              		.loc 1 56 0
+ 446 0024 A542     		cmp	r5, r4
+ 447 0026 00DD     		ble	.L38
+  56:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 448              		.loc 1 56 0 is_stmt 0 discriminator 1
+ 449 0028 25B2     		sxth	r5, r4
+ 450              	.LVL73:
+ 451              	.L38:
+  58:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_coord_t r_in = r_out - thickness;
+ 452              		.loc 1 58 0 is_stmt 1
+ 453 002a 0FFA84F9 		sxth	r9, r4
+ 454              	.LVL74:
+  59:..\lvgl\lv_draw/lv_draw_arc.c ****     int16_t deg_base;
+ 455              		.loc 1 59 0
+ 456 002e ADB2     		uxth	r5, r5
+ 457 0030 671B     		subs	r7, r4, r5
+ 458 0032 BFB2     		uxth	r7, r7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 14
+
+
+ 459 0034 0FFA87FA 		sxth	r10, r7
+ 460              	.LVL75:
+  65:..\lvgl\lv_draw/lv_draw_arc.c ****     lv_opa_t opa = opa_scale == LV_OPA_COVER ? style->body.opa : (uint16_t)((uint16_t) style->body.
+ 461              		.loc 1 65 0
+ 462 0038 93F83060 		ldrb	r6, [r3, #48]	@ zero_extendqisi2
+ 463 003c 8DF82360 		strb	r6, [sp, #35]
+  66:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 464              		.loc 1 66 0
+ 465 0040 FF2A     		cmp	r2, #255
+ 466 0042 02D1     		bne	.L39
+  66:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 467              		.loc 1 66 0 is_stmt 0 discriminator 1
+ 468 0044 9B79     		ldrb	r3, [r3, #6]	@ zero_extendqisi2
+ 469 0046 0593     		str	r3, [sp, #20]
+ 470 0048 05E0     		b	.L40
+ 471              	.L39:
+  66:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 472              		.loc 1 66 0 discriminator 2
+ 473 004a 9B79     		ldrb	r3, [r3, #6]	@ zero_extendqisi2
+ 474 004c 03FB02F3 		mul	r3, r3, r2
+ 475 0050 C3F30723 		ubfx	r3, r3, #8, #8
+ 476 0054 0593     		str	r3, [sp, #20]
+ 477              	.L40:
+ 478              	.LVL76:
+  70:..\lvgl\lv_draw/lv_draw_arc.c ****     else deg_test = deg_test_inv;
+ 479              		.loc 1 70 0 is_stmt 1 discriminator 4
+ 480 0056 039B     		ldr	r3, [sp, #12]
+ 481 0058 049A     		ldr	r2, [sp, #16]
+ 482 005a 9342     		cmp	r3, r2
+ 483 005c 02D8     		bhi	.L68
+  70:..\lvgl\lv_draw/lv_draw_arc.c ****     else deg_test = deg_test_inv;
+ 484              		.loc 1 70 0 is_stmt 0
+ 485 005e DFF8F882 		ldr	r8, .L70
+ 486 0062 01E0     		b	.L41
+ 487              	.L68:
+  71:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 488              		.loc 1 71 0 is_stmt 1
+ 489 0064 DFF8F482 		ldr	r8, .L70+4
+ 490              	.L41:
+ 491              	.LVL77:
+  73:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(90, start_angle, end_angle))   hor_line(center_x + r_in, center_y,  mask, thickness
+ 492              		.loc 1 73 0
+ 493 0068 049A     		ldr	r2, [sp, #16]
+ 494 006a 0399     		ldr	r1, [sp, #12]
+ 495              	.LVL78:
+ 496 006c 4FF48770 		mov	r0, #270
+ 497              	.LVL79:
+ 498 0070 C047     		blx	r8
+ 499              	.LVL80:
+ 500 0072 68B1     		cbz	r0, .L42
+  73:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(90, start_angle, end_angle))   hor_line(center_x + r_in, center_y,  mask, thickness
+ 501              		.loc 1 73 0 is_stmt 0 discriminator 1
+ 502 0074 6B1E     		subs	r3, r5, #1
+ 503 0076 C4EB0B00 		rsb	r0, r4, fp
+ 504 007a 0130     		adds	r0, r0, #1
+ 505 007c 059A     		ldr	r2, [sp, #20]
+ 506 007e 0192     		str	r2, [sp, #4]
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 15
+
+
+ 507 0080 8DF80060 		strb	r6, [sp]
+ 508 0084 1BB2     		sxth	r3, r3
+ 509 0086 079A     		ldr	r2, [sp, #28]
+ 510 0088 0699     		ldr	r1, [sp, #24]
+ 511 008a 00B2     		sxth	r0, r0
+ 512 008c FFF7FEFF 		bl	hor_line
+ 513              	.LVL81:
+ 514              	.L42:
+  74:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(180, start_angle, end_angle))  ver_line(center_x, center_y - r_out + 1,  mask, thic
+ 515              		.loc 1 74 0 is_stmt 1
+ 516 0090 049A     		ldr	r2, [sp, #16]
+ 517 0092 0399     		ldr	r1, [sp, #12]
+ 518 0094 5A20     		movs	r0, #90
+ 519 0096 C047     		blx	r8
+ 520              	.LVL82:
+ 521 0098 60B1     		cbz	r0, .L43
+  74:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(180, start_angle, end_angle))  ver_line(center_x, center_y - r_out + 1,  mask, thic
+ 522              		.loc 1 74 0 is_stmt 0 discriminator 1
+ 523 009a 6B1E     		subs	r3, r5, #1
+ 524 009c 07EB0B00 		add	r0, r7, fp
+ 525 00a0 059A     		ldr	r2, [sp, #20]
+ 526 00a2 0192     		str	r2, [sp, #4]
+ 527 00a4 8DF80060 		strb	r6, [sp]
+ 528 00a8 1BB2     		sxth	r3, r3
+ 529 00aa 079A     		ldr	r2, [sp, #28]
+ 530 00ac 0699     		ldr	r1, [sp, #24]
+ 531 00ae 00B2     		sxth	r0, r0
+ 532 00b0 FFF7FEFF 		bl	hor_line
+ 533              	.LVL83:
+ 534              	.L43:
+  75:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(0, start_angle, end_angle))    ver_line(center_x, center_y + r_in,  mask, thickness
+ 535              		.loc 1 75 0 is_stmt 1
+ 536 00b4 049A     		ldr	r2, [sp, #16]
+ 537 00b6 0399     		ldr	r1, [sp, #12]
+ 538 00b8 B420     		movs	r0, #180
+ 539 00ba C047     		blx	r8
+ 540              	.LVL84:
+ 541 00bc 68B1     		cbz	r0, .L44
+  75:..\lvgl\lv_draw/lv_draw_arc.c ****     if(deg_test(0, start_angle, end_angle))    ver_line(center_x, center_y + r_in,  mask, thickness
+ 542              		.loc 1 75 0 is_stmt 0 discriminator 1
+ 543 00be 6B1E     		subs	r3, r5, #1
+ 544 00c0 069A     		ldr	r2, [sp, #24]
+ 545 00c2 111B     		subs	r1, r2, r4
+ 546 00c4 0131     		adds	r1, r1, #1
+ 547 00c6 059A     		ldr	r2, [sp, #20]
+ 548 00c8 0192     		str	r2, [sp, #4]
+ 549 00ca 8DF80060 		strb	r6, [sp]
+ 550 00ce 1BB2     		sxth	r3, r3
+ 551 00d0 079A     		ldr	r2, [sp, #28]
+ 552 00d2 09B2     		sxth	r1, r1
+ 553 00d4 5846     		mov	r0, fp
+ 554 00d6 FFF7FEFF 		bl	ver_line
+ 555              	.LVL85:
+ 556              	.L44:
+  76:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 557              		.loc 1 76 0 is_stmt 1
+ 558 00da 049A     		ldr	r2, [sp, #16]
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 16
+
+
+ 559 00dc 0399     		ldr	r1, [sp, #12]
+ 560 00de 0020     		movs	r0, #0
+ 561 00e0 C047     		blx	r8
+ 562              	.LVL86:
+ 563 00e2 60B1     		cbz	r0, .L45
+  76:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 564              		.loc 1 76 0 is_stmt 0 discriminator 1
+ 565 00e4 6B1E     		subs	r3, r5, #1
+ 566 00e6 069A     		ldr	r2, [sp, #24]
+ 567 00e8 B918     		adds	r1, r7, r2
+ 568 00ea 059A     		ldr	r2, [sp, #20]
+ 569 00ec 0192     		str	r2, [sp, #4]
+ 570 00ee 8DF80060 		strb	r6, [sp]
+ 571 00f2 1BB2     		sxth	r3, r3
+ 572 00f4 079A     		ldr	r2, [sp, #28]
+ 573 00f6 09B2     		sxth	r1, r1
+ 574 00f8 5846     		mov	r0, fp
+ 575 00fa FFF7FEFF 		bl	ver_line
+ 576              	.LVL87:
+ 577              	.L45:
+  78:..\lvgl\lv_draw/lv_draw_arc.c ****     uint32_t r_in_sqr = r_in * r_in;
+ 578              		.loc 1 78 0 is_stmt 1
+ 579 00fe 09FB09F9 		mul	r9, r9, r9
+ 580              	.LVL88:
+  79:..\lvgl\lv_draw/lv_draw_arc.c ****     int16_t xi;
+ 581              		.loc 1 79 0
+ 582 0102 0AFB0AFA 		mul	r10, r10, r10
+ 583              	.LVL89:
+  82:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[0] = LV_COORD_MIN;
+ 584              		.loc 1 82 0
+ 585 0106 6442     		negs	r4, r4
+ 586              	.LVL90:
+ 587 0108 23B2     		sxth	r3, r4
+ 588 010a 0993     		str	r3, [sp, #36]
+ 589              	.LVL91:
+ 590 010c 1E46     		mov	r6, r3
+ 591 010e 1CE1     		b	.L46
+ 592              	.LVL92:
+ 593              	.L67:
+  83:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[1] = LV_COORD_MIN;
+ 594              		.loc 1 83 0
+ 595 0110 4FF44043 		mov	r3, #49152
+ 596 0114 ADF83030 		strh	r3, [sp, #48]	@ movhi
+  84:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[2] = LV_COORD_MIN;
+ 597              		.loc 1 84 0
+ 598 0118 ADF83230 		strh	r3, [sp, #50]	@ movhi
+  85:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[3] = LV_COORD_MIN;
+ 599              		.loc 1 85 0
+ 600 011c ADF83430 		strh	r3, [sp, #52]	@ movhi
+  86:..\lvgl\lv_draw/lv_draw_arc.c ****         x_end[0] = LV_COORD_MIN;
+ 601              		.loc 1 86 0
+ 602 0120 ADF83630 		strh	r3, [sp, #54]	@ movhi
+  87:..\lvgl\lv_draw/lv_draw_arc.c ****         x_end[1] = LV_COORD_MIN;
+ 603              		.loc 1 87 0
+ 604 0124 ADF82830 		strh	r3, [sp, #40]	@ movhi
+  88:..\lvgl\lv_draw/lv_draw_arc.c ****         x_end[2] = LV_COORD_MIN;
+ 605              		.loc 1 88 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 17
+
+
+ 606 0128 ADF82A30 		strh	r3, [sp, #42]	@ movhi
+  89:..\lvgl\lv_draw/lv_draw_arc.c ****         x_end[3] = LV_COORD_MIN;
+ 607              		.loc 1 89 0
+ 608 012c ADF82C30 		strh	r3, [sp, #44]	@ movhi
+  90:..\lvgl\lv_draw/lv_draw_arc.c ****         for(xi = -r_out; xi < 0; xi++) {
+ 609              		.loc 1 90 0
+ 610 0130 ADF82E30 		strh	r3, [sp, #46]	@ movhi
+ 611              	.LVL93:
+  91:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 612              		.loc 1 91 0
+ 613 0134 099C     		ldr	r4, [sp, #36]
+ 614 0136 4746     		mov	r7, r8
+ 615 0138 7CE0     		b	.L47
+ 616              	.LVL94:
+ 617              	.L58:
+ 618              	.LBB2:
+  93:..\lvgl\lv_draw/lv_draw_arc.c ****             if(r_act_sqr > r_out_sqr) continue;
+ 619              		.loc 1 93 0
+ 620 013a 06FB06F5 		mul	r5, r6, r6
+ 621 013e 04FB0455 		mla	r5, r4, r4, r5
+ 622              	.LVL95:
+  94:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 623              		.loc 1 94 0
+ 624 0142 A945     		cmp	r9, r5
+ 625 0144 74D3     		bcc	.L48
+  96:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 626              		.loc 1 96 0
+ 627 0146 3146     		mov	r1, r6
+ 628 0148 2046     		mov	r0, r4
+ 629 014a FFF7FEFF 		bl	fast_atan2
+ 630              	.LVL96:
+ 631 014e A0F1B408 		sub	r8, r0, #180
+ 632 0152 1FFA88F8 		uxth	r8, r8
+ 633              	.LVL97:
+  99:..\lvgl\lv_draw/lv_draw_arc.c ****                 if(x_start[0] == LV_COORD_MIN) x_start[0] = xi;
+ 634              		.loc 1 99 0
+ 635 0156 049A     		ldr	r2, [sp, #16]
+ 636 0158 0399     		ldr	r1, [sp, #12]
+ 637 015a B847     		blx	r7
+ 638              	.LVL98:
+ 639 015c 38B1     		cbz	r0, .L49
+ 100:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[0] != LV_COORD_MIN && x_end[0] == LV_COORD_MIN) {
+ 640              		.loc 1 100 0
+ 641 015e BDF93030 		ldrsh	r3, [sp, #48]
+ 642 0162 13F5804F 		cmn	r3, #16384
+ 643 0166 0FD1     		bne	.L50
+ 100:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[0] != LV_COORD_MIN && x_end[0] == LV_COORD_MIN) {
+ 644              		.loc 1 100 0 is_stmt 0 discriminator 1
+ 645 0168 ADF83040 		strh	r4, [sp, #48]	@ movhi
+ 646 016c 0CE0     		b	.L50
+ 647              	.L49:
+ 101:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[0] = xi - 1;
+ 648              		.loc 1 101 0 is_stmt 1
+ 649 016e BDF93030 		ldrsh	r3, [sp, #48]
+ 650 0172 13F5804F 		cmn	r3, #16384
+ 651 0176 07D0     		beq	.L50
+ 101:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[0] = xi - 1;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 18
+
+
+ 652              		.loc 1 101 0 is_stmt 0 discriminator 1
+ 653 0178 BDF92830 		ldrsh	r3, [sp, #40]
+ 654 017c 13F5804F 		cmn	r3, #16384
+ 655 0180 02D1     		bne	.L50
+ 102:..\lvgl\lv_draw/lv_draw_arc.c ****             }
+ 656              		.loc 1 102 0 is_stmt 1
+ 657 0182 631E     		subs	r3, r4, #1
+ 658 0184 ADF82830 		strh	r3, [sp, #40]	@ movhi
+ 659              	.L50:
+ 105:..\lvgl\lv_draw/lv_draw_arc.c ****             if(deg_test(deg, start_angle, end_angle)) {
+ 660              		.loc 1 105 0
+ 661 0188 C8F5B470 		rsb	r0, r8, #360
+ 106:..\lvgl\lv_draw/lv_draw_arc.c ****                 if(x_start[1] == LV_COORD_MIN) x_start[1] = xi;
+ 662              		.loc 1 106 0
+ 663 018c 049A     		ldr	r2, [sp, #16]
+ 664 018e 0399     		ldr	r1, [sp, #12]
+ 665 0190 80B2     		uxth	r0, r0
+ 666 0192 B847     		blx	r7
+ 667              	.LVL99:
+ 668 0194 38B1     		cbz	r0, .L51
+ 107:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[1] != LV_COORD_MIN && x_end[1] == LV_COORD_MIN) {
+ 669              		.loc 1 107 0
+ 670 0196 BDF93230 		ldrsh	r3, [sp, #50]
+ 671 019a 13F5804F 		cmn	r3, #16384
+ 672 019e 0FD1     		bne	.L52
+ 107:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[1] != LV_COORD_MIN && x_end[1] == LV_COORD_MIN) {
+ 673              		.loc 1 107 0 is_stmt 0 discriminator 1
+ 674 01a0 ADF83240 		strh	r4, [sp, #50]	@ movhi
+ 675 01a4 0CE0     		b	.L52
+ 676              	.L51:
+ 108:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[1] = xi - 1;
+ 677              		.loc 1 108 0 is_stmt 1
+ 678 01a6 BDF93230 		ldrsh	r3, [sp, #50]
+ 679 01aa 13F5804F 		cmn	r3, #16384
+ 680 01ae 07D0     		beq	.L52
+ 108:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[1] = xi - 1;
+ 681              		.loc 1 108 0 is_stmt 0 discriminator 1
+ 682 01b0 BDF92A30 		ldrsh	r3, [sp, #42]
+ 683 01b4 13F5804F 		cmn	r3, #16384
+ 684 01b8 02D1     		bne	.L52
+ 109:..\lvgl\lv_draw/lv_draw_arc.c ****             }
+ 685              		.loc 1 109 0 is_stmt 1
+ 686 01ba 631E     		subs	r3, r4, #1
+ 687 01bc ADF82A30 		strh	r3, [sp, #42]	@ movhi
+ 688              	.L52:
+ 112:..\lvgl\lv_draw/lv_draw_arc.c ****             if(deg_test(deg, start_angle, end_angle)) {
+ 689              		.loc 1 112 0
+ 690 01c0 C8F1B400 		rsb	r0, r8, #180
+ 113:..\lvgl\lv_draw/lv_draw_arc.c ****                 if(x_start[2] == LV_COORD_MIN) x_start[2] = xi;
+ 691              		.loc 1 113 0
+ 692 01c4 049A     		ldr	r2, [sp, #16]
+ 693 01c6 0399     		ldr	r1, [sp, #12]
+ 694 01c8 80B2     		uxth	r0, r0
+ 695 01ca B847     		blx	r7
+ 696              	.LVL100:
+ 697 01cc 38B1     		cbz	r0, .L53
+ 114:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[2] != LV_COORD_MIN && x_end[2] == LV_COORD_MIN) {
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 19
+
+
+ 698              		.loc 1 114 0
+ 699 01ce BDF93430 		ldrsh	r3, [sp, #52]
+ 700 01d2 13F5804F 		cmn	r3, #16384
+ 701 01d6 0FD1     		bne	.L54
+ 114:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[2] != LV_COORD_MIN && x_end[2] == LV_COORD_MIN) {
+ 702              		.loc 1 114 0 is_stmt 0 discriminator 1
+ 703 01d8 ADF83440 		strh	r4, [sp, #52]	@ movhi
+ 704 01dc 0CE0     		b	.L54
+ 705              	.L53:
+ 115:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[2] = xi - 1;
+ 706              		.loc 1 115 0 is_stmt 1
+ 707 01de BDF93430 		ldrsh	r3, [sp, #52]
+ 708 01e2 13F5804F 		cmn	r3, #16384
+ 709 01e6 07D0     		beq	.L54
+ 115:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[2] = xi - 1;
+ 710              		.loc 1 115 0 is_stmt 0 discriminator 1
+ 711 01e8 BDF92C30 		ldrsh	r3, [sp, #44]
+ 712 01ec 13F5804F 		cmn	r3, #16384
+ 713 01f0 02D1     		bne	.L54
+ 116:..\lvgl\lv_draw/lv_draw_arc.c ****             }
+ 714              		.loc 1 116 0 is_stmt 1
+ 715 01f2 631E     		subs	r3, r4, #1
+ 716 01f4 ADF82C30 		strh	r3, [sp, #44]	@ movhi
+ 717              	.L54:
+ 718              	.LVL101:
+ 120:..\lvgl\lv_draw/lv_draw_arc.c ****                 if(x_start[3] == LV_COORD_MIN) x_start[3] = xi;
+ 719              		.loc 1 120 0
+ 720 01f8 049A     		ldr	r2, [sp, #16]
+ 721 01fa 0399     		ldr	r1, [sp, #12]
+ 722 01fc 4046     		mov	r0, r8
+ 723 01fe B847     		blx	r7
+ 724              	.LVL102:
+ 725 0200 38B1     		cbz	r0, .L55
+ 121:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[3] != LV_COORD_MIN && x_end[3] == LV_COORD_MIN) {
+ 726              		.loc 1 121 0
+ 727 0202 BDF93630 		ldrsh	r3, [sp, #54]
+ 728 0206 13F5804F 		cmn	r3, #16384
+ 729 020a 0FD1     		bne	.L56
+ 121:..\lvgl\lv_draw/lv_draw_arc.c ****             } else if(x_start[3] != LV_COORD_MIN && x_end[3] == LV_COORD_MIN) {
+ 730              		.loc 1 121 0 is_stmt 0 discriminator 1
+ 731 020c ADF83640 		strh	r4, [sp, #54]	@ movhi
+ 732 0210 0CE0     		b	.L56
+ 733              	.L55:
+ 122:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[3] = xi - 1;
+ 734              		.loc 1 122 0 is_stmt 1
+ 735 0212 BDF93630 		ldrsh	r3, [sp, #54]
+ 736 0216 13F5804F 		cmn	r3, #16384
+ 737 021a 07D0     		beq	.L56
+ 122:..\lvgl\lv_draw/lv_draw_arc.c ****                 x_end[3] = xi - 1;
+ 738              		.loc 1 122 0 is_stmt 0 discriminator 1
+ 739 021c BDF92E30 		ldrsh	r3, [sp, #46]
+ 740 0220 13F5804F 		cmn	r3, #16384
+ 741 0224 02D1     		bne	.L56
+ 123:..\lvgl\lv_draw/lv_draw_arc.c ****             }
+ 742              		.loc 1 123 0 is_stmt 1
+ 743 0226 631E     		subs	r3, r4, #1
+ 744 0228 ADF82E30 		strh	r3, [sp, #46]	@ movhi
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 20
+
+
+ 745              	.L56:
+ 126:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 746              		.loc 1 126 0
+ 747 022c AA45     		cmp	r10, r5
+ 748 022e 03D8     		bhi	.L57
+ 749              	.LVL103:
+ 750              	.L48:
+ 751              	.LBE2:
+  91:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 752              		.loc 1 91 0 discriminator 2
+ 753 0230 0134     		adds	r4, r4, #1
+ 754              	.LVL104:
+ 755 0232 24B2     		sxth	r4, r4
+ 756              	.LVL105:
+ 757              	.L47:
+  91:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 758              		.loc 1 91 0 is_stmt 0 discriminator 1
+ 759 0234 002C     		cmp	r4, #0
+ 760 0236 80DB     		blt	.L58
+ 761              	.L57:
+ 762 0238 B846     		mov	r8, r7
+ 130:..\lvgl\lv_draw/lv_draw_arc.c ****             if(x_end[0] == LV_COORD_MIN) x_end[0] = xi - 1;
+ 763              		.loc 1 130 0 is_stmt 1
+ 764 023a BDF93030 		ldrsh	r3, [sp, #48]
+ 765 023e 13F5804F 		cmn	r3, #16384
+ 766 0242 1AD0     		beq	.L59
+ 131:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x + x_start[0], center_y + yi, mask, x_end[0] - x_start[0], color, opa)
+ 767              		.loc 1 131 0
+ 768 0244 BDF92820 		ldrsh	r2, [sp, #40]
+ 769 0248 12F5804F 		cmn	r2, #16384
+ 770 024c 02D1     		bne	.L60
+ 131:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x + x_start[0], center_y + yi, mask, x_end[0] - x_start[0], color, opa)
+ 771              		.loc 1 131 0 is_stmt 0 discriminator 1
+ 772 024e 621E     		subs	r2, r4, #1
+ 773 0250 ADF82820 		strh	r2, [sp, #40]	@ movhi
+ 774              	.L60:
+ 132:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 775              		.loc 1 132 0 is_stmt 1
+ 776 0254 98B2     		uxth	r0, r3
+ 777 0256 BDF92830 		ldrsh	r3, [sp, #40]
+ 778 025a 1B1A     		subs	r3, r3, r0
+ 779 025c 069A     		ldr	r2, [sp, #24]
+ 780 025e 9119     		adds	r1, r2, r6
+ 781 0260 5844     		add	r0, r0, fp
+ 782 0262 059A     		ldr	r2, [sp, #20]
+ 783 0264 0192     		str	r2, [sp, #4]
+ 784 0266 9DF82320 		ldrb	r2, [sp, #35]	@ zero_extendqisi2
+ 785              	.LVL106:
+ 786 026a 8DF80020 		strb	r2, [sp]
+ 787 026e 1BB2     		sxth	r3, r3
+ 788 0270 079A     		ldr	r2, [sp, #28]
+ 789              	.LVL107:
+ 790 0272 09B2     		sxth	r1, r1
+ 791 0274 00B2     		sxth	r0, r0
+ 792 0276 FFF7FEFF 		bl	hor_line
+ 793              	.LVL108:
+ 794              	.L59:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 21
+
+
+ 135:..\lvgl\lv_draw/lv_draw_arc.c ****             if(x_end[1] == LV_COORD_MIN) x_end[1] = xi - 1;
+ 795              		.loc 1 135 0
+ 796 027a BDF93230 		ldrsh	r3, [sp, #50]
+ 797 027e 13F5804F 		cmn	r3, #16384
+ 798 0282 1AD0     		beq	.L61
+ 136:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x + x_start[1], center_y - yi, mask, x_end[1] - x_start[1], color, opa)
+ 799              		.loc 1 136 0
+ 800 0284 BDF92A20 		ldrsh	r2, [sp, #42]
+ 801 0288 12F5804F 		cmn	r2, #16384
+ 802 028c 02D1     		bne	.L62
+ 136:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x + x_start[1], center_y - yi, mask, x_end[1] - x_start[1], color, opa)
+ 803              		.loc 1 136 0 is_stmt 0 discriminator 1
+ 804 028e 621E     		subs	r2, r4, #1
+ 805 0290 ADF82A20 		strh	r2, [sp, #42]	@ movhi
+ 806              	.L62:
+ 137:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 807              		.loc 1 137 0 is_stmt 1
+ 808 0294 98B2     		uxth	r0, r3
+ 809 0296 BDF92A30 		ldrsh	r3, [sp, #42]
+ 810 029a 1B1A     		subs	r3, r3, r0
+ 811 029c 069A     		ldr	r2, [sp, #24]
+ 812 029e 911B     		subs	r1, r2, r6
+ 813 02a0 5844     		add	r0, r0, fp
+ 814 02a2 059A     		ldr	r2, [sp, #20]
+ 815 02a4 0192     		str	r2, [sp, #4]
+ 816 02a6 9DF82320 		ldrb	r2, [sp, #35]	@ zero_extendqisi2
+ 817              	.LVL109:
+ 818 02aa 8DF80020 		strb	r2, [sp]
+ 819 02ae 1BB2     		sxth	r3, r3
+ 820 02b0 079A     		ldr	r2, [sp, #28]
+ 821              	.LVL110:
+ 822 02b2 09B2     		sxth	r1, r1
+ 823 02b4 00B2     		sxth	r0, r0
+ 824 02b6 FFF7FEFF 		bl	hor_line
+ 825              	.LVL111:
+ 826              	.L61:
+ 140:..\lvgl\lv_draw/lv_draw_arc.c ****             if(x_end[2] == LV_COORD_MIN) x_end[2] = xi - 1;
+ 827              		.loc 1 140 0
+ 828 02ba BDF93430 		ldrsh	r3, [sp, #52]
+ 829 02be 13F5804F 		cmn	r3, #16384
+ 830 02c2 1DD0     		beq	.L63
+ 141:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x - x_end[2], center_y + yi, mask, LV_MATH_ABS(x_end[2] - x_start[2]), 
+ 831              		.loc 1 141 0
+ 832 02c4 BDF92C20 		ldrsh	r2, [sp, #44]
+ 833 02c8 12F5804F 		cmn	r2, #16384
+ 834 02cc 02D1     		bne	.L64
+ 141:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x - x_end[2], center_y + yi, mask, LV_MATH_ABS(x_end[2] - x_start[2]), 
+ 835              		.loc 1 141 0 is_stmt 0 discriminator 1
+ 836 02ce 621E     		subs	r2, r4, #1
+ 837 02d0 ADF82C20 		strh	r2, [sp, #44]	@ movhi
+ 838              	.L64:
+ 142:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 839              		.loc 1 142 0 is_stmt 1
+ 840 02d4 BDF92C00 		ldrsh	r0, [sp, #44]
+ 841 02d8 C31A     		subs	r3, r0, r3
+ 842 02da 002B     		cmp	r3, #0
+ 843 02dc B8BF     		it	lt
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 22
+
+
+ 844 02de 5B42     		rsblt	r3, r3, #0
+ 845 02e0 069A     		ldr	r2, [sp, #24]
+ 846 02e2 9119     		adds	r1, r2, r6
+ 847 02e4 C0EB0B00 		rsb	r0, r0, fp
+ 848 02e8 059A     		ldr	r2, [sp, #20]
+ 849 02ea 0192     		str	r2, [sp, #4]
+ 850 02ec 9DF82320 		ldrb	r2, [sp, #35]	@ zero_extendqisi2
+ 851              	.LVL112:
+ 852 02f0 8DF80020 		strb	r2, [sp]
+ 853 02f4 1BB2     		sxth	r3, r3
+ 854 02f6 079A     		ldr	r2, [sp, #28]
+ 855              	.LVL113:
+ 856 02f8 09B2     		sxth	r1, r1
+ 857 02fa 00B2     		sxth	r0, r0
+ 858 02fc FFF7FEFF 		bl	hor_line
+ 859              	.LVL114:
+ 860              	.L63:
+ 145:..\lvgl\lv_draw/lv_draw_arc.c ****             if(x_end[3] == LV_COORD_MIN) x_end[3] = xi - 1;
+ 861              		.loc 1 145 0
+ 862 0300 BDF93630 		ldrsh	r3, [sp, #54]
+ 863 0304 13F5804F 		cmn	r3, #16384
+ 864 0308 1DD0     		beq	.L65
+ 146:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x - x_end[3], center_y - yi, mask, LV_MATH_ABS(x_end[3] - x_start[3]), 
+ 865              		.loc 1 146 0
+ 866 030a BDF92E20 		ldrsh	r2, [sp, #46]
+ 867 030e 12F5804F 		cmn	r2, #16384
+ 868 0312 02D1     		bne	.L66
+ 146:..\lvgl\lv_draw/lv_draw_arc.c ****             hor_line(center_x - x_end[3], center_y - yi, mask, LV_MATH_ABS(x_end[3] - x_start[3]), 
+ 869              		.loc 1 146 0 is_stmt 0 discriminator 1
+ 870 0314 013C     		subs	r4, r4, #1
+ 871              	.LVL115:
+ 872 0316 ADF82E40 		strh	r4, [sp, #46]	@ movhi
+ 873              	.L66:
+ 147:..\lvgl\lv_draw/lv_draw_arc.c ****         }
+ 874              		.loc 1 147 0 is_stmt 1
+ 875 031a BDF92E00 		ldrsh	r0, [sp, #46]
+ 876 031e C31A     		subs	r3, r0, r3
+ 877 0320 002B     		cmp	r3, #0
+ 878 0322 B8BF     		it	lt
+ 879 0324 5B42     		rsblt	r3, r3, #0
+ 880 0326 069A     		ldr	r2, [sp, #24]
+ 881 0328 911B     		subs	r1, r2, r6
+ 882 032a C0EB0B00 		rsb	r0, r0, fp
+ 883 032e 059A     		ldr	r2, [sp, #20]
+ 884 0330 0192     		str	r2, [sp, #4]
+ 885 0332 9DF82320 		ldrb	r2, [sp, #35]	@ zero_extendqisi2
+ 886              	.LVL116:
+ 887 0336 8DF80020 		strb	r2, [sp]
+ 888 033a 1BB2     		sxth	r3, r3
+ 889 033c 079A     		ldr	r2, [sp, #28]
+ 890              	.LVL117:
+ 891 033e 09B2     		sxth	r1, r1
+ 892 0340 00B2     		sxth	r0, r0
+ 893 0342 FFF7FEFF 		bl	hor_line
+ 894              	.LVL118:
+ 895              	.L65:
+  82:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[0] = LV_COORD_MIN;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 23
+
+
+ 896              		.loc 1 82 0 discriminator 2
+ 897 0346 0136     		adds	r6, r6, #1
+ 898              	.LVL119:
+ 899 0348 36B2     		sxth	r6, r6
+ 900              	.LVL120:
+ 901              	.L46:
+  82:..\lvgl\lv_draw/lv_draw_arc.c ****         x_start[0] = LV_COORD_MIN;
+ 902              		.loc 1 82 0 is_stmt 0 discriminator 1
+ 903 034a 002E     		cmp	r6, #0
+ 904 034c FFF6E0AE 		blt	.L67
+ 157:..\lvgl\lv_draw/lv_draw_arc.c **** 
+ 905              		.loc 1 157 0 is_stmt 1
+ 906 0350 0FB0     		add	sp, sp, #60
+ 907              		.cfi_def_cfa_offset 36
+ 908              		@ sp needed
+ 909 0352 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 910              	.LVL121:
+ 911              	.L71:
+ 912 0356 00BF     		.align	2
+ 913              	.L70:
+ 914 0358 00000000 		.word	deg_test_norm
+ 915 035c 00000000 		.word	deg_test_inv
+ 916              		.cfi_endproc
+ 917              	.LFE12:
+ 918              		.size	lv_draw_arc, .-lv_draw_arc
+ 919              		.text
+ 920              	.Letext0:
+ 921              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 922              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 923              		.file 4 "..\\lvgl\\lv_draw\\../lv_core/../lv_misc/lv_color.h"
+ 924              		.file 5 "..\\lvgl\\lv_draw\\../lv_core/../lv_misc/lv_area.h"
+ 925              		.file 6 "..\\lvgl\\lv_draw\\../lv_core/../lv_misc/lv_font.h"
+ 926              		.file 7 "..\\lvgl\\lv_draw\\../lv_core/lv_style.h"
+ 927              		.file 8 "..\\lvgl\\lv_draw\\lv_draw.h"
+ 928              		.section	.debug_info,"",%progbits
+ 929              	.Ldebug_info0:
+ 930 0000 4B0D0000 		.4byte	0xd4b
+ 931 0004 0400     		.2byte	0x4
+ 932 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 933 000a 04       		.byte	0x4
+ 934 000b 01       		.uleb128 0x1
+ 935 000c 0D010000 		.4byte	.LASF110
+ 936 0010 0C       		.byte	0xc
+ 937 0011 E3010000 		.4byte	.LASF111
+ 938 0015 1B020000 		.4byte	.LASF112
+ 939 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 940 001d 00000000 		.4byte	0
+ 941 0021 00000000 		.4byte	.Ldebug_line0
+ 942 0025 02       		.uleb128 0x2
+ 943 0026 01       		.byte	0x1
+ 944 0027 06       		.byte	0x6
+ 945 0028 C2040000 		.4byte	.LASF0
+ 946 002c 03       		.uleb128 0x3
+ 947 002d CA030000 		.4byte	.LASF2
+ 948 0031 02       		.byte	0x2
+ 949 0032 1D       		.byte	0x1d
+ 950 0033 37000000 		.4byte	0x37
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 24
+
+
+ 951 0037 02       		.uleb128 0x2
+ 952 0038 01       		.byte	0x1
+ 953 0039 08       		.byte	0x8
+ 954 003a 5D040000 		.4byte	.LASF1
+ 955 003e 03       		.uleb128 0x3
+ 956 003f D3020000 		.4byte	.LASF3
+ 957 0043 02       		.byte	0x2
+ 958 0044 29       		.byte	0x29
+ 959 0045 49000000 		.4byte	0x49
+ 960 0049 02       		.uleb128 0x2
+ 961 004a 02       		.byte	0x2
+ 962 004b 05       		.byte	0x5
+ 963 004c 66030000 		.4byte	.LASF4
+ 964 0050 03       		.uleb128 0x3
+ 965 0051 E3000000 		.4byte	.LASF5
+ 966 0055 02       		.byte	0x2
+ 967 0056 2B       		.byte	0x2b
+ 968 0057 5B000000 		.4byte	0x5b
+ 969 005b 02       		.uleb128 0x2
+ 970 005c 02       		.byte	0x2
+ 971 005d 07       		.byte	0x7
+ 972 005e CE040000 		.4byte	.LASF6
+ 973 0062 02       		.uleb128 0x2
+ 974 0063 04       		.byte	0x4
+ 975 0064 05       		.byte	0x5
+ 976 0065 79030000 		.4byte	.LASF7
+ 977 0069 03       		.uleb128 0x3
+ 978 006a 6B040000 		.4byte	.LASF8
+ 979 006e 02       		.byte	0x2
+ 980 006f 41       		.byte	0x41
+ 981 0070 74000000 		.4byte	0x74
+ 982 0074 02       		.uleb128 0x2
+ 983 0075 04       		.byte	0x4
+ 984 0076 07       		.byte	0x7
+ 985 0077 FC030000 		.4byte	.LASF9
+ 986 007b 02       		.uleb128 0x2
+ 987 007c 08       		.byte	0x8
+ 988 007d 05       		.byte	0x5
+ 989 007e AE020000 		.4byte	.LASF10
+ 990 0082 02       		.uleb128 0x2
+ 991 0083 08       		.byte	0x8
+ 992 0084 07       		.byte	0x7
+ 993 0085 B0000000 		.4byte	.LASF11
+ 994 0089 04       		.uleb128 0x4
+ 995 008a 04       		.byte	0x4
+ 996 008b 05       		.byte	0x5
+ 997 008c 696E7400 		.ascii	"int\000"
+ 998 0090 02       		.uleb128 0x2
+ 999 0091 04       		.byte	0x4
+ 1000 0092 07       		.byte	0x7
+ 1001 0093 25000000 		.4byte	.LASF12
+ 1002 0097 03       		.uleb128 0x3
+ 1003 0098 86020000 		.4byte	.LASF13
+ 1004 009c 03       		.byte	0x3
+ 1005 009d 18       		.byte	0x18
+ 1006 009e 2C000000 		.4byte	0x2c
+ 1007 00a2 03       		.uleb128 0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 25
+
+
+ 1008 00a3 97000000 		.4byte	.LASF14
+ 1009 00a7 03       		.byte	0x3
+ 1010 00a8 20       		.byte	0x20
+ 1011 00a9 3E000000 		.4byte	0x3e
+ 1012 00ad 03       		.uleb128 0x3
+ 1013 00ae 30030000 		.4byte	.LASF15
+ 1014 00b2 03       		.byte	0x3
+ 1015 00b3 24       		.byte	0x24
+ 1016 00b4 50000000 		.4byte	0x50
+ 1017 00b8 03       		.uleb128 0x3
+ 1018 00b9 7A000000 		.4byte	.LASF16
+ 1019 00bd 03       		.byte	0x3
+ 1020 00be 30       		.byte	0x30
+ 1021 00bf 69000000 		.4byte	0x69
+ 1022 00c3 05       		.uleb128 0x5
+ 1023 00c4 01       		.byte	0x1
+ 1024 00c5 37000000 		.4byte	0x37
+ 1025 00c9 04       		.byte	0x4
+ 1026 00ca 3C       		.byte	0x3c
+ 1027 00cb 1E010000 		.4byte	0x11e
+ 1028 00cf 06       		.uleb128 0x6
+ 1029 00d0 D5000000 		.4byte	.LASF17
+ 1030 00d4 00       		.byte	0
+ 1031 00d5 06       		.uleb128 0x6
+ 1032 00d6 1C000000 		.4byte	.LASF18
+ 1033 00da 00       		.byte	0
+ 1034 00db 06       		.uleb128 0x6
+ 1035 00dc A4020000 		.4byte	.LASF19
+ 1036 00e0 19       		.byte	0x19
+ 1037 00e1 06       		.uleb128 0x6
+ 1038 00e2 E7020000 		.4byte	.LASF20
+ 1039 00e6 33       		.byte	0x33
+ 1040 00e7 06       		.uleb128 0x6
+ 1041 00e8 1A030000 		.4byte	.LASF21
+ 1042 00ec 4C       		.byte	0x4c
+ 1043 00ed 06       		.uleb128 0x6
+ 1044 00ee 82030000 		.4byte	.LASF22
+ 1045 00f2 66       		.byte	0x66
+ 1046 00f3 06       		.uleb128 0x6
+ 1047 00f4 D4030000 		.4byte	.LASF23
+ 1048 00f8 7F       		.byte	0x7f
+ 1049 00f9 06       		.uleb128 0x6
+ 1050 00fa 4E040000 		.4byte	.LASF24
+ 1051 00fe 99       		.byte	0x99
+ 1052 00ff 06       		.uleb128 0x6
+ 1053 0100 98040000 		.4byte	.LASF25
+ 1054 0104 B2       		.byte	0xb2
+ 1055 0105 06       		.uleb128 0x6
+ 1056 0106 EB040000 		.4byte	.LASF26
+ 1057 010a CC       		.byte	0xcc
+ 1058 010b 06       		.uleb128 0x6
+ 1059 010c 12000000 		.4byte	.LASF27
+ 1060 0110 E5       		.byte	0xe5
+ 1061 0111 06       		.uleb128 0x6
+ 1062 0112 BF030000 		.4byte	.LASF28
+ 1063 0116 FF       		.byte	0xff
+ 1064 0117 06       		.uleb128 0x6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 26
+
+
+ 1065 0118 00000000 		.4byte	.LASF29
+ 1066 011c FF       		.byte	0xff
+ 1067 011d 00       		.byte	0
+ 1068 011e 07       		.uleb128 0x7
+ 1069 011f 01       		.byte	0x1
+ 1070 0120 04       		.byte	0x4
+ 1071 0121 5F       		.byte	0x5f
+ 1072 0122 5F010000 		.4byte	0x15f
+ 1073 0126 08       		.uleb128 0x8
+ 1074 0127 9D030000 		.4byte	.LASF30
+ 1075 012b 04       		.byte	0x4
+ 1076 012c 61       		.byte	0x61
+ 1077 012d 97000000 		.4byte	0x97
+ 1078 0131 01       		.byte	0x1
+ 1079 0132 01       		.byte	0x1
+ 1080 0133 07       		.byte	0x7
+ 1081 0134 08       		.uleb128 0x8
+ 1082 0135 14030000 		.4byte	.LASF31
+ 1083 0139 04       		.byte	0x4
+ 1084 013a 62       		.byte	0x62
+ 1085 013b 97000000 		.4byte	0x97
+ 1086 013f 01       		.byte	0x1
+ 1087 0140 01       		.byte	0x1
+ 1088 0141 07       		.byte	0x7
+ 1089 0142 09       		.uleb128 0x9
+ 1090 0143 72656400 		.ascii	"red\000"
+ 1091 0147 04       		.byte	0x4
+ 1092 0148 63       		.byte	0x63
+ 1093 0149 97000000 		.4byte	0x97
+ 1094 014d 01       		.byte	0x1
+ 1095 014e 01       		.byte	0x1
+ 1096 014f 07       		.byte	0x7
+ 1097 0150 08       		.uleb128 0x8
+ 1098 0151 0D000000 		.4byte	.LASF32
+ 1099 0155 04       		.byte	0x4
+ 1100 0156 64       		.byte	0x64
+ 1101 0157 97000000 		.4byte	0x97
+ 1102 015b 01       		.byte	0x1
+ 1103 015c 01       		.byte	0x1
+ 1104 015d 07       		.byte	0x7
+ 1105 015e 00       		.byte	0
+ 1106 015f 03       		.uleb128 0x3
+ 1107 0160 7A020000 		.4byte	.LASF33
+ 1108 0164 04       		.byte	0x4
+ 1109 0165 65       		.byte	0x65
+ 1110 0166 1E010000 		.4byte	0x11e
+ 1111 016a 03       		.uleb128 0x3
+ 1112 016b 09030000 		.4byte	.LASF34
+ 1113 016f 04       		.byte	0x4
+ 1114 0170 92       		.byte	0x92
+ 1115 0171 5F010000 		.4byte	0x15f
+ 1116 0175 03       		.uleb128 0x3
+ 1117 0176 70030000 		.4byte	.LASF35
+ 1118 017a 04       		.byte	0x4
+ 1119 017b A0       		.byte	0xa0
+ 1120 017c 97000000 		.4byte	0x97
+ 1121 0180 02       		.uleb128 0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 27
+
+
+ 1122 0181 08       		.byte	0x8
+ 1123 0182 04       		.byte	0x4
+ 1124 0183 24030000 		.4byte	.LASF36
+ 1125 0187 02       		.uleb128 0x2
+ 1126 0188 04       		.byte	0x4
+ 1127 0189 07       		.byte	0x7
+ 1128 018a F3030000 		.4byte	.LASF37
+ 1129 018e 02       		.uleb128 0x2
+ 1130 018f 01       		.byte	0x1
+ 1131 0190 08       		.byte	0x8
+ 1132 0191 0B020000 		.4byte	.LASF38
+ 1133 0195 03       		.uleb128 0x3
+ 1134 0196 A2030000 		.4byte	.LASF39
+ 1135 019a 05       		.byte	0x5
+ 1136 019b 1E       		.byte	0x1e
+ 1137 019c A2000000 		.4byte	0xa2
+ 1138 01a0 0A       		.uleb128 0xa
+ 1139 01a1 08       		.byte	0x8
+ 1140 01a2 05       		.byte	0x5
+ 1141 01a3 26       		.byte	0x26
+ 1142 01a4 D5010000 		.4byte	0x1d5
+ 1143 01a8 0B       		.uleb128 0xb
+ 1144 01a9 783100   		.ascii	"x1\000"
+ 1145 01ac 05       		.byte	0x5
+ 1146 01ad 28       		.byte	0x28
+ 1147 01ae 95010000 		.4byte	0x195
+ 1148 01b2 00       		.byte	0
+ 1149 01b3 0B       		.uleb128 0xb
+ 1150 01b4 793100   		.ascii	"y1\000"
+ 1151 01b7 05       		.byte	0x5
+ 1152 01b8 29       		.byte	0x29
+ 1153 01b9 95010000 		.4byte	0x195
+ 1154 01bd 02       		.byte	0x2
+ 1155 01be 0B       		.uleb128 0xb
+ 1156 01bf 783200   		.ascii	"x2\000"
+ 1157 01c2 05       		.byte	0x5
+ 1158 01c3 2A       		.byte	0x2a
+ 1159 01c4 95010000 		.4byte	0x195
+ 1160 01c8 04       		.byte	0x4
+ 1161 01c9 0B       		.uleb128 0xb
+ 1162 01ca 793200   		.ascii	"y2\000"
+ 1163 01cd 05       		.byte	0x5
+ 1164 01ce 2B       		.byte	0x2b
+ 1165 01cf 95010000 		.4byte	0x195
+ 1166 01d3 06       		.byte	0x6
+ 1167 01d4 00       		.byte	0
+ 1168 01d5 03       		.uleb128 0x3
+ 1169 01d6 B3040000 		.4byte	.LASF40
+ 1170 01da 05       		.byte	0x5
+ 1171 01db 2C       		.byte	0x2c
+ 1172 01dc A0010000 		.4byte	0x1a0
+ 1173 01e0 0A       		.uleb128 0xa
+ 1174 01e1 04       		.byte	0x4
+ 1175 01e2 06       		.byte	0x6
+ 1176 01e3 25       		.byte	0x25
+ 1177 01e4 07020000 		.4byte	0x207
+ 1178 01e8 0C       		.uleb128 0xc
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 28
+
+
+ 1179 01e9 76040000 		.4byte	.LASF41
+ 1180 01ed 06       		.byte	0x6
+ 1181 01ee 27       		.byte	0x27
+ 1182 01ef B8000000 		.4byte	0xb8
+ 1183 01f3 04       		.byte	0x4
+ 1184 01f4 08       		.byte	0x8
+ 1185 01f5 18       		.byte	0x18
+ 1186 01f6 00       		.byte	0
+ 1187 01f7 0C       		.uleb128 0xc
+ 1188 01f8 2C040000 		.4byte	.LASF42
+ 1189 01fc 06       		.byte	0x6
+ 1190 01fd 28       		.byte	0x28
+ 1191 01fe B8000000 		.4byte	0xb8
+ 1192 0202 04       		.byte	0x4
+ 1193 0203 18       		.byte	0x18
+ 1194 0204 00       		.byte	0
+ 1195 0205 00       		.byte	0
+ 1196 0206 00       		.byte	0
+ 1197 0207 03       		.uleb128 0x3
+ 1198 0208 66020000 		.4byte	.LASF43
+ 1199 020c 06       		.byte	0x6
+ 1200 020d 29       		.byte	0x29
+ 1201 020e E0010000 		.4byte	0x1e0
+ 1202 0212 0D       		.uleb128 0xd
+ 1203 0213 BB010000 		.4byte	.LASF113
+ 1204 0217 28       		.byte	0x28
+ 1205 0218 06       		.byte	0x6
+ 1206 0219 31       		.byte	0x31
+ 1207 021a B8020000 		.4byte	0x2b8
+ 1208 021e 0E       		.uleb128 0xe
+ 1209 021f F5040000 		.4byte	.LASF44
+ 1210 0223 06       		.byte	0x6
+ 1211 0224 33       		.byte	0x33
+ 1212 0225 B8000000 		.4byte	0xb8
+ 1213 0229 00       		.byte	0
+ 1214 022a 0E       		.uleb128 0xe
+ 1215 022b 14050000 		.4byte	.LASF45
+ 1216 022f 06       		.byte	0x6
+ 1217 0230 34       		.byte	0x34
+ 1218 0231 B8000000 		.4byte	0xb8
+ 1219 0235 04       		.byte	0x4
+ 1220 0236 0E       		.uleb128 0xe
+ 1221 0237 F1020000 		.4byte	.LASF46
+ 1222 023b 06       		.byte	0x6
+ 1223 023c 35       		.byte	0x35
+ 1224 023d B8020000 		.4byte	0x2b8
+ 1225 0241 08       		.byte	0x8
+ 1226 0242 0E       		.uleb128 0xe
+ 1227 0243 E1040000 		.4byte	.LASF47
+ 1228 0247 06       		.byte	0x6
+ 1229 0248 36       		.byte	0x36
+ 1230 0249 C3020000 		.4byte	0x2c3
+ 1231 024d 0C       		.byte	0xc
+ 1232 024e 0E       		.uleb128 0xe
+ 1233 024f 5B000000 		.4byte	.LASF48
+ 1234 0253 06       		.byte	0x6
+ 1235 0254 37       		.byte	0x37
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 29
+
+
+ 1236 0255 CE020000 		.4byte	0x2ce
+ 1237 0259 10       		.byte	0x10
+ 1238 025a 0E       		.uleb128 0xe
+ 1239 025b 3D000000 		.4byte	.LASF49
+ 1240 025f 06       		.byte	0x6
+ 1241 0260 38       		.byte	0x38
+ 1242 0261 F8020000 		.4byte	0x2f8
+ 1243 0265 14       		.byte	0x14
+ 1244 0266 0E       		.uleb128 0xe
+ 1245 0267 A2040000 		.4byte	.LASF50
+ 1246 026b 06       		.byte	0x6
+ 1247 026c 39       		.byte	0x39
+ 1248 026d 12030000 		.4byte	0x312
+ 1249 0271 18       		.byte	0x18
+ 1250 0272 0E       		.uleb128 0xe
+ 1251 0273 FD000000 		.4byte	.LASF51
+ 1252 0277 06       		.byte	0x6
+ 1253 0278 3A       		.byte	0x3a
+ 1254 0279 18030000 		.4byte	0x318
+ 1255 027d 1C       		.byte	0x1c
+ 1256 027e 0C       		.uleb128 0xc
+ 1257 027f 98030000 		.4byte	.LASF52
+ 1258 0283 06       		.byte	0x6
+ 1259 0284 3B       		.byte	0x3b
+ 1260 0285 B8000000 		.4byte	0xb8
+ 1261 0289 04       		.byte	0x4
+ 1262 028a 08       		.byte	0x8
+ 1263 028b 18       		.byte	0x18
+ 1264 028c 20       		.byte	0x20
+ 1265 028d 0F       		.uleb128 0xf
+ 1266 028e 62707000 		.ascii	"bpp\000"
+ 1267 0292 06       		.byte	0x6
+ 1268 0293 3C       		.byte	0x3c
+ 1269 0294 B8000000 		.4byte	0xb8
+ 1270 0298 04       		.byte	0x4
+ 1271 0299 04       		.byte	0x4
+ 1272 029a 14       		.byte	0x14
+ 1273 029b 20       		.byte	0x20
+ 1274 029c 0C       		.uleb128 0xc
+ 1275 029d 1C040000 		.4byte	.LASF53
+ 1276 02a1 06       		.byte	0x6
+ 1277 02a2 3D       		.byte	0x3d
+ 1278 02a3 B8000000 		.4byte	0xb8
+ 1279 02a7 04       		.byte	0x4
+ 1280 02a8 08       		.byte	0x8
+ 1281 02a9 0C       		.byte	0xc
+ 1282 02aa 20       		.byte	0x20
+ 1283 02ab 0E       		.uleb128 0xe
+ 1284 02ac A6000000 		.4byte	.LASF54
+ 1285 02b0 06       		.byte	0x6
+ 1286 02b1 3E       		.byte	0x3e
+ 1287 02b2 AD000000 		.4byte	0xad
+ 1288 02b6 24       		.byte	0x24
+ 1289 02b7 00       		.byte	0
+ 1290 02b8 10       		.uleb128 0x10
+ 1291 02b9 04       		.byte	0x4
+ 1292 02ba BE020000 		.4byte	0x2be
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 30
+
+
+ 1293 02be 11       		.uleb128 0x11
+ 1294 02bf 97000000 		.4byte	0x97
+ 1295 02c3 10       		.uleb128 0x10
+ 1296 02c4 04       		.byte	0x4
+ 1297 02c5 C9020000 		.4byte	0x2c9
+ 1298 02c9 11       		.uleb128 0x11
+ 1299 02ca 07020000 		.4byte	0x207
+ 1300 02ce 10       		.uleb128 0x10
+ 1301 02cf 04       		.byte	0x4
+ 1302 02d0 D4020000 		.4byte	0x2d4
+ 1303 02d4 11       		.uleb128 0x11
+ 1304 02d5 B8000000 		.4byte	0xb8
+ 1305 02d9 12       		.uleb128 0x12
+ 1306 02da B8020000 		.4byte	0x2b8
+ 1307 02de ED020000 		.4byte	0x2ed
+ 1308 02e2 13       		.uleb128 0x13
+ 1309 02e3 ED020000 		.4byte	0x2ed
+ 1310 02e7 13       		.uleb128 0x13
+ 1311 02e8 B8000000 		.4byte	0xb8
+ 1312 02ec 00       		.byte	0
+ 1313 02ed 10       		.uleb128 0x10
+ 1314 02ee 04       		.byte	0x4
+ 1315 02ef F3020000 		.4byte	0x2f3
+ 1316 02f3 11       		.uleb128 0x11
+ 1317 02f4 12020000 		.4byte	0x212
+ 1318 02f8 10       		.uleb128 0x10
+ 1319 02f9 04       		.byte	0x4
+ 1320 02fa D9020000 		.4byte	0x2d9
+ 1321 02fe 12       		.uleb128 0x12
+ 1322 02ff A2000000 		.4byte	0xa2
+ 1323 0303 12030000 		.4byte	0x312
+ 1324 0307 13       		.uleb128 0x13
+ 1325 0308 ED020000 		.4byte	0x2ed
+ 1326 030c 13       		.uleb128 0x13
+ 1327 030d B8000000 		.4byte	0xb8
+ 1328 0311 00       		.byte	0
+ 1329 0312 10       		.uleb128 0x10
+ 1330 0313 04       		.byte	0x4
+ 1331 0314 FE020000 		.4byte	0x2fe
+ 1332 0318 10       		.uleb128 0x10
+ 1333 0319 04       		.byte	0x4
+ 1334 031a 12020000 		.4byte	0x212
+ 1335 031e 03       		.uleb128 0x3
+ 1336 031f 44030000 		.4byte	.LASF55
+ 1337 0323 06       		.byte	0x6
+ 1338 0324 3F       		.byte	0x3f
+ 1339 0325 12020000 		.4byte	0x212
+ 1340 0329 03       		.uleb128 0x3
+ 1341 032a 03050000 		.4byte	.LASF56
+ 1342 032e 07       		.byte	0x7
+ 1343 032f 2A       		.byte	0x2a
+ 1344 0330 97000000 		.4byte	0x97
+ 1345 0334 03       		.uleb128 0x3
+ 1346 0335 93020000 		.4byte	.LASF57
+ 1347 0339 07       		.byte	0x7
+ 1348 033a 32       		.byte	0x32
+ 1349 033b 97000000 		.4byte	0x97
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 31
+
+
+ 1350 033f 0A       		.uleb128 0xa
+ 1351 0340 06       		.byte	0x6
+ 1352 0341 07       		.byte	0x7
+ 1353 0342 3E       		.byte	0x3e
+ 1354 0343 78030000 		.4byte	0x378
+ 1355 0347 0E       		.uleb128 0xe
+ 1356 0348 07010000 		.4byte	.LASF58
+ 1357 034c 07       		.byte	0x7
+ 1358 034d 3F       		.byte	0x3f
+ 1359 034e 6A010000 		.4byte	0x16a
+ 1360 0352 00       		.byte	0
+ 1361 0353 0E       		.uleb128 0xe
+ 1362 0354 A3010000 		.4byte	.LASF59
+ 1363 0358 07       		.byte	0x7
+ 1364 0359 40       		.byte	0x40
+ 1365 035a 95010000 		.4byte	0x195
+ 1366 035e 02       		.byte	0x2
+ 1367 035f 0E       		.uleb128 0xe
+ 1368 0360 D0000000 		.4byte	.LASF60
+ 1369 0364 07       		.byte	0x7
+ 1370 0365 41       		.byte	0x41
+ 1371 0366 29030000 		.4byte	0x329
+ 1372 036a 04       		.byte	0x4
+ 1373 036b 0B       		.uleb128 0xb
+ 1374 036c 6F706100 		.ascii	"opa\000"
+ 1375 0370 07       		.byte	0x7
+ 1376 0371 42       		.byte	0x42
+ 1377 0372 75010000 		.4byte	0x175
+ 1378 0376 05       		.byte	0x5
+ 1379 0377 00       		.byte	0
+ 1380 0378 0A       		.uleb128 0xa
+ 1381 0379 06       		.byte	0x6
+ 1382 037a 07       		.byte	0x7
+ 1383 037b 45       		.byte	0x45
+ 1384 037c A5030000 		.4byte	0x3a5
+ 1385 0380 0E       		.uleb128 0xe
+ 1386 0381 07010000 		.4byte	.LASF58
+ 1387 0385 07       		.byte	0x7
+ 1388 0386 46       		.byte	0x46
+ 1389 0387 6A010000 		.4byte	0x16a
+ 1390 038b 00       		.byte	0
+ 1391 038c 0E       		.uleb128 0xe
+ 1392 038d A3010000 		.4byte	.LASF59
+ 1393 0391 07       		.byte	0x7
+ 1394 0392 47       		.byte	0x47
+ 1395 0393 95010000 		.4byte	0x195
+ 1396 0397 02       		.byte	0x2
+ 1397 0398 0E       		.uleb128 0xe
+ 1398 0399 58040000 		.4byte	.LASF61
+ 1399 039d 07       		.byte	0x7
+ 1400 039e 48       		.byte	0x48
+ 1401 039f 34030000 		.4byte	0x334
+ 1402 03a3 04       		.byte	0x4
+ 1403 03a4 00       		.byte	0
+ 1404 03a5 0A       		.uleb128 0xa
+ 1405 03a6 06       		.byte	0x6
+ 1406 03a7 07       		.byte	0x7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 32
+
+
+ 1407 03a8 4B       		.byte	0x4b
+ 1408 03a9 D2030000 		.4byte	0x3d2
+ 1409 03ad 0B       		.uleb128 0xb
+ 1410 03ae 76657200 		.ascii	"ver\000"
+ 1411 03b2 07       		.byte	0x7
+ 1412 03b3 4C       		.byte	0x4c
+ 1413 03b4 95010000 		.4byte	0x195
+ 1414 03b8 00       		.byte	0
+ 1415 03b9 0B       		.uleb128 0xb
+ 1416 03ba 686F7200 		.ascii	"hor\000"
+ 1417 03be 07       		.byte	0x7
+ 1418 03bf 4D       		.byte	0x4d
+ 1419 03c0 95010000 		.4byte	0x195
+ 1420 03c4 02       		.byte	0x2
+ 1421 03c5 0E       		.uleb128 0xe
+ 1422 03c6 74000000 		.4byte	.LASF62
+ 1423 03ca 07       		.byte	0x7
+ 1424 03cb 4E       		.byte	0x4e
+ 1425 03cc 95010000 		.4byte	0x195
+ 1426 03d0 04       		.byte	0x4
+ 1427 03d1 00       		.byte	0
+ 1428 03d2 0A       		.uleb128 0xa
+ 1429 03d3 1A       		.byte	0x1a
+ 1430 03d4 07       		.byte	0x7
+ 1431 03d5 38       		.byte	0x38
+ 1432 03d6 3E040000 		.4byte	0x43e
+ 1433 03da 0E       		.uleb128 0xe
+ 1434 03db 5B030000 		.4byte	.LASF63
+ 1435 03df 07       		.byte	0x7
+ 1436 03e0 39       		.byte	0x39
+ 1437 03e1 6A010000 		.4byte	0x16a
+ 1438 03e5 00       		.byte	0
+ 1439 03e6 0E       		.uleb128 0xe
+ 1440 03e7 39030000 		.4byte	.LASF64
+ 1441 03eb 07       		.byte	0x7
+ 1442 03ec 3A       		.byte	0x3a
+ 1443 03ed 6A010000 		.4byte	0x16a
+ 1444 03f1 01       		.byte	0x1
+ 1445 03f2 0E       		.uleb128 0xe
+ 1446 03f3 38040000 		.4byte	.LASF65
+ 1447 03f7 07       		.byte	0x7
+ 1448 03f8 3B       		.byte	0x3b
+ 1449 03f9 95010000 		.4byte	0x195
+ 1450 03fd 02       		.byte	0x2
+ 1451 03fe 0B       		.uleb128 0xb
+ 1452 03ff 6F706100 		.ascii	"opa\000"
+ 1453 0403 07       		.byte	0x7
+ 1454 0404 3C       		.byte	0x3c
+ 1455 0405 75010000 		.4byte	0x175
+ 1456 0409 04       		.byte	0x4
+ 1457 040a 0E       		.uleb128 0xe
+ 1458 040b F6000000 		.4byte	.LASF66
+ 1459 040f 07       		.byte	0x7
+ 1460 0410 43       		.byte	0x43
+ 1461 0411 3F030000 		.4byte	0x33f
+ 1462 0415 06       		.byte	0x6
+ 1463 0416 0E       		.uleb128 0xe
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 33
+
+
+ 1464 0417 AC040000 		.4byte	.LASF67
+ 1465 041b 07       		.byte	0x7
+ 1466 041c 49       		.byte	0x49
+ 1467 041d 78030000 		.4byte	0x378
+ 1468 0421 0C       		.byte	0xc
+ 1469 0422 0E       		.uleb128 0xe
+ 1470 0423 C2020000 		.4byte	.LASF68
+ 1471 0427 07       		.byte	0x7
+ 1472 0428 4F       		.byte	0x4f
+ 1473 0429 A5030000 		.4byte	0x3a5
+ 1474 042d 12       		.byte	0x12
+ 1475 042e 0C       		.uleb128 0xc
+ 1476 042f 0E040000 		.4byte	.LASF69
+ 1477 0433 07       		.byte	0x7
+ 1478 0434 51       		.byte	0x51
+ 1479 0435 97000000 		.4byte	0x97
+ 1480 0439 01       		.byte	0x1
+ 1481 043a 01       		.byte	0x1
+ 1482 043b 07       		.byte	0x7
+ 1483 043c 18       		.byte	0x18
+ 1484 043d 00       		.byte	0
+ 1485 043e 0A       		.uleb128 0xa
+ 1486 043f 10       		.byte	0x10
+ 1487 0440 07       		.byte	0x7
+ 1488 0441 55       		.byte	0x55
+ 1489 0442 83040000 		.4byte	0x483
+ 1490 0446 0E       		.uleb128 0xe
+ 1491 0447 07010000 		.4byte	.LASF58
+ 1492 044b 07       		.byte	0x7
+ 1493 044c 56       		.byte	0x56
+ 1494 044d 6A010000 		.4byte	0x16a
+ 1495 0451 00       		.byte	0
+ 1496 0452 0E       		.uleb128 0xe
+ 1497 0453 E4030000 		.4byte	.LASF70
+ 1498 0457 07       		.byte	0x7
+ 1499 0458 57       		.byte	0x57
+ 1500 0459 83040000 		.4byte	0x483
+ 1501 045d 04       		.byte	0x4
+ 1502 045e 0E       		.uleb128 0xe
+ 1503 045f 4E030000 		.4byte	.LASF71
+ 1504 0463 07       		.byte	0x7
+ 1505 0464 58       		.byte	0x58
+ 1506 0465 95010000 		.4byte	0x195
+ 1507 0469 08       		.byte	0x8
+ 1508 046a 0E       		.uleb128 0xe
+ 1509 046b CB010000 		.4byte	.LASF72
+ 1510 046f 07       		.byte	0x7
+ 1511 0470 59       		.byte	0x59
+ 1512 0471 95010000 		.4byte	0x195
+ 1513 0475 0A       		.byte	0xa
+ 1514 0476 0B       		.uleb128 0xb
+ 1515 0477 6F706100 		.ascii	"opa\000"
+ 1516 047b 07       		.byte	0x7
+ 1517 047c 5A       		.byte	0x5a
+ 1518 047d 75010000 		.4byte	0x175
+ 1519 0481 0C       		.byte	0xc
+ 1520 0482 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 34
+
+
+ 1521 0483 10       		.uleb128 0x10
+ 1522 0484 04       		.byte	0x4
+ 1523 0485 89040000 		.4byte	0x489
+ 1524 0489 11       		.uleb128 0x11
+ 1525 048a 1E030000 		.4byte	0x31e
+ 1526 048e 0A       		.uleb128 0xa
+ 1527 048f 03       		.byte	0x3
+ 1528 0490 07       		.byte	0x7
+ 1529 0491 5D       		.byte	0x5d
+ 1530 0492 BB040000 		.4byte	0x4bb
+ 1531 0496 0E       		.uleb128 0xe
+ 1532 0497 07010000 		.4byte	.LASF58
+ 1533 049b 07       		.byte	0x7
+ 1534 049c 5E       		.byte	0x5e
+ 1535 049d 6A010000 		.4byte	0x16a
+ 1536 04a1 00       		.byte	0
+ 1537 04a2 0E       		.uleb128 0xe
+ 1538 04a3 14040000 		.4byte	.LASF73
+ 1539 04a7 07       		.byte	0x7
+ 1540 04a8 5F       		.byte	0x5f
+ 1541 04a9 75010000 		.4byte	0x175
+ 1542 04ad 01       		.byte	0x1
+ 1543 04ae 0B       		.uleb128 0xb
+ 1544 04af 6F706100 		.ascii	"opa\000"
+ 1545 04b3 07       		.byte	0x7
+ 1546 04b4 60       		.byte	0x60
+ 1547 04b5 75010000 		.4byte	0x175
+ 1548 04b9 02       		.byte	0x2
+ 1549 04ba 00       		.byte	0
+ 1550 04bb 0A       		.uleb128 0xa
+ 1551 04bc 06       		.byte	0x6
+ 1552 04bd 07       		.byte	0x7
+ 1553 04be 63       		.byte	0x63
+ 1554 04bf F7040000 		.4byte	0x4f7
+ 1555 04c3 0E       		.uleb128 0xe
+ 1556 04c4 07010000 		.4byte	.LASF58
+ 1557 04c8 07       		.byte	0x7
+ 1558 04c9 64       		.byte	0x64
+ 1559 04ca 6A010000 		.4byte	0x16a
+ 1560 04ce 00       		.byte	0
+ 1561 04cf 0E       		.uleb128 0xe
+ 1562 04d0 A3010000 		.4byte	.LASF59
+ 1563 04d4 07       		.byte	0x7
+ 1564 04d5 65       		.byte	0x65
+ 1565 04d6 95010000 		.4byte	0x195
+ 1566 04da 02       		.byte	0x2
+ 1567 04db 0B       		.uleb128 0xb
+ 1568 04dc 6F706100 		.ascii	"opa\000"
+ 1569 04e0 07       		.byte	0x7
+ 1570 04e1 66       		.byte	0x66
+ 1571 04e2 75010000 		.4byte	0x175
+ 1572 04e6 04       		.byte	0x4
+ 1573 04e7 0C       		.uleb128 0xc
+ 1574 04e8 9B010000 		.4byte	.LASF74
+ 1575 04ec 07       		.byte	0x7
+ 1576 04ed 67       		.byte	0x67
+ 1577 04ee 97000000 		.4byte	0x97
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 35
+
+
+ 1578 04f2 01       		.byte	0x1
+ 1579 04f3 01       		.byte	0x1
+ 1580 04f4 07       		.byte	0x7
+ 1581 04f5 05       		.byte	0x5
+ 1582 04f6 00       		.byte	0
+ 1583 04f7 0A       		.uleb128 0xa
+ 1584 04f8 38       		.byte	0x38
+ 1585 04f9 07       		.byte	0x7
+ 1586 04fa 34       		.byte	0x34
+ 1587 04fb 3F050000 		.4byte	0x53f
+ 1588 04ff 0C       		.uleb128 0xc
+ 1589 0500 BC020000 		.4byte	.LASF75
+ 1590 0504 07       		.byte	0x7
+ 1591 0505 36       		.byte	0x36
+ 1592 0506 97000000 		.4byte	0x97
+ 1593 050a 01       		.byte	0x1
+ 1594 050b 01       		.byte	0x1
+ 1595 050c 07       		.byte	0x7
+ 1596 050d 00       		.byte	0
+ 1597 050e 0E       		.uleb128 0xe
+ 1598 050f 49040000 		.4byte	.LASF76
+ 1599 0513 07       		.byte	0x7
+ 1600 0514 52       		.byte	0x52
+ 1601 0515 D2030000 		.4byte	0x3d2
+ 1602 0519 02       		.byte	0x2
+ 1603 051a 0E       		.uleb128 0xe
+ 1604 051b 61020000 		.4byte	.LASF77
+ 1605 051f 07       		.byte	0x7
+ 1606 0520 5B       		.byte	0x5b
+ 1607 0521 3E040000 		.4byte	0x43e
+ 1608 0525 1C       		.byte	0x1c
+ 1609 0526 0E       		.uleb128 0xe
+ 1610 0527 FE020000 		.4byte	.LASF78
+ 1611 052b 07       		.byte	0x7
+ 1612 052c 61       		.byte	0x61
+ 1613 052d 8E040000 		.4byte	0x48e
+ 1614 0531 2C       		.byte	0x2c
+ 1615 0532 0E       		.uleb128 0xe
+ 1616 0533 7B040000 		.4byte	.LASF79
+ 1617 0537 07       		.byte	0x7
+ 1618 0538 68       		.byte	0x68
+ 1619 0539 BB040000 		.4byte	0x4bb
+ 1620 053d 30       		.byte	0x30
+ 1621 053e 00       		.byte	0
+ 1622 053f 03       		.uleb128 0x3
+ 1623 0540 32000000 		.4byte	.LASF80
+ 1624 0544 07       		.byte	0x7
+ 1625 0545 69       		.byte	0x69
+ 1626 0546 F7040000 		.4byte	0x4f7
+ 1627 054a 02       		.uleb128 0x2
+ 1628 054b 01       		.byte	0x1
+ 1629 054c 02       		.byte	0x2
+ 1630 054d B5010000 		.4byte	.LASF81
+ 1631 0551 10       		.uleb128 0x10
+ 1632 0552 04       		.byte	0x4
+ 1633 0553 57050000 		.4byte	0x557
+ 1634 0557 11       		.uleb128 0x11
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 36
+
+
+ 1635 0558 D5010000 		.4byte	0x1d5
+ 1636 055c 10       		.uleb128 0x10
+ 1637 055d 04       		.byte	0x4
+ 1638 055e 62050000 		.4byte	0x562
+ 1639 0562 11       		.uleb128 0x11
+ 1640 0563 3F050000 		.4byte	0x53f
+ 1641 0567 14       		.uleb128 0x14
+ 1642 0568 48000000 		.4byte	.LASF86
+ 1643 056c 01       		.byte	0x1
+ 1644 056d 9F       		.byte	0x9f
+ 1645 056e AD000000 		.4byte	0xad
+ 1646 0572 00000000 		.4byte	.LFB13
+ 1647 0576 B4000000 		.4byte	.LFE13-.LFB13
+ 1648 057a 01       		.uleb128 0x1
+ 1649 057b 9C       		.byte	0x9c
+ 1650 057c F1050000 		.4byte	0x5f1
+ 1651 0580 15       		.uleb128 0x15
+ 1652 0581 7800     		.ascii	"x\000"
+ 1653 0583 01       		.byte	0x1
+ 1654 0584 9F       		.byte	0x9f
+ 1655 0585 89000000 		.4byte	0x89
+ 1656 0589 00000000 		.4byte	.LLST0
+ 1657 058d 15       		.uleb128 0x15
+ 1658 058e 7900     		.ascii	"y\000"
+ 1659 0590 01       		.byte	0x1
+ 1660 0591 9F       		.byte	0x9f
+ 1661 0592 89000000 		.4byte	0x89
+ 1662 0596 1E000000 		.4byte	.LLST1
+ 1663 059a 16       		.uleb128 0x16
+ 1664 059b EE000000 		.4byte	.LASF82
+ 1665 059f 01       		.byte	0x1
+ 1666 05a0 AB       		.byte	0xab
+ 1667 05a1 37000000 		.4byte	0x37
+ 1668 05a5 47000000 		.4byte	.LLST2
+ 1669 05a9 17       		.uleb128 0x17
+ 1670 05aa 10020000 		.4byte	.LASF83
+ 1671 05ae 01       		.byte	0x1
+ 1672 05af AC       		.byte	0xac
+ 1673 05b0 37000000 		.4byte	0x37
+ 1674 05b4 01       		.uleb128 0x1
+ 1675 05b5 52       		.byte	0x52
+ 1676 05b6 16       		.uleb128 0x16
+ 1677 05b7 21050000 		.4byte	.LASF84
+ 1678 05bb 01       		.byte	0x1
+ 1679 05bc AD       		.byte	0xad
+ 1680 05bd 37000000 		.4byte	0x37
+ 1681 05c1 94000000 		.4byte	.LLST3
+ 1682 05c5 16       		.uleb128 0x16
+ 1683 05c6 9F000000 		.4byte	.LASF85
+ 1684 05ca 01       		.byte	0x1
+ 1685 05cb AE       		.byte	0xae
+ 1686 05cc 90000000 		.4byte	0x90
+ 1687 05d0 0C010000 		.4byte	.LLST4
+ 1688 05d4 18       		.uleb128 0x18
+ 1689 05d5 757800   		.ascii	"ux\000"
+ 1690 05d8 01       		.byte	0x1
+ 1691 05d9 B1       		.byte	0xb1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 37
+
+
+ 1692 05da 90000000 		.4byte	0x90
+ 1693 05de 35010000 		.4byte	.LLST5
+ 1694 05e2 18       		.uleb128 0x18
+ 1695 05e3 757900   		.ascii	"uy\000"
+ 1696 05e6 01       		.byte	0x1
+ 1697 05e7 B2       		.byte	0xb2
+ 1698 05e8 90000000 		.4byte	0x90
+ 1699 05ec 48010000 		.4byte	.LLST6
+ 1700 05f0 00       		.byte	0
+ 1701 05f1 14       		.uleb128 0x14
+ 1702 05f2 89000000 		.4byte	.LASF87
+ 1703 05f6 01       		.byte	0x1
+ 1704 05f7 FD       		.byte	0xfd
+ 1705 05f8 4A050000 		.4byte	0x54a
+ 1706 05fc 00000000 		.4byte	.LFB16
+ 1707 0600 14000000 		.4byte	.LFE16-.LFB16
+ 1708 0604 01       		.uleb128 0x1
+ 1709 0605 9C       		.byte	0x9c
+ 1710 0606 34060000 		.4byte	0x634
+ 1711 060a 15       		.uleb128 0x15
+ 1712 060b 64656700 		.ascii	"deg\000"
+ 1713 060f 01       		.byte	0x1
+ 1714 0610 FD       		.byte	0xfd
+ 1715 0611 AD000000 		.4byte	0xad
+ 1716 0615 66010000 		.4byte	.LLST7
+ 1717 0619 19       		.uleb128 0x19
+ 1718 061a DE030000 		.4byte	.LASF88
+ 1719 061e 01       		.byte	0x1
+ 1720 061f FD       		.byte	0xfd
+ 1721 0620 AD000000 		.4byte	0xad
+ 1722 0624 01       		.uleb128 0x1
+ 1723 0625 51       		.byte	0x51
+ 1724 0626 1A       		.uleb128 0x1a
+ 1725 0627 656E6400 		.ascii	"end\000"
+ 1726 062b 01       		.byte	0x1
+ 1727 062c FD       		.byte	0xfd
+ 1728 062d AD000000 		.4byte	0xad
+ 1729 0631 01       		.uleb128 0x1
+ 1730 0632 52       		.byte	0x52
+ 1731 0633 00       		.byte	0
+ 1732 0634 1B       		.uleb128 0x1b
+ 1733 0635 D6010000 		.4byte	.LASF89
+ 1734 0639 01       		.byte	0x1
+ 1735 063a 0301     		.2byte	0x103
+ 1736 063c 4A050000 		.4byte	0x54a
+ 1737 0640 00000000 		.4byte	.LFB17
+ 1738 0644 14000000 		.4byte	.LFE17-.LFB17
+ 1739 0648 01       		.uleb128 0x1
+ 1740 0649 9C       		.byte	0x9c
+ 1741 064a 7B060000 		.4byte	0x67b
+ 1742 064e 1C       		.uleb128 0x1c
+ 1743 064f 64656700 		.ascii	"deg\000"
+ 1744 0653 01       		.byte	0x1
+ 1745 0654 0301     		.2byte	0x103
+ 1746 0656 AD000000 		.4byte	0xad
+ 1747 065a B9010000 		.4byte	.LLST8
+ 1748 065e 1D       		.uleb128 0x1d
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 38
+
+
+ 1749 065f DE030000 		.4byte	.LASF88
+ 1750 0663 01       		.byte	0x1
+ 1751 0664 0301     		.2byte	0x103
+ 1752 0666 AD000000 		.4byte	0xad
+ 1753 066a 01       		.uleb128 0x1
+ 1754 066b 51       		.byte	0x51
+ 1755 066c 1E       		.uleb128 0x1e
+ 1756 066d 656E6400 		.ascii	"end\000"
+ 1757 0671 01       		.byte	0x1
+ 1758 0672 0301     		.2byte	0x103
+ 1759 0674 AD000000 		.4byte	0xad
+ 1760 0678 01       		.uleb128 0x1
+ 1761 0679 52       		.byte	0x52
+ 1762 067a 00       		.byte	0
+ 1763 067b 1F       		.uleb128 0x1f
+ 1764 067c CA020000 		.4byte	.LASF92
+ 1765 0680 01       		.byte	0x1
+ 1766 0681 ED       		.byte	0xed
+ 1767 0682 00000000 		.4byte	.LFB14
+ 1768 0686 34000000 		.4byte	.LFE14-.LFB14
+ 1769 068a 01       		.uleb128 0x1
+ 1770 068b 9C       		.byte	0x9c
+ 1771 068c 2C070000 		.4byte	0x72c
+ 1772 0690 15       		.uleb128 0x15
+ 1773 0691 7800     		.ascii	"x\000"
+ 1774 0693 01       		.byte	0x1
+ 1775 0694 ED       		.byte	0xed
+ 1776 0695 95010000 		.4byte	0x195
+ 1777 0699 0C020000 		.4byte	.LLST9
+ 1778 069d 15       		.uleb128 0x15
+ 1779 069e 7900     		.ascii	"y\000"
+ 1780 06a0 01       		.byte	0x1
+ 1781 06a1 ED       		.byte	0xed
+ 1782 06a2 95010000 		.4byte	0x195
+ 1783 06a6 2D020000 		.4byte	.LLST10
+ 1784 06aa 20       		.uleb128 0x20
+ 1785 06ab 04030000 		.4byte	.LASF90
+ 1786 06af 01       		.byte	0x1
+ 1787 06b0 ED       		.byte	0xed
+ 1788 06b1 51050000 		.4byte	0x551
+ 1789 06b5 4E020000 		.4byte	.LLST11
+ 1790 06b9 15       		.uleb128 0x15
+ 1791 06ba 6C656E00 		.ascii	"len\000"
+ 1792 06be 01       		.byte	0x1
+ 1793 06bf ED       		.byte	0xed
+ 1794 06c0 95010000 		.4byte	0x195
+ 1795 06c4 7A020000 		.4byte	.LLST12
+ 1796 06c8 20       		.uleb128 0x20
+ 1797 06c9 07010000 		.4byte	.LASF58
+ 1798 06cd 01       		.byte	0x1
+ 1799 06ce ED       		.byte	0xed
+ 1800 06cf 6A010000 		.4byte	0x16a
+ 1801 06d3 9B020000 		.4byte	.LLST13
+ 1802 06d7 15       		.uleb128 0x15
+ 1803 06d8 6F706100 		.ascii	"opa\000"
+ 1804 06dc 01       		.byte	0x1
+ 1805 06dd ED       		.byte	0xed
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 39
+
+
+ 1806 06de 75010000 		.4byte	0x175
+ 1807 06e2 BA020000 		.4byte	.LLST14
+ 1808 06e6 17       		.uleb128 0x17
+ 1809 06e7 8E020000 		.4byte	.LASF91
+ 1810 06eb 01       		.byte	0x1
+ 1811 06ec EF       		.byte	0xef
+ 1812 06ed D5010000 		.4byte	0x1d5
+ 1813 06f1 02       		.uleb128 0x2
+ 1814 06f2 91       		.byte	0x91
+ 1815 06f3 68       		.sleb128 -24
+ 1816 06f4 21       		.uleb128 0x21
+ 1817 06f5 1C000000 		.4byte	.LVL55
+ 1818 06f9 430D0000 		.4byte	0xd43
+ 1819 06fd 08070000 		.4byte	0x708
+ 1820 0701 22       		.uleb128 0x22
+ 1821 0702 01       		.uleb128 0x1
+ 1822 0703 50       		.byte	0x50
+ 1823 0704 02       		.uleb128 0x2
+ 1824 0705 91       		.byte	0x91
+ 1825 0706 68       		.sleb128 -24
+ 1826 0707 00       		.byte	0
+ 1827 0708 23       		.uleb128 0x23
+ 1828 0709 2C000000 		.4byte	.LVL57
+ 1829 070d 02       		.uleb128 0x2
+ 1830 070e 74       		.byte	0x74
+ 1831 070f 00       		.sleb128 0
+ 1832 0710 22       		.uleb128 0x22
+ 1833 0711 01       		.uleb128 0x1
+ 1834 0712 50       		.byte	0x50
+ 1835 0713 02       		.uleb128 0x2
+ 1836 0714 91       		.byte	0x91
+ 1837 0715 68       		.sleb128 -24
+ 1838 0716 22       		.uleb128 0x22
+ 1839 0717 01       		.uleb128 0x1
+ 1840 0718 51       		.byte	0x51
+ 1841 0719 02       		.uleb128 0x2
+ 1842 071a 75       		.byte	0x75
+ 1843 071b 00       		.sleb128 0
+ 1844 071c 22       		.uleb128 0x22
+ 1845 071d 01       		.uleb128 0x1
+ 1846 071e 52       		.byte	0x52
+ 1847 071f 02       		.uleb128 0x2
+ 1848 0720 76       		.byte	0x76
+ 1849 0721 00       		.sleb128 0
+ 1850 0722 22       		.uleb128 0x22
+ 1851 0723 01       		.uleb128 0x1
+ 1852 0724 53       		.byte	0x53
+ 1853 0725 04       		.uleb128 0x4
+ 1854 0726 91       		.byte	0x91
+ 1855 0727 04       		.sleb128 4
+ 1856 0728 94       		.byte	0x94
+ 1857 0729 01       		.byte	0x1
+ 1858 072a 00       		.byte	0
+ 1859 072b 00       		.byte	0
+ 1860 072c 1F       		.uleb128 0x1f
+ 1861 072d C7000000 		.4byte	.LASF93
+ 1862 0731 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 40
+
+
+ 1863 0732 F5       		.byte	0xf5
+ 1864 0733 00000000 		.4byte	.LFB15
+ 1865 0737 34000000 		.4byte	.LFE15-.LFB15
+ 1866 073b 01       		.uleb128 0x1
+ 1867 073c 9C       		.byte	0x9c
+ 1868 073d DD070000 		.4byte	0x7dd
+ 1869 0741 15       		.uleb128 0x15
+ 1870 0742 7800     		.ascii	"x\000"
+ 1871 0744 01       		.byte	0x1
+ 1872 0745 F5       		.byte	0xf5
+ 1873 0746 95010000 		.4byte	0x195
+ 1874 074a DA020000 		.4byte	.LLST15
+ 1875 074e 15       		.uleb128 0x15
+ 1876 074f 7900     		.ascii	"y\000"
+ 1877 0751 01       		.byte	0x1
+ 1878 0752 F5       		.byte	0xf5
+ 1879 0753 95010000 		.4byte	0x195
+ 1880 0757 FB020000 		.4byte	.LLST16
+ 1881 075b 20       		.uleb128 0x20
+ 1882 075c 04030000 		.4byte	.LASF90
+ 1883 0760 01       		.byte	0x1
+ 1884 0761 F5       		.byte	0xf5
+ 1885 0762 51050000 		.4byte	0x551
+ 1886 0766 1C030000 		.4byte	.LLST17
+ 1887 076a 15       		.uleb128 0x15
+ 1888 076b 6C656E00 		.ascii	"len\000"
+ 1889 076f 01       		.byte	0x1
+ 1890 0770 F5       		.byte	0xf5
+ 1891 0771 95010000 		.4byte	0x195
+ 1892 0775 48030000 		.4byte	.LLST18
+ 1893 0779 20       		.uleb128 0x20
+ 1894 077a 07010000 		.4byte	.LASF58
+ 1895 077e 01       		.byte	0x1
+ 1896 077f F5       		.byte	0xf5
+ 1897 0780 6A010000 		.4byte	0x16a
+ 1898 0784 69030000 		.4byte	.LLST19
+ 1899 0788 15       		.uleb128 0x15
+ 1900 0789 6F706100 		.ascii	"opa\000"
+ 1901 078d 01       		.byte	0x1
+ 1902 078e F5       		.byte	0xf5
+ 1903 078f 75010000 		.4byte	0x175
+ 1904 0793 88030000 		.4byte	.LLST20
+ 1905 0797 17       		.uleb128 0x17
+ 1906 0798 8E020000 		.4byte	.LASF91
+ 1907 079c 01       		.byte	0x1
+ 1908 079d F7       		.byte	0xf7
+ 1909 079e D5010000 		.4byte	0x1d5
+ 1910 07a2 02       		.uleb128 0x2
+ 1911 07a3 91       		.byte	0x91
+ 1912 07a4 68       		.sleb128 -24
+ 1913 07a5 21       		.uleb128 0x21
+ 1914 07a6 1A000000 		.4byte	.LVL65
+ 1915 07aa 430D0000 		.4byte	0xd43
+ 1916 07ae B9070000 		.4byte	0x7b9
+ 1917 07b2 22       		.uleb128 0x22
+ 1918 07b3 01       		.uleb128 0x1
+ 1919 07b4 50       		.byte	0x50
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 41
+
+
+ 1920 07b5 02       		.uleb128 0x2
+ 1921 07b6 91       		.byte	0x91
+ 1922 07b7 68       		.sleb128 -24
+ 1923 07b8 00       		.byte	0
+ 1924 07b9 23       		.uleb128 0x23
+ 1925 07ba 2A000000 		.4byte	.LVL67
+ 1926 07be 02       		.uleb128 0x2
+ 1927 07bf 74       		.byte	0x74
+ 1928 07c0 00       		.sleb128 0
+ 1929 07c1 22       		.uleb128 0x22
+ 1930 07c2 01       		.uleb128 0x1
+ 1931 07c3 50       		.byte	0x50
+ 1932 07c4 02       		.uleb128 0x2
+ 1933 07c5 91       		.byte	0x91
+ 1934 07c6 68       		.sleb128 -24
+ 1935 07c7 22       		.uleb128 0x22
+ 1936 07c8 01       		.uleb128 0x1
+ 1937 07c9 51       		.byte	0x51
+ 1938 07ca 02       		.uleb128 0x2
+ 1939 07cb 75       		.byte	0x75
+ 1940 07cc 00       		.sleb128 0
+ 1941 07cd 22       		.uleb128 0x22
+ 1942 07ce 01       		.uleb128 0x1
+ 1943 07cf 52       		.byte	0x52
+ 1944 07d0 02       		.uleb128 0x2
+ 1945 07d1 76       		.byte	0x76
+ 1946 07d2 00       		.sleb128 0
+ 1947 07d3 22       		.uleb128 0x22
+ 1948 07d4 01       		.uleb128 0x1
+ 1949 07d5 53       		.byte	0x53
+ 1950 07d6 04       		.uleb128 0x4
+ 1951 07d7 91       		.byte	0x91
+ 1952 07d8 04       		.sleb128 4
+ 1953 07d9 94       		.byte	0x94
+ 1954 07da 01       		.byte	0x1
+ 1955 07db 00       		.byte	0
+ 1956 07dc 00       		.byte	0
+ 1957 07dd 24       		.uleb128 0x24
+ 1958 07de A9010000 		.4byte	.LASF114
+ 1959 07e2 01       		.byte	0x1
+ 1960 07e3 34       		.byte	0x34
+ 1961 07e4 00000000 		.4byte	.LFB12
+ 1962 07e8 60030000 		.4byte	.LFE12-.LFB12
+ 1963 07ec 01       		.uleb128 0x1
+ 1964 07ed 9C       		.byte	0x9c
+ 1965 07ee E40C0000 		.4byte	0xce4
+ 1966 07f2 20       		.uleb128 0x20
+ 1967 07f3 AD030000 		.4byte	.LASF94
+ 1968 07f7 01       		.byte	0x1
+ 1969 07f8 34       		.byte	0x34
+ 1970 07f9 95010000 		.4byte	0x195
+ 1971 07fd A8030000 		.4byte	.LLST21
+ 1972 0801 20       		.uleb128 0x20
+ 1973 0802 B6030000 		.4byte	.LASF95
+ 1974 0806 01       		.byte	0x1
+ 1975 0807 34       		.byte	0x34
+ 1976 0808 95010000 		.4byte	0x195
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 42
+
+
+ 1977 080c C9030000 		.4byte	.LLST22
+ 1978 0810 20       		.uleb128 0x20
+ 1979 0811 38040000 		.4byte	.LASF65
+ 1980 0815 01       		.byte	0x1
+ 1981 0816 34       		.byte	0x34
+ 1982 0817 AD000000 		.4byte	0xad
+ 1983 081b EA030000 		.4byte	.LLST23
+ 1984 081f 20       		.uleb128 0x20
+ 1985 0820 04030000 		.4byte	.LASF90
+ 1986 0824 01       		.byte	0x1
+ 1987 0825 34       		.byte	0x34
+ 1988 0826 51050000 		.4byte	0x551
+ 1989 082a 0B040000 		.4byte	.LLST24
+ 1990 082e 20       		.uleb128 0x20
+ 1991 082f 8C030000 		.4byte	.LASF96
+ 1992 0833 01       		.byte	0x1
+ 1993 0834 35       		.byte	0x35
+ 1994 0835 AD000000 		.4byte	0xad
+ 1995 0839 38040000 		.4byte	.LLST25
+ 1996 083d 20       		.uleb128 0x20
+ 1997 083e 8E040000 		.4byte	.LASF97
+ 1998 0842 01       		.byte	0x1
+ 1999 0843 35       		.byte	0x35
+ 2000 0844 AD000000 		.4byte	0xad
+ 2001 0848 58040000 		.4byte	.LLST26
+ 2002 084c 20       		.uleb128 0x20
+ 2003 084d 88040000 		.4byte	.LASF98
+ 2004 0851 01       		.byte	0x1
+ 2005 0852 35       		.byte	0x35
+ 2006 0853 5C050000 		.4byte	0x55c
+ 2007 0857 78040000 		.4byte	.LLST27
+ 2008 085b 20       		.uleb128 0x20
+ 2009 085c 3F040000 		.4byte	.LASF99
+ 2010 0860 01       		.byte	0x1
+ 2011 0861 35       		.byte	0x35
+ 2012 0862 75010000 		.4byte	0x175
+ 2013 0866 98040000 		.4byte	.LLST28
+ 2014 086a 16       		.uleb128 0x16
+ 2015 086b 01020000 		.4byte	.LASF100
+ 2016 086f 01       		.byte	0x1
+ 2017 0870 37       		.byte	0x37
+ 2018 0871 95010000 		.4byte	0x195
+ 2019 0875 B8040000 		.4byte	.LLST29
+ 2020 0879 16       		.uleb128 0x16
+ 2021 087a 26040000 		.4byte	.LASF101
+ 2022 087e 01       		.byte	0x1
+ 2023 087f 3A       		.byte	0x3a
+ 2024 0880 95010000 		.4byte	0x195
+ 2025 0884 CB040000 		.4byte	.LLST30
+ 2026 0888 16       		.uleb128 0x16
+ 2027 0889 BD040000 		.4byte	.LASF102
+ 2028 088d 01       		.byte	0x1
+ 2029 088e 3B       		.byte	0x3b
+ 2030 088f 95010000 		.4byte	0x195
+ 2031 0893 E9040000 		.4byte	.LLST31
+ 2032 0897 16       		.uleb128 0x16
+ 2033 0898 38050000 		.4byte	.LASF103
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 43
+
+
+ 2034 089c 01       		.byte	0x1
+ 2035 089d 3C       		.byte	0x3c
+ 2036 089e A2000000 		.4byte	0xa2
+ 2037 08a2 07050000 		.4byte	.LLST32
+ 2038 08a6 18       		.uleb128 0x18
+ 2039 08a7 64656700 		.ascii	"deg\000"
+ 2040 08ab 01       		.byte	0x1
+ 2041 08ac 3D       		.byte	0x3d
+ 2042 08ad A2000000 		.4byte	0xa2
+ 2043 08b1 1A050000 		.4byte	.LLST33
+ 2044 08b5 17       		.uleb128 0x17
+ 2045 08b6 80040000 		.4byte	.LASF104
+ 2046 08ba 01       		.byte	0x1
+ 2047 08bb 3E       		.byte	0x3e
+ 2048 08bc E40C0000 		.4byte	0xce4
+ 2049 08c0 02       		.uleb128 0x2
+ 2050 08c1 91       		.byte	0x91
+ 2051 08c2 50       		.sleb128 -48
+ 2052 08c3 17       		.uleb128 0x17
+ 2053 08c4 83000000 		.4byte	.LASF105
+ 2054 08c8 01       		.byte	0x1
+ 2055 08c9 3F       		.byte	0x3f
+ 2056 08ca E40C0000 		.4byte	0xce4
+ 2057 08ce 02       		.uleb128 0x2
+ 2058 08cf 91       		.byte	0x91
+ 2059 08d0 48       		.sleb128 -56
+ 2060 08d1 16       		.uleb128 0x16
+ 2061 08d2 07010000 		.4byte	.LASF58
+ 2062 08d6 01       		.byte	0x1
+ 2063 08d7 41       		.byte	0x41
+ 2064 08d8 6A010000 		.4byte	0x16a
+ 2065 08dc 38050000 		.4byte	.LLST34
+ 2066 08e0 18       		.uleb128 0x18
+ 2067 08e1 6F706100 		.ascii	"opa\000"
+ 2068 08e5 01       		.byte	0x1
+ 2069 08e6 42       		.byte	0x42
+ 2070 08e7 75010000 		.4byte	0x175
+ 2071 08eb 6C050000 		.4byte	.LLST35
+ 2072 08ef 16       		.uleb128 0x16
+ 2073 08f0 26050000 		.4byte	.LASF106
+ 2074 08f4 01       		.byte	0x1
+ 2075 08f5 45       		.byte	0x45
+ 2076 08f6 0D0D0000 		.4byte	0xd0d
+ 2077 08fa 8E050000 		.4byte	.LLST36
+ 2078 08fe 16       		.uleb128 0x16
+ 2079 08ff DD020000 		.4byte	.LASF107
+ 2080 0903 01       		.byte	0x1
+ 2081 0904 4E       		.byte	0x4e
+ 2082 0905 B8000000 		.4byte	0xb8
+ 2083 0909 B7050000 		.4byte	.LLST37
+ 2084 090d 16       		.uleb128 0x16
+ 2085 090e 2F050000 		.4byte	.LASF108
+ 2086 0912 01       		.byte	0x1
+ 2087 0913 4F       		.byte	0x4f
+ 2088 0914 B8000000 		.4byte	0xb8
+ 2089 0918 CA050000 		.4byte	.LLST38
+ 2090 091c 18       		.uleb128 0x18
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 44
+
+
+ 2091 091d 786900   		.ascii	"xi\000"
+ 2092 0920 01       		.byte	0x1
+ 2093 0921 50       		.byte	0x50
+ 2094 0922 A2000000 		.4byte	0xa2
+ 2095 0926 DD050000 		.4byte	.LLST39
+ 2096 092a 18       		.uleb128 0x18
+ 2097 092b 796900   		.ascii	"yi\000"
+ 2098 092e 01       		.byte	0x1
+ 2099 092f 51       		.byte	0x51
+ 2100 0930 A2000000 		.4byte	0xa2
+ 2101 0934 07060000 		.4byte	.LLST40
+ 2102 0938 25       		.uleb128 0x25
+ 2103 0939 3A010000 		.4byte	.LBB2
+ 2104 093d F6000000 		.4byte	.LBE2-.LBB2
+ 2105 0941 F4090000 		.4byte	0x9f4
+ 2106 0945 16       		.uleb128 0x16
+ 2107 0946 E9030000 		.4byte	.LASF109
+ 2108 094a 01       		.byte	0x1
+ 2109 094b 5D       		.byte	0x5d
+ 2110 094c B8000000 		.4byte	0xb8
+ 2111 0950 30060000 		.4byte	.LLST41
+ 2112 0954 21       		.uleb128 0x21
+ 2113 0955 4E010000 		.4byte	.LVL96
+ 2114 0959 67050000 		.4byte	0x567
+ 2115 095d 6E090000 		.4byte	0x96e
+ 2116 0961 22       		.uleb128 0x22
+ 2117 0962 01       		.uleb128 0x1
+ 2118 0963 50       		.byte	0x50
+ 2119 0964 02       		.uleb128 0x2
+ 2120 0965 74       		.byte	0x74
+ 2121 0966 00       		.sleb128 0
+ 2122 0967 22       		.uleb128 0x22
+ 2123 0968 01       		.uleb128 0x1
+ 2124 0969 51       		.byte	0x51
+ 2125 096a 02       		.uleb128 0x2
+ 2126 096b 76       		.byte	0x76
+ 2127 096c 00       		.sleb128 0
+ 2128 096d 00       		.byte	0
+ 2129 096e 26       		.uleb128 0x26
+ 2130 096f 5C010000 		.4byte	.LVL98
+ 2131 0973 8A090000 		.4byte	0x98a
+ 2132 0977 22       		.uleb128 0x22
+ 2133 0978 01       		.uleb128 0x1
+ 2134 0979 51       		.byte	0x51
+ 2135 097a 05       		.uleb128 0x5
+ 2136 097b 91       		.byte	0x91
+ 2137 097c AC7F     		.sleb128 -84
+ 2138 097e 94       		.byte	0x94
+ 2139 097f 02       		.byte	0x2
+ 2140 0980 22       		.uleb128 0x22
+ 2141 0981 01       		.uleb128 0x1
+ 2142 0982 52       		.byte	0x52
+ 2143 0983 05       		.uleb128 0x5
+ 2144 0984 91       		.byte	0x91
+ 2145 0985 B07F     		.sleb128 -80
+ 2146 0987 94       		.byte	0x94
+ 2147 0988 02       		.byte	0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 45
+
+
+ 2148 0989 00       		.byte	0
+ 2149 098a 26       		.uleb128 0x26
+ 2150 098b 94010000 		.4byte	.LVL99
+ 2151 098f B0090000 		.4byte	0x9b0
+ 2152 0993 22       		.uleb128 0x22
+ 2153 0994 01       		.uleb128 0x1
+ 2154 0995 50       		.byte	0x50
+ 2155 0996 06       		.uleb128 0x6
+ 2156 0997 0A       		.byte	0xa
+ 2157 0998 6801     		.2byte	0x168
+ 2158 099a 78       		.byte	0x78
+ 2159 099b 00       		.sleb128 0
+ 2160 099c 1C       		.byte	0x1c
+ 2161 099d 22       		.uleb128 0x22
+ 2162 099e 01       		.uleb128 0x1
+ 2163 099f 51       		.byte	0x51
+ 2164 09a0 05       		.uleb128 0x5
+ 2165 09a1 91       		.byte	0x91
+ 2166 09a2 AC7F     		.sleb128 -84
+ 2167 09a4 94       		.byte	0x94
+ 2168 09a5 02       		.byte	0x2
+ 2169 09a6 22       		.uleb128 0x22
+ 2170 09a7 01       		.uleb128 0x1
+ 2171 09a8 52       		.byte	0x52
+ 2172 09a9 05       		.uleb128 0x5
+ 2173 09aa 91       		.byte	0x91
+ 2174 09ab B07F     		.sleb128 -80
+ 2175 09ad 94       		.byte	0x94
+ 2176 09ae 02       		.byte	0x2
+ 2177 09af 00       		.byte	0
+ 2178 09b0 26       		.uleb128 0x26
+ 2179 09b1 CC010000 		.4byte	.LVL100
+ 2180 09b5 D5090000 		.4byte	0x9d5
+ 2181 09b9 22       		.uleb128 0x22
+ 2182 09ba 01       		.uleb128 0x1
+ 2183 09bb 50       		.byte	0x50
+ 2184 09bc 05       		.uleb128 0x5
+ 2185 09bd 08       		.byte	0x8
+ 2186 09be B4       		.byte	0xb4
+ 2187 09bf 78       		.byte	0x78
+ 2188 09c0 00       		.sleb128 0
+ 2189 09c1 1C       		.byte	0x1c
+ 2190 09c2 22       		.uleb128 0x22
+ 2191 09c3 01       		.uleb128 0x1
+ 2192 09c4 51       		.byte	0x51
+ 2193 09c5 05       		.uleb128 0x5
+ 2194 09c6 91       		.byte	0x91
+ 2195 09c7 AC7F     		.sleb128 -84
+ 2196 09c9 94       		.byte	0x94
+ 2197 09ca 02       		.byte	0x2
+ 2198 09cb 22       		.uleb128 0x22
+ 2199 09cc 01       		.uleb128 0x1
+ 2200 09cd 52       		.byte	0x52
+ 2201 09ce 05       		.uleb128 0x5
+ 2202 09cf 91       		.byte	0x91
+ 2203 09d0 B07F     		.sleb128 -80
+ 2204 09d2 94       		.byte	0x94
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 46
+
+
+ 2205 09d3 02       		.byte	0x2
+ 2206 09d4 00       		.byte	0
+ 2207 09d5 27       		.uleb128 0x27
+ 2208 09d6 00020000 		.4byte	.LVL102
+ 2209 09da 22       		.uleb128 0x22
+ 2210 09db 01       		.uleb128 0x1
+ 2211 09dc 50       		.byte	0x50
+ 2212 09dd 02       		.uleb128 0x2
+ 2213 09de 78       		.byte	0x78
+ 2214 09df 00       		.sleb128 0
+ 2215 09e0 22       		.uleb128 0x22
+ 2216 09e1 01       		.uleb128 0x1
+ 2217 09e2 51       		.byte	0x51
+ 2218 09e3 05       		.uleb128 0x5
+ 2219 09e4 91       		.byte	0x91
+ 2220 09e5 AC7F     		.sleb128 -84
+ 2221 09e7 94       		.byte	0x94
+ 2222 09e8 02       		.byte	0x2
+ 2223 09e9 22       		.uleb128 0x22
+ 2224 09ea 01       		.uleb128 0x1
+ 2225 09eb 52       		.byte	0x52
+ 2226 09ec 05       		.uleb128 0x5
+ 2227 09ed 91       		.byte	0x91
+ 2228 09ee B07F     		.sleb128 -80
+ 2229 09f0 94       		.byte	0x94
+ 2230 09f1 02       		.byte	0x2
+ 2231 09f2 00       		.byte	0
+ 2232 09f3 00       		.byte	0
+ 2233 09f4 28       		.uleb128 0x28
+ 2234 09f5 72000000 		.4byte	.LVL80
+ 2235 09f9 02       		.uleb128 0x2
+ 2236 09fa 78       		.byte	0x78
+ 2237 09fb 00       		.sleb128 0
+ 2238 09fc 1A0A0000 		.4byte	0xa1a
+ 2239 0a00 22       		.uleb128 0x22
+ 2240 0a01 01       		.uleb128 0x1
+ 2241 0a02 50       		.byte	0x50
+ 2242 0a03 03       		.uleb128 0x3
+ 2243 0a04 0A       		.byte	0xa
+ 2244 0a05 0E01     		.2byte	0x10e
+ 2245 0a07 22       		.uleb128 0x22
+ 2246 0a08 01       		.uleb128 0x1
+ 2247 0a09 51       		.byte	0x51
+ 2248 0a0a 05       		.uleb128 0x5
+ 2249 0a0b 91       		.byte	0x91
+ 2250 0a0c AC7F     		.sleb128 -84
+ 2251 0a0e 94       		.byte	0x94
+ 2252 0a0f 02       		.byte	0x2
+ 2253 0a10 22       		.uleb128 0x22
+ 2254 0a11 01       		.uleb128 0x1
+ 2255 0a12 52       		.byte	0x52
+ 2256 0a13 05       		.uleb128 0x5
+ 2257 0a14 91       		.byte	0x91
+ 2258 0a15 B07F     		.sleb128 -80
+ 2259 0a17 94       		.byte	0x94
+ 2260 0a18 02       		.byte	0x2
+ 2261 0a19 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 47
+
+
+ 2262 0a1a 21       		.uleb128 0x21
+ 2263 0a1b 90000000 		.4byte	.LVL81
+ 2264 0a1f 2C070000 		.4byte	0x72c
+ 2265 0a23 5B0A0000 		.4byte	0xa5b
+ 2266 0a27 22       		.uleb128 0x22
+ 2267 0a28 01       		.uleb128 0x1
+ 2268 0a29 50       		.byte	0x50
+ 2269 0a2a 07       		.uleb128 0x7
+ 2270 0a2b 7B       		.byte	0x7b
+ 2271 0a2c 00       		.sleb128 0
+ 2272 0a2d 74       		.byte	0x74
+ 2273 0a2e 00       		.sleb128 0
+ 2274 0a2f 1C       		.byte	0x1c
+ 2275 0a30 23       		.byte	0x23
+ 2276 0a31 01       		.uleb128 0x1
+ 2277 0a32 22       		.uleb128 0x22
+ 2278 0a33 01       		.uleb128 0x1
+ 2279 0a34 51       		.byte	0x51
+ 2280 0a35 05       		.uleb128 0x5
+ 2281 0a36 91       		.byte	0x91
+ 2282 0a37 B87F     		.sleb128 -72
+ 2283 0a39 94       		.byte	0x94
+ 2284 0a3a 02       		.byte	0x2
+ 2285 0a3b 22       		.uleb128 0x22
+ 2286 0a3c 01       		.uleb128 0x1
+ 2287 0a3d 52       		.byte	0x52
+ 2288 0a3e 04       		.uleb128 0x4
+ 2289 0a3f 91       		.byte	0x91
+ 2290 0a40 BC7F     		.sleb128 -68
+ 2291 0a42 06       		.byte	0x6
+ 2292 0a43 22       		.uleb128 0x22
+ 2293 0a44 01       		.uleb128 0x1
+ 2294 0a45 53       		.byte	0x53
+ 2295 0a46 02       		.uleb128 0x2
+ 2296 0a47 75       		.byte	0x75
+ 2297 0a48 7F       		.sleb128 -1
+ 2298 0a49 22       		.uleb128 0x22
+ 2299 0a4a 02       		.uleb128 0x2
+ 2300 0a4b 7D       		.byte	0x7d
+ 2301 0a4c 00       		.sleb128 0
+ 2302 0a4d 02       		.uleb128 0x2
+ 2303 0a4e 76       		.byte	0x76
+ 2304 0a4f 00       		.sleb128 0
+ 2305 0a50 22       		.uleb128 0x22
+ 2306 0a51 02       		.uleb128 0x2
+ 2307 0a52 7D       		.byte	0x7d
+ 2308 0a53 04       		.sleb128 4
+ 2309 0a54 05       		.uleb128 0x5
+ 2310 0a55 91       		.byte	0x91
+ 2311 0a56 B47F     		.sleb128 -76
+ 2312 0a58 94       		.byte	0x94
+ 2313 0a59 01       		.byte	0x1
+ 2314 0a5a 00       		.byte	0
+ 2315 0a5b 26       		.uleb128 0x26
+ 2316 0a5c 98000000 		.4byte	.LVL82
+ 2317 0a60 7D0A0000 		.4byte	0xa7d
+ 2318 0a64 22       		.uleb128 0x22
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 48
+
+
+ 2319 0a65 01       		.uleb128 0x1
+ 2320 0a66 50       		.byte	0x50
+ 2321 0a67 02       		.uleb128 0x2
+ 2322 0a68 08       		.byte	0x8
+ 2323 0a69 5A       		.byte	0x5a
+ 2324 0a6a 22       		.uleb128 0x22
+ 2325 0a6b 01       		.uleb128 0x1
+ 2326 0a6c 51       		.byte	0x51
+ 2327 0a6d 05       		.uleb128 0x5
+ 2328 0a6e 91       		.byte	0x91
+ 2329 0a6f AC7F     		.sleb128 -84
+ 2330 0a71 94       		.byte	0x94
+ 2331 0a72 02       		.byte	0x2
+ 2332 0a73 22       		.uleb128 0x22
+ 2333 0a74 01       		.uleb128 0x1
+ 2334 0a75 52       		.byte	0x52
+ 2335 0a76 05       		.uleb128 0x5
+ 2336 0a77 91       		.byte	0x91
+ 2337 0a78 B07F     		.sleb128 -80
+ 2338 0a7a 94       		.byte	0x94
+ 2339 0a7b 02       		.byte	0x2
+ 2340 0a7c 00       		.byte	0
+ 2341 0a7d 21       		.uleb128 0x21
+ 2342 0a7e B4000000 		.4byte	.LVL83
+ 2343 0a82 2C070000 		.4byte	0x72c
+ 2344 0a86 BC0A0000 		.4byte	0xabc
+ 2345 0a8a 22       		.uleb128 0x22
+ 2346 0a8b 01       		.uleb128 0x1
+ 2347 0a8c 50       		.byte	0x50
+ 2348 0a8d 05       		.uleb128 0x5
+ 2349 0a8e 77       		.byte	0x77
+ 2350 0a8f 00       		.sleb128 0
+ 2351 0a90 7B       		.byte	0x7b
+ 2352 0a91 00       		.sleb128 0
+ 2353 0a92 22       		.byte	0x22
+ 2354 0a93 22       		.uleb128 0x22
+ 2355 0a94 01       		.uleb128 0x1
+ 2356 0a95 51       		.byte	0x51
+ 2357 0a96 05       		.uleb128 0x5
+ 2358 0a97 91       		.byte	0x91
+ 2359 0a98 B87F     		.sleb128 -72
+ 2360 0a9a 94       		.byte	0x94
+ 2361 0a9b 02       		.byte	0x2
+ 2362 0a9c 22       		.uleb128 0x22
+ 2363 0a9d 01       		.uleb128 0x1
+ 2364 0a9e 52       		.byte	0x52
+ 2365 0a9f 04       		.uleb128 0x4
+ 2366 0aa0 91       		.byte	0x91
+ 2367 0aa1 BC7F     		.sleb128 -68
+ 2368 0aa3 06       		.byte	0x6
+ 2369 0aa4 22       		.uleb128 0x22
+ 2370 0aa5 01       		.uleb128 0x1
+ 2371 0aa6 53       		.byte	0x53
+ 2372 0aa7 02       		.uleb128 0x2
+ 2373 0aa8 75       		.byte	0x75
+ 2374 0aa9 7F       		.sleb128 -1
+ 2375 0aaa 22       		.uleb128 0x22
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 49
+
+
+ 2376 0aab 02       		.uleb128 0x2
+ 2377 0aac 7D       		.byte	0x7d
+ 2378 0aad 00       		.sleb128 0
+ 2379 0aae 02       		.uleb128 0x2
+ 2380 0aaf 76       		.byte	0x76
+ 2381 0ab0 00       		.sleb128 0
+ 2382 0ab1 22       		.uleb128 0x22
+ 2383 0ab2 02       		.uleb128 0x2
+ 2384 0ab3 7D       		.byte	0x7d
+ 2385 0ab4 04       		.sleb128 4
+ 2386 0ab5 05       		.uleb128 0x5
+ 2387 0ab6 91       		.byte	0x91
+ 2388 0ab7 B47F     		.sleb128 -76
+ 2389 0ab9 94       		.byte	0x94
+ 2390 0aba 01       		.byte	0x1
+ 2391 0abb 00       		.byte	0
+ 2392 0abc 26       		.uleb128 0x26
+ 2393 0abd BC000000 		.4byte	.LVL84
+ 2394 0ac1 DE0A0000 		.4byte	0xade
+ 2395 0ac5 22       		.uleb128 0x22
+ 2396 0ac6 01       		.uleb128 0x1
+ 2397 0ac7 50       		.byte	0x50
+ 2398 0ac8 02       		.uleb128 0x2
+ 2399 0ac9 08       		.byte	0x8
+ 2400 0aca B4       		.byte	0xb4
+ 2401 0acb 22       		.uleb128 0x22
+ 2402 0acc 01       		.uleb128 0x1
+ 2403 0acd 51       		.byte	0x51
+ 2404 0ace 05       		.uleb128 0x5
+ 2405 0acf 91       		.byte	0x91
+ 2406 0ad0 AC7F     		.sleb128 -84
+ 2407 0ad2 94       		.byte	0x94
+ 2408 0ad3 02       		.byte	0x2
+ 2409 0ad4 22       		.uleb128 0x22
+ 2410 0ad5 01       		.uleb128 0x1
+ 2411 0ad6 52       		.byte	0x52
+ 2412 0ad7 05       		.uleb128 0x5
+ 2413 0ad8 91       		.byte	0x91
+ 2414 0ad9 B07F     		.sleb128 -80
+ 2415 0adb 94       		.byte	0x94
+ 2416 0adc 02       		.byte	0x2
+ 2417 0add 00       		.byte	0
+ 2418 0ade 21       		.uleb128 0x21
+ 2419 0adf DA000000 		.4byte	.LVL85
+ 2420 0ae3 7B060000 		.4byte	0x67b
+ 2421 0ae7 1E0B0000 		.4byte	0xb1e
+ 2422 0aeb 22       		.uleb128 0x22
+ 2423 0aec 01       		.uleb128 0x1
+ 2424 0aed 50       		.byte	0x50
+ 2425 0aee 02       		.uleb128 0x2
+ 2426 0aef 7B       		.byte	0x7b
+ 2427 0af0 00       		.sleb128 0
+ 2428 0af1 22       		.uleb128 0x22
+ 2429 0af2 01       		.uleb128 0x1
+ 2430 0af3 51       		.byte	0x51
+ 2431 0af4 09       		.uleb128 0x9
+ 2432 0af5 91       		.byte	0x91
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 50
+
+
+ 2433 0af6 B87F     		.sleb128 -72
+ 2434 0af8 06       		.byte	0x6
+ 2435 0af9 74       		.byte	0x74
+ 2436 0afa 00       		.sleb128 0
+ 2437 0afb 1C       		.byte	0x1c
+ 2438 0afc 23       		.byte	0x23
+ 2439 0afd 01       		.uleb128 0x1
+ 2440 0afe 22       		.uleb128 0x22
+ 2441 0aff 01       		.uleb128 0x1
+ 2442 0b00 52       		.byte	0x52
+ 2443 0b01 04       		.uleb128 0x4
+ 2444 0b02 91       		.byte	0x91
+ 2445 0b03 BC7F     		.sleb128 -68
+ 2446 0b05 06       		.byte	0x6
+ 2447 0b06 22       		.uleb128 0x22
+ 2448 0b07 01       		.uleb128 0x1
+ 2449 0b08 53       		.byte	0x53
+ 2450 0b09 02       		.uleb128 0x2
+ 2451 0b0a 75       		.byte	0x75
+ 2452 0b0b 7F       		.sleb128 -1
+ 2453 0b0c 22       		.uleb128 0x22
+ 2454 0b0d 02       		.uleb128 0x2
+ 2455 0b0e 7D       		.byte	0x7d
+ 2456 0b0f 00       		.sleb128 0
+ 2457 0b10 02       		.uleb128 0x2
+ 2458 0b11 76       		.byte	0x76
+ 2459 0b12 00       		.sleb128 0
+ 2460 0b13 22       		.uleb128 0x22
+ 2461 0b14 02       		.uleb128 0x2
+ 2462 0b15 7D       		.byte	0x7d
+ 2463 0b16 04       		.sleb128 4
+ 2464 0b17 05       		.uleb128 0x5
+ 2465 0b18 91       		.byte	0x91
+ 2466 0b19 B47F     		.sleb128 -76
+ 2467 0b1b 94       		.byte	0x94
+ 2468 0b1c 01       		.byte	0x1
+ 2469 0b1d 00       		.byte	0
+ 2470 0b1e 26       		.uleb128 0x26
+ 2471 0b1f E2000000 		.4byte	.LVL86
+ 2472 0b23 3F0B0000 		.4byte	0xb3f
+ 2473 0b27 22       		.uleb128 0x22
+ 2474 0b28 01       		.uleb128 0x1
+ 2475 0b29 50       		.byte	0x50
+ 2476 0b2a 01       		.uleb128 0x1
+ 2477 0b2b 30       		.byte	0x30
+ 2478 0b2c 22       		.uleb128 0x22
+ 2479 0b2d 01       		.uleb128 0x1
+ 2480 0b2e 51       		.byte	0x51
+ 2481 0b2f 05       		.uleb128 0x5
+ 2482 0b30 91       		.byte	0x91
+ 2483 0b31 AC7F     		.sleb128 -84
+ 2484 0b33 94       		.byte	0x94
+ 2485 0b34 02       		.byte	0x2
+ 2486 0b35 22       		.uleb128 0x22
+ 2487 0b36 01       		.uleb128 0x1
+ 2488 0b37 52       		.byte	0x52
+ 2489 0b38 05       		.uleb128 0x5
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 51
+
+
+ 2490 0b39 91       		.byte	0x91
+ 2491 0b3a B07F     		.sleb128 -80
+ 2492 0b3c 94       		.byte	0x94
+ 2493 0b3d 02       		.byte	0x2
+ 2494 0b3e 00       		.byte	0
+ 2495 0b3f 21       		.uleb128 0x21
+ 2496 0b40 FE000000 		.4byte	.LVL87
+ 2497 0b44 7B060000 		.4byte	0x67b
+ 2498 0b48 7D0B0000 		.4byte	0xb7d
+ 2499 0b4c 22       		.uleb128 0x22
+ 2500 0b4d 01       		.uleb128 0x1
+ 2501 0b4e 50       		.byte	0x50
+ 2502 0b4f 02       		.uleb128 0x2
+ 2503 0b50 7B       		.byte	0x7b
+ 2504 0b51 00       		.sleb128 0
+ 2505 0b52 22       		.uleb128 0x22
+ 2506 0b53 01       		.uleb128 0x1
+ 2507 0b54 51       		.byte	0x51
+ 2508 0b55 07       		.uleb128 0x7
+ 2509 0b56 77       		.byte	0x77
+ 2510 0b57 00       		.sleb128 0
+ 2511 0b58 91       		.byte	0x91
+ 2512 0b59 B87F     		.sleb128 -72
+ 2513 0b5b 06       		.byte	0x6
+ 2514 0b5c 22       		.byte	0x22
+ 2515 0b5d 22       		.uleb128 0x22
+ 2516 0b5e 01       		.uleb128 0x1
+ 2517 0b5f 52       		.byte	0x52
+ 2518 0b60 04       		.uleb128 0x4
+ 2519 0b61 91       		.byte	0x91
+ 2520 0b62 BC7F     		.sleb128 -68
+ 2521 0b64 06       		.byte	0x6
+ 2522 0b65 22       		.uleb128 0x22
+ 2523 0b66 01       		.uleb128 0x1
+ 2524 0b67 53       		.byte	0x53
+ 2525 0b68 02       		.uleb128 0x2
+ 2526 0b69 75       		.byte	0x75
+ 2527 0b6a 7F       		.sleb128 -1
+ 2528 0b6b 22       		.uleb128 0x22
+ 2529 0b6c 02       		.uleb128 0x2
+ 2530 0b6d 7D       		.byte	0x7d
+ 2531 0b6e 00       		.sleb128 0
+ 2532 0b6f 02       		.uleb128 0x2
+ 2533 0b70 76       		.byte	0x76
+ 2534 0b71 00       		.sleb128 0
+ 2535 0b72 22       		.uleb128 0x22
+ 2536 0b73 02       		.uleb128 0x2
+ 2537 0b74 7D       		.byte	0x7d
+ 2538 0b75 04       		.sleb128 4
+ 2539 0b76 05       		.uleb128 0x5
+ 2540 0b77 91       		.byte	0x91
+ 2541 0b78 B47F     		.sleb128 -76
+ 2542 0b7a 94       		.byte	0x94
+ 2543 0b7b 01       		.byte	0x1
+ 2544 0b7c 00       		.byte	0
+ 2545 0b7d 21       		.uleb128 0x21
+ 2546 0b7e 7A020000 		.4byte	.LVL108
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 52
+
+
+ 2547 0b82 2C070000 		.4byte	0x72c
+ 2548 0b86 B10B0000 		.4byte	0xbb1
+ 2549 0b8a 22       		.uleb128 0x22
+ 2550 0b8b 01       		.uleb128 0x1
+ 2551 0b8c 51       		.byte	0x51
+ 2552 0b8d 07       		.uleb128 0x7
+ 2553 0b8e 91       		.byte	0x91
+ 2554 0b8f B87F     		.sleb128 -72
+ 2555 0b91 06       		.byte	0x6
+ 2556 0b92 76       		.byte	0x76
+ 2557 0b93 00       		.sleb128 0
+ 2558 0b94 22       		.byte	0x22
+ 2559 0b95 22       		.uleb128 0x22
+ 2560 0b96 01       		.uleb128 0x1
+ 2561 0b97 52       		.byte	0x52
+ 2562 0b98 04       		.uleb128 0x4
+ 2563 0b99 91       		.byte	0x91
+ 2564 0b9a BC7F     		.sleb128 -68
+ 2565 0b9c 06       		.byte	0x6
+ 2566 0b9d 22       		.uleb128 0x22
+ 2567 0b9e 02       		.uleb128 0x2
+ 2568 0b9f 7D       		.byte	0x7d
+ 2569 0ba0 00       		.sleb128 0
+ 2570 0ba1 04       		.uleb128 0x4
+ 2571 0ba2 91       		.byte	0x91
+ 2572 0ba3 43       		.sleb128 -61
+ 2573 0ba4 94       		.byte	0x94
+ 2574 0ba5 01       		.byte	0x1
+ 2575 0ba6 22       		.uleb128 0x22
+ 2576 0ba7 02       		.uleb128 0x2
+ 2577 0ba8 7D       		.byte	0x7d
+ 2578 0ba9 04       		.sleb128 4
+ 2579 0baa 05       		.uleb128 0x5
+ 2580 0bab 91       		.byte	0x91
+ 2581 0bac B47F     		.sleb128 -76
+ 2582 0bae 94       		.byte	0x94
+ 2583 0baf 01       		.byte	0x1
+ 2584 0bb0 00       		.byte	0
+ 2585 0bb1 21       		.uleb128 0x21
+ 2586 0bb2 BA020000 		.4byte	.LVL111
+ 2587 0bb6 2C070000 		.4byte	0x72c
+ 2588 0bba E50B0000 		.4byte	0xbe5
+ 2589 0bbe 22       		.uleb128 0x22
+ 2590 0bbf 01       		.uleb128 0x1
+ 2591 0bc0 51       		.byte	0x51
+ 2592 0bc1 07       		.uleb128 0x7
+ 2593 0bc2 91       		.byte	0x91
+ 2594 0bc3 B87F     		.sleb128 -72
+ 2595 0bc5 06       		.byte	0x6
+ 2596 0bc6 76       		.byte	0x76
+ 2597 0bc7 00       		.sleb128 0
+ 2598 0bc8 1C       		.byte	0x1c
+ 2599 0bc9 22       		.uleb128 0x22
+ 2600 0bca 01       		.uleb128 0x1
+ 2601 0bcb 52       		.byte	0x52
+ 2602 0bcc 04       		.uleb128 0x4
+ 2603 0bcd 91       		.byte	0x91
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 53
+
+
+ 2604 0bce BC7F     		.sleb128 -68
+ 2605 0bd0 06       		.byte	0x6
+ 2606 0bd1 22       		.uleb128 0x22
+ 2607 0bd2 02       		.uleb128 0x2
+ 2608 0bd3 7D       		.byte	0x7d
+ 2609 0bd4 00       		.sleb128 0
+ 2610 0bd5 04       		.uleb128 0x4
+ 2611 0bd6 91       		.byte	0x91
+ 2612 0bd7 43       		.sleb128 -61
+ 2613 0bd8 94       		.byte	0x94
+ 2614 0bd9 01       		.byte	0x1
+ 2615 0bda 22       		.uleb128 0x22
+ 2616 0bdb 02       		.uleb128 0x2
+ 2617 0bdc 7D       		.byte	0x7d
+ 2618 0bdd 04       		.sleb128 4
+ 2619 0bde 05       		.uleb128 0x5
+ 2620 0bdf 91       		.byte	0x91
+ 2621 0be0 B47F     		.sleb128 -76
+ 2622 0be2 94       		.byte	0x94
+ 2623 0be3 01       		.byte	0x1
+ 2624 0be4 00       		.byte	0
+ 2625 0be5 21       		.uleb128 0x21
+ 2626 0be6 00030000 		.4byte	.LVL114
+ 2627 0bea 2C070000 		.4byte	0x72c
+ 2628 0bee 660C0000 		.4byte	0xc66
+ 2629 0bf2 22       		.uleb128 0x22
+ 2630 0bf3 01       		.uleb128 0x1
+ 2631 0bf4 50       		.byte	0x50
+ 2632 0bf5 0B       		.uleb128 0xb
+ 2633 0bf6 7B       		.byte	0x7b
+ 2634 0bf7 00       		.sleb128 0
+ 2635 0bf8 91       		.byte	0x91
+ 2636 0bf9 4C       		.sleb128 -52
+ 2637 0bfa 94       		.byte	0x94
+ 2638 0bfb 02       		.byte	0x2
+ 2639 0bfc 40       		.byte	0x40
+ 2640 0bfd 24       		.byte	0x24
+ 2641 0bfe 40       		.byte	0x40
+ 2642 0bff 26       		.byte	0x26
+ 2643 0c00 1C       		.byte	0x1c
+ 2644 0c01 22       		.uleb128 0x22
+ 2645 0c02 01       		.uleb128 0x1
+ 2646 0c03 51       		.byte	0x51
+ 2647 0c04 07       		.uleb128 0x7
+ 2648 0c05 91       		.byte	0x91
+ 2649 0c06 B87F     		.sleb128 -72
+ 2650 0c08 06       		.byte	0x6
+ 2651 0c09 76       		.byte	0x76
+ 2652 0c0a 00       		.sleb128 0
+ 2653 0c0b 22       		.byte	0x22
+ 2654 0c0c 22       		.uleb128 0x22
+ 2655 0c0d 01       		.uleb128 0x1
+ 2656 0c0e 52       		.byte	0x52
+ 2657 0c0f 04       		.uleb128 0x4
+ 2658 0c10 91       		.byte	0x91
+ 2659 0c11 BC7F     		.sleb128 -68
+ 2660 0c13 06       		.byte	0x6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 54
+
+
+ 2661 0c14 22       		.uleb128 0x22
+ 2662 0c15 01       		.uleb128 0x1
+ 2663 0c16 53       		.byte	0x53
+ 2664 0c17 3A       		.uleb128 0x3a
+ 2665 0c18 91       		.byte	0x91
+ 2666 0c19 54       		.sleb128 -44
+ 2667 0c1a 94       		.byte	0x94
+ 2668 0c1b 02       		.byte	0x2
+ 2669 0c1c 40       		.byte	0x40
+ 2670 0c1d 24       		.byte	0x24
+ 2671 0c1e 40       		.byte	0x40
+ 2672 0c1f 26       		.byte	0x26
+ 2673 0c20 91       		.byte	0x91
+ 2674 0c21 4C       		.sleb128 -52
+ 2675 0c22 94       		.byte	0x94
+ 2676 0c23 02       		.byte	0x2
+ 2677 0c24 40       		.byte	0x40
+ 2678 0c25 24       		.byte	0x24
+ 2679 0c26 40       		.byte	0x40
+ 2680 0c27 26       		.byte	0x26
+ 2681 0c28 1C       		.byte	0x1c
+ 2682 0c29 91       		.byte	0x91
+ 2683 0c2a 4C       		.sleb128 -52
+ 2684 0c2b 94       		.byte	0x94
+ 2685 0c2c 02       		.byte	0x2
+ 2686 0c2d 40       		.byte	0x40
+ 2687 0c2e 24       		.byte	0x24
+ 2688 0c2f 40       		.byte	0x40
+ 2689 0c30 26       		.byte	0x26
+ 2690 0c31 91       		.byte	0x91
+ 2691 0c32 54       		.sleb128 -44
+ 2692 0c33 94       		.byte	0x94
+ 2693 0c34 02       		.byte	0x2
+ 2694 0c35 40       		.byte	0x40
+ 2695 0c36 24       		.byte	0x24
+ 2696 0c37 40       		.byte	0x40
+ 2697 0c38 26       		.byte	0x26
+ 2698 0c39 1C       		.byte	0x1c
+ 2699 0c3a 91       		.byte	0x91
+ 2700 0c3b 4C       		.sleb128 -52
+ 2701 0c3c 94       		.byte	0x94
+ 2702 0c3d 02       		.byte	0x2
+ 2703 0c3e 40       		.byte	0x40
+ 2704 0c3f 24       		.byte	0x24
+ 2705 0c40 40       		.byte	0x40
+ 2706 0c41 26       		.byte	0x26
+ 2707 0c42 91       		.byte	0x91
+ 2708 0c43 54       		.sleb128 -44
+ 2709 0c44 94       		.byte	0x94
+ 2710 0c45 02       		.byte	0x2
+ 2711 0c46 40       		.byte	0x40
+ 2712 0c47 24       		.byte	0x24
+ 2713 0c48 40       		.byte	0x40
+ 2714 0c49 26       		.byte	0x26
+ 2715 0c4a 1C       		.byte	0x1c
+ 2716 0c4b 30       		.byte	0x30
+ 2717 0c4c 2D       		.byte	0x2d
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 55
+
+
+ 2718 0c4d 28       		.byte	0x28
+ 2719 0c4e 0100     		.2byte	0x1
+ 2720 0c50 16       		.byte	0x16
+ 2721 0c51 13       		.byte	0x13
+ 2722 0c52 22       		.uleb128 0x22
+ 2723 0c53 02       		.uleb128 0x2
+ 2724 0c54 7D       		.byte	0x7d
+ 2725 0c55 00       		.sleb128 0
+ 2726 0c56 04       		.uleb128 0x4
+ 2727 0c57 91       		.byte	0x91
+ 2728 0c58 43       		.sleb128 -61
+ 2729 0c59 94       		.byte	0x94
+ 2730 0c5a 01       		.byte	0x1
+ 2731 0c5b 22       		.uleb128 0x22
+ 2732 0c5c 02       		.uleb128 0x2
+ 2733 0c5d 7D       		.byte	0x7d
+ 2734 0c5e 04       		.sleb128 4
+ 2735 0c5f 05       		.uleb128 0x5
+ 2736 0c60 91       		.byte	0x91
+ 2737 0c61 B47F     		.sleb128 -76
+ 2738 0c63 94       		.byte	0x94
+ 2739 0c64 01       		.byte	0x1
+ 2740 0c65 00       		.byte	0
+ 2741 0c66 29       		.uleb128 0x29
+ 2742 0c67 46030000 		.4byte	.LVL118
+ 2743 0c6b 2C070000 		.4byte	0x72c
+ 2744 0c6f 22       		.uleb128 0x22
+ 2745 0c70 01       		.uleb128 0x1
+ 2746 0c71 50       		.byte	0x50
+ 2747 0c72 0B       		.uleb128 0xb
+ 2748 0c73 7B       		.byte	0x7b
+ 2749 0c74 00       		.sleb128 0
+ 2750 0c75 91       		.byte	0x91
+ 2751 0c76 4E       		.sleb128 -50
+ 2752 0c77 94       		.byte	0x94
+ 2753 0c78 02       		.byte	0x2
+ 2754 0c79 40       		.byte	0x40
+ 2755 0c7a 24       		.byte	0x24
+ 2756 0c7b 40       		.byte	0x40
+ 2757 0c7c 26       		.byte	0x26
+ 2758 0c7d 1C       		.byte	0x1c
+ 2759 0c7e 22       		.uleb128 0x22
+ 2760 0c7f 01       		.uleb128 0x1
+ 2761 0c80 51       		.byte	0x51
+ 2762 0c81 07       		.uleb128 0x7
+ 2763 0c82 91       		.byte	0x91
+ 2764 0c83 B87F     		.sleb128 -72
+ 2765 0c85 06       		.byte	0x6
+ 2766 0c86 76       		.byte	0x76
+ 2767 0c87 00       		.sleb128 0
+ 2768 0c88 1C       		.byte	0x1c
+ 2769 0c89 22       		.uleb128 0x22
+ 2770 0c8a 01       		.uleb128 0x1
+ 2771 0c8b 52       		.byte	0x52
+ 2772 0c8c 04       		.uleb128 0x4
+ 2773 0c8d 91       		.byte	0x91
+ 2774 0c8e BC7F     		.sleb128 -68
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 56
+
+
+ 2775 0c90 06       		.byte	0x6
+ 2776 0c91 22       		.uleb128 0x22
+ 2777 0c92 01       		.uleb128 0x1
+ 2778 0c93 53       		.byte	0x53
+ 2779 0c94 3A       		.uleb128 0x3a
+ 2780 0c95 91       		.byte	0x91
+ 2781 0c96 56       		.sleb128 -42
+ 2782 0c97 94       		.byte	0x94
+ 2783 0c98 02       		.byte	0x2
+ 2784 0c99 40       		.byte	0x40
+ 2785 0c9a 24       		.byte	0x24
+ 2786 0c9b 40       		.byte	0x40
+ 2787 0c9c 26       		.byte	0x26
+ 2788 0c9d 91       		.byte	0x91
+ 2789 0c9e 4E       		.sleb128 -50
+ 2790 0c9f 94       		.byte	0x94
+ 2791 0ca0 02       		.byte	0x2
+ 2792 0ca1 40       		.byte	0x40
+ 2793 0ca2 24       		.byte	0x24
+ 2794 0ca3 40       		.byte	0x40
+ 2795 0ca4 26       		.byte	0x26
+ 2796 0ca5 1C       		.byte	0x1c
+ 2797 0ca6 91       		.byte	0x91
+ 2798 0ca7 4E       		.sleb128 -50
+ 2799 0ca8 94       		.byte	0x94
+ 2800 0ca9 02       		.byte	0x2
+ 2801 0caa 40       		.byte	0x40
+ 2802 0cab 24       		.byte	0x24
+ 2803 0cac 40       		.byte	0x40
+ 2804 0cad 26       		.byte	0x26
+ 2805 0cae 91       		.byte	0x91
+ 2806 0caf 56       		.sleb128 -42
+ 2807 0cb0 94       		.byte	0x94
+ 2808 0cb1 02       		.byte	0x2
+ 2809 0cb2 40       		.byte	0x40
+ 2810 0cb3 24       		.byte	0x24
+ 2811 0cb4 40       		.byte	0x40
+ 2812 0cb5 26       		.byte	0x26
+ 2813 0cb6 1C       		.byte	0x1c
+ 2814 0cb7 91       		.byte	0x91
+ 2815 0cb8 4E       		.sleb128 -50
+ 2816 0cb9 94       		.byte	0x94
+ 2817 0cba 02       		.byte	0x2
+ 2818 0cbb 40       		.byte	0x40
+ 2819 0cbc 24       		.byte	0x24
+ 2820 0cbd 40       		.byte	0x40
+ 2821 0cbe 26       		.byte	0x26
+ 2822 0cbf 91       		.byte	0x91
+ 2823 0cc0 56       		.sleb128 -42
+ 2824 0cc1 94       		.byte	0x94
+ 2825 0cc2 02       		.byte	0x2
+ 2826 0cc3 40       		.byte	0x40
+ 2827 0cc4 24       		.byte	0x24
+ 2828 0cc5 40       		.byte	0x40
+ 2829 0cc6 26       		.byte	0x26
+ 2830 0cc7 1C       		.byte	0x1c
+ 2831 0cc8 30       		.byte	0x30
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 57
+
+
+ 2832 0cc9 2D       		.byte	0x2d
+ 2833 0cca 28       		.byte	0x28
+ 2834 0ccb 0100     		.2byte	0x1
+ 2835 0ccd 16       		.byte	0x16
+ 2836 0cce 13       		.byte	0x13
+ 2837 0ccf 22       		.uleb128 0x22
+ 2838 0cd0 02       		.uleb128 0x2
+ 2839 0cd1 7D       		.byte	0x7d
+ 2840 0cd2 00       		.sleb128 0
+ 2841 0cd3 04       		.uleb128 0x4
+ 2842 0cd4 91       		.byte	0x91
+ 2843 0cd5 43       		.sleb128 -61
+ 2844 0cd6 94       		.byte	0x94
+ 2845 0cd7 01       		.byte	0x1
+ 2846 0cd8 22       		.uleb128 0x22
+ 2847 0cd9 02       		.uleb128 0x2
+ 2848 0cda 7D       		.byte	0x7d
+ 2849 0cdb 04       		.sleb128 4
+ 2850 0cdc 05       		.uleb128 0x5
+ 2851 0cdd 91       		.byte	0x91
+ 2852 0cde B47F     		.sleb128 -76
+ 2853 0ce0 94       		.byte	0x94
+ 2854 0ce1 01       		.byte	0x1
+ 2855 0ce2 00       		.byte	0
+ 2856 0ce3 00       		.byte	0
+ 2857 0ce4 2A       		.uleb128 0x2a
+ 2858 0ce5 95010000 		.4byte	0x195
+ 2859 0ce9 F40C0000 		.4byte	0xcf4
+ 2860 0ced 2B       		.uleb128 0x2b
+ 2861 0cee 87010000 		.4byte	0x187
+ 2862 0cf2 03       		.byte	0x3
+ 2863 0cf3 00       		.byte	0
+ 2864 0cf4 12       		.uleb128 0x12
+ 2865 0cf5 4A050000 		.4byte	0x54a
+ 2866 0cf9 0D0D0000 		.4byte	0xd0d
+ 2867 0cfd 13       		.uleb128 0x13
+ 2868 0cfe AD000000 		.4byte	0xad
+ 2869 0d02 13       		.uleb128 0x13
+ 2870 0d03 AD000000 		.4byte	0xad
+ 2871 0d07 13       		.uleb128 0x13
+ 2872 0d08 AD000000 		.4byte	0xad
+ 2873 0d0c 00       		.byte	0
+ 2874 0d0d 10       		.uleb128 0x10
+ 2875 0d0e 04       		.byte	0x4
+ 2876 0d0f F40C0000 		.4byte	0xcf4
+ 2877 0d13 2C       		.uleb128 0x2c
+ 2878 0d14 2D0D0000 		.4byte	0xd2d
+ 2879 0d18 13       		.uleb128 0x13
+ 2880 0d19 51050000 		.4byte	0x551
+ 2881 0d1d 13       		.uleb128 0x13
+ 2882 0d1e 51050000 		.4byte	0x551
+ 2883 0d22 13       		.uleb128 0x13
+ 2884 0d23 6A010000 		.4byte	0x16a
+ 2885 0d27 13       		.uleb128 0x13
+ 2886 0d28 75010000 		.4byte	0x175
+ 2887 0d2c 00       		.byte	0
+ 2888 0d2d 2D       		.uleb128 0x2d
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 58
+
+
+ 2889 0d2e 53000000 		.4byte	.LASF115
+ 2890 0d32 08       		.byte	0x8
+ 2891 0d33 5C       		.byte	0x5c
+ 2892 0d34 3E0D0000 		.4byte	0xd3e
+ 2893 0d38 10       		.uleb128 0x10
+ 2894 0d39 04       		.byte	0x4
+ 2895 0d3a 130D0000 		.4byte	0xd13
+ 2896 0d3e 11       		.uleb128 0x11
+ 2897 0d3f 380D0000 		.4byte	0xd38
+ 2898 0d43 2E       		.uleb128 0x2e
+ 2899 0d44 68000000 		.4byte	.LASF116
+ 2900 0d48 68000000 		.4byte	.LASF116
+ 2901 0d4c 05       		.byte	0x5
+ 2902 0d4d 3A       		.byte	0x3a
+ 2903 0d4e 00       		.byte	0
+ 2904              		.section	.debug_abbrev,"",%progbits
+ 2905              	.Ldebug_abbrev0:
+ 2906 0000 01       		.uleb128 0x1
+ 2907 0001 11       		.uleb128 0x11
+ 2908 0002 01       		.byte	0x1
+ 2909 0003 25       		.uleb128 0x25
+ 2910 0004 0E       		.uleb128 0xe
+ 2911 0005 13       		.uleb128 0x13
+ 2912 0006 0B       		.uleb128 0xb
+ 2913 0007 03       		.uleb128 0x3
+ 2914 0008 0E       		.uleb128 0xe
+ 2915 0009 1B       		.uleb128 0x1b
+ 2916 000a 0E       		.uleb128 0xe
+ 2917 000b 55       		.uleb128 0x55
+ 2918 000c 17       		.uleb128 0x17
+ 2919 000d 11       		.uleb128 0x11
+ 2920 000e 01       		.uleb128 0x1
+ 2921 000f 10       		.uleb128 0x10
+ 2922 0010 17       		.uleb128 0x17
+ 2923 0011 00       		.byte	0
+ 2924 0012 00       		.byte	0
+ 2925 0013 02       		.uleb128 0x2
+ 2926 0014 24       		.uleb128 0x24
+ 2927 0015 00       		.byte	0
+ 2928 0016 0B       		.uleb128 0xb
+ 2929 0017 0B       		.uleb128 0xb
+ 2930 0018 3E       		.uleb128 0x3e
+ 2931 0019 0B       		.uleb128 0xb
+ 2932 001a 03       		.uleb128 0x3
+ 2933 001b 0E       		.uleb128 0xe
+ 2934 001c 00       		.byte	0
+ 2935 001d 00       		.byte	0
+ 2936 001e 03       		.uleb128 0x3
+ 2937 001f 16       		.uleb128 0x16
+ 2938 0020 00       		.byte	0
+ 2939 0021 03       		.uleb128 0x3
+ 2940 0022 0E       		.uleb128 0xe
+ 2941 0023 3A       		.uleb128 0x3a
+ 2942 0024 0B       		.uleb128 0xb
+ 2943 0025 3B       		.uleb128 0x3b
+ 2944 0026 0B       		.uleb128 0xb
+ 2945 0027 49       		.uleb128 0x49
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 59
+
+
+ 2946 0028 13       		.uleb128 0x13
+ 2947 0029 00       		.byte	0
+ 2948 002a 00       		.byte	0
+ 2949 002b 04       		.uleb128 0x4
+ 2950 002c 24       		.uleb128 0x24
+ 2951 002d 00       		.byte	0
+ 2952 002e 0B       		.uleb128 0xb
+ 2953 002f 0B       		.uleb128 0xb
+ 2954 0030 3E       		.uleb128 0x3e
+ 2955 0031 0B       		.uleb128 0xb
+ 2956 0032 03       		.uleb128 0x3
+ 2957 0033 08       		.uleb128 0x8
+ 2958 0034 00       		.byte	0
+ 2959 0035 00       		.byte	0
+ 2960 0036 05       		.uleb128 0x5
+ 2961 0037 04       		.uleb128 0x4
+ 2962 0038 01       		.byte	0x1
+ 2963 0039 0B       		.uleb128 0xb
+ 2964 003a 0B       		.uleb128 0xb
+ 2965 003b 49       		.uleb128 0x49
+ 2966 003c 13       		.uleb128 0x13
+ 2967 003d 3A       		.uleb128 0x3a
+ 2968 003e 0B       		.uleb128 0xb
+ 2969 003f 3B       		.uleb128 0x3b
+ 2970 0040 0B       		.uleb128 0xb
+ 2971 0041 01       		.uleb128 0x1
+ 2972 0042 13       		.uleb128 0x13
+ 2973 0043 00       		.byte	0
+ 2974 0044 00       		.byte	0
+ 2975 0045 06       		.uleb128 0x6
+ 2976 0046 28       		.uleb128 0x28
+ 2977 0047 00       		.byte	0
+ 2978 0048 03       		.uleb128 0x3
+ 2979 0049 0E       		.uleb128 0xe
+ 2980 004a 1C       		.uleb128 0x1c
+ 2981 004b 0B       		.uleb128 0xb
+ 2982 004c 00       		.byte	0
+ 2983 004d 00       		.byte	0
+ 2984 004e 07       		.uleb128 0x7
+ 2985 004f 17       		.uleb128 0x17
+ 2986 0050 01       		.byte	0x1
+ 2987 0051 0B       		.uleb128 0xb
+ 2988 0052 0B       		.uleb128 0xb
+ 2989 0053 3A       		.uleb128 0x3a
+ 2990 0054 0B       		.uleb128 0xb
+ 2991 0055 3B       		.uleb128 0x3b
+ 2992 0056 0B       		.uleb128 0xb
+ 2993 0057 01       		.uleb128 0x1
+ 2994 0058 13       		.uleb128 0x13
+ 2995 0059 00       		.byte	0
+ 2996 005a 00       		.byte	0
+ 2997 005b 08       		.uleb128 0x8
+ 2998 005c 0D       		.uleb128 0xd
+ 2999 005d 00       		.byte	0
+ 3000 005e 03       		.uleb128 0x3
+ 3001 005f 0E       		.uleb128 0xe
+ 3002 0060 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 60
+
+
+ 3003 0061 0B       		.uleb128 0xb
+ 3004 0062 3B       		.uleb128 0x3b
+ 3005 0063 0B       		.uleb128 0xb
+ 3006 0064 49       		.uleb128 0x49
+ 3007 0065 13       		.uleb128 0x13
+ 3008 0066 0B       		.uleb128 0xb
+ 3009 0067 0B       		.uleb128 0xb
+ 3010 0068 0D       		.uleb128 0xd
+ 3011 0069 0B       		.uleb128 0xb
+ 3012 006a 0C       		.uleb128 0xc
+ 3013 006b 0B       		.uleb128 0xb
+ 3014 006c 00       		.byte	0
+ 3015 006d 00       		.byte	0
+ 3016 006e 09       		.uleb128 0x9
+ 3017 006f 0D       		.uleb128 0xd
+ 3018 0070 00       		.byte	0
+ 3019 0071 03       		.uleb128 0x3
+ 3020 0072 08       		.uleb128 0x8
+ 3021 0073 3A       		.uleb128 0x3a
+ 3022 0074 0B       		.uleb128 0xb
+ 3023 0075 3B       		.uleb128 0x3b
+ 3024 0076 0B       		.uleb128 0xb
+ 3025 0077 49       		.uleb128 0x49
+ 3026 0078 13       		.uleb128 0x13
+ 3027 0079 0B       		.uleb128 0xb
+ 3028 007a 0B       		.uleb128 0xb
+ 3029 007b 0D       		.uleb128 0xd
+ 3030 007c 0B       		.uleb128 0xb
+ 3031 007d 0C       		.uleb128 0xc
+ 3032 007e 0B       		.uleb128 0xb
+ 3033 007f 00       		.byte	0
+ 3034 0080 00       		.byte	0
+ 3035 0081 0A       		.uleb128 0xa
+ 3036 0082 13       		.uleb128 0x13
+ 3037 0083 01       		.byte	0x1
+ 3038 0084 0B       		.uleb128 0xb
+ 3039 0085 0B       		.uleb128 0xb
+ 3040 0086 3A       		.uleb128 0x3a
+ 3041 0087 0B       		.uleb128 0xb
+ 3042 0088 3B       		.uleb128 0x3b
+ 3043 0089 0B       		.uleb128 0xb
+ 3044 008a 01       		.uleb128 0x1
+ 3045 008b 13       		.uleb128 0x13
+ 3046 008c 00       		.byte	0
+ 3047 008d 00       		.byte	0
+ 3048 008e 0B       		.uleb128 0xb
+ 3049 008f 0D       		.uleb128 0xd
+ 3050 0090 00       		.byte	0
+ 3051 0091 03       		.uleb128 0x3
+ 3052 0092 08       		.uleb128 0x8
+ 3053 0093 3A       		.uleb128 0x3a
+ 3054 0094 0B       		.uleb128 0xb
+ 3055 0095 3B       		.uleb128 0x3b
+ 3056 0096 0B       		.uleb128 0xb
+ 3057 0097 49       		.uleb128 0x49
+ 3058 0098 13       		.uleb128 0x13
+ 3059 0099 38       		.uleb128 0x38
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 61
+
+
+ 3060 009a 0B       		.uleb128 0xb
+ 3061 009b 00       		.byte	0
+ 3062 009c 00       		.byte	0
+ 3063 009d 0C       		.uleb128 0xc
+ 3064 009e 0D       		.uleb128 0xd
+ 3065 009f 00       		.byte	0
+ 3066 00a0 03       		.uleb128 0x3
+ 3067 00a1 0E       		.uleb128 0xe
+ 3068 00a2 3A       		.uleb128 0x3a
+ 3069 00a3 0B       		.uleb128 0xb
+ 3070 00a4 3B       		.uleb128 0x3b
+ 3071 00a5 0B       		.uleb128 0xb
+ 3072 00a6 49       		.uleb128 0x49
+ 3073 00a7 13       		.uleb128 0x13
+ 3074 00a8 0B       		.uleb128 0xb
+ 3075 00a9 0B       		.uleb128 0xb
+ 3076 00aa 0D       		.uleb128 0xd
+ 3077 00ab 0B       		.uleb128 0xb
+ 3078 00ac 0C       		.uleb128 0xc
+ 3079 00ad 0B       		.uleb128 0xb
+ 3080 00ae 38       		.uleb128 0x38
+ 3081 00af 0B       		.uleb128 0xb
+ 3082 00b0 00       		.byte	0
+ 3083 00b1 00       		.byte	0
+ 3084 00b2 0D       		.uleb128 0xd
+ 3085 00b3 13       		.uleb128 0x13
+ 3086 00b4 01       		.byte	0x1
+ 3087 00b5 03       		.uleb128 0x3
+ 3088 00b6 0E       		.uleb128 0xe
+ 3089 00b7 0B       		.uleb128 0xb
+ 3090 00b8 0B       		.uleb128 0xb
+ 3091 00b9 3A       		.uleb128 0x3a
+ 3092 00ba 0B       		.uleb128 0xb
+ 3093 00bb 3B       		.uleb128 0x3b
+ 3094 00bc 0B       		.uleb128 0xb
+ 3095 00bd 01       		.uleb128 0x1
+ 3096 00be 13       		.uleb128 0x13
+ 3097 00bf 00       		.byte	0
+ 3098 00c0 00       		.byte	0
+ 3099 00c1 0E       		.uleb128 0xe
+ 3100 00c2 0D       		.uleb128 0xd
+ 3101 00c3 00       		.byte	0
+ 3102 00c4 03       		.uleb128 0x3
+ 3103 00c5 0E       		.uleb128 0xe
+ 3104 00c6 3A       		.uleb128 0x3a
+ 3105 00c7 0B       		.uleb128 0xb
+ 3106 00c8 3B       		.uleb128 0x3b
+ 3107 00c9 0B       		.uleb128 0xb
+ 3108 00ca 49       		.uleb128 0x49
+ 3109 00cb 13       		.uleb128 0x13
+ 3110 00cc 38       		.uleb128 0x38
+ 3111 00cd 0B       		.uleb128 0xb
+ 3112 00ce 00       		.byte	0
+ 3113 00cf 00       		.byte	0
+ 3114 00d0 0F       		.uleb128 0xf
+ 3115 00d1 0D       		.uleb128 0xd
+ 3116 00d2 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 62
+
+
+ 3117 00d3 03       		.uleb128 0x3
+ 3118 00d4 08       		.uleb128 0x8
+ 3119 00d5 3A       		.uleb128 0x3a
+ 3120 00d6 0B       		.uleb128 0xb
+ 3121 00d7 3B       		.uleb128 0x3b
+ 3122 00d8 0B       		.uleb128 0xb
+ 3123 00d9 49       		.uleb128 0x49
+ 3124 00da 13       		.uleb128 0x13
+ 3125 00db 0B       		.uleb128 0xb
+ 3126 00dc 0B       		.uleb128 0xb
+ 3127 00dd 0D       		.uleb128 0xd
+ 3128 00de 0B       		.uleb128 0xb
+ 3129 00df 0C       		.uleb128 0xc
+ 3130 00e0 0B       		.uleb128 0xb
+ 3131 00e1 38       		.uleb128 0x38
+ 3132 00e2 0B       		.uleb128 0xb
+ 3133 00e3 00       		.byte	0
+ 3134 00e4 00       		.byte	0
+ 3135 00e5 10       		.uleb128 0x10
+ 3136 00e6 0F       		.uleb128 0xf
+ 3137 00e7 00       		.byte	0
+ 3138 00e8 0B       		.uleb128 0xb
+ 3139 00e9 0B       		.uleb128 0xb
+ 3140 00ea 49       		.uleb128 0x49
+ 3141 00eb 13       		.uleb128 0x13
+ 3142 00ec 00       		.byte	0
+ 3143 00ed 00       		.byte	0
+ 3144 00ee 11       		.uleb128 0x11
+ 3145 00ef 26       		.uleb128 0x26
+ 3146 00f0 00       		.byte	0
+ 3147 00f1 49       		.uleb128 0x49
+ 3148 00f2 13       		.uleb128 0x13
+ 3149 00f3 00       		.byte	0
+ 3150 00f4 00       		.byte	0
+ 3151 00f5 12       		.uleb128 0x12
+ 3152 00f6 15       		.uleb128 0x15
+ 3153 00f7 01       		.byte	0x1
+ 3154 00f8 27       		.uleb128 0x27
+ 3155 00f9 19       		.uleb128 0x19
+ 3156 00fa 49       		.uleb128 0x49
+ 3157 00fb 13       		.uleb128 0x13
+ 3158 00fc 01       		.uleb128 0x1
+ 3159 00fd 13       		.uleb128 0x13
+ 3160 00fe 00       		.byte	0
+ 3161 00ff 00       		.byte	0
+ 3162 0100 13       		.uleb128 0x13
+ 3163 0101 05       		.uleb128 0x5
+ 3164 0102 00       		.byte	0
+ 3165 0103 49       		.uleb128 0x49
+ 3166 0104 13       		.uleb128 0x13
+ 3167 0105 00       		.byte	0
+ 3168 0106 00       		.byte	0
+ 3169 0107 14       		.uleb128 0x14
+ 3170 0108 2E       		.uleb128 0x2e
+ 3171 0109 01       		.byte	0x1
+ 3172 010a 03       		.uleb128 0x3
+ 3173 010b 0E       		.uleb128 0xe
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 63
+
+
+ 3174 010c 3A       		.uleb128 0x3a
+ 3175 010d 0B       		.uleb128 0xb
+ 3176 010e 3B       		.uleb128 0x3b
+ 3177 010f 0B       		.uleb128 0xb
+ 3178 0110 27       		.uleb128 0x27
+ 3179 0111 19       		.uleb128 0x19
+ 3180 0112 49       		.uleb128 0x49
+ 3181 0113 13       		.uleb128 0x13
+ 3182 0114 11       		.uleb128 0x11
+ 3183 0115 01       		.uleb128 0x1
+ 3184 0116 12       		.uleb128 0x12
+ 3185 0117 06       		.uleb128 0x6
+ 3186 0118 40       		.uleb128 0x40
+ 3187 0119 18       		.uleb128 0x18
+ 3188 011a 9742     		.uleb128 0x2117
+ 3189 011c 19       		.uleb128 0x19
+ 3190 011d 01       		.uleb128 0x1
+ 3191 011e 13       		.uleb128 0x13
+ 3192 011f 00       		.byte	0
+ 3193 0120 00       		.byte	0
+ 3194 0121 15       		.uleb128 0x15
+ 3195 0122 05       		.uleb128 0x5
+ 3196 0123 00       		.byte	0
+ 3197 0124 03       		.uleb128 0x3
+ 3198 0125 08       		.uleb128 0x8
+ 3199 0126 3A       		.uleb128 0x3a
+ 3200 0127 0B       		.uleb128 0xb
+ 3201 0128 3B       		.uleb128 0x3b
+ 3202 0129 0B       		.uleb128 0xb
+ 3203 012a 49       		.uleb128 0x49
+ 3204 012b 13       		.uleb128 0x13
+ 3205 012c 02       		.uleb128 0x2
+ 3206 012d 17       		.uleb128 0x17
+ 3207 012e 00       		.byte	0
+ 3208 012f 00       		.byte	0
+ 3209 0130 16       		.uleb128 0x16
+ 3210 0131 34       		.uleb128 0x34
+ 3211 0132 00       		.byte	0
+ 3212 0133 03       		.uleb128 0x3
+ 3213 0134 0E       		.uleb128 0xe
+ 3214 0135 3A       		.uleb128 0x3a
+ 3215 0136 0B       		.uleb128 0xb
+ 3216 0137 3B       		.uleb128 0x3b
+ 3217 0138 0B       		.uleb128 0xb
+ 3218 0139 49       		.uleb128 0x49
+ 3219 013a 13       		.uleb128 0x13
+ 3220 013b 02       		.uleb128 0x2
+ 3221 013c 17       		.uleb128 0x17
+ 3222 013d 00       		.byte	0
+ 3223 013e 00       		.byte	0
+ 3224 013f 17       		.uleb128 0x17
+ 3225 0140 34       		.uleb128 0x34
+ 3226 0141 00       		.byte	0
+ 3227 0142 03       		.uleb128 0x3
+ 3228 0143 0E       		.uleb128 0xe
+ 3229 0144 3A       		.uleb128 0x3a
+ 3230 0145 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 64
+
+
+ 3231 0146 3B       		.uleb128 0x3b
+ 3232 0147 0B       		.uleb128 0xb
+ 3233 0148 49       		.uleb128 0x49
+ 3234 0149 13       		.uleb128 0x13
+ 3235 014a 02       		.uleb128 0x2
+ 3236 014b 18       		.uleb128 0x18
+ 3237 014c 00       		.byte	0
+ 3238 014d 00       		.byte	0
+ 3239 014e 18       		.uleb128 0x18
+ 3240 014f 34       		.uleb128 0x34
+ 3241 0150 00       		.byte	0
+ 3242 0151 03       		.uleb128 0x3
+ 3243 0152 08       		.uleb128 0x8
+ 3244 0153 3A       		.uleb128 0x3a
+ 3245 0154 0B       		.uleb128 0xb
+ 3246 0155 3B       		.uleb128 0x3b
+ 3247 0156 0B       		.uleb128 0xb
+ 3248 0157 49       		.uleb128 0x49
+ 3249 0158 13       		.uleb128 0x13
+ 3250 0159 02       		.uleb128 0x2
+ 3251 015a 17       		.uleb128 0x17
+ 3252 015b 00       		.byte	0
+ 3253 015c 00       		.byte	0
+ 3254 015d 19       		.uleb128 0x19
+ 3255 015e 05       		.uleb128 0x5
+ 3256 015f 00       		.byte	0
+ 3257 0160 03       		.uleb128 0x3
+ 3258 0161 0E       		.uleb128 0xe
+ 3259 0162 3A       		.uleb128 0x3a
+ 3260 0163 0B       		.uleb128 0xb
+ 3261 0164 3B       		.uleb128 0x3b
+ 3262 0165 0B       		.uleb128 0xb
+ 3263 0166 49       		.uleb128 0x49
+ 3264 0167 13       		.uleb128 0x13
+ 3265 0168 02       		.uleb128 0x2
+ 3266 0169 18       		.uleb128 0x18
+ 3267 016a 00       		.byte	0
+ 3268 016b 00       		.byte	0
+ 3269 016c 1A       		.uleb128 0x1a
+ 3270 016d 05       		.uleb128 0x5
+ 3271 016e 00       		.byte	0
+ 3272 016f 03       		.uleb128 0x3
+ 3273 0170 08       		.uleb128 0x8
+ 3274 0171 3A       		.uleb128 0x3a
+ 3275 0172 0B       		.uleb128 0xb
+ 3276 0173 3B       		.uleb128 0x3b
+ 3277 0174 0B       		.uleb128 0xb
+ 3278 0175 49       		.uleb128 0x49
+ 3279 0176 13       		.uleb128 0x13
+ 3280 0177 02       		.uleb128 0x2
+ 3281 0178 18       		.uleb128 0x18
+ 3282 0179 00       		.byte	0
+ 3283 017a 00       		.byte	0
+ 3284 017b 1B       		.uleb128 0x1b
+ 3285 017c 2E       		.uleb128 0x2e
+ 3286 017d 01       		.byte	0x1
+ 3287 017e 03       		.uleb128 0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 65
+
+
+ 3288 017f 0E       		.uleb128 0xe
+ 3289 0180 3A       		.uleb128 0x3a
+ 3290 0181 0B       		.uleb128 0xb
+ 3291 0182 3B       		.uleb128 0x3b
+ 3292 0183 05       		.uleb128 0x5
+ 3293 0184 27       		.uleb128 0x27
+ 3294 0185 19       		.uleb128 0x19
+ 3295 0186 49       		.uleb128 0x49
+ 3296 0187 13       		.uleb128 0x13
+ 3297 0188 11       		.uleb128 0x11
+ 3298 0189 01       		.uleb128 0x1
+ 3299 018a 12       		.uleb128 0x12
+ 3300 018b 06       		.uleb128 0x6
+ 3301 018c 40       		.uleb128 0x40
+ 3302 018d 18       		.uleb128 0x18
+ 3303 018e 9742     		.uleb128 0x2117
+ 3304 0190 19       		.uleb128 0x19
+ 3305 0191 01       		.uleb128 0x1
+ 3306 0192 13       		.uleb128 0x13
+ 3307 0193 00       		.byte	0
+ 3308 0194 00       		.byte	0
+ 3309 0195 1C       		.uleb128 0x1c
+ 3310 0196 05       		.uleb128 0x5
+ 3311 0197 00       		.byte	0
+ 3312 0198 03       		.uleb128 0x3
+ 3313 0199 08       		.uleb128 0x8
+ 3314 019a 3A       		.uleb128 0x3a
+ 3315 019b 0B       		.uleb128 0xb
+ 3316 019c 3B       		.uleb128 0x3b
+ 3317 019d 05       		.uleb128 0x5
+ 3318 019e 49       		.uleb128 0x49
+ 3319 019f 13       		.uleb128 0x13
+ 3320 01a0 02       		.uleb128 0x2
+ 3321 01a1 17       		.uleb128 0x17
+ 3322 01a2 00       		.byte	0
+ 3323 01a3 00       		.byte	0
+ 3324 01a4 1D       		.uleb128 0x1d
+ 3325 01a5 05       		.uleb128 0x5
+ 3326 01a6 00       		.byte	0
+ 3327 01a7 03       		.uleb128 0x3
+ 3328 01a8 0E       		.uleb128 0xe
+ 3329 01a9 3A       		.uleb128 0x3a
+ 3330 01aa 0B       		.uleb128 0xb
+ 3331 01ab 3B       		.uleb128 0x3b
+ 3332 01ac 05       		.uleb128 0x5
+ 3333 01ad 49       		.uleb128 0x49
+ 3334 01ae 13       		.uleb128 0x13
+ 3335 01af 02       		.uleb128 0x2
+ 3336 01b0 18       		.uleb128 0x18
+ 3337 01b1 00       		.byte	0
+ 3338 01b2 00       		.byte	0
+ 3339 01b3 1E       		.uleb128 0x1e
+ 3340 01b4 05       		.uleb128 0x5
+ 3341 01b5 00       		.byte	0
+ 3342 01b6 03       		.uleb128 0x3
+ 3343 01b7 08       		.uleb128 0x8
+ 3344 01b8 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 66
+
+
+ 3345 01b9 0B       		.uleb128 0xb
+ 3346 01ba 3B       		.uleb128 0x3b
+ 3347 01bb 05       		.uleb128 0x5
+ 3348 01bc 49       		.uleb128 0x49
+ 3349 01bd 13       		.uleb128 0x13
+ 3350 01be 02       		.uleb128 0x2
+ 3351 01bf 18       		.uleb128 0x18
+ 3352 01c0 00       		.byte	0
+ 3353 01c1 00       		.byte	0
+ 3354 01c2 1F       		.uleb128 0x1f
+ 3355 01c3 2E       		.uleb128 0x2e
+ 3356 01c4 01       		.byte	0x1
+ 3357 01c5 03       		.uleb128 0x3
+ 3358 01c6 0E       		.uleb128 0xe
+ 3359 01c7 3A       		.uleb128 0x3a
+ 3360 01c8 0B       		.uleb128 0xb
+ 3361 01c9 3B       		.uleb128 0x3b
+ 3362 01ca 0B       		.uleb128 0xb
+ 3363 01cb 27       		.uleb128 0x27
+ 3364 01cc 19       		.uleb128 0x19
+ 3365 01cd 11       		.uleb128 0x11
+ 3366 01ce 01       		.uleb128 0x1
+ 3367 01cf 12       		.uleb128 0x12
+ 3368 01d0 06       		.uleb128 0x6
+ 3369 01d1 40       		.uleb128 0x40
+ 3370 01d2 18       		.uleb128 0x18
+ 3371 01d3 9742     		.uleb128 0x2117
+ 3372 01d5 19       		.uleb128 0x19
+ 3373 01d6 01       		.uleb128 0x1
+ 3374 01d7 13       		.uleb128 0x13
+ 3375 01d8 00       		.byte	0
+ 3376 01d9 00       		.byte	0
+ 3377 01da 20       		.uleb128 0x20
+ 3378 01db 05       		.uleb128 0x5
+ 3379 01dc 00       		.byte	0
+ 3380 01dd 03       		.uleb128 0x3
+ 3381 01de 0E       		.uleb128 0xe
+ 3382 01df 3A       		.uleb128 0x3a
+ 3383 01e0 0B       		.uleb128 0xb
+ 3384 01e1 3B       		.uleb128 0x3b
+ 3385 01e2 0B       		.uleb128 0xb
+ 3386 01e3 49       		.uleb128 0x49
+ 3387 01e4 13       		.uleb128 0x13
+ 3388 01e5 02       		.uleb128 0x2
+ 3389 01e6 17       		.uleb128 0x17
+ 3390 01e7 00       		.byte	0
+ 3391 01e8 00       		.byte	0
+ 3392 01e9 21       		.uleb128 0x21
+ 3393 01ea 898201   		.uleb128 0x4109
+ 3394 01ed 01       		.byte	0x1
+ 3395 01ee 11       		.uleb128 0x11
+ 3396 01ef 01       		.uleb128 0x1
+ 3397 01f0 31       		.uleb128 0x31
+ 3398 01f1 13       		.uleb128 0x13
+ 3399 01f2 01       		.uleb128 0x1
+ 3400 01f3 13       		.uleb128 0x13
+ 3401 01f4 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 67
+
+
+ 3402 01f5 00       		.byte	0
+ 3403 01f6 22       		.uleb128 0x22
+ 3404 01f7 8A8201   		.uleb128 0x410a
+ 3405 01fa 00       		.byte	0
+ 3406 01fb 02       		.uleb128 0x2
+ 3407 01fc 18       		.uleb128 0x18
+ 3408 01fd 9142     		.uleb128 0x2111
+ 3409 01ff 18       		.uleb128 0x18
+ 3410 0200 00       		.byte	0
+ 3411 0201 00       		.byte	0
+ 3412 0202 23       		.uleb128 0x23
+ 3413 0203 898201   		.uleb128 0x4109
+ 3414 0206 01       		.byte	0x1
+ 3415 0207 11       		.uleb128 0x11
+ 3416 0208 01       		.uleb128 0x1
+ 3417 0209 9342     		.uleb128 0x2113
+ 3418 020b 18       		.uleb128 0x18
+ 3419 020c 00       		.byte	0
+ 3420 020d 00       		.byte	0
+ 3421 020e 24       		.uleb128 0x24
+ 3422 020f 2E       		.uleb128 0x2e
+ 3423 0210 01       		.byte	0x1
+ 3424 0211 3F       		.uleb128 0x3f
+ 3425 0212 19       		.uleb128 0x19
+ 3426 0213 03       		.uleb128 0x3
+ 3427 0214 0E       		.uleb128 0xe
+ 3428 0215 3A       		.uleb128 0x3a
+ 3429 0216 0B       		.uleb128 0xb
+ 3430 0217 3B       		.uleb128 0x3b
+ 3431 0218 0B       		.uleb128 0xb
+ 3432 0219 27       		.uleb128 0x27
+ 3433 021a 19       		.uleb128 0x19
+ 3434 021b 11       		.uleb128 0x11
+ 3435 021c 01       		.uleb128 0x1
+ 3436 021d 12       		.uleb128 0x12
+ 3437 021e 06       		.uleb128 0x6
+ 3438 021f 40       		.uleb128 0x40
+ 3439 0220 18       		.uleb128 0x18
+ 3440 0221 9742     		.uleb128 0x2117
+ 3441 0223 19       		.uleb128 0x19
+ 3442 0224 01       		.uleb128 0x1
+ 3443 0225 13       		.uleb128 0x13
+ 3444 0226 00       		.byte	0
+ 3445 0227 00       		.byte	0
+ 3446 0228 25       		.uleb128 0x25
+ 3447 0229 0B       		.uleb128 0xb
+ 3448 022a 01       		.byte	0x1
+ 3449 022b 11       		.uleb128 0x11
+ 3450 022c 01       		.uleb128 0x1
+ 3451 022d 12       		.uleb128 0x12
+ 3452 022e 06       		.uleb128 0x6
+ 3453 022f 01       		.uleb128 0x1
+ 3454 0230 13       		.uleb128 0x13
+ 3455 0231 00       		.byte	0
+ 3456 0232 00       		.byte	0
+ 3457 0233 26       		.uleb128 0x26
+ 3458 0234 898201   		.uleb128 0x4109
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 68
+
+
+ 3459 0237 01       		.byte	0x1
+ 3460 0238 11       		.uleb128 0x11
+ 3461 0239 01       		.uleb128 0x1
+ 3462 023a 01       		.uleb128 0x1
+ 3463 023b 13       		.uleb128 0x13
+ 3464 023c 00       		.byte	0
+ 3465 023d 00       		.byte	0
+ 3466 023e 27       		.uleb128 0x27
+ 3467 023f 898201   		.uleb128 0x4109
+ 3468 0242 01       		.byte	0x1
+ 3469 0243 11       		.uleb128 0x11
+ 3470 0244 01       		.uleb128 0x1
+ 3471 0245 00       		.byte	0
+ 3472 0246 00       		.byte	0
+ 3473 0247 28       		.uleb128 0x28
+ 3474 0248 898201   		.uleb128 0x4109
+ 3475 024b 01       		.byte	0x1
+ 3476 024c 11       		.uleb128 0x11
+ 3477 024d 01       		.uleb128 0x1
+ 3478 024e 9342     		.uleb128 0x2113
+ 3479 0250 18       		.uleb128 0x18
+ 3480 0251 01       		.uleb128 0x1
+ 3481 0252 13       		.uleb128 0x13
+ 3482 0253 00       		.byte	0
+ 3483 0254 00       		.byte	0
+ 3484 0255 29       		.uleb128 0x29
+ 3485 0256 898201   		.uleb128 0x4109
+ 3486 0259 01       		.byte	0x1
+ 3487 025a 11       		.uleb128 0x11
+ 3488 025b 01       		.uleb128 0x1
+ 3489 025c 31       		.uleb128 0x31
+ 3490 025d 13       		.uleb128 0x13
+ 3491 025e 00       		.byte	0
+ 3492 025f 00       		.byte	0
+ 3493 0260 2A       		.uleb128 0x2a
+ 3494 0261 01       		.uleb128 0x1
+ 3495 0262 01       		.byte	0x1
+ 3496 0263 49       		.uleb128 0x49
+ 3497 0264 13       		.uleb128 0x13
+ 3498 0265 01       		.uleb128 0x1
+ 3499 0266 13       		.uleb128 0x13
+ 3500 0267 00       		.byte	0
+ 3501 0268 00       		.byte	0
+ 3502 0269 2B       		.uleb128 0x2b
+ 3503 026a 21       		.uleb128 0x21
+ 3504 026b 00       		.byte	0
+ 3505 026c 49       		.uleb128 0x49
+ 3506 026d 13       		.uleb128 0x13
+ 3507 026e 2F       		.uleb128 0x2f
+ 3508 026f 0B       		.uleb128 0xb
+ 3509 0270 00       		.byte	0
+ 3510 0271 00       		.byte	0
+ 3511 0272 2C       		.uleb128 0x2c
+ 3512 0273 15       		.uleb128 0x15
+ 3513 0274 01       		.byte	0x1
+ 3514 0275 27       		.uleb128 0x27
+ 3515 0276 19       		.uleb128 0x19
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 69
+
+
+ 3516 0277 01       		.uleb128 0x1
+ 3517 0278 13       		.uleb128 0x13
+ 3518 0279 00       		.byte	0
+ 3519 027a 00       		.byte	0
+ 3520 027b 2D       		.uleb128 0x2d
+ 3521 027c 34       		.uleb128 0x34
+ 3522 027d 00       		.byte	0
+ 3523 027e 03       		.uleb128 0x3
+ 3524 027f 0E       		.uleb128 0xe
+ 3525 0280 3A       		.uleb128 0x3a
+ 3526 0281 0B       		.uleb128 0xb
+ 3527 0282 3B       		.uleb128 0x3b
+ 3528 0283 0B       		.uleb128 0xb
+ 3529 0284 49       		.uleb128 0x49
+ 3530 0285 13       		.uleb128 0x13
+ 3531 0286 3F       		.uleb128 0x3f
+ 3532 0287 19       		.uleb128 0x19
+ 3533 0288 3C       		.uleb128 0x3c
+ 3534 0289 19       		.uleb128 0x19
+ 3535 028a 00       		.byte	0
+ 3536 028b 00       		.byte	0
+ 3537 028c 2E       		.uleb128 0x2e
+ 3538 028d 2E       		.uleb128 0x2e
+ 3539 028e 00       		.byte	0
+ 3540 028f 3F       		.uleb128 0x3f
+ 3541 0290 19       		.uleb128 0x19
+ 3542 0291 3C       		.uleb128 0x3c
+ 3543 0292 19       		.uleb128 0x19
+ 3544 0293 6E       		.uleb128 0x6e
+ 3545 0294 0E       		.uleb128 0xe
+ 3546 0295 03       		.uleb128 0x3
+ 3547 0296 0E       		.uleb128 0xe
+ 3548 0297 3A       		.uleb128 0x3a
+ 3549 0298 0B       		.uleb128 0xb
+ 3550 0299 3B       		.uleb128 0x3b
+ 3551 029a 0B       		.uleb128 0xb
+ 3552 029b 00       		.byte	0
+ 3553 029c 00       		.byte	0
+ 3554 029d 00       		.byte	0
+ 3555              		.section	.debug_loc,"",%progbits
+ 3556              	.Ldebug_loc0:
+ 3557              	.LLST0:
+ 3558 0000 00000000 		.4byte	.LVL0
+ 3559 0004 06000000 		.4byte	.LVL2
+ 3560 0008 0100     		.2byte	0x1
+ 3561 000a 50       		.byte	0x50
+ 3562 000b 06000000 		.4byte	.LVL2
+ 3563 000f 30000000 		.4byte	.LVL13
+ 3564 0013 0100     		.2byte	0x1
+ 3565 0015 50       		.byte	0x50
+ 3566 0016 00000000 		.4byte	0
+ 3567 001a 00000000 		.4byte	0
+ 3568              	.LLST1:
+ 3569 001e 00000000 		.4byte	.LVL0
+ 3570 0022 16000000 		.4byte	.LVL7
+ 3571 0026 0100     		.2byte	0x1
+ 3572 0028 51       		.byte	0x51
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 70
+
+
+ 3573 0029 16000000 		.4byte	.LVL7
+ 3574 002d 1E000000 		.4byte	.LVL8
+ 3575 0031 0100     		.2byte	0x1
+ 3576 0033 51       		.byte	0x51
+ 3577 0034 2C000000 		.4byte	.LVL12
+ 3578 0038 38000000 		.4byte	.LVL14
+ 3579 003c 0100     		.2byte	0x1
+ 3580 003e 51       		.byte	0x51
+ 3581 003f 00000000 		.4byte	0
+ 3582 0043 00000000 		.4byte	0
+ 3583              	.LLST2:
+ 3584 0047 00000000 		.4byte	.LVL0
+ 3585 004b 04000000 		.4byte	.LVL1
+ 3586 004f 0200     		.2byte	0x2
+ 3587 0051 30       		.byte	0x30
+ 3588 0052 9F       		.byte	0x9f
+ 3589 0053 04000000 		.4byte	.LVL1
+ 3590 0057 0A000000 		.4byte	.LVL3
+ 3591 005b 0200     		.2byte	0x2
+ 3592 005d 31       		.byte	0x31
+ 3593 005e 9F       		.byte	0x9f
+ 3594 005f 0A000000 		.4byte	.LVL3
+ 3595 0063 0C000000 		.4byte	.LVL4
+ 3596 0067 0200     		.2byte	0x2
+ 3597 0069 30       		.byte	0x30
+ 3598 006a 9F       		.byte	0x9f
+ 3599 006b 0C000000 		.4byte	.LVL4
+ 3600 006f 12000000 		.4byte	.LVL5
+ 3601 0073 0100     		.2byte	0x1
+ 3602 0075 53       		.byte	0x53
+ 3603 0076 14000000 		.4byte	.LVL6
+ 3604 007a 28000000 		.4byte	.LVL10
+ 3605 007e 0100     		.2byte	0x1
+ 3606 0080 53       		.byte	0x53
+ 3607 0081 2A000000 		.4byte	.LVL11
+ 3608 0085 B4000000 		.4byte	.LFE13
+ 3609 0089 0100     		.2byte	0x1
+ 3610 008b 53       		.byte	0x53
+ 3611 008c 00000000 		.4byte	0
+ 3612 0090 00000000 		.4byte	0
+ 3613              	.LLST3:
+ 3614 0094 38000000 		.4byte	.LVL14
+ 3615 0098 48000000 		.4byte	.LVL16
+ 3616 009c 0200     		.2byte	0x2
+ 3617 009e 30       		.byte	0x30
+ 3618 009f 9F       		.byte	0x9f
+ 3619 00a0 48000000 		.4byte	.LVL16
+ 3620 00a4 4E000000 		.4byte	.LVL17
+ 3621 00a8 0100     		.2byte	0x1
+ 3622 00aa 50       		.byte	0x50
+ 3623 00ab 50000000 		.4byte	.LVL18
+ 3624 00af 56000000 		.4byte	.LVL19
+ 3625 00b3 0100     		.2byte	0x1
+ 3626 00b5 50       		.byte	0x50
+ 3627 00b6 58000000 		.4byte	.LVL20
+ 3628 00ba 5E000000 		.4byte	.LVL21
+ 3629 00be 0100     		.2byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 71
+
+
+ 3630 00c0 50       		.byte	0x50
+ 3631 00c1 60000000 		.4byte	.LVL22
+ 3632 00c5 62000000 		.4byte	.LVL23
+ 3633 00c9 0100     		.2byte	0x1
+ 3634 00cb 50       		.byte	0x50
+ 3635 00cc 62000000 		.4byte	.LVL23
+ 3636 00d0 6C000000 		.4byte	.LVL24
+ 3637 00d4 0200     		.2byte	0x2
+ 3638 00d6 30       		.byte	0x30
+ 3639 00d7 9F       		.byte	0x9f
+ 3640 00d8 6C000000 		.4byte	.LVL24
+ 3641 00dc 72000000 		.4byte	.LVL25
+ 3642 00e0 0100     		.2byte	0x1
+ 3643 00e2 50       		.byte	0x50
+ 3644 00e3 74000000 		.4byte	.LVL26
+ 3645 00e7 7A000000 		.4byte	.LVL27
+ 3646 00eb 0100     		.2byte	0x1
+ 3647 00ed 50       		.byte	0x50
+ 3648 00ee 7C000000 		.4byte	.LVL28
+ 3649 00f2 82000000 		.4byte	.LVL29
+ 3650 00f6 0100     		.2byte	0x1
+ 3651 00f8 50       		.byte	0x50
+ 3652 00f9 84000000 		.4byte	.LVL30
+ 3653 00fd 86000000 		.4byte	.LVL31
+ 3654 0101 0100     		.2byte	0x1
+ 3655 0103 50       		.byte	0x50
+ 3656 0104 00000000 		.4byte	0
+ 3657 0108 00000000 		.4byte	0
+ 3658              	.LLST4:
+ 3659 010c 26000000 		.4byte	.LVL9
+ 3660 0110 2C000000 		.4byte	.LVL12
+ 3661 0114 0100     		.2byte	0x1
+ 3662 0116 51       		.byte	0x51
+ 3663 0117 38000000 		.4byte	.LVL14
+ 3664 011b 86000000 		.4byte	.LVL31
+ 3665 011f 0100     		.2byte	0x1
+ 3666 0121 51       		.byte	0x51
+ 3667 0122 86000000 		.4byte	.LVL31
+ 3668 0126 B2000000 		.4byte	.LVL36
+ 3669 012a 0100     		.2byte	0x1
+ 3670 012c 50       		.byte	0x50
+ 3671 012d 00000000 		.4byte	0
+ 3672 0131 00000000 		.4byte	0
+ 3673              	.LLST5:
+ 3674 0135 0C000000 		.4byte	.LVL4
+ 3675 0139 30000000 		.4byte	.LVL13
+ 3676 013d 0100     		.2byte	0x1
+ 3677 013f 50       		.byte	0x50
+ 3678 0140 00000000 		.4byte	0
+ 3679 0144 00000000 		.4byte	0
+ 3680              	.LLST6:
+ 3681 0148 16000000 		.4byte	.LVL7
+ 3682 014c 1E000000 		.4byte	.LVL8
+ 3683 0150 0100     		.2byte	0x1
+ 3684 0152 51       		.byte	0x51
+ 3685 0153 2C000000 		.4byte	.LVL12
+ 3686 0157 38000000 		.4byte	.LVL14
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 72
+
+
+ 3687 015b 0100     		.2byte	0x1
+ 3688 015d 51       		.byte	0x51
+ 3689 015e 00000000 		.4byte	0
+ 3690 0162 00000000 		.4byte	0
+ 3691              	.LLST7:
+ 3692 0166 00000000 		.4byte	.LVL37
+ 3693 016a 0A000000 		.4byte	.LVL38
+ 3694 016e 0100     		.2byte	0x1
+ 3695 0170 50       		.byte	0x50
+ 3696 0171 0A000000 		.4byte	.LVL38
+ 3697 0175 0C000000 		.4byte	.LVL39
+ 3698 0179 0400     		.2byte	0x4
+ 3699 017b F3       		.byte	0xf3
+ 3700 017c 01       		.uleb128 0x1
+ 3701 017d 50       		.byte	0x50
+ 3702 017e 9F       		.byte	0x9f
+ 3703 017f 0C000000 		.4byte	.LVL39
+ 3704 0183 0E000000 		.4byte	.LVL40
+ 3705 0187 0100     		.2byte	0x1
+ 3706 0189 50       		.byte	0x50
+ 3707 018a 0E000000 		.4byte	.LVL40
+ 3708 018e 10000000 		.4byte	.LVL41
+ 3709 0192 0400     		.2byte	0x4
+ 3710 0194 F3       		.byte	0xf3
+ 3711 0195 01       		.uleb128 0x1
+ 3712 0196 50       		.byte	0x50
+ 3713 0197 9F       		.byte	0x9f
+ 3714 0198 10000000 		.4byte	.LVL41
+ 3715 019c 12000000 		.4byte	.LVL42
+ 3716 01a0 0100     		.2byte	0x1
+ 3717 01a2 50       		.byte	0x50
+ 3718 01a3 12000000 		.4byte	.LVL42
+ 3719 01a7 14000000 		.4byte	.LFE16
+ 3720 01ab 0400     		.2byte	0x4
+ 3721 01ad F3       		.byte	0xf3
+ 3722 01ae 01       		.uleb128 0x1
+ 3723 01af 50       		.byte	0x50
+ 3724 01b0 9F       		.byte	0x9f
+ 3725 01b1 00000000 		.4byte	0
+ 3726 01b5 00000000 		.4byte	0
+ 3727              	.LLST8:
+ 3728 01b9 00000000 		.4byte	.LVL43
+ 3729 01bd 0A000000 		.4byte	.LVL44
+ 3730 01c1 0100     		.2byte	0x1
+ 3731 01c3 50       		.byte	0x50
+ 3732 01c4 0A000000 		.4byte	.LVL44
+ 3733 01c8 0C000000 		.4byte	.LVL45
+ 3734 01cc 0400     		.2byte	0x4
+ 3735 01ce F3       		.byte	0xf3
+ 3736 01cf 01       		.uleb128 0x1
+ 3737 01d0 50       		.byte	0x50
+ 3738 01d1 9F       		.byte	0x9f
+ 3739 01d2 0C000000 		.4byte	.LVL45
+ 3740 01d6 0E000000 		.4byte	.LVL46
+ 3741 01da 0100     		.2byte	0x1
+ 3742 01dc 50       		.byte	0x50
+ 3743 01dd 0E000000 		.4byte	.LVL46
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 73
+
+
+ 3744 01e1 10000000 		.4byte	.LVL47
+ 3745 01e5 0400     		.2byte	0x4
+ 3746 01e7 F3       		.byte	0xf3
+ 3747 01e8 01       		.uleb128 0x1
+ 3748 01e9 50       		.byte	0x50
+ 3749 01ea 9F       		.byte	0x9f
+ 3750 01eb 10000000 		.4byte	.LVL47
+ 3751 01ef 12000000 		.4byte	.LVL48
+ 3752 01f3 0100     		.2byte	0x1
+ 3753 01f5 50       		.byte	0x50
+ 3754 01f6 12000000 		.4byte	.LVL48
+ 3755 01fa 14000000 		.4byte	.LFE17
+ 3756 01fe 0400     		.2byte	0x4
+ 3757 0200 F3       		.byte	0xf3
+ 3758 0201 01       		.uleb128 0x1
+ 3759 0202 50       		.byte	0x50
+ 3760 0203 9F       		.byte	0x9f
+ 3761 0204 00000000 		.4byte	0
+ 3762 0208 00000000 		.4byte	0
+ 3763              	.LLST9:
+ 3764 020c 00000000 		.4byte	.LVL49
+ 3765 0210 18000000 		.4byte	.LVL54
+ 3766 0214 0100     		.2byte	0x1
+ 3767 0216 50       		.byte	0x50
+ 3768 0217 18000000 		.4byte	.LVL54
+ 3769 021b 34000000 		.4byte	.LFE14
+ 3770 021f 0400     		.2byte	0x4
+ 3771 0221 F3       		.byte	0xf3
+ 3772 0222 01       		.uleb128 0x1
+ 3773 0223 50       		.byte	0x50
+ 3774 0224 9F       		.byte	0x9f
+ 3775 0225 00000000 		.4byte	0
+ 3776 0229 00000000 		.4byte	0
+ 3777              	.LLST10:
+ 3778 022d 00000000 		.4byte	.LVL49
+ 3779 0231 16000000 		.4byte	.LVL53
+ 3780 0235 0100     		.2byte	0x1
+ 3781 0237 51       		.byte	0x51
+ 3782 0238 16000000 		.4byte	.LVL53
+ 3783 023c 34000000 		.4byte	.LFE14
+ 3784 0240 0400     		.2byte	0x4
+ 3785 0242 F3       		.byte	0xf3
+ 3786 0243 01       		.uleb128 0x1
+ 3787 0244 51       		.byte	0x51
+ 3788 0245 9F       		.byte	0x9f
+ 3789 0246 00000000 		.4byte	0
+ 3790 024a 00000000 		.4byte	0
+ 3791              	.LLST11:
+ 3792 024e 00000000 		.4byte	.LVL49
+ 3793 0252 14000000 		.4byte	.LVL52
+ 3794 0256 0100     		.2byte	0x1
+ 3795 0258 52       		.byte	0x52
+ 3796 0259 14000000 		.4byte	.LVL52
+ 3797 025d 30000000 		.4byte	.LVL58
+ 3798 0261 0100     		.2byte	0x1
+ 3799 0263 55       		.byte	0x55
+ 3800 0264 30000000 		.4byte	.LVL58
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 74
+
+
+ 3801 0268 34000000 		.4byte	.LFE14
+ 3802 026c 0400     		.2byte	0x4
+ 3803 026e F3       		.byte	0xf3
+ 3804 026f 01       		.uleb128 0x1
+ 3805 0270 52       		.byte	0x52
+ 3806 0271 9F       		.byte	0x9f
+ 3807 0272 00000000 		.4byte	0
+ 3808 0276 00000000 		.4byte	0
+ 3809              	.LLST12:
+ 3810 027a 00000000 		.4byte	.LVL49
+ 3811 027e 0C000000 		.4byte	.LVL51
+ 3812 0282 0100     		.2byte	0x1
+ 3813 0284 53       		.byte	0x53
+ 3814 0285 0C000000 		.4byte	.LVL51
+ 3815 0289 34000000 		.4byte	.LFE14
+ 3816 028d 0400     		.2byte	0x4
+ 3817 028f F3       		.byte	0xf3
+ 3818 0290 01       		.uleb128 0x1
+ 3819 0291 53       		.byte	0x53
+ 3820 0292 9F       		.byte	0x9f
+ 3821 0293 00000000 		.4byte	0
+ 3822 0297 00000000 		.4byte	0
+ 3823              	.LLST13:
+ 3824 029b 00000000 		.4byte	.LVL49
+ 3825 029f 0A000000 		.4byte	.LVL50
+ 3826 02a3 0200     		.2byte	0x2
+ 3827 02a5 91       		.byte	0x91
+ 3828 02a6 00       		.sleb128 0
+ 3829 02a7 24000000 		.4byte	.LVL56
+ 3830 02ab 30000000 		.4byte	.LVL58
+ 3831 02af 0100     		.2byte	0x1
+ 3832 02b1 56       		.byte	0x56
+ 3833 02b2 00000000 		.4byte	0
+ 3834 02b6 00000000 		.4byte	0
+ 3835              	.LLST14:
+ 3836 02ba 00000000 		.4byte	.LVL49
+ 3837 02be 30000000 		.4byte	.LVL58
+ 3838 02c2 0200     		.2byte	0x2
+ 3839 02c4 91       		.byte	0x91
+ 3840 02c5 04       		.sleb128 4
+ 3841 02c6 30000000 		.4byte	.LVL58
+ 3842 02ca 34000000 		.4byte	.LFE14
+ 3843 02ce 0200     		.2byte	0x2
+ 3844 02d0 7D       		.byte	0x7d
+ 3845 02d1 04       		.sleb128 4
+ 3846 02d2 00000000 		.4byte	0
+ 3847 02d6 00000000 		.4byte	0
+ 3848              	.LLST15:
+ 3849 02da 00000000 		.4byte	.LVL59
+ 3850 02de 16000000 		.4byte	.LVL64
+ 3851 02e2 0100     		.2byte	0x1
+ 3852 02e4 50       		.byte	0x50
+ 3853 02e5 16000000 		.4byte	.LVL64
+ 3854 02e9 34000000 		.4byte	.LFE15
+ 3855 02ed 0400     		.2byte	0x4
+ 3856 02ef F3       		.byte	0xf3
+ 3857 02f0 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 75
+
+
+ 3858 02f1 50       		.byte	0x50
+ 3859 02f2 9F       		.byte	0x9f
+ 3860 02f3 00000000 		.4byte	0
+ 3861 02f7 00000000 		.4byte	0
+ 3862              	.LLST16:
+ 3863 02fb 00000000 		.4byte	.LVL59
+ 3864 02ff 14000000 		.4byte	.LVL63
+ 3865 0303 0100     		.2byte	0x1
+ 3866 0305 51       		.byte	0x51
+ 3867 0306 14000000 		.4byte	.LVL63
+ 3868 030a 34000000 		.4byte	.LFE15
+ 3869 030e 0400     		.2byte	0x4
+ 3870 0310 F3       		.byte	0xf3
+ 3871 0311 01       		.uleb128 0x1
+ 3872 0312 51       		.byte	0x51
+ 3873 0313 9F       		.byte	0x9f
+ 3874 0314 00000000 		.4byte	0
+ 3875 0318 00000000 		.4byte	0
+ 3876              	.LLST17:
+ 3877 031c 00000000 		.4byte	.LVL59
+ 3878 0320 12000000 		.4byte	.LVL62
+ 3879 0324 0100     		.2byte	0x1
+ 3880 0326 52       		.byte	0x52
+ 3881 0327 12000000 		.4byte	.LVL62
+ 3882 032b 2E000000 		.4byte	.LVL68
+ 3883 032f 0100     		.2byte	0x1
+ 3884 0331 55       		.byte	0x55
+ 3885 0332 2E000000 		.4byte	.LVL68
+ 3886 0336 34000000 		.4byte	.LFE15
+ 3887 033a 0400     		.2byte	0x4
+ 3888 033c F3       		.byte	0xf3
+ 3889 033d 01       		.uleb128 0x1
+ 3890 033e 52       		.byte	0x52
+ 3891 033f 9F       		.byte	0x9f
+ 3892 0340 00000000 		.4byte	0
+ 3893 0344 00000000 		.4byte	0
+ 3894              	.LLST18:
+ 3895 0348 00000000 		.4byte	.LVL59
+ 3896 034c 0C000000 		.4byte	.LVL61
+ 3897 0350 0100     		.2byte	0x1
+ 3898 0352 53       		.byte	0x53
+ 3899 0353 0C000000 		.4byte	.LVL61
+ 3900 0357 34000000 		.4byte	.LFE15
+ 3901 035b 0400     		.2byte	0x4
+ 3902 035d F3       		.byte	0xf3
+ 3903 035e 01       		.uleb128 0x1
+ 3904 035f 53       		.byte	0x53
+ 3905 0360 9F       		.byte	0x9f
+ 3906 0361 00000000 		.4byte	0
+ 3907 0365 00000000 		.4byte	0
+ 3908              	.LLST19:
+ 3909 0369 00000000 		.4byte	.LVL59
+ 3910 036d 0A000000 		.4byte	.LVL60
+ 3911 0371 0200     		.2byte	0x2
+ 3912 0373 91       		.byte	0x91
+ 3913 0374 00       		.sleb128 0
+ 3914 0375 22000000 		.4byte	.LVL66
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 76
+
+
+ 3915 0379 2E000000 		.4byte	.LVL68
+ 3916 037d 0100     		.2byte	0x1
+ 3917 037f 56       		.byte	0x56
+ 3918 0380 00000000 		.4byte	0
+ 3919 0384 00000000 		.4byte	0
+ 3920              	.LLST20:
+ 3921 0388 00000000 		.4byte	.LVL59
+ 3922 038c 2E000000 		.4byte	.LVL68
+ 3923 0390 0200     		.2byte	0x2
+ 3924 0392 91       		.byte	0x91
+ 3925 0393 04       		.sleb128 4
+ 3926 0394 2E000000 		.4byte	.LVL68
+ 3927 0398 34000000 		.4byte	.LFE15
+ 3928 039c 0200     		.2byte	0x2
+ 3929 039e 7D       		.byte	0x7d
+ 3930 039f 04       		.sleb128 4
+ 3931 03a0 00000000 		.4byte	0
+ 3932 03a4 00000000 		.4byte	0
+ 3933              	.LLST21:
+ 3934 03a8 00000000 		.4byte	.LVL69
+ 3935 03ac 70000000 		.4byte	.LVL79
+ 3936 03b0 0100     		.2byte	0x1
+ 3937 03b2 50       		.byte	0x50
+ 3938 03b3 70000000 		.4byte	.LVL79
+ 3939 03b7 60030000 		.4byte	.LFE12
+ 3940 03bb 0400     		.2byte	0x4
+ 3941 03bd F3       		.byte	0xf3
+ 3942 03be 01       		.uleb128 0x1
+ 3943 03bf 50       		.byte	0x50
+ 3944 03c0 9F       		.byte	0x9f
+ 3945 03c1 00000000 		.4byte	0
+ 3946 03c5 00000000 		.4byte	0
+ 3947              	.LLST22:
+ 3948 03c9 00000000 		.4byte	.LVL69
+ 3949 03cd 6C000000 		.4byte	.LVL78
+ 3950 03d1 0100     		.2byte	0x1
+ 3951 03d3 51       		.byte	0x51
+ 3952 03d4 6C000000 		.4byte	.LVL78
+ 3953 03d8 60030000 		.4byte	.LFE12
+ 3954 03dc 0400     		.2byte	0x4
+ 3955 03de F3       		.byte	0xf3
+ 3956 03df 01       		.uleb128 0x1
+ 3957 03e0 51       		.byte	0x51
+ 3958 03e1 9F       		.byte	0x9f
+ 3959 03e2 00000000 		.4byte	0
+ 3960 03e6 00000000 		.4byte	0
+ 3961              	.LLST23:
+ 3962 03ea 00000000 		.4byte	.LVL69
+ 3963 03ee 20000000 		.4byte	.LVL71
+ 3964 03f2 0100     		.2byte	0x1
+ 3965 03f4 52       		.byte	0x52
+ 3966 03f5 20000000 		.4byte	.LVL71
+ 3967 03f9 60030000 		.4byte	.LFE12
+ 3968 03fd 0400     		.2byte	0x4
+ 3969 03ff F3       		.byte	0xf3
+ 3970 0400 01       		.uleb128 0x1
+ 3971 0401 52       		.byte	0x52
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 77
+
+
+ 3972 0402 9F       		.byte	0x9f
+ 3973 0403 00000000 		.4byte	0
+ 3974 0407 00000000 		.4byte	0
+ 3975              	.LLST24:
+ 3976 040b 00000000 		.4byte	.LVL69
+ 3977 040f 12000000 		.4byte	.LVL70
+ 3978 0413 0100     		.2byte	0x1
+ 3979 0415 53       		.byte	0x53
+ 3980 0416 12000000 		.4byte	.LVL70
+ 3981 041a 56030000 		.4byte	.LVL121
+ 3982 041e 0300     		.2byte	0x3
+ 3983 0420 91       		.byte	0x91
+ 3984 0421 BC7F     		.sleb128 -68
+ 3985 0423 56030000 		.4byte	.LVL121
+ 3986 0427 60030000 		.4byte	.LFE12
+ 3987 042b 0300     		.2byte	0x3
+ 3988 042d 7D       		.byte	0x7d
+ 3989 042e BC7F     		.sleb128 -68
+ 3990 0430 00000000 		.4byte	0
+ 3991 0434 00000000 		.4byte	0
+ 3992              	.LLST25:
+ 3993 0438 00000000 		.4byte	.LVL69
+ 3994 043c 56030000 		.4byte	.LVL121
+ 3995 0440 0200     		.2byte	0x2
+ 3996 0442 91       		.byte	0x91
+ 3997 0443 00       		.sleb128 0
+ 3998 0444 56030000 		.4byte	.LVL121
+ 3999 0448 60030000 		.4byte	.LFE12
+ 4000 044c 0200     		.2byte	0x2
+ 4001 044e 7D       		.byte	0x7d
+ 4002 044f 00       		.sleb128 0
+ 4003 0450 00000000 		.4byte	0
+ 4004 0454 00000000 		.4byte	0
+ 4005              	.LLST26:
+ 4006 0458 00000000 		.4byte	.LVL69
+ 4007 045c 56030000 		.4byte	.LVL121
+ 4008 0460 0200     		.2byte	0x2
+ 4009 0462 91       		.byte	0x91
+ 4010 0463 04       		.sleb128 4
+ 4011 0464 56030000 		.4byte	.LVL121
+ 4012 0468 60030000 		.4byte	.LFE12
+ 4013 046c 0200     		.2byte	0x2
+ 4014 046e 7D       		.byte	0x7d
+ 4015 046f 04       		.sleb128 4
+ 4016 0470 00000000 		.4byte	0
+ 4017 0474 00000000 		.4byte	0
+ 4018              	.LLST27:
+ 4019 0478 00000000 		.4byte	.LVL69
+ 4020 047c 56030000 		.4byte	.LVL121
+ 4021 0480 0200     		.2byte	0x2
+ 4022 0482 91       		.byte	0x91
+ 4023 0483 08       		.sleb128 8
+ 4024 0484 56030000 		.4byte	.LVL121
+ 4025 0488 60030000 		.4byte	.LFE12
+ 4026 048c 0200     		.2byte	0x2
+ 4027 048e 7D       		.byte	0x7d
+ 4028 048f 08       		.sleb128 8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 78
+
+
+ 4029 0490 00000000 		.4byte	0
+ 4030 0494 00000000 		.4byte	0
+ 4031              	.LLST28:
+ 4032 0498 00000000 		.4byte	.LVL69
+ 4033 049c 56030000 		.4byte	.LVL121
+ 4034 04a0 0200     		.2byte	0x2
+ 4035 04a2 91       		.byte	0x91
+ 4036 04a3 0C       		.sleb128 12
+ 4037 04a4 56030000 		.4byte	.LVL121
+ 4038 04a8 60030000 		.4byte	.LFE12
+ 4039 04ac 0200     		.2byte	0x2
+ 4040 04ae 7D       		.byte	0x7d
+ 4041 04af 0C       		.sleb128 12
+ 4042 04b0 00000000 		.4byte	0
+ 4043 04b4 00000000 		.4byte	0
+ 4044              	.LLST29:
+ 4045 04b8 24000000 		.4byte	.LVL72
+ 4046 04bc 10010000 		.4byte	.LVL92
+ 4047 04c0 0100     		.2byte	0x1
+ 4048 04c2 55       		.byte	0x55
+ 4049 04c3 00000000 		.4byte	0
+ 4050 04c7 00000000 		.4byte	0
+ 4051              	.LLST30:
+ 4052 04cb 2E000000 		.4byte	.LVL74
+ 4053 04cf 02010000 		.4byte	.LVL88
+ 4054 04d3 0100     		.2byte	0x1
+ 4055 04d5 59       		.byte	0x59
+ 4056 04d6 02010000 		.4byte	.LVL88
+ 4057 04da 08010000 		.4byte	.LVL90
+ 4058 04de 0100     		.2byte	0x1
+ 4059 04e0 54       		.byte	0x54
+ 4060 04e1 00000000 		.4byte	0
+ 4061 04e5 00000000 		.4byte	0
+ 4062              	.LLST31:
+ 4063 04e9 38000000 		.4byte	.LVL75
+ 4064 04ed 06010000 		.4byte	.LVL89
+ 4065 04f1 0100     		.2byte	0x1
+ 4066 04f3 5A       		.byte	0x5a
+ 4067 04f4 06010000 		.4byte	.LVL89
+ 4068 04f8 10010000 		.4byte	.LVL92
+ 4069 04fc 0100     		.2byte	0x1
+ 4070 04fe 57       		.byte	0x57
+ 4071 04ff 00000000 		.4byte	0
+ 4072 0503 00000000 		.4byte	0
+ 4073              	.LLST32:
+ 4074 0507 56010000 		.4byte	.LVL97
+ 4075 050b 30020000 		.4byte	.LVL103
+ 4076 050f 0100     		.2byte	0x1
+ 4077 0511 58       		.byte	0x58
+ 4078 0512 00000000 		.4byte	0
+ 4079 0516 00000000 		.4byte	0
+ 4080              	.LLST33:
+ 4081 051a 56010000 		.4byte	.LVL97
+ 4082 051e 5B010000 		.4byte	.LVL98-1
+ 4083 0522 0100     		.2byte	0x1
+ 4084 0524 50       		.byte	0x50
+ 4085 0525 F8010000 		.4byte	.LVL101
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 79
+
+
+ 4086 0529 30020000 		.4byte	.LVL103
+ 4087 052d 0100     		.2byte	0x1
+ 4088 052f 58       		.byte	0x58
+ 4089 0530 00000000 		.4byte	0
+ 4090 0534 00000000 		.4byte	0
+ 4091              	.LLST34:
+ 4092 0538 6A020000 		.4byte	.LVL106
+ 4093 053c 72020000 		.4byte	.LVL107
+ 4094 0540 0100     		.2byte	0x1
+ 4095 0542 52       		.byte	0x52
+ 4096 0543 AA020000 		.4byte	.LVL109
+ 4097 0547 B2020000 		.4byte	.LVL110
+ 4098 054b 0100     		.2byte	0x1
+ 4099 054d 52       		.byte	0x52
+ 4100 054e F0020000 		.4byte	.LVL112
+ 4101 0552 F8020000 		.4byte	.LVL113
+ 4102 0556 0100     		.2byte	0x1
+ 4103 0558 52       		.byte	0x52
+ 4104 0559 36030000 		.4byte	.LVL116
+ 4105 055d 3E030000 		.4byte	.LVL117
+ 4106 0561 0100     		.2byte	0x1
+ 4107 0563 52       		.byte	0x52
+ 4108 0564 00000000 		.4byte	0
+ 4109 0568 00000000 		.4byte	0
+ 4110              	.LLST35:
+ 4111 056c 56000000 		.4byte	.LVL76
+ 4112 0570 56030000 		.4byte	.LVL121
+ 4113 0574 0300     		.2byte	0x3
+ 4114 0576 91       		.byte	0x91
+ 4115 0577 B47F     		.sleb128 -76
+ 4116 0579 56030000 		.4byte	.LVL121
+ 4117 057d 60030000 		.4byte	.LFE12
+ 4118 0581 0300     		.2byte	0x3
+ 4119 0583 7D       		.byte	0x7d
+ 4120 0584 B47F     		.sleb128 -76
+ 4121 0586 00000000 		.4byte	0
+ 4122 058a 00000000 		.4byte	0
+ 4123              	.LLST36:
+ 4124 058e 68000000 		.4byte	.LVL77
+ 4125 0592 3A010000 		.4byte	.LVL94
+ 4126 0596 0100     		.2byte	0x1
+ 4127 0598 58       		.byte	0x58
+ 4128 0599 3A010000 		.4byte	.LVL94
+ 4129 059d 4A030000 		.4byte	.LVL120
+ 4130 05a1 0100     		.2byte	0x1
+ 4131 05a3 57       		.byte	0x57
+ 4132 05a4 4A030000 		.4byte	.LVL120
+ 4133 05a8 56030000 		.4byte	.LVL121
+ 4134 05ac 0100     		.2byte	0x1
+ 4135 05ae 58       		.byte	0x58
+ 4136 05af 00000000 		.4byte	0
+ 4137 05b3 00000000 		.4byte	0
+ 4138              	.LLST37:
+ 4139 05b7 02010000 		.4byte	.LVL88
+ 4140 05bb 56030000 		.4byte	.LVL121
+ 4141 05bf 0100     		.2byte	0x1
+ 4142 05c1 59       		.byte	0x59
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 80
+
+
+ 4143 05c2 00000000 		.4byte	0
+ 4144 05c6 00000000 		.4byte	0
+ 4145              	.LLST38:
+ 4146 05ca 06010000 		.4byte	.LVL89
+ 4147 05ce 56030000 		.4byte	.LVL121
+ 4148 05d2 0100     		.2byte	0x1
+ 4149 05d4 5A       		.byte	0x5a
+ 4150 05d5 00000000 		.4byte	0
+ 4151 05d9 00000000 		.4byte	0
+ 4152              	.LLST39:
+ 4153 05dd 34010000 		.4byte	.LVL93
+ 4154 05e1 3A010000 		.4byte	.LVL94
+ 4155 05e5 0200     		.2byte	0x2
+ 4156 05e7 91       		.byte	0x91
+ 4157 05e8 44       		.sleb128 -60
+ 4158 05e9 3A010000 		.4byte	.LVL94
+ 4159 05ed 32020000 		.4byte	.LVL104
+ 4160 05f1 0100     		.2byte	0x1
+ 4161 05f3 54       		.byte	0x54
+ 4162 05f4 34020000 		.4byte	.LVL105
+ 4163 05f8 16030000 		.4byte	.LVL115
+ 4164 05fc 0100     		.2byte	0x1
+ 4165 05fe 54       		.byte	0x54
+ 4166 05ff 00000000 		.4byte	0
+ 4167 0603 00000000 		.4byte	0
+ 4168              	.LLST40:
+ 4169 0607 0C010000 		.4byte	.LVL91
+ 4170 060b 10010000 		.4byte	.LVL92
+ 4171 060f 0100     		.2byte	0x1
+ 4172 0611 53       		.byte	0x53
+ 4173 0612 10010000 		.4byte	.LVL92
+ 4174 0616 48030000 		.4byte	.LVL119
+ 4175 061a 0100     		.2byte	0x1
+ 4176 061c 56       		.byte	0x56
+ 4177 061d 4A030000 		.4byte	.LVL120
+ 4178 0621 56030000 		.4byte	.LVL121
+ 4179 0625 0100     		.2byte	0x1
+ 4180 0627 56       		.byte	0x56
+ 4181 0628 00000000 		.4byte	0
+ 4182 062c 00000000 		.4byte	0
+ 4183              	.LLST41:
+ 4184 0630 42010000 		.4byte	.LVL95
+ 4185 0634 34020000 		.4byte	.LVL105
+ 4186 0638 0100     		.2byte	0x1
+ 4187 063a 55       		.byte	0x55
+ 4188 063b 00000000 		.4byte	0
+ 4189 063f 00000000 		.4byte	0
+ 4190              		.section	.debug_aranges,"",%progbits
+ 4191 0000 44000000 		.4byte	0x44
+ 4192 0004 0200     		.2byte	0x2
+ 4193 0006 00000000 		.4byte	.Ldebug_info0
+ 4194 000a 04       		.byte	0x4
+ 4195 000b 00       		.byte	0
+ 4196 000c 0000     		.2byte	0
+ 4197 000e 0000     		.2byte	0
+ 4198 0010 00000000 		.4byte	.LFB13
+ 4199 0014 B4000000 		.4byte	.LFE13-.LFB13
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 81
+
+
+ 4200 0018 00000000 		.4byte	.LFB16
+ 4201 001c 14000000 		.4byte	.LFE16-.LFB16
+ 4202 0020 00000000 		.4byte	.LFB17
+ 4203 0024 14000000 		.4byte	.LFE17-.LFB17
+ 4204 0028 00000000 		.4byte	.LFB14
+ 4205 002c 34000000 		.4byte	.LFE14-.LFB14
+ 4206 0030 00000000 		.4byte	.LFB15
+ 4207 0034 34000000 		.4byte	.LFE15-.LFB15
+ 4208 0038 00000000 		.4byte	.LFB12
+ 4209 003c 60030000 		.4byte	.LFE12-.LFB12
+ 4210 0040 00000000 		.4byte	0
+ 4211 0044 00000000 		.4byte	0
+ 4212              		.section	.debug_ranges,"",%progbits
+ 4213              	.Ldebug_ranges0:
+ 4214 0000 00000000 		.4byte	.LFB13
+ 4215 0004 B4000000 		.4byte	.LFE13
+ 4216 0008 00000000 		.4byte	.LFB16
+ 4217 000c 14000000 		.4byte	.LFE16
+ 4218 0010 00000000 		.4byte	.LFB17
+ 4219 0014 14000000 		.4byte	.LFE17
+ 4220 0018 00000000 		.4byte	.LFB14
+ 4221 001c 34000000 		.4byte	.LFE14
+ 4222 0020 00000000 		.4byte	.LFB15
+ 4223 0024 34000000 		.4byte	.LFE15
+ 4224 0028 00000000 		.4byte	.LFB12
+ 4225 002c 60030000 		.4byte	.LFE12
+ 4226 0030 00000000 		.4byte	0
+ 4227 0034 00000000 		.4byte	0
+ 4228              		.section	.debug_line,"",%progbits
+ 4229              	.Ldebug_line0:
+ 4230 0000 78030000 		.section	.debug_str,"MS",%progbits,1
+ 4230      0200B501 
+ 4230      00000201 
+ 4230      FB0E0D00 
+ 4230      01010101 
+ 4231              	.LASF29:
+ 4232 0000 4C565F4F 		.ascii	"LV_OPA_COVER\000"
+ 4232      50415F43 
+ 4232      4F564552 
+ 4232      00
+ 4233              	.LASF32:
+ 4234 000d 66756C6C 		.ascii	"full\000"
+ 4234      00
+ 4235              	.LASF27:
+ 4236 0012 4C565F4F 		.ascii	"LV_OPA_90\000"
+ 4236      50415F39 
+ 4236      3000
+ 4237              	.LASF18:
+ 4238 001c 4C565F4F 		.ascii	"LV_OPA_0\000"
+ 4238      50415F30 
+ 4238      00
+ 4239              	.LASF12:
+ 4240 0025 756E7369 		.ascii	"unsigned int\000"
+ 4240      676E6564 
+ 4240      20696E74 
+ 4240      00
+ 4241              	.LASF80:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 82
+
+
+ 4242 0032 6C765F73 		.ascii	"lv_style_t\000"
+ 4242      74796C65 
+ 4242      5F7400
+ 4243              	.LASF49:
+ 4244 003d 6765745F 		.ascii	"get_bitmap\000"
+ 4244      6269746D 
+ 4244      617000
+ 4245              	.LASF86:
+ 4246 0048 66617374 		.ascii	"fast_atan2\000"
+ 4246      5F617461 
+ 4246      6E3200
+ 4247              	.LASF115:
+ 4248 0053 66696C6C 		.ascii	"fill_fp\000"
+ 4248      5F667000 
+ 4249              	.LASF48:
+ 4250 005b 756E6963 		.ascii	"unicode_list\000"
+ 4250      6F64655F 
+ 4250      6C697374 
+ 4250      00
+ 4251              	.LASF116:
+ 4252 0068 6C765F61 		.ascii	"lv_area_set\000"
+ 4252      7265615F 
+ 4252      73657400 
+ 4253              	.LASF62:
+ 4254 0074 696E6E65 		.ascii	"inner\000"
+ 4254      7200
+ 4255              	.LASF16:
+ 4256 007a 75696E74 		.ascii	"uint32_t\000"
+ 4256      33325F74 
+ 4256      00
+ 4257              	.LASF105:
+ 4258 0083 785F656E 		.ascii	"x_end\000"
+ 4258      6400
+ 4259              	.LASF87:
+ 4260 0089 6465675F 		.ascii	"deg_test_norm\000"
+ 4260      74657374 
+ 4260      5F6E6F72 
+ 4260      6D00
+ 4261              	.LASF14:
+ 4262 0097 696E7431 		.ascii	"int16_t\000"
+ 4262      365F7400 
+ 4263              	.LASF85:
+ 4264 009f 64656772 		.ascii	"degree\000"
+ 4264      656500
+ 4265              	.LASF54:
+ 4266 00a6 676C7970 		.ascii	"glyph_cnt\000"
+ 4266      685F636E 
+ 4266      7400
+ 4267              	.LASF11:
+ 4268 00b0 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 4268      206C6F6E 
+ 4268      6720756E 
+ 4268      7369676E 
+ 4268      65642069 
+ 4269              	.LASF93:
+ 4270 00c7 686F725F 		.ascii	"hor_line\000"
+ 4270      6C696E65 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 83
+
+
+ 4270      00
+ 4271              	.LASF60:
+ 4272 00d0 70617274 		.ascii	"part\000"
+ 4272      00
+ 4273              	.LASF17:
+ 4274 00d5 4C565F4F 		.ascii	"LV_OPA_TRANSP\000"
+ 4274      50415F54 
+ 4274      52414E53 
+ 4274      5000
+ 4275              	.LASF5:
+ 4276 00e3 5F5F7569 		.ascii	"__uint16_t\000"
+ 4276      6E743136 
+ 4276      5F7400
+ 4277              	.LASF82:
+ 4278 00ee 6E656766 		.ascii	"negflag\000"
+ 4278      6C616700 
+ 4279              	.LASF66:
+ 4280 00f6 626F7264 		.ascii	"border\000"
+ 4280      657200
+ 4281              	.LASF51:
+ 4282 00fd 6E657874 		.ascii	"next_page\000"
+ 4282      5F706167 
+ 4282      6500
+ 4283              	.LASF58:
+ 4284 0107 636F6C6F 		.ascii	"color\000"
+ 4284      7200
+ 4285              	.LASF110:
+ 4286 010d 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 4286      43313120 
+ 4286      352E342E 
+ 4286      31203230 
+ 4286      31363036 
+ 4287 0140 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 4287      20726576 
+ 4287      6973696F 
+ 4287      6E203233 
+ 4287      37373135 
+ 4288 0173 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 4288      66756E63 
+ 4288      74696F6E 
+ 4288      2D736563 
+ 4288      74696F6E 
+ 4289              	.LASF74:
+ 4290 019b 726F756E 		.ascii	"rounded\000"
+ 4290      64656400 
+ 4291              	.LASF59:
+ 4292 01a3 77696474 		.ascii	"width\000"
+ 4292      6800
+ 4293              	.LASF114:
+ 4294 01a9 6C765F64 		.ascii	"lv_draw_arc\000"
+ 4294      7261775F 
+ 4294      61726300 
+ 4295              	.LASF81:
+ 4296 01b5 5F426F6F 		.ascii	"_Bool\000"
+ 4296      6C00
+ 4297              	.LASF113:
+ 4298 01bb 5F6C765F 		.ascii	"_lv_font_struct\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 84
+
+
+ 4298      666F6E74 
+ 4298      5F737472 
+ 4298      75637400 
+ 4299              	.LASF72:
+ 4300 01cb 6C696E65 		.ascii	"line_space\000"
+ 4300      5F737061 
+ 4300      636500
+ 4301              	.LASF89:
+ 4302 01d6 6465675F 		.ascii	"deg_test_inv\000"
+ 4302      74657374 
+ 4302      5F696E76 
+ 4302      00
+ 4303              	.LASF111:
+ 4304 01e3 2E2E5C6C 		.ascii	"..\\lvgl\\lv_draw\\lv_draw_arc.c\000"
+ 4304      76676C5C 
+ 4304      6C765F64 
+ 4304      7261775C 
+ 4304      6C765F64 
+ 4305              	.LASF100:
+ 4306 0201 74686963 		.ascii	"thickness\000"
+ 4306      6B6E6573 
+ 4306      7300
+ 4307              	.LASF38:
+ 4308 020b 63686172 		.ascii	"char\000"
+ 4308      00
+ 4309              	.LASF83:
+ 4310 0210 74656D70 		.ascii	"tempdegree\000"
+ 4310      64656772 
+ 4310      656500
+ 4311              	.LASF112:
+ 4312 021b 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 4312      73657273 
+ 4312      5C643362 
+ 4312      75675C44 
+ 4312      6F63756D 
+ 4313 0249 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 4313      6F5F776F 
+ 4313      726C645F 
+ 4313      6C616265 
+ 4313      6C2E6379 
+ 4314              	.LASF77:
+ 4315 0261 74657874 		.ascii	"text\000"
+ 4315      00
+ 4316              	.LASF43:
+ 4317 0266 6C765F66 		.ascii	"lv_font_glyph_dsc_t\000"
+ 4317      6F6E745F 
+ 4317      676C7970 
+ 4317      685F6473 
+ 4317      635F7400 
+ 4318              	.LASF33:
+ 4319 027a 6C765F63 		.ascii	"lv_color1_t\000"
+ 4319      6F6C6F72 
+ 4319      315F7400 
+ 4320              	.LASF13:
+ 4321 0286 75696E74 		.ascii	"uint8_t\000"
+ 4321      385F7400 
+ 4322              	.LASF91:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 85
+
+
+ 4323 028e 61726561 		.ascii	"area\000"
+ 4323      00
+ 4324              	.LASF57:
+ 4325 0293 6C765F73 		.ascii	"lv_shadow_type_t\000"
+ 4325      6861646F 
+ 4325      775F7479 
+ 4325      70655F74 
+ 4325      00
+ 4326              	.LASF19:
+ 4327 02a4 4C565F4F 		.ascii	"LV_OPA_10\000"
+ 4327      50415F31 
+ 4327      3000
+ 4328              	.LASF10:
+ 4329 02ae 6C6F6E67 		.ascii	"long long int\000"
+ 4329      206C6F6E 
+ 4329      6720696E 
+ 4329      7400
+ 4330              	.LASF75:
+ 4331 02bc 676C6173 		.ascii	"glass\000"
+ 4331      7300
+ 4332              	.LASF68:
+ 4333 02c2 70616464 		.ascii	"padding\000"
+ 4333      696E6700 
+ 4334              	.LASF92:
+ 4335 02ca 7665725F 		.ascii	"ver_line\000"
+ 4335      6C696E65 
+ 4335      00
+ 4336              	.LASF3:
+ 4337 02d3 5F5F696E 		.ascii	"__int16_t\000"
+ 4337      7431365F 
+ 4337      7400
+ 4338              	.LASF107:
+ 4339 02dd 725F6F75 		.ascii	"r_out_sqr\000"
+ 4339      745F7371 
+ 4339      7200
+ 4340              	.LASF20:
+ 4341 02e7 4C565F4F 		.ascii	"LV_OPA_20\000"
+ 4341      50415F32 
+ 4341      3000
+ 4342              	.LASF46:
+ 4343 02f1 676C7970 		.ascii	"glyph_bitmap\000"
+ 4343      685F6269 
+ 4343      746D6170 
+ 4343      00
+ 4344              	.LASF78:
+ 4345 02fe 696D6167 		.ascii	"image\000"
+ 4345      6500
+ 4346              	.LASF90:
+ 4347 0304 6D61736B 		.ascii	"mask\000"
+ 4347      00
+ 4348              	.LASF34:
+ 4349 0309 6C765F63 		.ascii	"lv_color_t\000"
+ 4349      6F6C6F72 
+ 4349      5F7400
+ 4350              	.LASF31:
+ 4351 0314 67726565 		.ascii	"green\000"
+ 4351      6E00
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 86
+
+
+ 4352              	.LASF21:
+ 4353 031a 4C565F4F 		.ascii	"LV_OPA_30\000"
+ 4353      50415F33 
+ 4353      3000
+ 4354              	.LASF36:
+ 4355 0324 6C6F6E67 		.ascii	"long double\000"
+ 4355      20646F75 
+ 4355      626C6500 
+ 4356              	.LASF15:
+ 4357 0330 75696E74 		.ascii	"uint16_t\000"
+ 4357      31365F74 
+ 4357      00
+ 4358              	.LASF64:
+ 4359 0339 67726164 		.ascii	"grad_color\000"
+ 4359      5F636F6C 
+ 4359      6F7200
+ 4360              	.LASF55:
+ 4361 0344 6C765F66 		.ascii	"lv_font_t\000"
+ 4361      6F6E745F 
+ 4361      7400
+ 4362              	.LASF71:
+ 4363 034e 6C657474 		.ascii	"letter_space\000"
+ 4363      65725F73 
+ 4363      70616365 
+ 4363      00
+ 4364              	.LASF63:
+ 4365 035b 6D61696E 		.ascii	"main_color\000"
+ 4365      5F636F6C 
+ 4365      6F7200
+ 4366              	.LASF4:
+ 4367 0366 73686F72 		.ascii	"short int\000"
+ 4367      7420696E 
+ 4367      7400
+ 4368              	.LASF35:
+ 4369 0370 6C765F6F 		.ascii	"lv_opa_t\000"
+ 4369      70615F74 
+ 4369      00
+ 4370              	.LASF7:
+ 4371 0379 6C6F6E67 		.ascii	"long int\000"
+ 4371      20696E74 
+ 4371      00
+ 4372              	.LASF22:
+ 4373 0382 4C565F4F 		.ascii	"LV_OPA_40\000"
+ 4373      50415F34 
+ 4373      3000
+ 4374              	.LASF96:
+ 4375 038c 73746172 		.ascii	"start_angle\000"
+ 4375      745F616E 
+ 4375      676C6500 
+ 4376              	.LASF52:
+ 4377 0398 685F7078 		.ascii	"h_px\000"
+ 4377      00
+ 4378              	.LASF30:
+ 4379 039d 626C7565 		.ascii	"blue\000"
+ 4379      00
+ 4380              	.LASF39:
+ 4381 03a2 6C765F63 		.ascii	"lv_coord_t\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 87
+
+
+ 4381      6F6F7264 
+ 4381      5F7400
+ 4382              	.LASF94:
+ 4383 03ad 63656E74 		.ascii	"center_x\000"
+ 4383      65725F78 
+ 4383      00
+ 4384              	.LASF95:
+ 4385 03b6 63656E74 		.ascii	"center_y\000"
+ 4385      65725F79 
+ 4385      00
+ 4386              	.LASF28:
+ 4387 03bf 4C565F4F 		.ascii	"LV_OPA_100\000"
+ 4387      50415F31 
+ 4387      303000
+ 4388              	.LASF2:
+ 4389 03ca 5F5F7569 		.ascii	"__uint8_t\000"
+ 4389      6E74385F 
+ 4389      7400
+ 4390              	.LASF23:
+ 4391 03d4 4C565F4F 		.ascii	"LV_OPA_50\000"
+ 4391      50415F35 
+ 4391      3000
+ 4392              	.LASF88:
+ 4393 03de 73746172 		.ascii	"start\000"
+ 4393      7400
+ 4394              	.LASF70:
+ 4395 03e4 666F6E74 		.ascii	"font\000"
+ 4395      00
+ 4396              	.LASF109:
+ 4397 03e9 725F6163 		.ascii	"r_act_sqr\000"
+ 4397      745F7371 
+ 4397      7200
+ 4398              	.LASF37:
+ 4399 03f3 73697A65 		.ascii	"sizetype\000"
+ 4399      74797065 
+ 4399      00
+ 4400              	.LASF9:
+ 4401 03fc 6C6F6E67 		.ascii	"long unsigned int\000"
+ 4401      20756E73 
+ 4401      69676E65 
+ 4401      6420696E 
+ 4401      7400
+ 4402              	.LASF69:
+ 4403 040e 656D7074 		.ascii	"empty\000"
+ 4403      7900
+ 4404              	.LASF73:
+ 4405 0414 696E7465 		.ascii	"intense\000"
+ 4405      6E736500 
+ 4406              	.LASF53:
+ 4407 041c 6D6F6E6F 		.ascii	"monospace\000"
+ 4407      73706163 
+ 4407      6500
+ 4408              	.LASF101:
+ 4409 0426 725F6F75 		.ascii	"r_out\000"
+ 4409      7400
+ 4410              	.LASF42:
+ 4411 042c 676C7970 		.ascii	"glyph_index\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 88
+
+
+ 4411      685F696E 
+ 4411      64657800 
+ 4412              	.LASF65:
+ 4413 0438 72616469 		.ascii	"radius\000"
+ 4413      757300
+ 4414              	.LASF99:
+ 4415 043f 6F70615F 		.ascii	"opa_scale\000"
+ 4415      7363616C 
+ 4415      6500
+ 4416              	.LASF76:
+ 4417 0449 626F6479 		.ascii	"body\000"
+ 4417      00
+ 4418              	.LASF24:
+ 4419 044e 4C565F4F 		.ascii	"LV_OPA_60\000"
+ 4419      50415F36 
+ 4419      3000
+ 4420              	.LASF61:
+ 4421 0458 74797065 		.ascii	"type\000"
+ 4421      00
+ 4422              	.LASF1:
+ 4423 045d 756E7369 		.ascii	"unsigned char\000"
+ 4423      676E6564 
+ 4423      20636861 
+ 4423      7200
+ 4424              	.LASF8:
+ 4425 046b 5F5F7569 		.ascii	"__uint32_t\000"
+ 4425      6E743332 
+ 4425      5F7400
+ 4426              	.LASF41:
+ 4427 0476 775F7078 		.ascii	"w_px\000"
+ 4427      00
+ 4428              	.LASF79:
+ 4429 047b 6C696E65 		.ascii	"line\000"
+ 4429      00
+ 4430              	.LASF104:
+ 4431 0480 785F7374 		.ascii	"x_start\000"
+ 4431      61727400 
+ 4432              	.LASF98:
+ 4433 0488 7374796C 		.ascii	"style\000"
+ 4433      6500
+ 4434              	.LASF97:
+ 4435 048e 656E645F 		.ascii	"end_angle\000"
+ 4435      616E676C 
+ 4435      6500
+ 4436              	.LASF25:
+ 4437 0498 4C565F4F 		.ascii	"LV_OPA_70\000"
+ 4437      50415F37 
+ 4437      3000
+ 4438              	.LASF50:
+ 4439 04a2 6765745F 		.ascii	"get_width\000"
+ 4439      77696474 
+ 4439      6800
+ 4440              	.LASF67:
+ 4441 04ac 73686164 		.ascii	"shadow\000"
+ 4441      6F7700
+ 4442              	.LASF40:
+ 4443 04b3 6C765F61 		.ascii	"lv_area_t\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cccoltb8.s 			page 89
+
+
+ 4443      7265615F 
+ 4443      7400
+ 4444              	.LASF102:
+ 4445 04bd 725F696E 		.ascii	"r_in\000"
+ 4445      00
+ 4446              	.LASF0:
+ 4447 04c2 7369676E 		.ascii	"signed char\000"
+ 4447      65642063 
+ 4447      68617200 
+ 4448              	.LASF6:
+ 4449 04ce 73686F72 		.ascii	"short unsigned int\000"
+ 4449      7420756E 
+ 4449      7369676E 
+ 4449      65642069 
+ 4449      6E7400
+ 4450              	.LASF47:
+ 4451 04e1 676C7970 		.ascii	"glyph_dsc\000"
+ 4451      685F6473 
+ 4451      6300
+ 4452              	.LASF26:
+ 4453 04eb 4C565F4F 		.ascii	"LV_OPA_80\000"
+ 4453      50415F38 
+ 4453      3000
+ 4454              	.LASF44:
+ 4455 04f5 756E6963 		.ascii	"unicode_first\000"
+ 4455      6F64655F 
+ 4455      66697273 
+ 4455      7400
+ 4456              	.LASF56:
+ 4457 0503 6C765F62 		.ascii	"lv_border_part_t\000"
+ 4457      6F726465 
+ 4457      725F7061 
+ 4457      72745F74 
+ 4457      00
+ 4458              	.LASF45:
+ 4459 0514 756E6963 		.ascii	"unicode_last\000"
+ 4459      6F64655F 
+ 4459      6C617374 
+ 4459      00
+ 4460              	.LASF84:
+ 4461 0521 636F6D70 		.ascii	"comp\000"
+ 4461      00
+ 4462              	.LASF106:
+ 4463 0526 6465675F 		.ascii	"deg_test\000"
+ 4463      74657374 
+ 4463      00
+ 4464              	.LASF108:
+ 4465 052f 725F696E 		.ascii	"r_in_sqr\000"
+ 4465      5F737172 
+ 4465      00
+ 4466              	.LASF103:
+ 4467 0538 6465675F 		.ascii	"deg_base\000"
+ 4467      62617365 
+ 4467      00
+ 4468              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

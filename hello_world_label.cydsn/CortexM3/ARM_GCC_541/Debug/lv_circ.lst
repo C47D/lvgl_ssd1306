@@ -1,0 +1,845 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_circ.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_circ_init,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_circ_init
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_circ_init, %function
+  25              	lv_circ_init:
+  26              	.LFB3:
+  27              		.file 1 "..\\lvgl\\lv_misc\\lv_circ.c"
+   1:..\lvgl\lv_misc/lv_circ.c **** /**
+   2:..\lvgl\lv_misc/lv_circ.c ****  * @file lv_circ.c
+   3:..\lvgl\lv_misc/lv_circ.c ****  * Circle drawing algorithm (with Bresenham)
+   4:..\lvgl\lv_misc/lv_circ.c ****  * Only a 1/8 circle is calculated. Use CIRC_OCT1_X, CIRC_OCT1_Y macros to get
+   5:..\lvgl\lv_misc/lv_circ.c ****  * the other octets.
+   6:..\lvgl\lv_misc/lv_circ.c ****  */
+   7:..\lvgl\lv_misc/lv_circ.c **** 
+   8:..\lvgl\lv_misc/lv_circ.c **** /*********************
+   9:..\lvgl\lv_misc/lv_circ.c ****  *      INCLUDES
+  10:..\lvgl\lv_misc/lv_circ.c ****  *********************/
+  11:..\lvgl\lv_misc/lv_circ.c **** #include "lv_circ.h"
+  12:..\lvgl\lv_misc/lv_circ.c **** 
+  13:..\lvgl\lv_misc/lv_circ.c **** /*********************
+  14:..\lvgl\lv_misc/lv_circ.c ****  *      DEFINES
+  15:..\lvgl\lv_misc/lv_circ.c ****  *********************/
+  16:..\lvgl\lv_misc/lv_circ.c **** 
+  17:..\lvgl\lv_misc/lv_circ.c **** /**********************
+  18:..\lvgl\lv_misc/lv_circ.c ****  *      TYPEDEFS
+  19:..\lvgl\lv_misc/lv_circ.c ****  **********************/
+  20:..\lvgl\lv_misc/lv_circ.c **** 
+  21:..\lvgl\lv_misc/lv_circ.c **** /**********************
+  22:..\lvgl\lv_misc/lv_circ.c ****  *  STATIC PROTOTYPES
+  23:..\lvgl\lv_misc/lv_circ.c ****  **********************/
+  24:..\lvgl\lv_misc/lv_circ.c **** 
+  25:..\lvgl\lv_misc/lv_circ.c **** /**********************
+  26:..\lvgl\lv_misc/lv_circ.c ****  *  STATIC VARIABLES
+  27:..\lvgl\lv_misc/lv_circ.c ****  **********************/
+  28:..\lvgl\lv_misc/lv_circ.c **** 
+  29:..\lvgl\lv_misc/lv_circ.c **** /**********************
+  30:..\lvgl\lv_misc/lv_circ.c ****  *      MACROS
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 2
+
+
+  31:..\lvgl\lv_misc/lv_circ.c ****  **********************/
+  32:..\lvgl\lv_misc/lv_circ.c **** 
+  33:..\lvgl\lv_misc/lv_circ.c **** /**********************
+  34:..\lvgl\lv_misc/lv_circ.c ****  *   GLOBAL FUNCTIONS
+  35:..\lvgl\lv_misc/lv_circ.c ****  **********************/
+  36:..\lvgl\lv_misc/lv_circ.c **** 
+  37:..\lvgl\lv_misc/lv_circ.c **** /**
+  38:..\lvgl\lv_misc/lv_circ.c ****  * Initialize the circle drawing
+  39:..\lvgl\lv_misc/lv_circ.c ****  * @param c pointer to a point. The coordinates will be calculated here
+  40:..\lvgl\lv_misc/lv_circ.c ****  * @param tmp point to a variable. It will store temporary data
+  41:..\lvgl\lv_misc/lv_circ.c ****  * @param radius radius of the circle
+  42:..\lvgl\lv_misc/lv_circ.c ****  */
+  43:..\lvgl\lv_misc/lv_circ.c **** void lv_circ_init(lv_point_t * c, lv_coord_t * tmp, lv_coord_t radius)
+  44:..\lvgl\lv_misc/lv_circ.c **** {
+  28              		.loc 1 44 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+  45:..\lvgl\lv_misc/lv_circ.c ****     c->x = radius;
+  34              		.loc 1 45 0
+  35 0000 0280     		strh	r2, [r0]	@ movhi
+  46:..\lvgl\lv_misc/lv_circ.c ****     c->y = 0;
+  36              		.loc 1 46 0
+  37 0002 0023     		movs	r3, #0
+  38 0004 4380     		strh	r3, [r0, #2]	@ movhi
+  47:..\lvgl\lv_misc/lv_circ.c ****     *tmp = 1 - radius;
+  39              		.loc 1 47 0
+  40 0006 C2F10102 		rsb	r2, r2, #1
+  41              	.LVL1:
+  42 000a 0A80     		strh	r2, [r1]	@ movhi
+  43              	.LVL2:
+  44 000c 7047     		bx	lr
+  45              		.cfi_endproc
+  46              	.LFE3:
+  47              		.size	lv_circ_init, .-lv_circ_init
+  48 000e 00BF     		.section	.text.lv_circ_cont,"ax",%progbits
+  49              		.align	2
+  50              		.global	lv_circ_cont
+  51              		.thumb
+  52              		.thumb_func
+  53              		.type	lv_circ_cont, %function
+  54              	lv_circ_cont:
+  55              	.LFB4:
+  48:..\lvgl\lv_misc/lv_circ.c **** }
+  49:..\lvgl\lv_misc/lv_circ.c **** 
+  50:..\lvgl\lv_misc/lv_circ.c **** /**
+  51:..\lvgl\lv_misc/lv_circ.c ****  * Test the circle drawing is ready or not
+  52:..\lvgl\lv_misc/lv_circ.c ****  * @param c same as in circ_init
+  53:..\lvgl\lv_misc/lv_circ.c ****  * @return true if the circle is not ready yet
+  54:..\lvgl\lv_misc/lv_circ.c ****  */
+  55:..\lvgl\lv_misc/lv_circ.c **** bool lv_circ_cont(lv_point_t * c)
+  56:..\lvgl\lv_misc/lv_circ.c **** {
+  56              		.loc 1 56 0
+  57              		.cfi_startproc
+  58              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 3
+
+
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              		@ link register save eliminated.
+  61              	.LVL3:
+  57:..\lvgl\lv_misc/lv_circ.c ****     return c->y <= c->x ? true : false;
+  62              		.loc 1 57 0
+  63 0000 B0F90220 		ldrsh	r2, [r0, #2]
+  64 0004 B0F90000 		ldrsh	r0, [r0]
+  65              	.LVL4:
+  58:..\lvgl\lv_misc/lv_circ.c **** }
+  66              		.loc 1 58 0
+  67 0008 8242     		cmp	r2, r0
+  68 000a CCBF     		ite	gt
+  69 000c 0020     		movgt	r0, #0
+  70 000e 0120     		movle	r0, #1
+  71 0010 7047     		bx	lr
+  72              		.cfi_endproc
+  73              	.LFE4:
+  74              		.size	lv_circ_cont, .-lv_circ_cont
+  75 0012 00BF     		.section	.text.lv_circ_next,"ax",%progbits
+  76              		.align	2
+  77              		.global	lv_circ_next
+  78              		.thumb
+  79              		.thumb_func
+  80              		.type	lv_circ_next, %function
+  81              	lv_circ_next:
+  82              	.LFB5:
+  59:..\lvgl\lv_misc/lv_circ.c **** 
+  60:..\lvgl\lv_misc/lv_circ.c **** /**
+  61:..\lvgl\lv_misc/lv_circ.c ****  * Get the next point from the circle
+  62:..\lvgl\lv_misc/lv_circ.c ****  * @param c same as in circ_init. The next point stored here.
+  63:..\lvgl\lv_misc/lv_circ.c ****  * @param tmp same as in circ_init.
+  64:..\lvgl\lv_misc/lv_circ.c ****  */
+  65:..\lvgl\lv_misc/lv_circ.c **** void lv_circ_next(lv_point_t * c, lv_coord_t * tmp)
+  66:..\lvgl\lv_misc/lv_circ.c **** {
+  83              		.loc 1 66 0
+  84              		.cfi_startproc
+  85              		@ args = 0, pretend = 0, frame = 0
+  86              		@ frame_needed = 0, uses_anonymous_args = 0
+  87              		@ link register save eliminated.
+  88              	.LVL5:
+  89 0000 10B4     		push	{r4}
+  90              		.cfi_def_cfa_offset 4
+  91              		.cfi_offset 4, -4
+  67:..\lvgl\lv_misc/lv_circ.c ****     c->y++;
+  92              		.loc 1 67 0
+  93 0002 B0F90230 		ldrsh	r3, [r0, #2]
+  94 0006 0133     		adds	r3, r3, #1
+  95 0008 9BB2     		uxth	r3, r3
+  96 000a 1AB2     		sxth	r2, r3
+  97 000c 4280     		strh	r2, [r0, #2]	@ movhi
+  68:..\lvgl\lv_misc/lv_circ.c **** 
+  69:..\lvgl\lv_misc/lv_circ.c ****     if(*tmp <= 0) {
+  98              		.loc 1 69 0
+  99 000e B1F90040 		ldrsh	r4, [r1]
+ 100 0012 002C     		cmp	r4, #0
+ 101 0014 04DC     		bgt	.L4
+  70:..\lvgl\lv_misc/lv_circ.c ****         (*tmp) += 2 * c->y + 1;   // Change in decision criterion for y -> y+1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 4
+
+
+ 102              		.loc 1 70 0
+ 103 0016 04EB4303 		add	r3, r4, r3, lsl #1
+ 104 001a 0133     		adds	r3, r3, #1
+ 105 001c 0B80     		strh	r3, [r1]	@ movhi
+ 106 001e 0AE0     		b	.L3
+ 107              	.L4:
+  71:..\lvgl\lv_misc/lv_circ.c ****     } else {
+  72:..\lvgl\lv_misc/lv_circ.c ****         c->x--;
+ 108              		.loc 1 72 0
+ 109 0020 B0F90030 		ldrsh	r3, [r0]
+ 110 0024 013B     		subs	r3, r3, #1
+ 111 0026 1BB2     		sxth	r3, r3
+ 112 0028 0380     		strh	r3, [r0]	@ movhi
+  73:..\lvgl\lv_misc/lv_circ.c ****         (*tmp) += 2 * (c->y - c->x) + 1;   // Change for y -> y+1, x -> x-1
+ 113              		.loc 1 73 0
+ 114 002a D31A     		subs	r3, r2, r3
+ 115 002c 0A88     		ldrh	r2, [r1]
+ 116 002e 02EB4303 		add	r3, r2, r3, lsl #1
+ 117 0032 0133     		adds	r3, r3, #1
+ 118 0034 0B80     		strh	r3, [r1]	@ movhi
+ 119              	.L3:
+  74:..\lvgl\lv_misc/lv_circ.c ****     }
+  75:..\lvgl\lv_misc/lv_circ.c **** }
+ 120              		.loc 1 75 0
+ 121 0036 10BC     		pop	{r4}
+ 122              		.cfi_restore 4
+ 123              		.cfi_def_cfa_offset 0
+ 124 0038 7047     		bx	lr
+ 125              		.cfi_endproc
+ 126              	.LFE5:
+ 127              		.size	lv_circ_next, .-lv_circ_next
+ 128 003a 00BF     		.text
+ 129              	.Letext0:
+ 130              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 131              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 132              		.file 4 "..\\lvgl\\lv_misc\\lv_area.h"
+ 133              		.section	.debug_info,"",%progbits
+ 134              	.Ldebug_info0:
+ 135 0000 67010000 		.4byte	0x167
+ 136 0004 0400     		.2byte	0x4
+ 137 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 138 000a 04       		.byte	0x4
+ 139 000b 01       		.uleb128 0x1
+ 140 000c 3A000000 		.4byte	.LASF18
+ 141 0010 0C       		.byte	0xc
+ 142 0011 F9000000 		.4byte	.LASF19
+ 143 0015 2E010000 		.4byte	.LASF20
+ 144 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 145 001d 00000000 		.4byte	0
+ 146 0021 00000000 		.4byte	.Ldebug_line0
+ 147 0025 02       		.uleb128 0x2
+ 148 0026 04       		.byte	0x4
+ 149 0027 05       		.byte	0x5
+ 150 0028 696E7400 		.ascii	"int\000"
+ 151 002c 03       		.uleb128 0x3
+ 152 002d 04       		.byte	0x4
+ 153 002e 07       		.byte	0x7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 5
+
+
+ 154 002f D2010000 		.4byte	.LASF0
+ 155 0033 03       		.uleb128 0x3
+ 156 0034 08       		.byte	0x8
+ 157 0035 05       		.byte	0x5
+ 158 0036 00000000 		.4byte	.LASF1
+ 159 003a 03       		.uleb128 0x3
+ 160 003b 08       		.byte	0x8
+ 161 003c 04       		.byte	0x4
+ 162 003d BC010000 		.4byte	.LASF2
+ 163 0041 03       		.uleb128 0x3
+ 164 0042 01       		.byte	0x1
+ 165 0043 06       		.byte	0x6
+ 166 0044 B0010000 		.4byte	.LASF3
+ 167 0048 03       		.uleb128 0x3
+ 168 0049 01       		.byte	0x1
+ 169 004a 08       		.byte	0x8
+ 170 004b 20010000 		.4byte	.LASF4
+ 171 004f 04       		.uleb128 0x4
+ 172 0050 21000000 		.4byte	.LASF12
+ 173 0054 02       		.byte	0x2
+ 174 0055 29       		.byte	0x29
+ 175 0056 5A000000 		.4byte	0x5a
+ 176 005a 03       		.uleb128 0x3
+ 177 005b 02       		.byte	0x2
+ 178 005c 05       		.byte	0x5
+ 179 005d C8010000 		.4byte	.LASF5
+ 180 0061 03       		.uleb128 0x3
+ 181 0062 02       		.byte	0x2
+ 182 0063 07       		.byte	0x7
+ 183 0064 0E000000 		.4byte	.LASF6
+ 184 0068 03       		.uleb128 0x3
+ 185 0069 04       		.byte	0x4
+ 186 006a 05       		.byte	0x5
+ 187 006b 79010000 		.4byte	.LASF7
+ 188 006f 03       		.uleb128 0x3
+ 189 0070 04       		.byte	0x4
+ 190 0071 07       		.byte	0x7
+ 191 0072 8D010000 		.4byte	.LASF8
+ 192 0076 03       		.uleb128 0x3
+ 193 0077 08       		.byte	0x8
+ 194 0078 07       		.byte	0x7
+ 195 0079 E2000000 		.4byte	.LASF9
+ 196 007d 03       		.uleb128 0x3
+ 197 007e 04       		.byte	0x4
+ 198 007f 07       		.byte	0x7
+ 199 0080 DF010000 		.4byte	.LASF10
+ 200 0084 03       		.uleb128 0x3
+ 201 0085 01       		.byte	0x1
+ 202 0086 08       		.byte	0x8
+ 203 0087 74010000 		.4byte	.LASF11
+ 204 008b 04       		.uleb128 0x4
+ 205 008c 2B000000 		.4byte	.LASF13
+ 206 0090 03       		.byte	0x3
+ 207 0091 20       		.byte	0x20
+ 208 0092 4F000000 		.4byte	0x4f
+ 209 0096 04       		.uleb128 0x4
+ 210 0097 A5010000 		.4byte	.LASF14
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 6
+
+
+ 211 009b 04       		.byte	0x4
+ 212 009c 1E       		.byte	0x1e
+ 213 009d 8B000000 		.4byte	0x8b
+ 214 00a1 05       		.uleb128 0x5
+ 215 00a2 04       		.byte	0x4
+ 216 00a3 04       		.byte	0x4
+ 217 00a4 20       		.byte	0x20
+ 218 00a5 BE000000 		.4byte	0xbe
+ 219 00a9 06       		.uleb128 0x6
+ 220 00aa 7800     		.ascii	"x\000"
+ 221 00ac 04       		.byte	0x4
+ 222 00ad 22       		.byte	0x22
+ 223 00ae 96000000 		.4byte	0x96
+ 224 00b2 00       		.byte	0
+ 225 00b3 06       		.uleb128 0x6
+ 226 00b4 7900     		.ascii	"y\000"
+ 227 00b6 04       		.byte	0x4
+ 228 00b7 23       		.byte	0x23
+ 229 00b8 96000000 		.4byte	0x96
+ 230 00bc 02       		.byte	0x2
+ 231 00bd 00       		.byte	0
+ 232 00be 04       		.uleb128 0x4
+ 233 00bf 82010000 		.4byte	.LASF15
+ 234 00c3 04       		.byte	0x4
+ 235 00c4 24       		.byte	0x24
+ 236 00c5 A1000000 		.4byte	0xa1
+ 237 00c9 07       		.uleb128 0x7
+ 238 00ca 13010000 		.4byte	.LASF21
+ 239 00ce 01       		.byte	0x1
+ 240 00cf 2B       		.byte	0x2b
+ 241 00d0 00000000 		.4byte	.LFB3
+ 242 00d4 0E000000 		.4byte	.LFE3-.LFB3
+ 243 00d8 01       		.uleb128 0x1
+ 244 00d9 9C       		.byte	0x9c
+ 245 00da 06010000 		.4byte	0x106
+ 246 00de 08       		.uleb128 0x8
+ 247 00df 6300     		.ascii	"c\000"
+ 248 00e1 01       		.byte	0x1
+ 249 00e2 2B       		.byte	0x2b
+ 250 00e3 06010000 		.4byte	0x106
+ 251 00e7 01       		.uleb128 0x1
+ 252 00e8 50       		.byte	0x50
+ 253 00e9 08       		.uleb128 0x8
+ 254 00ea 746D7000 		.ascii	"tmp\000"
+ 255 00ee 01       		.byte	0x1
+ 256 00ef 2B       		.byte	0x2b
+ 257 00f0 0C010000 		.4byte	0x10c
+ 258 00f4 01       		.uleb128 0x1
+ 259 00f5 51       		.byte	0x51
+ 260 00f6 09       		.uleb128 0x9
+ 261 00f7 33000000 		.4byte	.LASF16
+ 262 00fb 01       		.byte	0x1
+ 263 00fc 2B       		.byte	0x2b
+ 264 00fd 96000000 		.4byte	0x96
+ 265 0101 00000000 		.4byte	.LLST0
+ 266 0105 00       		.byte	0
+ 267 0106 0A       		.uleb128 0xa
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 7
+
+
+ 268 0107 04       		.byte	0x4
+ 269 0108 BE000000 		.4byte	0xbe
+ 270 010c 0A       		.uleb128 0xa
+ 271 010d 04       		.byte	0x4
+ 272 010e 96000000 		.4byte	0x96
+ 273 0112 0B       		.uleb128 0xb
+ 274 0113 D5000000 		.4byte	.LASF22
+ 275 0117 01       		.byte	0x1
+ 276 0118 37       		.byte	0x37
+ 277 0119 39010000 		.4byte	0x139
+ 278 011d 00000000 		.4byte	.LFB4
+ 279 0121 12000000 		.4byte	.LFE4-.LFB4
+ 280 0125 01       		.uleb128 0x1
+ 281 0126 9C       		.byte	0x9c
+ 282 0127 39010000 		.4byte	0x139
+ 283 012b 0C       		.uleb128 0xc
+ 284 012c 6300     		.ascii	"c\000"
+ 285 012e 01       		.byte	0x1
+ 286 012f 37       		.byte	0x37
+ 287 0130 06010000 		.4byte	0x106
+ 288 0134 2D000000 		.4byte	.LLST1
+ 289 0138 00       		.byte	0
+ 290 0139 03       		.uleb128 0x3
+ 291 013a 01       		.byte	0x1
+ 292 013b 02       		.byte	0x2
+ 293 013c 9F010000 		.4byte	.LASF17
+ 294 0140 0D       		.uleb128 0xd
+ 295 0141 C8000000 		.4byte	.LASF23
+ 296 0145 01       		.byte	0x1
+ 297 0146 41       		.byte	0x41
+ 298 0147 00000000 		.4byte	.LFB5
+ 299 014b 3A000000 		.4byte	.LFE5-.LFB5
+ 300 014f 01       		.uleb128 0x1
+ 301 0150 9C       		.byte	0x9c
+ 302 0151 08       		.uleb128 0x8
+ 303 0152 6300     		.ascii	"c\000"
+ 304 0154 01       		.byte	0x1
+ 305 0155 41       		.byte	0x41
+ 306 0156 06010000 		.4byte	0x106
+ 307 015a 01       		.uleb128 0x1
+ 308 015b 50       		.byte	0x50
+ 309 015c 08       		.uleb128 0x8
+ 310 015d 746D7000 		.ascii	"tmp\000"
+ 311 0161 01       		.byte	0x1
+ 312 0162 41       		.byte	0x41
+ 313 0163 0C010000 		.4byte	0x10c
+ 314 0167 01       		.uleb128 0x1
+ 315 0168 51       		.byte	0x51
+ 316 0169 00       		.byte	0
+ 317 016a 00       		.byte	0
+ 318              		.section	.debug_abbrev,"",%progbits
+ 319              	.Ldebug_abbrev0:
+ 320 0000 01       		.uleb128 0x1
+ 321 0001 11       		.uleb128 0x11
+ 322 0002 01       		.byte	0x1
+ 323 0003 25       		.uleb128 0x25
+ 324 0004 0E       		.uleb128 0xe
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 8
+
+
+ 325 0005 13       		.uleb128 0x13
+ 326 0006 0B       		.uleb128 0xb
+ 327 0007 03       		.uleb128 0x3
+ 328 0008 0E       		.uleb128 0xe
+ 329 0009 1B       		.uleb128 0x1b
+ 330 000a 0E       		.uleb128 0xe
+ 331 000b 55       		.uleb128 0x55
+ 332 000c 17       		.uleb128 0x17
+ 333 000d 11       		.uleb128 0x11
+ 334 000e 01       		.uleb128 0x1
+ 335 000f 10       		.uleb128 0x10
+ 336 0010 17       		.uleb128 0x17
+ 337 0011 00       		.byte	0
+ 338 0012 00       		.byte	0
+ 339 0013 02       		.uleb128 0x2
+ 340 0014 24       		.uleb128 0x24
+ 341 0015 00       		.byte	0
+ 342 0016 0B       		.uleb128 0xb
+ 343 0017 0B       		.uleb128 0xb
+ 344 0018 3E       		.uleb128 0x3e
+ 345 0019 0B       		.uleb128 0xb
+ 346 001a 03       		.uleb128 0x3
+ 347 001b 08       		.uleb128 0x8
+ 348 001c 00       		.byte	0
+ 349 001d 00       		.byte	0
+ 350 001e 03       		.uleb128 0x3
+ 351 001f 24       		.uleb128 0x24
+ 352 0020 00       		.byte	0
+ 353 0021 0B       		.uleb128 0xb
+ 354 0022 0B       		.uleb128 0xb
+ 355 0023 3E       		.uleb128 0x3e
+ 356 0024 0B       		.uleb128 0xb
+ 357 0025 03       		.uleb128 0x3
+ 358 0026 0E       		.uleb128 0xe
+ 359 0027 00       		.byte	0
+ 360 0028 00       		.byte	0
+ 361 0029 04       		.uleb128 0x4
+ 362 002a 16       		.uleb128 0x16
+ 363 002b 00       		.byte	0
+ 364 002c 03       		.uleb128 0x3
+ 365 002d 0E       		.uleb128 0xe
+ 366 002e 3A       		.uleb128 0x3a
+ 367 002f 0B       		.uleb128 0xb
+ 368 0030 3B       		.uleb128 0x3b
+ 369 0031 0B       		.uleb128 0xb
+ 370 0032 49       		.uleb128 0x49
+ 371 0033 13       		.uleb128 0x13
+ 372 0034 00       		.byte	0
+ 373 0035 00       		.byte	0
+ 374 0036 05       		.uleb128 0x5
+ 375 0037 13       		.uleb128 0x13
+ 376 0038 01       		.byte	0x1
+ 377 0039 0B       		.uleb128 0xb
+ 378 003a 0B       		.uleb128 0xb
+ 379 003b 3A       		.uleb128 0x3a
+ 380 003c 0B       		.uleb128 0xb
+ 381 003d 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 9
+
+
+ 382 003e 0B       		.uleb128 0xb
+ 383 003f 01       		.uleb128 0x1
+ 384 0040 13       		.uleb128 0x13
+ 385 0041 00       		.byte	0
+ 386 0042 00       		.byte	0
+ 387 0043 06       		.uleb128 0x6
+ 388 0044 0D       		.uleb128 0xd
+ 389 0045 00       		.byte	0
+ 390 0046 03       		.uleb128 0x3
+ 391 0047 08       		.uleb128 0x8
+ 392 0048 3A       		.uleb128 0x3a
+ 393 0049 0B       		.uleb128 0xb
+ 394 004a 3B       		.uleb128 0x3b
+ 395 004b 0B       		.uleb128 0xb
+ 396 004c 49       		.uleb128 0x49
+ 397 004d 13       		.uleb128 0x13
+ 398 004e 38       		.uleb128 0x38
+ 399 004f 0B       		.uleb128 0xb
+ 400 0050 00       		.byte	0
+ 401 0051 00       		.byte	0
+ 402 0052 07       		.uleb128 0x7
+ 403 0053 2E       		.uleb128 0x2e
+ 404 0054 01       		.byte	0x1
+ 405 0055 3F       		.uleb128 0x3f
+ 406 0056 19       		.uleb128 0x19
+ 407 0057 03       		.uleb128 0x3
+ 408 0058 0E       		.uleb128 0xe
+ 409 0059 3A       		.uleb128 0x3a
+ 410 005a 0B       		.uleb128 0xb
+ 411 005b 3B       		.uleb128 0x3b
+ 412 005c 0B       		.uleb128 0xb
+ 413 005d 27       		.uleb128 0x27
+ 414 005e 19       		.uleb128 0x19
+ 415 005f 11       		.uleb128 0x11
+ 416 0060 01       		.uleb128 0x1
+ 417 0061 12       		.uleb128 0x12
+ 418 0062 06       		.uleb128 0x6
+ 419 0063 40       		.uleb128 0x40
+ 420 0064 18       		.uleb128 0x18
+ 421 0065 9742     		.uleb128 0x2117
+ 422 0067 19       		.uleb128 0x19
+ 423 0068 01       		.uleb128 0x1
+ 424 0069 13       		.uleb128 0x13
+ 425 006a 00       		.byte	0
+ 426 006b 00       		.byte	0
+ 427 006c 08       		.uleb128 0x8
+ 428 006d 05       		.uleb128 0x5
+ 429 006e 00       		.byte	0
+ 430 006f 03       		.uleb128 0x3
+ 431 0070 08       		.uleb128 0x8
+ 432 0071 3A       		.uleb128 0x3a
+ 433 0072 0B       		.uleb128 0xb
+ 434 0073 3B       		.uleb128 0x3b
+ 435 0074 0B       		.uleb128 0xb
+ 436 0075 49       		.uleb128 0x49
+ 437 0076 13       		.uleb128 0x13
+ 438 0077 02       		.uleb128 0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 10
+
+
+ 439 0078 18       		.uleb128 0x18
+ 440 0079 00       		.byte	0
+ 441 007a 00       		.byte	0
+ 442 007b 09       		.uleb128 0x9
+ 443 007c 05       		.uleb128 0x5
+ 444 007d 00       		.byte	0
+ 445 007e 03       		.uleb128 0x3
+ 446 007f 0E       		.uleb128 0xe
+ 447 0080 3A       		.uleb128 0x3a
+ 448 0081 0B       		.uleb128 0xb
+ 449 0082 3B       		.uleb128 0x3b
+ 450 0083 0B       		.uleb128 0xb
+ 451 0084 49       		.uleb128 0x49
+ 452 0085 13       		.uleb128 0x13
+ 453 0086 02       		.uleb128 0x2
+ 454 0087 17       		.uleb128 0x17
+ 455 0088 00       		.byte	0
+ 456 0089 00       		.byte	0
+ 457 008a 0A       		.uleb128 0xa
+ 458 008b 0F       		.uleb128 0xf
+ 459 008c 00       		.byte	0
+ 460 008d 0B       		.uleb128 0xb
+ 461 008e 0B       		.uleb128 0xb
+ 462 008f 49       		.uleb128 0x49
+ 463 0090 13       		.uleb128 0x13
+ 464 0091 00       		.byte	0
+ 465 0092 00       		.byte	0
+ 466 0093 0B       		.uleb128 0xb
+ 467 0094 2E       		.uleb128 0x2e
+ 468 0095 01       		.byte	0x1
+ 469 0096 3F       		.uleb128 0x3f
+ 470 0097 19       		.uleb128 0x19
+ 471 0098 03       		.uleb128 0x3
+ 472 0099 0E       		.uleb128 0xe
+ 473 009a 3A       		.uleb128 0x3a
+ 474 009b 0B       		.uleb128 0xb
+ 475 009c 3B       		.uleb128 0x3b
+ 476 009d 0B       		.uleb128 0xb
+ 477 009e 27       		.uleb128 0x27
+ 478 009f 19       		.uleb128 0x19
+ 479 00a0 49       		.uleb128 0x49
+ 480 00a1 13       		.uleb128 0x13
+ 481 00a2 11       		.uleb128 0x11
+ 482 00a3 01       		.uleb128 0x1
+ 483 00a4 12       		.uleb128 0x12
+ 484 00a5 06       		.uleb128 0x6
+ 485 00a6 40       		.uleb128 0x40
+ 486 00a7 18       		.uleb128 0x18
+ 487 00a8 9742     		.uleb128 0x2117
+ 488 00aa 19       		.uleb128 0x19
+ 489 00ab 01       		.uleb128 0x1
+ 490 00ac 13       		.uleb128 0x13
+ 491 00ad 00       		.byte	0
+ 492 00ae 00       		.byte	0
+ 493 00af 0C       		.uleb128 0xc
+ 494 00b0 05       		.uleb128 0x5
+ 495 00b1 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 11
+
+
+ 496 00b2 03       		.uleb128 0x3
+ 497 00b3 08       		.uleb128 0x8
+ 498 00b4 3A       		.uleb128 0x3a
+ 499 00b5 0B       		.uleb128 0xb
+ 500 00b6 3B       		.uleb128 0x3b
+ 501 00b7 0B       		.uleb128 0xb
+ 502 00b8 49       		.uleb128 0x49
+ 503 00b9 13       		.uleb128 0x13
+ 504 00ba 02       		.uleb128 0x2
+ 505 00bb 17       		.uleb128 0x17
+ 506 00bc 00       		.byte	0
+ 507 00bd 00       		.byte	0
+ 508 00be 0D       		.uleb128 0xd
+ 509 00bf 2E       		.uleb128 0x2e
+ 510 00c0 01       		.byte	0x1
+ 511 00c1 3F       		.uleb128 0x3f
+ 512 00c2 19       		.uleb128 0x19
+ 513 00c3 03       		.uleb128 0x3
+ 514 00c4 0E       		.uleb128 0xe
+ 515 00c5 3A       		.uleb128 0x3a
+ 516 00c6 0B       		.uleb128 0xb
+ 517 00c7 3B       		.uleb128 0x3b
+ 518 00c8 0B       		.uleb128 0xb
+ 519 00c9 27       		.uleb128 0x27
+ 520 00ca 19       		.uleb128 0x19
+ 521 00cb 11       		.uleb128 0x11
+ 522 00cc 01       		.uleb128 0x1
+ 523 00cd 12       		.uleb128 0x12
+ 524 00ce 06       		.uleb128 0x6
+ 525 00cf 40       		.uleb128 0x40
+ 526 00d0 18       		.uleb128 0x18
+ 527 00d1 9742     		.uleb128 0x2117
+ 528 00d3 19       		.uleb128 0x19
+ 529 00d4 00       		.byte	0
+ 530 00d5 00       		.byte	0
+ 531 00d6 00       		.byte	0
+ 532              		.section	.debug_loc,"",%progbits
+ 533              	.Ldebug_loc0:
+ 534              	.LLST0:
+ 535 0000 00000000 		.4byte	.LVL0
+ 536 0004 0A000000 		.4byte	.LVL1
+ 537 0008 0100     		.2byte	0x1
+ 538 000a 52       		.byte	0x52
+ 539 000b 0A000000 		.4byte	.LVL1
+ 540 000f 0C000000 		.4byte	.LVL2
+ 541 0013 0200     		.2byte	0x2
+ 542 0015 70       		.byte	0x70
+ 543 0016 00       		.sleb128 0
+ 544 0017 0C000000 		.4byte	.LVL2
+ 545 001b 0E000000 		.4byte	.LFE3
+ 546 001f 0400     		.2byte	0x4
+ 547 0021 F3       		.byte	0xf3
+ 548 0022 01       		.uleb128 0x1
+ 549 0023 52       		.byte	0x52
+ 550 0024 9F       		.byte	0x9f
+ 551 0025 00000000 		.4byte	0
+ 552 0029 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 12
+
+
+ 553              	.LLST1:
+ 554 002d 00000000 		.4byte	.LVL3
+ 555 0031 08000000 		.4byte	.LVL4
+ 556 0035 0100     		.2byte	0x1
+ 557 0037 50       		.byte	0x50
+ 558 0038 08000000 		.4byte	.LVL4
+ 559 003c 12000000 		.4byte	.LFE4
+ 560 0040 0400     		.2byte	0x4
+ 561 0042 F3       		.byte	0xf3
+ 562 0043 01       		.uleb128 0x1
+ 563 0044 50       		.byte	0x50
+ 564 0045 9F       		.byte	0x9f
+ 565 0046 00000000 		.4byte	0
+ 566 004a 00000000 		.4byte	0
+ 567              		.section	.debug_aranges,"",%progbits
+ 568 0000 2C000000 		.4byte	0x2c
+ 569 0004 0200     		.2byte	0x2
+ 570 0006 00000000 		.4byte	.Ldebug_info0
+ 571 000a 04       		.byte	0x4
+ 572 000b 00       		.byte	0
+ 573 000c 0000     		.2byte	0
+ 574 000e 0000     		.2byte	0
+ 575 0010 00000000 		.4byte	.LFB3
+ 576 0014 0E000000 		.4byte	.LFE3-.LFB3
+ 577 0018 00000000 		.4byte	.LFB4
+ 578 001c 12000000 		.4byte	.LFE4-.LFB4
+ 579 0020 00000000 		.4byte	.LFB5
+ 580 0024 3A000000 		.4byte	.LFE5-.LFB5
+ 581 0028 00000000 		.4byte	0
+ 582 002c 00000000 		.4byte	0
+ 583              		.section	.debug_ranges,"",%progbits
+ 584              	.Ldebug_ranges0:
+ 585 0000 00000000 		.4byte	.LFB3
+ 586 0004 0E000000 		.4byte	.LFE3
+ 587 0008 00000000 		.4byte	.LFB4
+ 588 000c 12000000 		.4byte	.LFE4
+ 589 0010 00000000 		.4byte	.LFB5
+ 590 0014 3A000000 		.4byte	.LFE5
+ 591 0018 00000000 		.4byte	0
+ 592 001c 00000000 		.4byte	0
+ 593              		.section	.debug_line,"",%progbits
+ 594              	.Ldebug_line0:
+ 595 0000 79010000 		.section	.debug_str,"MS",%progbits,1
+ 595      02003A01 
+ 595      00000201 
+ 595      FB0E0D00 
+ 595      01010101 
+ 596              	.LASF1:
+ 597 0000 6C6F6E67 		.ascii	"long long int\000"
+ 597      206C6F6E 
+ 597      6720696E 
+ 597      7400
+ 598              	.LASF6:
+ 599 000e 73686F72 		.ascii	"short unsigned int\000"
+ 599      7420756E 
+ 599      7369676E 
+ 599      65642069 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 13
+
+
+ 599      6E7400
+ 600              	.LASF12:
+ 601 0021 5F5F696E 		.ascii	"__int16_t\000"
+ 601      7431365F 
+ 601      7400
+ 602              	.LASF13:
+ 603 002b 696E7431 		.ascii	"int16_t\000"
+ 603      365F7400 
+ 604              	.LASF16:
+ 605 0033 72616469 		.ascii	"radius\000"
+ 605      757300
+ 606              	.LASF18:
+ 607 003a 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 607      43313120 
+ 607      352E342E 
+ 607      31203230 
+ 607      31363036 
+ 608 006d 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 608      20726576 
+ 608      6973696F 
+ 608      6E203233 
+ 608      37373135 
+ 609 00a0 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 609      66756E63 
+ 609      74696F6E 
+ 609      2D736563 
+ 609      74696F6E 
+ 610              	.LASF23:
+ 611 00c8 6C765F63 		.ascii	"lv_circ_next\000"
+ 611      6972635F 
+ 611      6E657874 
+ 611      00
+ 612              	.LASF22:
+ 613 00d5 6C765F63 		.ascii	"lv_circ_cont\000"
+ 613      6972635F 
+ 613      636F6E74 
+ 613      00
+ 614              	.LASF9:
+ 615 00e2 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 615      206C6F6E 
+ 615      6720756E 
+ 615      7369676E 
+ 615      65642069 
+ 616              	.LASF19:
+ 617 00f9 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_circ.c\000"
+ 617      76676C5C 
+ 617      6C765F6D 
+ 617      6973635C 
+ 617      6C765F63 
+ 618              	.LASF21:
+ 619 0113 6C765F63 		.ascii	"lv_circ_init\000"
+ 619      6972635F 
+ 619      696E6974 
+ 619      00
+ 620              	.LASF4:
+ 621 0120 756E7369 		.ascii	"unsigned char\000"
+ 621      676E6564 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 14
+
+
+ 621      20636861 
+ 621      7200
+ 622              	.LASF20:
+ 623 012e 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 623      73657273 
+ 623      5C643362 
+ 623      75675C44 
+ 623      6F63756D 
+ 624 015c 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 624      6F5F776F 
+ 624      726C645F 
+ 624      6C616265 
+ 624      6C2E6379 
+ 625              	.LASF11:
+ 626 0174 63686172 		.ascii	"char\000"
+ 626      00
+ 627              	.LASF7:
+ 628 0179 6C6F6E67 		.ascii	"long int\000"
+ 628      20696E74 
+ 628      00
+ 629              	.LASF15:
+ 630 0182 6C765F70 		.ascii	"lv_point_t\000"
+ 630      6F696E74 
+ 630      5F7400
+ 631              	.LASF8:
+ 632 018d 6C6F6E67 		.ascii	"long unsigned int\000"
+ 632      20756E73 
+ 632      69676E65 
+ 632      6420696E 
+ 632      7400
+ 633              	.LASF17:
+ 634 019f 5F426F6F 		.ascii	"_Bool\000"
+ 634      6C00
+ 635              	.LASF14:
+ 636 01a5 6C765F63 		.ascii	"lv_coord_t\000"
+ 636      6F6F7264 
+ 636      5F7400
+ 637              	.LASF3:
+ 638 01b0 7369676E 		.ascii	"signed char\000"
+ 638      65642063 
+ 638      68617200 
+ 639              	.LASF2:
+ 640 01bc 6C6F6E67 		.ascii	"long double\000"
+ 640      20646F75 
+ 640      626C6500 
+ 641              	.LASF5:
+ 642 01c8 73686F72 		.ascii	"short int\000"
+ 642      7420696E 
+ 642      7400
+ 643              	.LASF0:
+ 644 01d2 756E7369 		.ascii	"unsigned int\000"
+ 644      676E6564 
+ 644      20696E74 
+ 644      00
+ 645              	.LASF10:
+ 646 01df 73697A65 		.ascii	"sizetype\000"
+ 646      74797065 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccyFL1o4.s 			page 15
+
+
+ 646      00
+ 647              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

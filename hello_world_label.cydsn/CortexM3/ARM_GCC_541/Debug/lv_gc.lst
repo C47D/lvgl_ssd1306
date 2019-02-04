@@ -1,0 +1,576 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_gc.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.comm	_lv_disp_list,4,4
+  20              		.comm	_lv_indev_list,4,4
+  21              		.comm	_lv_task_act,4,4
+  22              		.comm	_lv_sys_layer,4,4
+  23              		.comm	_lv_top_layer,4,4
+  24              		.comm	_lv_act_scr,4,4
+  25              		.comm	_lv_def_scr,4,4
+  26              		.comm	_lv_anim_ll,12,4
+  27              		.comm	_lv_file_ll,12,4
+  28              		.comm	_lv_drv_ll,12,4
+  29              		.comm	_lv_scr_ll,12,4
+  30              		.comm	_lv_task_ll,12,4
+  31              	.Letext0:
+  32              		.file 1 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+  33              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+  34              		.file 3 "..\\lvgl\\lv_misc\\lv_ll.h"
+  35              		.file 4 "..\\lvgl\\lv_misc\\lv_gc.c"
+  36              		.section	.debug_info,"",%progbits
+  37              	.Ldebug_info0:
+  38 0000 AA010000 		.4byte	0x1aa
+  39 0004 0400     		.2byte	0x4
+  40 0006 00000000 		.4byte	.Ldebug_abbrev0
+  41 000a 04       		.byte	0x4
+  42 000b 01       		.uleb128 0x1
+  43 000c 5B000000 		.4byte	.LASF31
+  44 0010 0C       		.byte	0xc
+  45 0011 48020000 		.4byte	.LASF32
+  46 0015 0E010000 		.4byte	.LASF33
+  47 0019 00000000 		.4byte	.Ldebug_line0
+  48 001d 02       		.uleb128 0x2
+  49 001e 01       		.byte	0x1
+  50 001f 06       		.byte	0x6
+  51 0020 3C020000 		.4byte	.LASF0
+  52 0024 03       		.uleb128 0x3
+  53 0025 0C000000 		.4byte	.LASF5
+  54 0029 01       		.byte	0x1
+  55 002a 1D       		.byte	0x1d
+  56 002b 2F000000 		.4byte	0x2f
+  57 002f 02       		.uleb128 0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 2
+
+
+  58 0030 01       		.byte	0x1
+  59 0031 08       		.byte	0x8
+  60 0032 4D000000 		.4byte	.LASF1
+  61 0036 02       		.uleb128 0x2
+  62 0037 02       		.byte	0x2
+  63 0038 05       		.byte	0x5
+  64 0039 0F020000 		.4byte	.LASF2
+  65 003d 02       		.uleb128 0x2
+  66 003e 02       		.byte	0x2
+  67 003f 07       		.byte	0x7
+  68 0040 FB000000 		.4byte	.LASF3
+  69 0044 02       		.uleb128 0x2
+  70 0045 04       		.byte	0x4
+  71 0046 05       		.byte	0x5
+  72 0047 27020000 		.4byte	.LASF4
+  73 004b 03       		.uleb128 0x3
+  74 004c 88010000 		.4byte	.LASF6
+  75 0050 01       		.byte	0x1
+  76 0051 41       		.byte	0x41
+  77 0052 56000000 		.4byte	0x56
+  78 0056 02       		.uleb128 0x2
+  79 0057 04       		.byte	0x4
+  80 0058 07       		.byte	0x7
+  81 0059 E9000000 		.4byte	.LASF7
+  82 005d 02       		.uleb128 0x2
+  83 005e 08       		.byte	0x8
+  84 005f 05       		.byte	0x5
+  85 0060 F6010000 		.4byte	.LASF8
+  86 0064 02       		.uleb128 0x2
+  87 0065 08       		.byte	0x8
+  88 0066 07       		.byte	0x7
+  89 0067 BF010000 		.4byte	.LASF9
+  90 006b 04       		.uleb128 0x4
+  91 006c 04       		.byte	0x4
+  92 006d 05       		.byte	0x5
+  93 006e 696E7400 		.ascii	"int\000"
+  94 0072 02       		.uleb128 0x2
+  95 0073 04       		.byte	0x4
+  96 0074 07       		.byte	0x7
+  97 0075 98010000 		.4byte	.LASF10
+  98 0079 03       		.uleb128 0x3
+  99 007a D6010000 		.4byte	.LASF11
+ 100 007e 02       		.byte	0x2
+ 101 007f 18       		.byte	0x18
+ 102 0080 24000000 		.4byte	0x24
+ 103 0084 03       		.uleb128 0x3
+ 104 0085 1E020000 		.4byte	.LASF12
+ 105 0089 02       		.byte	0x2
+ 106 008a 30       		.byte	0x30
+ 107 008b 4B000000 		.4byte	0x4b
+ 108 008f 02       		.uleb128 0x2
+ 109 0090 08       		.byte	0x8
+ 110 0091 04       		.byte	0x4
+ 111 0092 30020000 		.4byte	.LASF13
+ 112 0096 03       		.uleb128 0x3
+ 113 0097 54010000 		.4byte	.LASF14
+ 114 009b 03       		.byte	0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 3
+
+
+ 115 009c 1E       		.byte	0x1e
+ 116 009d 79000000 		.4byte	0x79
+ 117 00a1 05       		.uleb128 0x5
+ 118 00a2 0C       		.byte	0xc
+ 119 00a3 03       		.byte	0x3
+ 120 00a4 21       		.byte	0x21
+ 121 00a5 CE000000 		.4byte	0xce
+ 122 00a9 06       		.uleb128 0x6
+ 123 00aa 16000000 		.4byte	.LASF15
+ 124 00ae 03       		.byte	0x3
+ 125 00af 23       		.byte	0x23
+ 126 00b0 84000000 		.4byte	0x84
+ 127 00b4 00       		.byte	0
+ 128 00b5 06       		.uleb128 0x6
+ 129 00b6 93010000 		.4byte	.LASF16
+ 130 00ba 03       		.byte	0x3
+ 131 00bb 24       		.byte	0x24
+ 132 00bc CE000000 		.4byte	0xce
+ 133 00c0 04       		.byte	0x4
+ 134 00c1 06       		.uleb128 0x6
+ 135 00c2 19020000 		.4byte	.LASF17
+ 136 00c6 03       		.byte	0x3
+ 137 00c7 25       		.byte	0x25
+ 138 00c8 CE000000 		.4byte	0xce
+ 139 00cc 08       		.byte	0x8
+ 140 00cd 00       		.byte	0
+ 141 00ce 07       		.uleb128 0x7
+ 142 00cf 04       		.byte	0x4
+ 143 00d0 96000000 		.4byte	0x96
+ 144 00d4 03       		.uleb128 0x3
+ 145 00d5 37000000 		.4byte	.LASF18
+ 146 00d9 03       		.byte	0x3
+ 147 00da 26       		.byte	0x26
+ 148 00db A1000000 		.4byte	0xa1
+ 149 00df 08       		.uleb128 0x8
+ 150 00e0 2B000000 		.4byte	.LASF19
+ 151 00e4 04       		.byte	0x4
+ 152 00e5 1C       		.byte	0x1c
+ 153 00e6 D4000000 		.4byte	0xd4
+ 154 00ea 05       		.uleb128 0x5
+ 155 00eb 03       		.byte	0x3
+ 156 00ec 00000000 		.4byte	_lv_task_ll
+ 157 00f0 08       		.uleb128 0x8
+ 158 00f1 DE010000 		.4byte	.LASF20
+ 159 00f5 04       		.byte	0x4
+ 160 00f6 1C       		.byte	0x1c
+ 161 00f7 D4000000 		.4byte	0xd4
+ 162 00fb 05       		.uleb128 0x5
+ 163 00fc 03       		.byte	0x3
+ 164 00fd 00000000 		.4byte	_lv_scr_ll
+ 165 0101 08       		.uleb128 0x8
+ 166 0102 04020000 		.4byte	.LASF21
+ 167 0106 04       		.byte	0x4
+ 168 0107 1C       		.byte	0x1c
+ 169 0108 D4000000 		.4byte	0xd4
+ 170 010c 05       		.uleb128 0x5
+ 171 010d 03       		.byte	0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 4
+
+
+ 172 010e 00000000 		.4byte	_lv_drv_ll
+ 173 0112 08       		.uleb128 0x8
+ 174 0113 61010000 		.4byte	.LASF22
+ 175 0117 04       		.byte	0x4
+ 176 0118 1C       		.byte	0x1c
+ 177 0119 D4000000 		.4byte	0xd4
+ 178 011d 05       		.uleb128 0x5
+ 179 011e 03       		.byte	0x3
+ 180 011f 00000000 		.4byte	_lv_file_ll
+ 181 0123 08       		.uleb128 0x8
+ 182 0124 B3010000 		.4byte	.LASF23
+ 183 0128 04       		.byte	0x4
+ 184 0129 1C       		.byte	0x1c
+ 185 012a D4000000 		.4byte	0xd4
+ 186 012e 05       		.uleb128 0x5
+ 187 012f 03       		.byte	0x3
+ 188 0130 00000000 		.4byte	_lv_anim_ll
+ 189 0134 08       		.uleb128 0x8
+ 190 0135 6D010000 		.4byte	.LASF24
+ 191 0139 04       		.byte	0x4
+ 192 013a 1C       		.byte	0x1c
+ 193 013b 45010000 		.4byte	0x145
+ 194 013f 05       		.uleb128 0x5
+ 195 0140 03       		.byte	0x3
+ 196 0141 00000000 		.4byte	_lv_def_scr
+ 197 0145 09       		.uleb128 0x9
+ 198 0146 04       		.byte	0x4
+ 199 0147 08       		.uleb128 0x8
+ 200 0148 00000000 		.4byte	.LASF25
+ 201 014c 04       		.byte	0x4
+ 202 014d 1C       		.byte	0x1c
+ 203 014e 45010000 		.4byte	0x145
+ 204 0152 05       		.uleb128 0x5
+ 205 0153 03       		.byte	0x3
+ 206 0154 00000000 		.4byte	_lv_act_scr
+ 207 0158 08       		.uleb128 0x8
+ 208 0159 3F000000 		.4byte	.LASF26
+ 209 015d 04       		.byte	0x4
+ 210 015e 1C       		.byte	0x1c
+ 211 015f 45010000 		.4byte	0x145
+ 212 0163 05       		.uleb128 0x5
+ 213 0164 03       		.byte	0x3
+ 214 0165 00000000 		.4byte	_lv_top_layer
+ 215 0169 08       		.uleb128 0x8
+ 216 016a 1D000000 		.4byte	.LASF27
+ 217 016e 04       		.byte	0x4
+ 218 016f 1C       		.byte	0x1c
+ 219 0170 45010000 		.4byte	0x145
+ 220 0174 05       		.uleb128 0x5
+ 221 0175 03       		.byte	0x3
+ 222 0176 00000000 		.4byte	_lv_sys_layer
+ 223 017a 08       		.uleb128 0x8
+ 224 017b E9010000 		.4byte	.LASF28
+ 225 017f 04       		.byte	0x4
+ 226 0180 1C       		.byte	0x1c
+ 227 0181 45010000 		.4byte	0x145
+ 228 0185 05       		.uleb128 0x5
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 5
+
+
+ 229 0186 03       		.byte	0x3
+ 230 0187 00000000 		.4byte	_lv_task_act
+ 231 018b 08       		.uleb128 0x8
+ 232 018c 79010000 		.4byte	.LASF29
+ 233 0190 04       		.byte	0x4
+ 234 0191 1C       		.byte	0x1c
+ 235 0192 45010000 		.4byte	0x145
+ 236 0196 05       		.uleb128 0x5
+ 237 0197 03       		.byte	0x3
+ 238 0198 00000000 		.4byte	_lv_indev_list
+ 239 019c 08       		.uleb128 0x8
+ 240 019d A5010000 		.4byte	.LASF30
+ 241 01a1 04       		.byte	0x4
+ 242 01a2 1C       		.byte	0x1c
+ 243 01a3 45010000 		.4byte	0x145
+ 244 01a7 05       		.uleb128 0x5
+ 245 01a8 03       		.byte	0x3
+ 246 01a9 00000000 		.4byte	_lv_disp_list
+ 247 01ad 00       		.byte	0
+ 248              		.section	.debug_abbrev,"",%progbits
+ 249              	.Ldebug_abbrev0:
+ 250 0000 01       		.uleb128 0x1
+ 251 0001 11       		.uleb128 0x11
+ 252 0002 01       		.byte	0x1
+ 253 0003 25       		.uleb128 0x25
+ 254 0004 0E       		.uleb128 0xe
+ 255 0005 13       		.uleb128 0x13
+ 256 0006 0B       		.uleb128 0xb
+ 257 0007 03       		.uleb128 0x3
+ 258 0008 0E       		.uleb128 0xe
+ 259 0009 1B       		.uleb128 0x1b
+ 260 000a 0E       		.uleb128 0xe
+ 261 000b 10       		.uleb128 0x10
+ 262 000c 17       		.uleb128 0x17
+ 263 000d 00       		.byte	0
+ 264 000e 00       		.byte	0
+ 265 000f 02       		.uleb128 0x2
+ 266 0010 24       		.uleb128 0x24
+ 267 0011 00       		.byte	0
+ 268 0012 0B       		.uleb128 0xb
+ 269 0013 0B       		.uleb128 0xb
+ 270 0014 3E       		.uleb128 0x3e
+ 271 0015 0B       		.uleb128 0xb
+ 272 0016 03       		.uleb128 0x3
+ 273 0017 0E       		.uleb128 0xe
+ 274 0018 00       		.byte	0
+ 275 0019 00       		.byte	0
+ 276 001a 03       		.uleb128 0x3
+ 277 001b 16       		.uleb128 0x16
+ 278 001c 00       		.byte	0
+ 279 001d 03       		.uleb128 0x3
+ 280 001e 0E       		.uleb128 0xe
+ 281 001f 3A       		.uleb128 0x3a
+ 282 0020 0B       		.uleb128 0xb
+ 283 0021 3B       		.uleb128 0x3b
+ 284 0022 0B       		.uleb128 0xb
+ 285 0023 49       		.uleb128 0x49
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 6
+
+
+ 286 0024 13       		.uleb128 0x13
+ 287 0025 00       		.byte	0
+ 288 0026 00       		.byte	0
+ 289 0027 04       		.uleb128 0x4
+ 290 0028 24       		.uleb128 0x24
+ 291 0029 00       		.byte	0
+ 292 002a 0B       		.uleb128 0xb
+ 293 002b 0B       		.uleb128 0xb
+ 294 002c 3E       		.uleb128 0x3e
+ 295 002d 0B       		.uleb128 0xb
+ 296 002e 03       		.uleb128 0x3
+ 297 002f 08       		.uleb128 0x8
+ 298 0030 00       		.byte	0
+ 299 0031 00       		.byte	0
+ 300 0032 05       		.uleb128 0x5
+ 301 0033 13       		.uleb128 0x13
+ 302 0034 01       		.byte	0x1
+ 303 0035 0B       		.uleb128 0xb
+ 304 0036 0B       		.uleb128 0xb
+ 305 0037 3A       		.uleb128 0x3a
+ 306 0038 0B       		.uleb128 0xb
+ 307 0039 3B       		.uleb128 0x3b
+ 308 003a 0B       		.uleb128 0xb
+ 309 003b 01       		.uleb128 0x1
+ 310 003c 13       		.uleb128 0x13
+ 311 003d 00       		.byte	0
+ 312 003e 00       		.byte	0
+ 313 003f 06       		.uleb128 0x6
+ 314 0040 0D       		.uleb128 0xd
+ 315 0041 00       		.byte	0
+ 316 0042 03       		.uleb128 0x3
+ 317 0043 0E       		.uleb128 0xe
+ 318 0044 3A       		.uleb128 0x3a
+ 319 0045 0B       		.uleb128 0xb
+ 320 0046 3B       		.uleb128 0x3b
+ 321 0047 0B       		.uleb128 0xb
+ 322 0048 49       		.uleb128 0x49
+ 323 0049 13       		.uleb128 0x13
+ 324 004a 38       		.uleb128 0x38
+ 325 004b 0B       		.uleb128 0xb
+ 326 004c 00       		.byte	0
+ 327 004d 00       		.byte	0
+ 328 004e 07       		.uleb128 0x7
+ 329 004f 0F       		.uleb128 0xf
+ 330 0050 00       		.byte	0
+ 331 0051 0B       		.uleb128 0xb
+ 332 0052 0B       		.uleb128 0xb
+ 333 0053 49       		.uleb128 0x49
+ 334 0054 13       		.uleb128 0x13
+ 335 0055 00       		.byte	0
+ 336 0056 00       		.byte	0
+ 337 0057 08       		.uleb128 0x8
+ 338 0058 34       		.uleb128 0x34
+ 339 0059 00       		.byte	0
+ 340 005a 03       		.uleb128 0x3
+ 341 005b 0E       		.uleb128 0xe
+ 342 005c 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 7
+
+
+ 343 005d 0B       		.uleb128 0xb
+ 344 005e 3B       		.uleb128 0x3b
+ 345 005f 0B       		.uleb128 0xb
+ 346 0060 49       		.uleb128 0x49
+ 347 0061 13       		.uleb128 0x13
+ 348 0062 3F       		.uleb128 0x3f
+ 349 0063 19       		.uleb128 0x19
+ 350 0064 02       		.uleb128 0x2
+ 351 0065 18       		.uleb128 0x18
+ 352 0066 00       		.byte	0
+ 353 0067 00       		.byte	0
+ 354 0068 09       		.uleb128 0x9
+ 355 0069 0F       		.uleb128 0xf
+ 356 006a 00       		.byte	0
+ 357 006b 0B       		.uleb128 0xb
+ 358 006c 0B       		.uleb128 0xb
+ 359 006d 00       		.byte	0
+ 360 006e 00       		.byte	0
+ 361 006f 00       		.byte	0
+ 362              		.section	.debug_aranges,"",%progbits
+ 363 0000 14000000 		.4byte	0x14
+ 364 0004 0200     		.2byte	0x2
+ 365 0006 00000000 		.4byte	.Ldebug_info0
+ 366 000a 04       		.byte	0x4
+ 367 000b 00       		.byte	0
+ 368 000c 0000     		.2byte	0
+ 369 000e 0000     		.2byte	0
+ 370 0010 00000000 		.4byte	0
+ 371 0014 00000000 		.4byte	0
+ 372              		.section	.debug_line,"",%progbits
+ 373              	.Ldebug_line0:
+ 374 0000 3C010000 		.section	.debug_str,"MS",%progbits,1
+ 374      02003601 
+ 374      00000201 
+ 374      FB0E0D00 
+ 374      01010101 
+ 375              	.LASF25:
+ 376 0000 5F6C765F 		.ascii	"_lv_act_scr\000"
+ 376      6163745F 
+ 376      73637200 
+ 377              	.LASF5:
+ 378 000c 5F5F7569 		.ascii	"__uint8_t\000"
+ 378      6E74385F 
+ 378      7400
+ 379              	.LASF15:
+ 380 0016 6E5F7369 		.ascii	"n_size\000"
+ 380      7A6500
+ 381              	.LASF27:
+ 382 001d 5F6C765F 		.ascii	"_lv_sys_layer\000"
+ 382      7379735F 
+ 382      6C617965 
+ 382      7200
+ 383              	.LASF19:
+ 384 002b 5F6C765F 		.ascii	"_lv_task_ll\000"
+ 384      7461736B 
+ 384      5F6C6C00 
+ 385              	.LASF18:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 8
+
+
+ 386 0037 6C765F6C 		.ascii	"lv_ll_t\000"
+ 386      6C5F7400 
+ 387              	.LASF26:
+ 388 003f 5F6C765F 		.ascii	"_lv_top_layer\000"
+ 388      746F705F 
+ 388      6C617965 
+ 388      7200
+ 389              	.LASF1:
+ 390 004d 756E7369 		.ascii	"unsigned char\000"
+ 390      676E6564 
+ 390      20636861 
+ 390      7200
+ 391              	.LASF31:
+ 392 005b 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 392      43313120 
+ 392      352E342E 
+ 392      31203230 
+ 392      31363036 
+ 393 008e 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 393      20726576 
+ 393      6973696F 
+ 393      6E203233 
+ 393      37373135 
+ 394 00c1 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 394      66756E63 
+ 394      74696F6E 
+ 394      2D736563 
+ 394      74696F6E 
+ 395              	.LASF7:
+ 396 00e9 6C6F6E67 		.ascii	"long unsigned int\000"
+ 396      20756E73 
+ 396      69676E65 
+ 396      6420696E 
+ 396      7400
+ 397              	.LASF3:
+ 398 00fb 73686F72 		.ascii	"short unsigned int\000"
+ 398      7420756E 
+ 398      7369676E 
+ 398      65642069 
+ 398      6E7400
+ 399              	.LASF33:
+ 400 010e 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 400      73657273 
+ 400      5C643362 
+ 400      75675C44 
+ 400      6F63756D 
+ 401 013c 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 401      6F5F776F 
+ 401      726C645F 
+ 401      6C616265 
+ 401      6C2E6379 
+ 402              	.LASF14:
+ 403 0154 6C765F6C 		.ascii	"lv_ll_node_t\000"
+ 403      6C5F6E6F 
+ 403      64655F74 
+ 403      00
+ 404              	.LASF22:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 9
+
+
+ 405 0161 5F6C765F 		.ascii	"_lv_file_ll\000"
+ 405      66696C65 
+ 405      5F6C6C00 
+ 406              	.LASF24:
+ 407 016d 5F6C765F 		.ascii	"_lv_def_scr\000"
+ 407      6465665F 
+ 407      73637200 
+ 408              	.LASF29:
+ 409 0179 5F6C765F 		.ascii	"_lv_indev_list\000"
+ 409      696E6465 
+ 409      765F6C69 
+ 409      737400
+ 410              	.LASF6:
+ 411 0188 5F5F7569 		.ascii	"__uint32_t\000"
+ 411      6E743332 
+ 411      5F7400
+ 412              	.LASF16:
+ 413 0193 68656164 		.ascii	"head\000"
+ 413      00
+ 414              	.LASF10:
+ 415 0198 756E7369 		.ascii	"unsigned int\000"
+ 415      676E6564 
+ 415      20696E74 
+ 415      00
+ 416              	.LASF30:
+ 417 01a5 5F6C765F 		.ascii	"_lv_disp_list\000"
+ 417      64697370 
+ 417      5F6C6973 
+ 417      7400
+ 418              	.LASF23:
+ 419 01b3 5F6C765F 		.ascii	"_lv_anim_ll\000"
+ 419      616E696D 
+ 419      5F6C6C00 
+ 420              	.LASF9:
+ 421 01bf 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 421      206C6F6E 
+ 421      6720756E 
+ 421      7369676E 
+ 421      65642069 
+ 422              	.LASF11:
+ 423 01d6 75696E74 		.ascii	"uint8_t\000"
+ 423      385F7400 
+ 424              	.LASF20:
+ 425 01de 5F6C765F 		.ascii	"_lv_scr_ll\000"
+ 425      7363725F 
+ 425      6C6C00
+ 426              	.LASF28:
+ 427 01e9 5F6C765F 		.ascii	"_lv_task_act\000"
+ 427      7461736B 
+ 427      5F616374 
+ 427      00
+ 428              	.LASF8:
+ 429 01f6 6C6F6E67 		.ascii	"long long int\000"
+ 429      206C6F6E 
+ 429      6720696E 
+ 429      7400
+ 430              	.LASF21:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccTiok7A.s 			page 10
+
+
+ 431 0204 5F6C765F 		.ascii	"_lv_drv_ll\000"
+ 431      6472765F 
+ 431      6C6C00
+ 432              	.LASF2:
+ 433 020f 73686F72 		.ascii	"short int\000"
+ 433      7420696E 
+ 433      7400
+ 434              	.LASF17:
+ 435 0219 7461696C 		.ascii	"tail\000"
+ 435      00
+ 436              	.LASF12:
+ 437 021e 75696E74 		.ascii	"uint32_t\000"
+ 437      33325F74 
+ 437      00
+ 438              	.LASF4:
+ 439 0227 6C6F6E67 		.ascii	"long int\000"
+ 439      20696E74 
+ 439      00
+ 440              	.LASF13:
+ 441 0230 6C6F6E67 		.ascii	"long double\000"
+ 441      20646F75 
+ 441      626C6500 
+ 442              	.LASF0:
+ 443 023c 7369676E 		.ascii	"signed char\000"
+ 443      65642063 
+ 443      68617200 
+ 444              	.LASF32:
+ 445 0248 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_gc.c\000"
+ 445      76676C5C 
+ 445      6C765F6D 
+ 445      6973635C 
+ 445      6C765F67 
+ 446              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

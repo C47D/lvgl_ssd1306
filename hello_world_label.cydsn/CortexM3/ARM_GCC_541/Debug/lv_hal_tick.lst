@@ -1,0 +1,823 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_hal_tick.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_tick_inc,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_tick_inc
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_tick_inc, %function
+  25              	lv_tick_inc:
+  26              	.LFB0:
+  27              		.file 1 "..\\lvgl\\lv_hal\\lv_hal_tick.c"
+   1:..\lvgl\lv_hal/lv_hal_tick.c **** /**
+   2:..\lvgl\lv_hal/lv_hal_tick.c ****  * @file systick.c
+   3:..\lvgl\lv_hal/lv_hal_tick.c ****  * Provide access to the system tick with 1 millisecond resolution
+   4:..\lvgl\lv_hal/lv_hal_tick.c ****  */
+   5:..\lvgl\lv_hal/lv_hal_tick.c **** 
+   6:..\lvgl\lv_hal/lv_hal_tick.c **** /*********************
+   7:..\lvgl\lv_hal/lv_hal_tick.c ****  *      INCLUDES
+   8:..\lvgl\lv_hal/lv_hal_tick.c ****  *********************/
+   9:..\lvgl\lv_hal/lv_hal_tick.c **** #ifdef LV_CONF_INCLUDE_SIMPLE
+  10:..\lvgl\lv_hal/lv_hal_tick.c **** #include "lv_conf.h"
+  11:..\lvgl\lv_hal/lv_hal_tick.c **** #else
+  12:..\lvgl\lv_hal/lv_hal_tick.c **** #include "../../lv_conf.h"
+  13:..\lvgl\lv_hal/lv_hal_tick.c **** #endif
+  14:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  15:..\lvgl\lv_hal/lv_hal_tick.c **** #include "lv_hal_tick.h"
+  16:..\lvgl\lv_hal/lv_hal_tick.c **** #include <stddef.h>
+  17:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  18:..\lvgl\lv_hal/lv_hal_tick.c **** #if LV_TICK_CUSTOM == 1
+  19:..\lvgl\lv_hal/lv_hal_tick.c **** #include LV_TICK_CUSTOM_INCLUDE
+  20:..\lvgl\lv_hal/lv_hal_tick.c **** #endif
+  21:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  22:..\lvgl\lv_hal/lv_hal_tick.c **** /*********************
+  23:..\lvgl\lv_hal/lv_hal_tick.c ****  *      DEFINES
+  24:..\lvgl\lv_hal/lv_hal_tick.c ****  *********************/
+  25:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  26:..\lvgl\lv_hal/lv_hal_tick.c **** /**********************
+  27:..\lvgl\lv_hal/lv_hal_tick.c ****  *      TYPEDEFS
+  28:..\lvgl\lv_hal/lv_hal_tick.c ****  **********************/
+  29:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  30:..\lvgl\lv_hal/lv_hal_tick.c **** /**********************
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 2
+
+
+  31:..\lvgl\lv_hal/lv_hal_tick.c ****  *  STATIC PROTOTYPES
+  32:..\lvgl\lv_hal/lv_hal_tick.c ****  **********************/
+  33:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  34:..\lvgl\lv_hal/lv_hal_tick.c **** /**********************
+  35:..\lvgl\lv_hal/lv_hal_tick.c ****  *  STATIC VARIABLES
+  36:..\lvgl\lv_hal/lv_hal_tick.c ****  **********************/
+  37:..\lvgl\lv_hal/lv_hal_tick.c **** static uint32_t sys_time = 0;
+  38:..\lvgl\lv_hal/lv_hal_tick.c **** static volatile uint8_t tick_irq_flag;
+  39:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  40:..\lvgl\lv_hal/lv_hal_tick.c **** /**********************
+  41:..\lvgl\lv_hal/lv_hal_tick.c ****  *      MACROS
+  42:..\lvgl\lv_hal/lv_hal_tick.c ****  **********************/
+  43:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  44:..\lvgl\lv_hal/lv_hal_tick.c **** /**********************
+  45:..\lvgl\lv_hal/lv_hal_tick.c ****  *   GLOBAL FUNCTIONS
+  46:..\lvgl\lv_hal/lv_hal_tick.c ****  **********************/
+  47:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  48:..\lvgl\lv_hal/lv_hal_tick.c **** /**
+  49:..\lvgl\lv_hal/lv_hal_tick.c ****  * You have to call this function periodically
+  50:..\lvgl\lv_hal/lv_hal_tick.c ****  * @param tick_period the call period of this function in milliseconds
+  51:..\lvgl\lv_hal/lv_hal_tick.c ****  */
+  52:..\lvgl\lv_hal/lv_hal_tick.c **** LV_ATTRIBUTE_TICK_INC void lv_tick_inc(uint32_t tick_period)
+  53:..\lvgl\lv_hal/lv_hal_tick.c **** {
+  28              		.loc 1 53 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+  54:..\lvgl\lv_hal/lv_hal_tick.c ****     tick_irq_flag = 0;
+  34              		.loc 1 54 0
+  35 0000 034B     		ldr	r3, .L2
+  36 0002 0022     		movs	r2, #0
+  37 0004 1A70     		strb	r2, [r3]
+  55:..\lvgl\lv_hal/lv_hal_tick.c ****     sys_time += tick_period;
+  38              		.loc 1 55 0
+  39 0006 5A68     		ldr	r2, [r3, #4]
+  40 0008 1044     		add	r0, r0, r2
+  41              	.LVL1:
+  42 000a 5860     		str	r0, [r3, #4]
+  43 000c 7047     		bx	lr
+  44              	.L3:
+  45 000e 00BF     		.align	2
+  46              	.L2:
+  47 0010 00000000 		.word	.LANCHOR0
+  48              		.cfi_endproc
+  49              	.LFE0:
+  50              		.size	lv_tick_inc, .-lv_tick_inc
+  51              		.section	.text.lv_tick_get,"ax",%progbits
+  52              		.align	2
+  53              		.global	lv_tick_get
+  54              		.thumb
+  55              		.thumb_func
+  56              		.type	lv_tick_get, %function
+  57              	lv_tick_get:
+  58              	.LFB1:
+  56:..\lvgl\lv_hal/lv_hal_tick.c **** }
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 3
+
+
+  57:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  58:..\lvgl\lv_hal/lv_hal_tick.c **** /**
+  59:..\lvgl\lv_hal/lv_hal_tick.c ****  * Get the elapsed milliseconds since start up
+  60:..\lvgl\lv_hal/lv_hal_tick.c ****  * @return the elapsed milliseconds
+  61:..\lvgl\lv_hal/lv_hal_tick.c ****  */
+  62:..\lvgl\lv_hal/lv_hal_tick.c **** uint32_t lv_tick_get(void)
+  63:..\lvgl\lv_hal/lv_hal_tick.c **** {
+  59              		.loc 1 63 0
+  60              		.cfi_startproc
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 0, uses_anonymous_args = 0
+  63              		@ link register save eliminated.
+  64              	.L5:
+  64:..\lvgl\lv_hal/lv_hal_tick.c **** #if LV_TICK_CUSTOM == 0
+  65:..\lvgl\lv_hal/lv_hal_tick.c ****     uint32_t result;
+  66:..\lvgl\lv_hal/lv_hal_tick.c ****     do {
+  67:..\lvgl\lv_hal/lv_hal_tick.c ****         tick_irq_flag = 1;
+  65              		.loc 1 67 0 discriminator 1
+  66 0000 044B     		ldr	r3, .L6
+  67 0002 0122     		movs	r2, #1
+  68 0004 1A70     		strb	r2, [r3]
+  68:..\lvgl\lv_hal/lv_hal_tick.c ****         result = sys_time;
+  69              		.loc 1 68 0 discriminator 1
+  70 0006 5868     		ldr	r0, [r3, #4]
+  71              	.LVL2:
+  69:..\lvgl\lv_hal/lv_hal_tick.c ****     } while(!tick_irq_flag);     /*'lv_tick_inc()' clears this flag which can be in an interrupt. C
+  72              		.loc 1 69 0 discriminator 1
+  73 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  74 000a 13F0FF0F 		tst	r3, #255
+  75 000e F7D0     		beq	.L5
+  70:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  71:..\lvgl\lv_hal/lv_hal_tick.c ****     return result;
+  72:..\lvgl\lv_hal/lv_hal_tick.c **** #else
+  73:..\lvgl\lv_hal/lv_hal_tick.c ****     return LV_TICK_CUSTOM_SYS_TIME_EXPR;
+  74:..\lvgl\lv_hal/lv_hal_tick.c **** #endif
+  75:..\lvgl\lv_hal/lv_hal_tick.c **** }
+  76              		.loc 1 75 0
+  77 0010 7047     		bx	lr
+  78              	.L7:
+  79 0012 00BF     		.align	2
+  80              	.L6:
+  81 0014 00000000 		.word	.LANCHOR0
+  82              		.cfi_endproc
+  83              	.LFE1:
+  84              		.size	lv_tick_get, .-lv_tick_get
+  85              		.section	.text.lv_tick_elaps,"ax",%progbits
+  86              		.align	2
+  87              		.global	lv_tick_elaps
+  88              		.thumb
+  89              		.thumb_func
+  90              		.type	lv_tick_elaps, %function
+  91              	lv_tick_elaps:
+  92              	.LFB2:
+  76:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  77:..\lvgl\lv_hal/lv_hal_tick.c **** /**
+  78:..\lvgl\lv_hal/lv_hal_tick.c ****  * Get the elapsed milliseconds since a previous time stamp
+  79:..\lvgl\lv_hal/lv_hal_tick.c ****  * @param prev_tick a previous time stamp (return value of systick_get() )
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 4
+
+
+  80:..\lvgl\lv_hal/lv_hal_tick.c ****  * @return the elapsed milliseconds since 'prev_tick'
+  81:..\lvgl\lv_hal/lv_hal_tick.c ****  */
+  82:..\lvgl\lv_hal/lv_hal_tick.c **** uint32_t lv_tick_elaps(uint32_t prev_tick)
+  83:..\lvgl\lv_hal/lv_hal_tick.c **** {
+  93              		.loc 1 83 0
+  94              		.cfi_startproc
+  95              		@ args = 0, pretend = 0, frame = 0
+  96              		@ frame_needed = 0, uses_anonymous_args = 0
+  97              	.LVL3:
+  98 0000 10B5     		push	{r4, lr}
+  99              		.cfi_def_cfa_offset 8
+ 100              		.cfi_offset 4, -8
+ 101              		.cfi_offset 14, -4
+ 102 0002 0446     		mov	r4, r0
+  84:..\lvgl\lv_hal/lv_hal_tick.c ****     uint32_t act_time = lv_tick_get();
+ 103              		.loc 1 84 0
+ 104 0004 FFF7FEFF 		bl	lv_tick_get
+ 105              	.LVL4:
+  85:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  86:..\lvgl\lv_hal/lv_hal_tick.c ****     /*If there is no overflow in sys_time simple subtract*/
+  87:..\lvgl\lv_hal/lv_hal_tick.c ****     if(act_time >= prev_tick) {
+ 106              		.loc 1 87 0
+ 107 0008 A042     		cmp	r0, r4
+ 108 000a 01D3     		bcc	.L9
+  88:..\lvgl\lv_hal/lv_hal_tick.c ****         prev_tick = act_time - prev_tick;
+ 109              		.loc 1 88 0
+ 110 000c 001B     		subs	r0, r0, r4
+ 111              	.LVL5:
+ 112 000e 10BD     		pop	{r4, pc}
+ 113              	.LVL6:
+ 114              	.L9:
+  89:..\lvgl\lv_hal/lv_hal_tick.c ****     } else {
+  90:..\lvgl\lv_hal/lv_hal_tick.c ****         prev_tick = UINT32_MAX - prev_tick + 1;
+  91:..\lvgl\lv_hal/lv_hal_tick.c ****         prev_tick += act_time;
+ 115              		.loc 1 91 0
+ 116 0010 001B     		subs	r0, r0, r4
+ 117              	.LVL7:
+  92:..\lvgl\lv_hal/lv_hal_tick.c ****     }
+  93:..\lvgl\lv_hal/lv_hal_tick.c **** 
+  94:..\lvgl\lv_hal/lv_hal_tick.c ****     return prev_tick;
+  95:..\lvgl\lv_hal/lv_hal_tick.c **** }
+ 118              		.loc 1 95 0
+ 119 0012 10BD     		pop	{r4, pc}
+ 120              		.cfi_endproc
+ 121              	.LFE2:
+ 122              		.size	lv_tick_elaps, .-lv_tick_elaps
+ 123              		.bss
+ 124              		.align	2
+ 125              		.set	.LANCHOR0,. + 0
+ 126              		.type	tick_irq_flag, %object
+ 127              		.size	tick_irq_flag, 1
+ 128              	tick_irq_flag:
+ 129 0000 00       		.space	1
+ 130 0001 000000   		.space	3
+ 131              		.type	sys_time, %object
+ 132              		.size	sys_time, 4
+ 133              	sys_time:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 5
+
+
+ 134 0004 00000000 		.space	4
+ 135              		.text
+ 136              	.Letext0:
+ 137              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 138              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 139              		.section	.debug_info,"",%progbits
+ 140              	.Ldebug_info0:
+ 141 0000 4F010000 		.4byte	0x14f
+ 142 0004 0400     		.2byte	0x4
+ 143 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 144 000a 04       		.byte	0x4
+ 145 000b 01       		.uleb128 0x1
+ 146 000c 37000000 		.4byte	.LASF22
+ 147 0010 0C       		.byte	0xc
+ 148 0011 85010000 		.4byte	.LASF23
+ 149 0015 F8000000 		.4byte	.LASF24
+ 150 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 151 001d 00000000 		.4byte	0
+ 152 0021 00000000 		.4byte	.Ldebug_line0
+ 153 0025 02       		.uleb128 0x2
+ 154 0026 01       		.byte	0x1
+ 155 0027 06       		.byte	0x6
+ 156 0028 FE010000 		.4byte	.LASF0
+ 157 002c 03       		.uleb128 0x3
+ 158 002d 00000000 		.4byte	.LASF5
+ 159 0031 02       		.byte	0x2
+ 160 0032 1D       		.byte	0x1d
+ 161 0033 37000000 		.4byte	0x37
+ 162 0037 02       		.uleb128 0x2
+ 163 0038 01       		.byte	0x1
+ 164 0039 08       		.byte	0x8
+ 165 003a 29000000 		.4byte	.LASF1
+ 166 003e 02       		.uleb128 0x2
+ 167 003f 02       		.byte	0x2
+ 168 0040 05       		.byte	0x5
+ 169 0041 D6010000 		.4byte	.LASF2
+ 170 0045 02       		.uleb128 0x2
+ 171 0046 02       		.byte	0x2
+ 172 0047 07       		.byte	0x7
+ 173 0048 E5000000 		.4byte	.LASF3
+ 174 004c 02       		.uleb128 0x2
+ 175 004d 04       		.byte	0x4
+ 176 004e 05       		.byte	0x5
+ 177 004f E9010000 		.4byte	.LASF4
+ 178 0053 03       		.uleb128 0x3
+ 179 0054 58010000 		.4byte	.LASF6
+ 180 0058 02       		.byte	0x2
+ 181 0059 41       		.byte	0x41
+ 182 005a 5E000000 		.4byte	0x5e
+ 183 005e 02       		.uleb128 0x2
+ 184 005f 04       		.byte	0x4
+ 185 0060 07       		.byte	0x7
+ 186 0061 D3000000 		.4byte	.LASF7
+ 187 0065 02       		.uleb128 0x2
+ 188 0066 08       		.byte	0x8
+ 189 0067 05       		.byte	0x5
+ 190 0068 C8010000 		.4byte	.LASF8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 6
+
+
+ 191 006c 02       		.uleb128 0x2
+ 192 006d 08       		.byte	0x8
+ 193 006e 07       		.byte	0x7
+ 194 006f A2010000 		.4byte	.LASF9
+ 195 0073 04       		.uleb128 0x4
+ 196 0074 04       		.byte	0x4
+ 197 0075 05       		.byte	0x5
+ 198 0076 696E7400 		.ascii	"int\000"
+ 199 007a 02       		.uleb128 0x2
+ 200 007b 04       		.byte	0x4
+ 201 007c 07       		.byte	0x7
+ 202 007d 6F010000 		.4byte	.LASF10
+ 203 0081 03       		.uleb128 0x3
+ 204 0082 B9010000 		.4byte	.LASF11
+ 205 0086 03       		.byte	0x3
+ 206 0087 18       		.byte	0x18
+ 207 0088 2C000000 		.4byte	0x2c
+ 208 008c 03       		.uleb128 0x3
+ 209 008d E0010000 		.4byte	.LASF12
+ 210 0091 03       		.byte	0x3
+ 211 0092 30       		.byte	0x30
+ 212 0093 53000000 		.4byte	0x53
+ 213 0097 02       		.uleb128 0x2
+ 214 0098 08       		.byte	0x8
+ 215 0099 04       		.byte	0x4
+ 216 009a F2010000 		.4byte	.LASF13
+ 217 009e 05       		.uleb128 0x5
+ 218 009f 63010000 		.4byte	.LASF25
+ 219 00a3 01       		.byte	0x1
+ 220 00a4 34       		.byte	0x34
+ 221 00a5 00000000 		.4byte	.LFB0
+ 222 00a9 14000000 		.4byte	.LFE0-.LFB0
+ 223 00ad 01       		.uleb128 0x1
+ 224 00ae 9C       		.byte	0x9c
+ 225 00af C3000000 		.4byte	0xc3
+ 226 00b3 06       		.uleb128 0x6
+ 227 00b4 4C010000 		.4byte	.LASF16
+ 228 00b8 01       		.byte	0x1
+ 229 00b9 34       		.byte	0x34
+ 230 00ba 8C000000 		.4byte	0x8c
+ 231 00be 00000000 		.4byte	.LLST0
+ 232 00c2 00       		.byte	0
+ 233 00c3 07       		.uleb128 0x7
+ 234 00c4 14000000 		.4byte	.LASF14
+ 235 00c8 01       		.byte	0x1
+ 236 00c9 3E       		.byte	0x3e
+ 237 00ca 8C000000 		.4byte	0x8c
+ 238 00ce 00000000 		.4byte	.LFB1
+ 239 00d2 18000000 		.4byte	.LFE1-.LFB1
+ 240 00d6 01       		.uleb128 0x1
+ 241 00d7 9C       		.byte	0x9c
+ 242 00d8 EA000000 		.4byte	0xea
+ 243 00dc 08       		.uleb128 0x8
+ 244 00dd C1010000 		.4byte	.LASF18
+ 245 00e1 01       		.byte	0x1
+ 246 00e2 41       		.byte	0x41
+ 247 00e3 8C000000 		.4byte	0x8c
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 7
+
+
+ 248 00e7 01       		.uleb128 0x1
+ 249 00e8 50       		.byte	0x50
+ 250 00e9 00       		.byte	0
+ 251 00ea 07       		.uleb128 0x7
+ 252 00eb C5000000 		.4byte	.LASF15
+ 253 00ef 01       		.byte	0x1
+ 254 00f0 52       		.byte	0x52
+ 255 00f1 8C000000 		.4byte	0x8c
+ 256 00f5 00000000 		.4byte	.LFB2
+ 257 00f9 14000000 		.4byte	.LFE2-.LFB2
+ 258 00fd 01       		.uleb128 0x1
+ 259 00fe 9C       		.byte	0x9c
+ 260 00ff 2B010000 		.4byte	0x12b
+ 261 0103 06       		.uleb128 0x6
+ 262 0104 0A000000 		.4byte	.LASF17
+ 263 0108 01       		.byte	0x1
+ 264 0109 52       		.byte	0x52
+ 265 010a 8C000000 		.4byte	0x8c
+ 266 010e 21000000 		.4byte	.LLST1
+ 267 0112 09       		.uleb128 0x9
+ 268 0113 7C010000 		.4byte	.LASF19
+ 269 0117 01       		.byte	0x1
+ 270 0118 54       		.byte	0x54
+ 271 0119 8C000000 		.4byte	0x8c
+ 272 011d 63000000 		.4byte	.LLST2
+ 273 0121 0A       		.uleb128 0xa
+ 274 0122 08000000 		.4byte	.LVL4
+ 275 0126 C3000000 		.4byte	0xc3
+ 276 012a 00       		.byte	0
+ 277 012b 08       		.uleb128 0x8
+ 278 012c 20000000 		.4byte	.LASF20
+ 279 0130 01       		.byte	0x1
+ 280 0131 25       		.byte	0x25
+ 281 0132 8C000000 		.4byte	0x8c
+ 282 0136 05       		.uleb128 0x5
+ 283 0137 03       		.byte	0x3
+ 284 0138 04000000 		.4byte	sys_time
+ 285 013c 08       		.uleb128 0x8
+ 286 013d 3E010000 		.4byte	.LASF21
+ 287 0141 01       		.byte	0x1
+ 288 0142 26       		.byte	0x26
+ 289 0143 4D010000 		.4byte	0x14d
+ 290 0147 05       		.uleb128 0x5
+ 291 0148 03       		.byte	0x3
+ 292 0149 00000000 		.4byte	tick_irq_flag
+ 293 014d 0B       		.uleb128 0xb
+ 294 014e 81000000 		.4byte	0x81
+ 295 0152 00       		.byte	0
+ 296              		.section	.debug_abbrev,"",%progbits
+ 297              	.Ldebug_abbrev0:
+ 298 0000 01       		.uleb128 0x1
+ 299 0001 11       		.uleb128 0x11
+ 300 0002 01       		.byte	0x1
+ 301 0003 25       		.uleb128 0x25
+ 302 0004 0E       		.uleb128 0xe
+ 303 0005 13       		.uleb128 0x13
+ 304 0006 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 8
+
+
+ 305 0007 03       		.uleb128 0x3
+ 306 0008 0E       		.uleb128 0xe
+ 307 0009 1B       		.uleb128 0x1b
+ 308 000a 0E       		.uleb128 0xe
+ 309 000b 55       		.uleb128 0x55
+ 310 000c 17       		.uleb128 0x17
+ 311 000d 11       		.uleb128 0x11
+ 312 000e 01       		.uleb128 0x1
+ 313 000f 10       		.uleb128 0x10
+ 314 0010 17       		.uleb128 0x17
+ 315 0011 00       		.byte	0
+ 316 0012 00       		.byte	0
+ 317 0013 02       		.uleb128 0x2
+ 318 0014 24       		.uleb128 0x24
+ 319 0015 00       		.byte	0
+ 320 0016 0B       		.uleb128 0xb
+ 321 0017 0B       		.uleb128 0xb
+ 322 0018 3E       		.uleb128 0x3e
+ 323 0019 0B       		.uleb128 0xb
+ 324 001a 03       		.uleb128 0x3
+ 325 001b 0E       		.uleb128 0xe
+ 326 001c 00       		.byte	0
+ 327 001d 00       		.byte	0
+ 328 001e 03       		.uleb128 0x3
+ 329 001f 16       		.uleb128 0x16
+ 330 0020 00       		.byte	0
+ 331 0021 03       		.uleb128 0x3
+ 332 0022 0E       		.uleb128 0xe
+ 333 0023 3A       		.uleb128 0x3a
+ 334 0024 0B       		.uleb128 0xb
+ 335 0025 3B       		.uleb128 0x3b
+ 336 0026 0B       		.uleb128 0xb
+ 337 0027 49       		.uleb128 0x49
+ 338 0028 13       		.uleb128 0x13
+ 339 0029 00       		.byte	0
+ 340 002a 00       		.byte	0
+ 341 002b 04       		.uleb128 0x4
+ 342 002c 24       		.uleb128 0x24
+ 343 002d 00       		.byte	0
+ 344 002e 0B       		.uleb128 0xb
+ 345 002f 0B       		.uleb128 0xb
+ 346 0030 3E       		.uleb128 0x3e
+ 347 0031 0B       		.uleb128 0xb
+ 348 0032 03       		.uleb128 0x3
+ 349 0033 08       		.uleb128 0x8
+ 350 0034 00       		.byte	0
+ 351 0035 00       		.byte	0
+ 352 0036 05       		.uleb128 0x5
+ 353 0037 2E       		.uleb128 0x2e
+ 354 0038 01       		.byte	0x1
+ 355 0039 3F       		.uleb128 0x3f
+ 356 003a 19       		.uleb128 0x19
+ 357 003b 03       		.uleb128 0x3
+ 358 003c 0E       		.uleb128 0xe
+ 359 003d 3A       		.uleb128 0x3a
+ 360 003e 0B       		.uleb128 0xb
+ 361 003f 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 9
+
+
+ 362 0040 0B       		.uleb128 0xb
+ 363 0041 27       		.uleb128 0x27
+ 364 0042 19       		.uleb128 0x19
+ 365 0043 11       		.uleb128 0x11
+ 366 0044 01       		.uleb128 0x1
+ 367 0045 12       		.uleb128 0x12
+ 368 0046 06       		.uleb128 0x6
+ 369 0047 40       		.uleb128 0x40
+ 370 0048 18       		.uleb128 0x18
+ 371 0049 9742     		.uleb128 0x2117
+ 372 004b 19       		.uleb128 0x19
+ 373 004c 01       		.uleb128 0x1
+ 374 004d 13       		.uleb128 0x13
+ 375 004e 00       		.byte	0
+ 376 004f 00       		.byte	0
+ 377 0050 06       		.uleb128 0x6
+ 378 0051 05       		.uleb128 0x5
+ 379 0052 00       		.byte	0
+ 380 0053 03       		.uleb128 0x3
+ 381 0054 0E       		.uleb128 0xe
+ 382 0055 3A       		.uleb128 0x3a
+ 383 0056 0B       		.uleb128 0xb
+ 384 0057 3B       		.uleb128 0x3b
+ 385 0058 0B       		.uleb128 0xb
+ 386 0059 49       		.uleb128 0x49
+ 387 005a 13       		.uleb128 0x13
+ 388 005b 02       		.uleb128 0x2
+ 389 005c 17       		.uleb128 0x17
+ 390 005d 00       		.byte	0
+ 391 005e 00       		.byte	0
+ 392 005f 07       		.uleb128 0x7
+ 393 0060 2E       		.uleb128 0x2e
+ 394 0061 01       		.byte	0x1
+ 395 0062 3F       		.uleb128 0x3f
+ 396 0063 19       		.uleb128 0x19
+ 397 0064 03       		.uleb128 0x3
+ 398 0065 0E       		.uleb128 0xe
+ 399 0066 3A       		.uleb128 0x3a
+ 400 0067 0B       		.uleb128 0xb
+ 401 0068 3B       		.uleb128 0x3b
+ 402 0069 0B       		.uleb128 0xb
+ 403 006a 27       		.uleb128 0x27
+ 404 006b 19       		.uleb128 0x19
+ 405 006c 49       		.uleb128 0x49
+ 406 006d 13       		.uleb128 0x13
+ 407 006e 11       		.uleb128 0x11
+ 408 006f 01       		.uleb128 0x1
+ 409 0070 12       		.uleb128 0x12
+ 410 0071 06       		.uleb128 0x6
+ 411 0072 40       		.uleb128 0x40
+ 412 0073 18       		.uleb128 0x18
+ 413 0074 9742     		.uleb128 0x2117
+ 414 0076 19       		.uleb128 0x19
+ 415 0077 01       		.uleb128 0x1
+ 416 0078 13       		.uleb128 0x13
+ 417 0079 00       		.byte	0
+ 418 007a 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 10
+
+
+ 419 007b 08       		.uleb128 0x8
+ 420 007c 34       		.uleb128 0x34
+ 421 007d 00       		.byte	0
+ 422 007e 03       		.uleb128 0x3
+ 423 007f 0E       		.uleb128 0xe
+ 424 0080 3A       		.uleb128 0x3a
+ 425 0081 0B       		.uleb128 0xb
+ 426 0082 3B       		.uleb128 0x3b
+ 427 0083 0B       		.uleb128 0xb
+ 428 0084 49       		.uleb128 0x49
+ 429 0085 13       		.uleb128 0x13
+ 430 0086 02       		.uleb128 0x2
+ 431 0087 18       		.uleb128 0x18
+ 432 0088 00       		.byte	0
+ 433 0089 00       		.byte	0
+ 434 008a 09       		.uleb128 0x9
+ 435 008b 34       		.uleb128 0x34
+ 436 008c 00       		.byte	0
+ 437 008d 03       		.uleb128 0x3
+ 438 008e 0E       		.uleb128 0xe
+ 439 008f 3A       		.uleb128 0x3a
+ 440 0090 0B       		.uleb128 0xb
+ 441 0091 3B       		.uleb128 0x3b
+ 442 0092 0B       		.uleb128 0xb
+ 443 0093 49       		.uleb128 0x49
+ 444 0094 13       		.uleb128 0x13
+ 445 0095 02       		.uleb128 0x2
+ 446 0096 17       		.uleb128 0x17
+ 447 0097 00       		.byte	0
+ 448 0098 00       		.byte	0
+ 449 0099 0A       		.uleb128 0xa
+ 450 009a 898201   		.uleb128 0x4109
+ 451 009d 00       		.byte	0
+ 452 009e 11       		.uleb128 0x11
+ 453 009f 01       		.uleb128 0x1
+ 454 00a0 31       		.uleb128 0x31
+ 455 00a1 13       		.uleb128 0x13
+ 456 00a2 00       		.byte	0
+ 457 00a3 00       		.byte	0
+ 458 00a4 0B       		.uleb128 0xb
+ 459 00a5 35       		.uleb128 0x35
+ 460 00a6 00       		.byte	0
+ 461 00a7 49       		.uleb128 0x49
+ 462 00a8 13       		.uleb128 0x13
+ 463 00a9 00       		.byte	0
+ 464 00aa 00       		.byte	0
+ 465 00ab 00       		.byte	0
+ 466              		.section	.debug_loc,"",%progbits
+ 467              	.Ldebug_loc0:
+ 468              	.LLST0:
+ 469 0000 00000000 		.4byte	.LVL0
+ 470 0004 0A000000 		.4byte	.LVL1
+ 471 0008 0100     		.2byte	0x1
+ 472 000a 50       		.byte	0x50
+ 473 000b 0A000000 		.4byte	.LVL1
+ 474 000f 14000000 		.4byte	.LFE0
+ 475 0013 0400     		.2byte	0x4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 11
+
+
+ 476 0015 F3       		.byte	0xf3
+ 477 0016 01       		.uleb128 0x1
+ 478 0017 50       		.byte	0x50
+ 479 0018 9F       		.byte	0x9f
+ 480 0019 00000000 		.4byte	0
+ 481 001d 00000000 		.4byte	0
+ 482              	.LLST1:
+ 483 0021 00000000 		.4byte	.LVL3
+ 484 0025 07000000 		.4byte	.LVL4-1
+ 485 0029 0100     		.2byte	0x1
+ 486 002b 50       		.byte	0x50
+ 487 002c 07000000 		.4byte	.LVL4-1
+ 488 0030 0E000000 		.4byte	.LVL5
+ 489 0034 0100     		.2byte	0x1
+ 490 0036 54       		.byte	0x54
+ 491 0037 0E000000 		.4byte	.LVL5
+ 492 003b 10000000 		.4byte	.LVL6
+ 493 003f 0100     		.2byte	0x1
+ 494 0041 50       		.byte	0x50
+ 495 0042 10000000 		.4byte	.LVL6
+ 496 0046 12000000 		.4byte	.LVL7
+ 497 004a 0400     		.2byte	0x4
+ 498 004c 74       		.byte	0x74
+ 499 004d 00       		.sleb128 0
+ 500 004e 1F       		.byte	0x1f
+ 501 004f 9F       		.byte	0x9f
+ 502 0050 12000000 		.4byte	.LVL7
+ 503 0054 14000000 		.4byte	.LFE2
+ 504 0058 0100     		.2byte	0x1
+ 505 005a 50       		.byte	0x50
+ 506 005b 00000000 		.4byte	0
+ 507 005f 00000000 		.4byte	0
+ 508              	.LLST2:
+ 509 0063 08000000 		.4byte	.LVL4
+ 510 0067 0E000000 		.4byte	.LVL5
+ 511 006b 0100     		.2byte	0x1
+ 512 006d 50       		.byte	0x50
+ 513 006e 10000000 		.4byte	.LVL6
+ 514 0072 12000000 		.4byte	.LVL7
+ 515 0076 0100     		.2byte	0x1
+ 516 0078 50       		.byte	0x50
+ 517 0079 00000000 		.4byte	0
+ 518 007d 00000000 		.4byte	0
+ 519              		.section	.debug_aranges,"",%progbits
+ 520 0000 2C000000 		.4byte	0x2c
+ 521 0004 0200     		.2byte	0x2
+ 522 0006 00000000 		.4byte	.Ldebug_info0
+ 523 000a 04       		.byte	0x4
+ 524 000b 00       		.byte	0
+ 525 000c 0000     		.2byte	0
+ 526 000e 0000     		.2byte	0
+ 527 0010 00000000 		.4byte	.LFB0
+ 528 0014 14000000 		.4byte	.LFE0-.LFB0
+ 529 0018 00000000 		.4byte	.LFB1
+ 530 001c 18000000 		.4byte	.LFE1-.LFB1
+ 531 0020 00000000 		.4byte	.LFB2
+ 532 0024 14000000 		.4byte	.LFE2-.LFB2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 12
+
+
+ 533 0028 00000000 		.4byte	0
+ 534 002c 00000000 		.4byte	0
+ 535              		.section	.debug_ranges,"",%progbits
+ 536              	.Ldebug_ranges0:
+ 537 0000 00000000 		.4byte	.LFB0
+ 538 0004 14000000 		.4byte	.LFE0
+ 539 0008 00000000 		.4byte	.LFB1
+ 540 000c 18000000 		.4byte	.LFE1
+ 541 0010 00000000 		.4byte	.LFB2
+ 542 0014 14000000 		.4byte	.LFE2
+ 543 0018 00000000 		.4byte	0
+ 544 001c 00000000 		.4byte	0
+ 545              		.section	.debug_line,"",%progbits
+ 546              	.Ldebug_line0:
+ 547 0000 7B010000 		.section	.debug_str,"MS",%progbits,1
+ 547      02003001 
+ 547      00000201 
+ 547      FB0E0D00 
+ 547      01010101 
+ 548              	.LASF5:
+ 549 0000 5F5F7569 		.ascii	"__uint8_t\000"
+ 549      6E74385F 
+ 549      7400
+ 550              	.LASF17:
+ 551 000a 70726576 		.ascii	"prev_tick\000"
+ 551      5F746963 
+ 551      6B00
+ 552              	.LASF14:
+ 553 0014 6C765F74 		.ascii	"lv_tick_get\000"
+ 553      69636B5F 
+ 553      67657400 
+ 554              	.LASF20:
+ 555 0020 7379735F 		.ascii	"sys_time\000"
+ 555      74696D65 
+ 555      00
+ 556              	.LASF1:
+ 557 0029 756E7369 		.ascii	"unsigned char\000"
+ 557      676E6564 
+ 557      20636861 
+ 557      7200
+ 558              	.LASF22:
+ 559 0037 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 559      43313120 
+ 559      352E342E 
+ 559      31203230 
+ 559      31363036 
+ 560 006a 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 560      20726576 
+ 560      6973696F 
+ 560      6E203233 
+ 560      37373135 
+ 561 009d 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 561      66756E63 
+ 561      74696F6E 
+ 561      2D736563 
+ 561      74696F6E 
+ 562              	.LASF15:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 13
+
+
+ 563 00c5 6C765F74 		.ascii	"lv_tick_elaps\000"
+ 563      69636B5F 
+ 563      656C6170 
+ 563      7300
+ 564              	.LASF7:
+ 565 00d3 6C6F6E67 		.ascii	"long unsigned int\000"
+ 565      20756E73 
+ 565      69676E65 
+ 565      6420696E 
+ 565      7400
+ 566              	.LASF3:
+ 567 00e5 73686F72 		.ascii	"short unsigned int\000"
+ 567      7420756E 
+ 567      7369676E 
+ 567      65642069 
+ 567      6E7400
+ 568              	.LASF24:
+ 569 00f8 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 569      73657273 
+ 569      5C643362 
+ 569      75675C44 
+ 569      6F63756D 
+ 570 0126 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 570      6F5F776F 
+ 570      726C645F 
+ 570      6C616265 
+ 570      6C2E6379 
+ 571              	.LASF21:
+ 572 013e 7469636B 		.ascii	"tick_irq_flag\000"
+ 572      5F697271 
+ 572      5F666C61 
+ 572      6700
+ 573              	.LASF16:
+ 574 014c 7469636B 		.ascii	"tick_period\000"
+ 574      5F706572 
+ 574      696F6400 
+ 575              	.LASF6:
+ 576 0158 5F5F7569 		.ascii	"__uint32_t\000"
+ 576      6E743332 
+ 576      5F7400
+ 577              	.LASF25:
+ 578 0163 6C765F74 		.ascii	"lv_tick_inc\000"
+ 578      69636B5F 
+ 578      696E6300 
+ 579              	.LASF10:
+ 580 016f 756E7369 		.ascii	"unsigned int\000"
+ 580      676E6564 
+ 580      20696E74 
+ 580      00
+ 581              	.LASF19:
+ 582 017c 6163745F 		.ascii	"act_time\000"
+ 582      74696D65 
+ 582      00
+ 583              	.LASF23:
+ 584 0185 2E2E5C6C 		.ascii	"..\\lvgl\\lv_hal\\lv_hal_tick.c\000"
+ 584      76676C5C 
+ 584      6C765F68 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccfWpgKP.s 			page 14
+
+
+ 584      616C5C6C 
+ 584      765F6861 
+ 585              	.LASF9:
+ 586 01a2 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 586      206C6F6E 
+ 586      6720756E 
+ 586      7369676E 
+ 586      65642069 
+ 587              	.LASF11:
+ 588 01b9 75696E74 		.ascii	"uint8_t\000"
+ 588      385F7400 
+ 589              	.LASF18:
+ 590 01c1 72657375 		.ascii	"result\000"
+ 590      6C7400
+ 591              	.LASF8:
+ 592 01c8 6C6F6E67 		.ascii	"long long int\000"
+ 592      206C6F6E 
+ 592      6720696E 
+ 592      7400
+ 593              	.LASF2:
+ 594 01d6 73686F72 		.ascii	"short int\000"
+ 594      7420696E 
+ 594      7400
+ 595              	.LASF12:
+ 596 01e0 75696E74 		.ascii	"uint32_t\000"
+ 596      33325F74 
+ 596      00
+ 597              	.LASF4:
+ 598 01e9 6C6F6E67 		.ascii	"long int\000"
+ 598      20696E74 
+ 598      00
+ 599              	.LASF13:
+ 600 01f2 6C6F6E67 		.ascii	"long double\000"
+ 600      20646F75 
+ 600      626C6500 
+ 601              	.LASF0:
+ 602 01fe 7369676E 		.ascii	"signed char\000"
+ 602      65642063 
+ 602      68617200 
+ 603              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

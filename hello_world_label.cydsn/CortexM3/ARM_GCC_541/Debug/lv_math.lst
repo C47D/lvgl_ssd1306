@@ -1,0 +1,1873 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_math.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_math_num_to_str,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_math_num_to_str
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_math_num_to_str, %function
+  25              	lv_math_num_to_str:
+  26              	.LFB0:
+  27              		.file 1 "..\\lvgl\\lv_misc\\lv_math.c"
+   1:..\lvgl\lv_misc/lv_math.c **** /**
+   2:..\lvgl\lv_misc/lv_math.c ****  * @file lv_math.c
+   3:..\lvgl\lv_misc/lv_math.c ****  *
+   4:..\lvgl\lv_misc/lv_math.c ****  */
+   5:..\lvgl\lv_misc/lv_math.c **** 
+   6:..\lvgl\lv_misc/lv_math.c **** /*********************
+   7:..\lvgl\lv_misc/lv_math.c ****  *      INCLUDES
+   8:..\lvgl\lv_misc/lv_math.c ****  *********************/
+   9:..\lvgl\lv_misc/lv_math.c **** #include "lv_math.h"
+  10:..\lvgl\lv_misc/lv_math.c **** #include <stdbool.h>
+  11:..\lvgl\lv_misc/lv_math.c **** 
+  12:..\lvgl\lv_misc/lv_math.c **** /*********************
+  13:..\lvgl\lv_misc/lv_math.c ****  *      DEFINES
+  14:..\lvgl\lv_misc/lv_math.c ****  *********************/
+  15:..\lvgl\lv_misc/lv_math.c **** 
+  16:..\lvgl\lv_misc/lv_math.c **** /**********************
+  17:..\lvgl\lv_misc/lv_math.c ****  *      TYPEDEFS
+  18:..\lvgl\lv_misc/lv_math.c ****  **********************/
+  19:..\lvgl\lv_misc/lv_math.c **** 
+  20:..\lvgl\lv_misc/lv_math.c **** /**********************
+  21:..\lvgl\lv_misc/lv_math.c ****  *  STATIC PROTOTYPES
+  22:..\lvgl\lv_misc/lv_math.c ****  **********************/
+  23:..\lvgl\lv_misc/lv_math.c **** 
+  24:..\lvgl\lv_misc/lv_math.c **** /**********************
+  25:..\lvgl\lv_misc/lv_math.c ****  *  STATIC VARIABLES
+  26:..\lvgl\lv_misc/lv_math.c ****  **********************/
+  27:..\lvgl\lv_misc/lv_math.c **** static int16_t sin0_90_table[] = {
+  28:..\lvgl\lv_misc/lv_math.c ****     0,     572,    1144,   1715,   2286,   2856,   3425,   3993,   4560,   5126,
+  29:..\lvgl\lv_misc/lv_math.c ****     5690,  6252,   6813,   7371,   7927,   8481,   9032,   9580,   10126,  10668,
+  30:..\lvgl\lv_misc/lv_math.c ****     11207, 11743,  12275,  12803,  13328,  13848,  14364,  14876,  15383,  15886,
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 2
+
+
+  31:..\lvgl\lv_misc/lv_math.c ****     16383, 16876,  17364,  17846,  18323,  18794,  19260,  19720,  20173,  20621,
+  32:..\lvgl\lv_misc/lv_math.c ****     21062, 21497,  21925,  22347,  22762,  23170,  23571,  23964,  24351,  24730,
+  33:..\lvgl\lv_misc/lv_math.c ****     25101, 25465,  25821,  26169,  26509,  26841,  27165,  27481,  27788,  28087,
+  34:..\lvgl\lv_misc/lv_math.c ****     28377, 28659,  28932,  29196,  29451,  29697,  29934,  30162,  30381,  30591,
+  35:..\lvgl\lv_misc/lv_math.c ****     30791, 30982,  31163,  31335,  31498,  31650,  31794,  31927,  32051,  32165,
+  36:..\lvgl\lv_misc/lv_math.c ****     32269, 32364,  32448,  32523,  32587,  32642,  32687,  32722,  32747,  32762,
+  37:..\lvgl\lv_misc/lv_math.c **** 	32767
+  38:..\lvgl\lv_misc/lv_math.c **** };
+  39:..\lvgl\lv_misc/lv_math.c **** 
+  40:..\lvgl\lv_misc/lv_math.c **** 
+  41:..\lvgl\lv_misc/lv_math.c **** /**********************
+  42:..\lvgl\lv_misc/lv_math.c ****  *      MACROS
+  43:..\lvgl\lv_misc/lv_math.c ****  **********************/
+  44:..\lvgl\lv_misc/lv_math.c **** 
+  45:..\lvgl\lv_misc/lv_math.c **** /**********************
+  46:..\lvgl\lv_misc/lv_math.c ****  *   GLOBAL FUNCTIONS
+  47:..\lvgl\lv_misc/lv_math.c ****  **********************/
+  48:..\lvgl\lv_misc/lv_math.c **** 
+  49:..\lvgl\lv_misc/lv_math.c **** /**
+  50:..\lvgl\lv_misc/lv_math.c ****  * Convert a number to string
+  51:..\lvgl\lv_misc/lv_math.c ****  * @param num a number
+  52:..\lvgl\lv_misc/lv_math.c ****  * @param buf pointer to a `char` buffer. The result will be stored here (max 10 elements)
+  53:..\lvgl\lv_misc/lv_math.c ****  * @return same as `buf` (just for convenience)
+  54:..\lvgl\lv_misc/lv_math.c ****  */
+  55:..\lvgl\lv_misc/lv_math.c **** char * lv_math_num_to_str(int32_t num, char * buf)
+  56:..\lvgl\lv_misc/lv_math.c **** {
+  28              		.loc 1 56 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+  57:..\lvgl\lv_misc/lv_math.c ****     char * buf_ori = buf;
+  58:..\lvgl\lv_misc/lv_math.c ****     if(num == 0) {
+  34              		.loc 1 58 0
+  35 0000 28B9     		cbnz	r0, .L2
+  59:..\lvgl\lv_misc/lv_math.c ****         buf[0] = '0';
+  36              		.loc 1 59 0
+  37 0002 3023     		movs	r3, #48
+  38 0004 0B70     		strb	r3, [r1]
+  60:..\lvgl\lv_misc/lv_math.c ****         buf[1] = '\0';
+  39              		.loc 1 60 0
+  40 0006 0023     		movs	r3, #0
+  41 0008 4B70     		strb	r3, [r1, #1]
+  61:..\lvgl\lv_misc/lv_math.c ****         return buf;
+  62:..\lvgl\lv_misc/lv_math.c ****     } else if(num < 0) {
+  63:..\lvgl\lv_misc/lv_math.c ****         (*buf) = '-';
+  64:..\lvgl\lv_misc/lv_math.c ****         buf++;
+  65:..\lvgl\lv_misc/lv_math.c ****         num = LV_MATH_ABS(num);
+  66:..\lvgl\lv_misc/lv_math.c ****     }
+  67:..\lvgl\lv_misc/lv_math.c ****     uint32_t output = 0;
+  68:..\lvgl\lv_misc/lv_math.c ****     int8_t i;
+  69:..\lvgl\lv_misc/lv_math.c **** 
+  70:..\lvgl\lv_misc/lv_math.c ****     for(i = 31; i >= 0; i--) {
+  71:..\lvgl\lv_misc/lv_math.c ****         if((output & 0xF) >= 5)
+  72:..\lvgl\lv_misc/lv_math.c ****             output += 3;
+  73:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF0) >> 4) >= 5)
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 3
+
+
+  74:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 4);
+  75:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF00) >> 8) >= 5)
+  76:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 8);
+  77:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF000) >> 12) >= 5)
+  78:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 12);
+  79:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF0000) >> 16) >= 5)
+  80:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 16);
+  81:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF00000) >> 20) >= 5)
+  82:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 20);
+  83:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF000000) >> 24) >= 5)
+  84:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 24);
+  85:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF0000000) >> 28) >= 5)
+  86:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 28);
+  87:..\lvgl\lv_misc/lv_math.c ****         output = (output << 1) | ((num >> i) & 1);
+  88:..\lvgl\lv_misc/lv_math.c ****     }
+  89:..\lvgl\lv_misc/lv_math.c **** 
+  90:..\lvgl\lv_misc/lv_math.c ****     uint8_t digit;
+  91:..\lvgl\lv_misc/lv_math.c ****     bool leading_zero_ready = false;
+  92:..\lvgl\lv_misc/lv_math.c ****     for(i = 28; i >= 0; i -= 4) {
+  93:..\lvgl\lv_misc/lv_math.c ****         digit = ((output >> i) & 0xF) + '0';
+  94:..\lvgl\lv_misc/lv_math.c ****         if(digit == '0' && leading_zero_ready == false) continue;
+  95:..\lvgl\lv_misc/lv_math.c **** 
+  96:..\lvgl\lv_misc/lv_math.c ****         leading_zero_ready = true;
+  97:..\lvgl\lv_misc/lv_math.c ****         (*buf) = digit;
+  98:..\lvgl\lv_misc/lv_math.c ****         buf++;
+  99:..\lvgl\lv_misc/lv_math.c ****     }
+ 100:..\lvgl\lv_misc/lv_math.c **** 
+ 101:..\lvgl\lv_misc/lv_math.c ****     (*buf) = '\0';
+ 102:..\lvgl\lv_misc/lv_math.c **** 
+ 103:..\lvgl\lv_misc/lv_math.c ****     return buf_ori;
+ 104:..\lvgl\lv_misc/lv_math.c **** }
+  42              		.loc 1 104 0
+  43 000a 0846     		mov	r0, r1
+  44              	.LVL1:
+  45 000c 7047     		bx	lr
+  46              	.LVL2:
+  47              	.L2:
+  56:..\lvgl\lv_misc/lv_math.c ****     char * buf_ori = buf;
+  48              		.loc 1 56 0
+  49 000e 30B4     		push	{r4, r5}
+  50              		.cfi_def_cfa_offset 8
+  51              		.cfi_offset 4, -8
+  52              		.cfi_offset 5, -4
+  53 0010 0446     		mov	r4, r0
+  62:..\lvgl\lv_misc/lv_math.c ****         (*buf) = '-';
+  54              		.loc 1 62 0
+  55 0012 0028     		cmp	r0, #0
+  56 0014 07DA     		bge	.L19
+  63:..\lvgl\lv_misc/lv_math.c ****         buf++;
+  57              		.loc 1 63 0
+  58 0016 0D46     		mov	r5, r1
+  59 0018 2D23     		movs	r3, #45
+  60 001a 05F8013B 		strb	r3, [r5], #1
+  61              	.LVL3:
+  65:..\lvgl\lv_misc/lv_math.c ****     }
+  62              		.loc 1 65 0
+  63 001e 0028     		cmp	r0, #0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 4
+
+
+  64 0020 B8BF     		it	lt
+  65 0022 4442     		rsblt	r4, r0, #0
+  66              	.LVL4:
+  67 0024 00E0     		b	.L4
+  68              	.LVL5:
+  69              	.L19:
+  70 0026 0D46     		mov	r5, r1
+  71              	.LVL6:
+  72              	.L4:
+  70:..\lvgl\lv_misc/lv_math.c ****         if((output & 0xF) >= 5)
+  73              		.loc 1 70 0
+  74 0028 1F22     		movs	r2, #31
+  67:..\lvgl\lv_misc/lv_math.c ****     int8_t i;
+  75              		.loc 1 67 0
+  76 002a 0023     		movs	r3, #0
+  70:..\lvgl\lv_misc/lv_math.c ****         if((output & 0xF) >= 5)
+  77              		.loc 1 70 0
+  78 002c 34E0     		b	.L5
+  79              	.LVL7:
+  80              	.L14:
+  71:..\lvgl\lv_misc/lv_math.c ****             output += 3;
+  81              		.loc 1 71 0
+  82 002e 03F00F00 		and	r0, r3, #15
+  83 0032 0428     		cmp	r0, #4
+  84 0034 00D9     		bls	.L6
+  72:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF0) >> 4) >= 5)
+  85              		.loc 1 72 0
+  86 0036 0333     		adds	r3, r3, #3
+  87              	.LVL8:
+  88              	.L6:
+  73:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 4);
+  89              		.loc 1 73 0
+  90 0038 C3F30310 		ubfx	r0, r3, #4, #4
+  91 003c 0428     		cmp	r0, #4
+  92 003e 00D9     		bls	.L7
+  74:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF00) >> 8) >= 5)
+  93              		.loc 1 74 0
+  94 0040 3033     		adds	r3, r3, #48
+  95              	.LVL9:
+  96              	.L7:
+  75:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 8);
+  97              		.loc 1 75 0
+  98 0042 C3F30320 		ubfx	r0, r3, #8, #4
+  99 0046 0428     		cmp	r0, #4
+ 100 0048 01D9     		bls	.L8
+  76:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF000) >> 12) >= 5)
+ 101              		.loc 1 76 0
+ 102 004a 03F54073 		add	r3, r3, #768
+ 103              	.LVL10:
+ 104              	.L8:
+  77:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 12);
+ 105              		.loc 1 77 0
+ 106 004e C3F30330 		ubfx	r0, r3, #12, #4
+ 107 0052 0428     		cmp	r0, #4
+ 108 0054 01D9     		bls	.L9
+  78:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF0000) >> 16) >= 5)
+ 109              		.loc 1 78 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 5
+
+
+ 110 0056 03F54053 		add	r3, r3, #12288
+ 111              	.LVL11:
+ 112              	.L9:
+  79:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 16);
+ 113              		.loc 1 79 0
+ 114 005a C3F30340 		ubfx	r0, r3, #16, #4
+ 115 005e 0428     		cmp	r0, #4
+ 116 0060 01D9     		bls	.L10
+  80:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF00000) >> 20) >= 5)
+ 117              		.loc 1 80 0
+ 118 0062 03F54033 		add	r3, r3, #196608
+ 119              	.LVL12:
+ 120              	.L10:
+  81:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 20);
+ 121              		.loc 1 81 0
+ 122 0066 C3F30350 		ubfx	r0, r3, #20, #4
+ 123 006a 0428     		cmp	r0, #4
+ 124 006c 01D9     		bls	.L11
+  82:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF000000) >> 24) >= 5)
+ 125              		.loc 1 82 0
+ 126 006e 03F54013 		add	r3, r3, #3145728
+ 127              	.LVL13:
+ 128              	.L11:
+  83:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 24);
+ 129              		.loc 1 83 0
+ 130 0072 C3F30360 		ubfx	r0, r3, #24, #4
+ 131 0076 0428     		cmp	r0, #4
+ 132 0078 01D9     		bls	.L12
+  84:..\lvgl\lv_misc/lv_math.c ****         if(((output & 0xF0000000) >> 28) >= 5)
+ 133              		.loc 1 84 0
+ 134 007a 03F14073 		add	r3, r3, #50331648
+ 135              	.LVL14:
+ 136              	.L12:
+  85:..\lvgl\lv_misc/lv_math.c ****             output += (3 << 28);
+ 137              		.loc 1 85 0
+ 138 007e B3F1A04F 		cmp	r3, #1342177280
+ 139 0082 01D3     		bcc	.L13
+  86:..\lvgl\lv_misc/lv_math.c ****         output = (output << 1) | ((num >> i) & 1);
+ 140              		.loc 1 86 0
+ 141 0084 03F14053 		add	r3, r3, #805306368
+ 142              	.LVL15:
+ 143              	.L13:
+  87:..\lvgl\lv_misc/lv_math.c ****     }
+ 144              		.loc 1 87 0 discriminator 2
+ 145 0088 44FA02F0 		asr	r0, r4, r2
+ 146 008c 00F00100 		and	r0, r0, #1
+ 147 0090 40EA4303 		orr	r3, r0, r3, lsl #1
+ 148              	.LVL16:
+  70:..\lvgl\lv_misc/lv_math.c ****         if((output & 0xF) >= 5)
+ 149              		.loc 1 70 0 discriminator 2
+ 150 0094 013A     		subs	r2, r2, #1
+ 151              	.LVL17:
+ 152 0096 52B2     		sxtb	r2, r2
+ 153              	.LVL18:
+ 154              	.L5:
+  70:..\lvgl\lv_misc/lv_math.c ****         if((output & 0xF) >= 5)
+ 155              		.loc 1 70 0 is_stmt 0 discriminator 1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 6
+
+
+ 156 0098 002A     		cmp	r2, #0
+ 157 009a C8DA     		bge	.L14
+ 158 009c 0024     		movs	r4, #0
+ 159              	.LVL19:
+ 160 009e 1C20     		movs	r0, #28
+ 161 00a0 0CE0     		b	.L15
+ 162              	.LVL20:
+ 163              	.L18:
+  93:..\lvgl\lv_misc/lv_math.c ****         if(digit == '0' && leading_zero_ready == false) continue;
+ 164              		.loc 1 93 0 is_stmt 1
+ 165 00a2 23FA00F2 		lsr	r2, r3, r0
+ 166 00a6 02F00F02 		and	r2, r2, #15
+ 167 00aa 3032     		adds	r2, r2, #48
+ 168              	.LVL21:
+  94:..\lvgl\lv_misc/lv_math.c **** 
+ 169              		.loc 1 94 0
+ 170 00ac 302A     		cmp	r2, #48
+ 171 00ae 00D1     		bne	.L16
+  94:..\lvgl\lv_misc/lv_math.c **** 
+ 172              		.loc 1 94 0 is_stmt 0 discriminator 1
+ 173 00b0 14B1     		cbz	r4, .L17
+ 174              	.L16:
+ 175              	.LVL22:
+  97:..\lvgl\lv_misc/lv_math.c ****         buf++;
+ 176              		.loc 1 97 0 is_stmt 1
+ 177 00b2 05F8012B 		strb	r2, [r5], #1
+ 178              	.LVL23:
+  96:..\lvgl\lv_misc/lv_math.c ****         (*buf) = digit;
+ 179              		.loc 1 96 0
+ 180 00b6 0124     		movs	r4, #1
+ 181              	.LVL24:
+ 182              	.L17:
+  92:..\lvgl\lv_misc/lv_math.c ****         digit = ((output >> i) & 0xF) + '0';
+ 183              		.loc 1 92 0 discriminator 2
+ 184 00b8 0438     		subs	r0, r0, #4
+ 185              	.LVL25:
+ 186 00ba 40B2     		sxtb	r0, r0
+ 187              	.LVL26:
+ 188              	.L15:
+  92:..\lvgl\lv_misc/lv_math.c ****         digit = ((output >> i) & 0xF) + '0';
+ 189              		.loc 1 92 0 is_stmt 0 discriminator 1
+ 190 00bc 0028     		cmp	r0, #0
+ 191 00be F0DA     		bge	.L18
+ 101:..\lvgl\lv_misc/lv_math.c **** 
+ 192              		.loc 1 101 0 is_stmt 1
+ 193 00c0 0023     		movs	r3, #0
+ 194              	.LVL27:
+ 195 00c2 2B70     		strb	r3, [r5]
+ 196              		.loc 1 104 0
+ 197 00c4 0846     		mov	r0, r1
+ 198              	.LVL28:
+ 199 00c6 30BC     		pop	{r4, r5}
+ 200              		.cfi_restore 5
+ 201              		.cfi_restore 4
+ 202              		.cfi_def_cfa_offset 0
+ 203              	.LVL29:
+ 204 00c8 7047     		bx	lr
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 7
+
+
+ 205              		.cfi_endproc
+ 206              	.LFE0:
+ 207              		.size	lv_math_num_to_str, .-lv_math_num_to_str
+ 208 00ca 00BF     		.section	.text.lv_trigo_sin,"ax",%progbits
+ 209              		.align	2
+ 210              		.global	lv_trigo_sin
+ 211              		.thumb
+ 212              		.thumb_func
+ 213              		.type	lv_trigo_sin, %function
+ 214              	lv_trigo_sin:
+ 215              	.LFB1:
+ 105:..\lvgl\lv_misc/lv_math.c **** 
+ 106:..\lvgl\lv_misc/lv_math.c **** /**
+ 107:..\lvgl\lv_misc/lv_math.c ****  * Return with sinus of an angle
+ 108:..\lvgl\lv_misc/lv_math.c ****  * @param angle
+ 109:..\lvgl\lv_misc/lv_math.c ****  * @return sinus of 'angle'. sin(-90) = -32767, sin(90) = 32767
+ 110:..\lvgl\lv_misc/lv_math.c ****  */
+ 111:..\lvgl\lv_misc/lv_math.c **** int16_t lv_trigo_sin(int16_t angle)
+ 112:..\lvgl\lv_misc/lv_math.c **** {
+ 216              		.loc 1 112 0
+ 217              		.cfi_startproc
+ 218              		@ args = 0, pretend = 0, frame = 0
+ 219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 220              		@ link register save eliminated.
+ 221              	.LVL30:
+ 113:..\lvgl\lv_misc/lv_math.c ****     int16_t ret = 0;
+ 114:..\lvgl\lv_misc/lv_math.c ****     angle = angle % 360;
+ 222              		.loc 1 114 0
+ 223 0000 1B4A     		ldr	r2, .L27
+ 224 0002 80FB0223 		smull	r2, r3, r0, r2
+ 225 0006 C218     		adds	r2, r0, r3
+ 226 0008 C317     		asrs	r3, r0, #31
+ 227 000a C3EB2223 		rsb	r3, r3, r2, asr #8
+ 228 000e 4FF4B472 		mov	r2, #360
+ 229 0012 02FB1300 		mls	r0, r2, r3, r0
+ 230              	.LVL31:
+ 231 0016 00B2     		sxth	r0, r0
+ 232              	.LVL32:
+ 115:..\lvgl\lv_misc/lv_math.c **** 
+ 116:..\lvgl\lv_misc/lv_math.c ****     if(angle < 0) angle = 360 + angle;
+ 233              		.loc 1 116 0
+ 234 0018 0028     		cmp	r0, #0
+ 235 001a 01DA     		bge	.L22
+ 236              		.loc 1 116 0 is_stmt 0 discriminator 1
+ 237 001c 1044     		add	r0, r0, r2
+ 238              	.LVL33:
+ 239 001e 00B2     		sxth	r0, r0
+ 240              	.LVL34:
+ 241              	.L22:
+ 117:..\lvgl\lv_misc/lv_math.c **** 
+ 118:..\lvgl\lv_misc/lv_math.c ****     if(angle < 90) {
+ 242              		.loc 1 118 0 is_stmt 1
+ 243 0020 5928     		cmp	r0, #89
+ 244 0022 03DC     		bgt	.L23
+ 119:..\lvgl\lv_misc/lv_math.c ****         ret = sin0_90_table[angle];
+ 245              		.loc 1 119 0
+ 246 0024 134B     		ldr	r3, .L27+4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 8
+
+
+ 247 0026 33F91000 		ldrsh	r0, [r3, r0, lsl #1]
+ 248              	.LVL35:
+ 249 002a 7047     		bx	lr
+ 250              	.LVL36:
+ 251              	.L23:
+ 120:..\lvgl\lv_misc/lv_math.c ****     } else if(angle >= 90 && angle < 180) {
+ 252              		.loc 1 120 0
+ 253 002c 80B2     		uxth	r0, r0
+ 254 002e A0F15A03 		sub	r3, r0, #90
+ 255 0032 9BB2     		uxth	r3, r3
+ 256 0034 592B     		cmp	r3, #89
+ 257 0036 06D8     		bhi	.L25
+ 121:..\lvgl\lv_misc/lv_math.c ****         angle = 180 - angle;
+ 258              		.loc 1 121 0
+ 259 0038 C0F1B400 		rsb	r0, r0, #180
+ 260              	.LVL37:
+ 261 003c 00B2     		sxth	r0, r0
+ 262              	.LVL38:
+ 122:..\lvgl\lv_misc/lv_math.c ****         ret = sin0_90_table[angle];
+ 263              		.loc 1 122 0
+ 264 003e 0D4B     		ldr	r3, .L27+4
+ 265 0040 33F91000 		ldrsh	r0, [r3, r0, lsl #1]
+ 266              	.LVL39:
+ 267 0044 7047     		bx	lr
+ 268              	.LVL40:
+ 269              	.L25:
+ 123:..\lvgl\lv_misc/lv_math.c ****     } else if(angle >= 180 && angle < 270) {
+ 270              		.loc 1 123 0
+ 271 0046 A0F1B403 		sub	r3, r0, #180
+ 272 004a 9BB2     		uxth	r3, r3
+ 273 004c 592B     		cmp	r3, #89
+ 274 004e 06D8     		bhi	.L26
+ 124:..\lvgl\lv_misc/lv_math.c ****         angle = angle - 180;
+ 275              		.loc 1 124 0
+ 276 0050 1BB2     		sxth	r3, r3
+ 277              	.LVL41:
+ 125:..\lvgl\lv_misc/lv_math.c ****         ret = - sin0_90_table[angle];
+ 278              		.loc 1 125 0
+ 279 0052 084A     		ldr	r2, .L27+4
+ 280 0054 32F91300 		ldrsh	r0, [r2, r3, lsl #1]
+ 281 0058 4042     		negs	r0, r0
+ 282 005a 00B2     		sxth	r0, r0
+ 283              	.LVL42:
+ 284 005c 7047     		bx	lr
+ 285              	.LVL43:
+ 286              	.L26:
+ 126:..\lvgl\lv_misc/lv_math.c ****     } else { /*angle >=270*/
+ 127:..\lvgl\lv_misc/lv_math.c ****         angle = 360 - angle;
+ 287              		.loc 1 127 0
+ 288 005e C0F5B470 		rsb	r0, r0, #360
+ 289              	.LVL44:
+ 290 0062 00B2     		sxth	r0, r0
+ 291              	.LVL45:
+ 128:..\lvgl\lv_misc/lv_math.c ****         ret = - sin0_90_table[angle];
+ 292              		.loc 1 128 0
+ 293 0064 034B     		ldr	r3, .L27+4
+ 294 0066 33F91000 		ldrsh	r0, [r3, r0, lsl #1]
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 9
+
+
+ 295              	.LVL46:
+ 296 006a 4042     		negs	r0, r0
+ 297 006c 00B2     		sxth	r0, r0
+ 298              	.LVL47:
+ 129:..\lvgl\lv_misc/lv_math.c ****     }
+ 130:..\lvgl\lv_misc/lv_math.c **** 
+ 131:..\lvgl\lv_misc/lv_math.c ****     return ret;
+ 132:..\lvgl\lv_misc/lv_math.c **** }
+ 299              		.loc 1 132 0
+ 300 006e 7047     		bx	lr
+ 301              	.L28:
+ 302              		.align	2
+ 303              	.L27:
+ 304 0070 B7600BB6 		.word	-1240768329
+ 305 0074 00000000 		.word	.LANCHOR0
+ 306              		.cfi_endproc
+ 307              	.LFE1:
+ 308              		.size	lv_trigo_sin, .-lv_trigo_sin
+ 309              		.section	.text.lv_bezier3,"ax",%progbits
+ 310              		.align	2
+ 311              		.global	lv_bezier3
+ 312              		.thumb
+ 313              		.thumb_func
+ 314              		.type	lv_bezier3, %function
+ 315              	lv_bezier3:
+ 316              	.LFB2:
+ 133:..\lvgl\lv_misc/lv_math.c **** 
+ 134:..\lvgl\lv_misc/lv_math.c **** /**
+ 135:..\lvgl\lv_misc/lv_math.c ****  * Calculate a value of a Cubic Bezier function.
+ 136:..\lvgl\lv_misc/lv_math.c ****  * @param t time in range of [0..LV_BEZIER_VAL_MAX]
+ 137:..\lvgl\lv_misc/lv_math.c ****  * @param u0 start values in range of [0..LV_BEZIER_VAL_MAX]
+ 138:..\lvgl\lv_misc/lv_math.c ****  * @param u1 control value 1 values in range of [0..LV_BEZIER_VAL_MAX]
+ 139:..\lvgl\lv_misc/lv_math.c ****  * @param u2 control value 2 in range of [0..LV_BEZIER_VAL_MAX]
+ 140:..\lvgl\lv_misc/lv_math.c ****  * @param u3 end values in range of [0..LV_BEZIER_VAL_MAX]
+ 141:..\lvgl\lv_misc/lv_math.c ****  * @return the value calculated from the given parameters in range of [0..LV_BEZIER_VAL_MAX]
+ 142:..\lvgl\lv_misc/lv_math.c ****  */
+ 143:..\lvgl\lv_misc/lv_math.c **** int32_t lv_bezier3(uint32_t t, int32_t u0, int32_t u1, int32_t u2, int32_t u3)
+ 144:..\lvgl\lv_misc/lv_math.c **** {
+ 317              		.loc 1 144 0
+ 318              		.cfi_startproc
+ 319              		@ args = 4, pretend = 0, frame = 0
+ 320              		@ frame_needed = 0, uses_anonymous_args = 0
+ 321              	.LVL48:
+ 322 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 323              		.cfi_def_cfa_offset 20
+ 324              		.cfi_offset 4, -20
+ 325              		.cfi_offset 5, -16
+ 326              		.cfi_offset 6, -12
+ 327              		.cfi_offset 7, -8
+ 328              		.cfi_offset 14, -4
+ 145:..\lvgl\lv_misc/lv_math.c ****     uint32_t t_rem = 1024 - t;
+ 329              		.loc 1 145 0
+ 330 0002 C0F58067 		rsb	r7, r0, #1024
+ 331              	.LVL49:
+ 146:..\lvgl\lv_misc/lv_math.c ****     uint32_t t_rem2 = (t_rem * t_rem) >> 10;
+ 332              		.loc 1 146 0
+ 333 0006 07FB07F4 		mul	r4, r7, r7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 10
+
+
+ 334 000a A40A     		lsrs	r4, r4, #10
+ 335              	.LVL50:
+ 147:..\lvgl\lv_misc/lv_math.c ****     uint32_t t_rem3 = (t_rem2 * t_rem) >> 10;
+ 336              		.loc 1 147 0
+ 337 000c 04FB07FE 		mul	lr, r4, r7
+ 338 0010 4FEA9E2E 		lsr	lr, lr, #10
+ 339              	.LVL51:
+ 148:..\lvgl\lv_misc/lv_math.c ****     uint32_t t2 = (t * t) >> 10;
+ 340              		.loc 1 148 0
+ 341 0014 00FB00F5 		mul	r5, r0, r0
+ 342 0018 AD0A     		lsrs	r5, r5, #10
+ 343              	.LVL52:
+ 149:..\lvgl\lv_misc/lv_math.c ****     uint32_t t3 = (t2 * t) >> 10;
+ 344              		.loc 1 149 0
+ 345 001a 05FB00F6 		mul	r6, r5, r0
+ 346 001e B60A     		lsrs	r6, r6, #10
+ 347              	.LVL53:
+ 150:..\lvgl\lv_misc/lv_math.c **** 
+ 151:..\lvgl\lv_misc/lv_math.c **** 
+ 152:..\lvgl\lv_misc/lv_math.c ****     uint32_t v1 = ((uint32_t)t_rem3 * u0) >> 10;
+ 348              		.loc 1 152 0
+ 349 0020 0EFB01F1 		mul	r1, lr, r1
+ 350              	.LVL54:
+ 153:..\lvgl\lv_misc/lv_math.c ****     uint32_t v2 = ((uint32_t)3 * t_rem2 * t * u1) >> 20;
+ 351              		.loc 1 153 0
+ 352 0024 04FB00F4 		mul	r4, r4, r0
+ 353              	.LVL55:
+ 354 0028 04FB02F2 		mul	r2, r4, r2
+ 355              	.LVL56:
+ 356 002c 02EB4202 		add	r2, r2, r2, lsl #1
+ 357 0030 120D     		lsrs	r2, r2, #20
+ 358              	.LVL57:
+ 154:..\lvgl\lv_misc/lv_math.c ****     uint32_t v3 = ((uint32_t)3 * t_rem * t2 * u2) >> 20;
+ 359              		.loc 1 154 0
+ 360 0032 05FB07F5 		mul	r5, r5, r7
+ 361              	.LVL58:
+ 362 0036 05FB03F3 		mul	r3, r5, r3
+ 363              	.LVL59:
+ 364 003a 03EB4303 		add	r3, r3, r3, lsl #1
+ 365              	.LVL60:
+ 155:..\lvgl\lv_misc/lv_math.c ****     uint32_t v4 = ((uint32_t)t3 * u3) >> 10;
+ 366              		.loc 1 155 0
+ 367 003e 0598     		ldr	r0, [sp, #20]
+ 368              	.LVL61:
+ 369 0040 06FB00F0 		mul	r0, r6, r0
+ 370              	.LVL62:
+ 156:..\lvgl\lv_misc/lv_math.c **** 
+ 157:..\lvgl\lv_misc/lv_math.c ****     return v1 + v2 + v3 + v4;
+ 371              		.loc 1 157 0
+ 372 0044 02EB9122 		add	r2, r2, r1, lsr #10
+ 373              	.LVL63:
+ 374 0048 02EB1352 		add	r2, r2, r3, lsr #20
+ 158:..\lvgl\lv_misc/lv_math.c **** 
+ 159:..\lvgl\lv_misc/lv_math.c **** }
+ 375              		.loc 1 159 0
+ 376 004c 02EB9020 		add	r0, r2, r0, lsr #10
+ 377              	.LVL64:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 11
+
+
+ 378 0050 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 379              		.cfi_endproc
+ 380              	.LFE2:
+ 381              		.size	lv_bezier3, .-lv_bezier3
+ 382 0052 00BF     		.section	.rodata
+ 383              		.align	2
+ 384              		.set	.LANCHOR0,. + 0
+ 385              		.type	sin0_90_table, %object
+ 386              		.size	sin0_90_table, 182
+ 387              	sin0_90_table:
+ 388 0000 0000     		.short	0
+ 389 0002 3C02     		.short	572
+ 390 0004 7804     		.short	1144
+ 391 0006 B306     		.short	1715
+ 392 0008 EE08     		.short	2286
+ 393 000a 280B     		.short	2856
+ 394 000c 610D     		.short	3425
+ 395 000e 990F     		.short	3993
+ 396 0010 D011     		.short	4560
+ 397 0012 0614     		.short	5126
+ 398 0014 3A16     		.short	5690
+ 399 0016 6C18     		.short	6252
+ 400 0018 9D1A     		.short	6813
+ 401 001a CB1C     		.short	7371
+ 402 001c F71E     		.short	7927
+ 403 001e 2121     		.short	8481
+ 404 0020 4823     		.short	9032
+ 405 0022 6C25     		.short	9580
+ 406 0024 8E27     		.short	10126
+ 407 0026 AC29     		.short	10668
+ 408 0028 C72B     		.short	11207
+ 409 002a DF2D     		.short	11743
+ 410 002c F32F     		.short	12275
+ 411 002e 0332     		.short	12803
+ 412 0030 1034     		.short	13328
+ 413 0032 1836     		.short	13848
+ 414 0034 1C38     		.short	14364
+ 415 0036 1C3A     		.short	14876
+ 416 0038 173C     		.short	15383
+ 417 003a 0E3E     		.short	15886
+ 418 003c FF3F     		.short	16383
+ 419 003e EC41     		.short	16876
+ 420 0040 D443     		.short	17364
+ 421 0042 B645     		.short	17846
+ 422 0044 9347     		.short	18323
+ 423 0046 6A49     		.short	18794
+ 424 0048 3C4B     		.short	19260
+ 425 004a 084D     		.short	19720
+ 426 004c CD4E     		.short	20173
+ 427 004e 8D50     		.short	20621
+ 428 0050 4652     		.short	21062
+ 429 0052 F953     		.short	21497
+ 430 0054 A555     		.short	21925
+ 431 0056 4B57     		.short	22347
+ 432 0058 EA58     		.short	22762
+ 433 005a 825A     		.short	23170
+ 434 005c 135C     		.short	23571
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 12
+
+
+ 435 005e 9C5D     		.short	23964
+ 436 0060 1F5F     		.short	24351
+ 437 0062 9A60     		.short	24730
+ 438 0064 0D62     		.short	25101
+ 439 0066 7963     		.short	25465
+ 440 0068 DD64     		.short	25821
+ 441 006a 3966     		.short	26169
+ 442 006c 8D67     		.short	26509
+ 443 006e D968     		.short	26841
+ 444 0070 1D6A     		.short	27165
+ 445 0072 596B     		.short	27481
+ 446 0074 8C6C     		.short	27788
+ 447 0076 B76D     		.short	28087
+ 448 0078 D96E     		.short	28377
+ 449 007a F36F     		.short	28659
+ 450 007c 0471     		.short	28932
+ 451 007e 0C72     		.short	29196
+ 452 0080 0B73     		.short	29451
+ 453 0082 0174     		.short	29697
+ 454 0084 EE74     		.short	29934
+ 455 0086 D275     		.short	30162
+ 456 0088 AD76     		.short	30381
+ 457 008a 7F77     		.short	30591
+ 458 008c 4778     		.short	30791
+ 459 008e 0679     		.short	30982
+ 460 0090 BB79     		.short	31163
+ 461 0092 677A     		.short	31335
+ 462 0094 0A7B     		.short	31498
+ 463 0096 A27B     		.short	31650
+ 464 0098 327C     		.short	31794
+ 465 009a B77C     		.short	31927
+ 466 009c 337D     		.short	32051
+ 467 009e A57D     		.short	32165
+ 468 00a0 0D7E     		.short	32269
+ 469 00a2 6C7E     		.short	32364
+ 470 00a4 C07E     		.short	32448
+ 471 00a6 0B7F     		.short	32523
+ 472 00a8 4B7F     		.short	32587
+ 473 00aa 827F     		.short	32642
+ 474 00ac AF7F     		.short	32687
+ 475 00ae D27F     		.short	32722
+ 476 00b0 EB7F     		.short	32747
+ 477 00b2 FA7F     		.short	32762
+ 478 00b4 FF7F     		.short	32767
+ 479              		.text
+ 480              	.Letext0:
+ 481              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 482              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 483              		.section	.debug_info,"",%progbits
+ 484              	.Ldebug_info0:
+ 485 0000 AB020000 		.4byte	0x2ab
+ 486 0004 0400     		.2byte	0x4
+ 487 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 488 000a 04       		.byte	0x4
+ 489 000b 01       		.uleb128 0x1
+ 490 000c 78000000 		.4byte	.LASF34
+ 491 0010 0C       		.byte	0xc
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 13
+
+
+ 492 0011 DD010000 		.4byte	.LASF35
+ 493 0015 31010000 		.4byte	.LASF36
+ 494 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 495 001d 00000000 		.4byte	0
+ 496 0021 00000000 		.4byte	.Ldebug_line0
+ 497 0025 02       		.uleb128 0x2
+ 498 0026 00000000 		.4byte	.LASF0
+ 499 002a 02       		.byte	0x2
+ 500 002b 1B       		.byte	0x1b
+ 501 002c 30000000 		.4byte	0x30
+ 502 0030 03       		.uleb128 0x3
+ 503 0031 01       		.byte	0x1
+ 504 0032 06       		.byte	0x6
+ 505 0033 4F020000 		.4byte	.LASF2
+ 506 0037 02       		.uleb128 0x2
+ 507 0038 09000000 		.4byte	.LASF1
+ 508 003c 02       		.byte	0x2
+ 509 003d 1D       		.byte	0x1d
+ 510 003e 42000000 		.4byte	0x42
+ 511 0042 03       		.uleb128 0x3
+ 512 0043 01       		.byte	0x1
+ 513 0044 08       		.byte	0x8
+ 514 0045 6A000000 		.4byte	.LASF3
+ 515 0049 02       		.uleb128 0x2
+ 516 004a 13000000 		.4byte	.LASF4
+ 517 004e 02       		.byte	0x2
+ 518 004f 29       		.byte	0x29
+ 519 0050 54000000 		.4byte	0x54
+ 520 0054 03       		.uleb128 0x3
+ 521 0055 02       		.byte	0x2
+ 522 0056 05       		.byte	0x5
+ 523 0057 26020000 		.4byte	.LASF5
+ 524 005b 03       		.uleb128 0x3
+ 525 005c 02       		.byte	0x2
+ 526 005d 07       		.byte	0x7
+ 527 005e 18010000 		.4byte	.LASF6
+ 528 0062 02       		.uleb128 0x2
+ 529 0063 30000000 		.4byte	.LASF7
+ 530 0067 02       		.byte	0x2
+ 531 0068 3F       		.byte	0x3f
+ 532 0069 6D000000 		.4byte	0x6d
+ 533 006d 03       		.uleb128 0x3
+ 534 006e 04       		.byte	0x4
+ 535 006f 05       		.byte	0x5
+ 536 0070 40020000 		.4byte	.LASF8
+ 537 0074 02       		.uleb128 0x2
+ 538 0075 8A010000 		.4byte	.LASF9
+ 539 0079 02       		.byte	0x2
+ 540 007a 41       		.byte	0x41
+ 541 007b 7F000000 		.4byte	0x7f
+ 542 007f 03       		.uleb128 0x3
+ 543 0080 04       		.byte	0x4
+ 544 0081 07       		.byte	0x7
+ 545 0082 06010000 		.4byte	.LASF10
+ 546 0086 03       		.uleb128 0x3
+ 547 0087 08       		.byte	0x8
+ 548 0088 05       		.byte	0x5
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 14
+
+
+ 549 0089 00020000 		.4byte	.LASF11
+ 550 008d 03       		.uleb128 0x3
+ 551 008e 08       		.byte	0x8
+ 552 008f 07       		.byte	0x7
+ 553 0090 B6010000 		.4byte	.LASF12
+ 554 0094 04       		.uleb128 0x4
+ 555 0095 04       		.byte	0x4
+ 556 0096 05       		.byte	0x5
+ 557 0097 696E7400 		.ascii	"int\000"
+ 558 009b 03       		.uleb128 0x3
+ 559 009c 04       		.byte	0x4
+ 560 009d 07       		.byte	0x7
+ 561 009e A3010000 		.4byte	.LASF13
+ 562 00a2 02       		.uleb128 0x2
+ 563 00a3 48000000 		.4byte	.LASF14
+ 564 00a7 03       		.byte	0x3
+ 565 00a8 14       		.byte	0x14
+ 566 00a9 25000000 		.4byte	0x25
+ 567 00ad 02       		.uleb128 0x2
+ 568 00ae CD010000 		.4byte	.LASF15
+ 569 00b2 03       		.byte	0x3
+ 570 00b3 18       		.byte	0x18
+ 571 00b4 37000000 		.4byte	0x37
+ 572 00b8 02       		.uleb128 0x2
+ 573 00b9 D5010000 		.4byte	.LASF16
+ 574 00bd 03       		.byte	0x3
+ 575 00be 20       		.byte	0x20
+ 576 00bf 49000000 		.4byte	0x49
+ 577 00c3 02       		.uleb128 0x2
+ 578 00c4 4F000000 		.4byte	.LASF17
+ 579 00c8 03       		.byte	0x3
+ 580 00c9 2C       		.byte	0x2c
+ 581 00ca 62000000 		.4byte	0x62
+ 582 00ce 02       		.uleb128 0x2
+ 583 00cf 37020000 		.4byte	.LASF18
+ 584 00d3 03       		.byte	0x3
+ 585 00d4 30       		.byte	0x30
+ 586 00d5 74000000 		.4byte	0x74
+ 587 00d9 05       		.uleb128 0x5
+ 588 00da 77010000 		.4byte	.LASF25
+ 589 00de 01       		.byte	0x1
+ 590 00df 37       		.byte	0x37
+ 591 00e0 58010000 		.4byte	0x158
+ 592 00e4 00000000 		.4byte	.LFB0
+ 593 00e8 CA000000 		.4byte	.LFE0-.LFB0
+ 594 00ec 01       		.uleb128 0x1
+ 595 00ed 9C       		.byte	0x9c
+ 596 00ee 58010000 		.4byte	0x158
+ 597 00f2 06       		.uleb128 0x6
+ 598 00f3 6E756D00 		.ascii	"num\000"
+ 599 00f7 01       		.byte	0x1
+ 600 00f8 37       		.byte	0x37
+ 601 00f9 C3000000 		.4byte	0xc3
+ 602 00fd 00000000 		.4byte	.LLST0
+ 603 0101 06       		.uleb128 0x6
+ 604 0102 62756600 		.ascii	"buf\000"
+ 605 0106 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 15
+
+
+ 606 0107 37       		.byte	0x37
+ 607 0108 58010000 		.4byte	0x158
+ 608 010c 4D000000 		.4byte	.LLST1
+ 609 0110 07       		.uleb128 0x7
+ 610 0111 62000000 		.4byte	.LASF19
+ 611 0115 01       		.byte	0x1
+ 612 0116 39       		.byte	0x39
+ 613 0117 58010000 		.4byte	0x158
+ 614 011b 01       		.uleb128 0x1
+ 615 011c 51       		.byte	0x51
+ 616 011d 08       		.uleb128 0x8
+ 617 011e 30020000 		.4byte	.LASF20
+ 618 0122 01       		.byte	0x1
+ 619 0123 43       		.byte	0x43
+ 620 0124 CE000000 		.4byte	0xce
+ 621 0128 81000000 		.4byte	.LLST2
+ 622 012c 09       		.uleb128 0x9
+ 623 012d 6900     		.ascii	"i\000"
+ 624 012f 01       		.byte	0x1
+ 625 0130 44       		.byte	0x44
+ 626 0131 A2000000 		.4byte	0xa2
+ 627 0135 A0000000 		.4byte	.LLST3
+ 628 0139 08       		.uleb128 0x8
+ 629 013a B0010000 		.4byte	.LASF21
+ 630 013e 01       		.byte	0x1
+ 631 013f 5A       		.byte	0x5a
+ 632 0140 AD000000 		.4byte	0xad
+ 633 0144 E0000000 		.4byte	.LLST4
+ 634 0148 08       		.uleb128 0x8
+ 635 0149 13020000 		.4byte	.LASF22
+ 636 014d 01       		.byte	0x1
+ 637 014e 5B       		.byte	0x5b
+ 638 014f 65010000 		.4byte	0x165
+ 639 0153 F3000000 		.4byte	.LLST5
+ 640 0157 00       		.byte	0
+ 641 0158 0A       		.uleb128 0xa
+ 642 0159 04       		.byte	0x4
+ 643 015a 5E010000 		.4byte	0x15e
+ 644 015e 03       		.uleb128 0x3
+ 645 015f 01       		.byte	0x1
+ 646 0160 08       		.byte	0x8
+ 647 0161 0E020000 		.4byte	.LASF23
+ 648 0165 03       		.uleb128 0x3
+ 649 0166 01       		.byte	0x1
+ 650 0167 02       		.byte	0x2
+ 651 0168 1D000000 		.4byte	.LASF24
+ 652 016c 05       		.uleb128 0x5
+ 653 016d 23000000 		.4byte	.LASF26
+ 654 0171 01       		.byte	0x1
+ 655 0172 6F       		.byte	0x6f
+ 656 0173 B8000000 		.4byte	0xb8
+ 657 0177 00000000 		.4byte	.LFB1
+ 658 017b 78000000 		.4byte	.LFE1-.LFB1
+ 659 017f 01       		.uleb128 0x1
+ 660 0180 9C       		.byte	0x9c
+ 661 0181 A4010000 		.4byte	0x1a4
+ 662 0185 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 16
+
+
+ 663 0186 2B010000 		.4byte	.LASF27
+ 664 018a 01       		.byte	0x1
+ 665 018b 6F       		.byte	0x6f
+ 666 018c B8000000 		.4byte	0xb8
+ 667 0190 1D010000 		.4byte	.LLST6
+ 668 0194 09       		.uleb128 0x9
+ 669 0195 72657400 		.ascii	"ret\000"
+ 670 0199 01       		.byte	0x1
+ 671 019a 71       		.byte	0x71
+ 672 019b B8000000 		.4byte	0xb8
+ 673 019f A4010000 		.4byte	.LLST7
+ 674 01a3 00       		.byte	0
+ 675 01a4 05       		.uleb128 0x5
+ 676 01a5 57000000 		.4byte	.LASF28
+ 677 01a9 01       		.byte	0x1
+ 678 01aa 8F       		.byte	0x8f
+ 679 01ab C3000000 		.4byte	0xc3
+ 680 01af 00000000 		.4byte	.LFB2
+ 681 01b3 52000000 		.4byte	.LFE2-.LFB2
+ 682 01b7 01       		.uleb128 0x1
+ 683 01b8 9C       		.byte	0x9c
+ 684 01b9 81020000 		.4byte	0x281
+ 685 01bd 06       		.uleb128 0x6
+ 686 01be 7400     		.ascii	"t\000"
+ 687 01c0 01       		.byte	0x1
+ 688 01c1 8F       		.byte	0x8f
+ 689 01c2 CE000000 		.4byte	0xce
+ 690 01c6 08020000 		.4byte	.LLST8
+ 691 01ca 06       		.uleb128 0x6
+ 692 01cb 753000   		.ascii	"u0\000"
+ 693 01ce 01       		.byte	0x1
+ 694 01cf 8F       		.byte	0x8f
+ 695 01d0 C3000000 		.4byte	0xc3
+ 696 01d4 29020000 		.4byte	.LLST9
+ 697 01d8 06       		.uleb128 0x6
+ 698 01d9 753100   		.ascii	"u1\000"
+ 699 01dc 01       		.byte	0x1
+ 700 01dd 8F       		.byte	0x8f
+ 701 01de C3000000 		.4byte	0xc3
+ 702 01e2 4A020000 		.4byte	.LLST10
+ 703 01e6 06       		.uleb128 0x6
+ 704 01e7 753200   		.ascii	"u2\000"
+ 705 01ea 01       		.byte	0x1
+ 706 01eb 8F       		.byte	0x8f
+ 707 01ec C3000000 		.4byte	0xc3
+ 708 01f0 6B020000 		.4byte	.LLST11
+ 709 01f4 0C       		.uleb128 0xc
+ 710 01f5 753300   		.ascii	"u3\000"
+ 711 01f8 01       		.byte	0x1
+ 712 01f9 8F       		.byte	0x8f
+ 713 01fa C3000000 		.4byte	0xc3
+ 714 01fe 02       		.uleb128 0x2
+ 715 01ff 91       		.byte	0x91
+ 716 0200 00       		.sleb128 0
+ 717 0201 07       		.uleb128 0x7
+ 718 0202 49020000 		.4byte	.LASF29
+ 719 0206 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 17
+
+
+ 720 0207 91       		.byte	0x91
+ 721 0208 CE000000 		.4byte	0xce
+ 722 020c 01       		.uleb128 0x1
+ 723 020d 57       		.byte	0x57
+ 724 020e 08       		.uleb128 0x8
+ 725 020f 3A000000 		.4byte	.LASF30
+ 726 0213 01       		.byte	0x1
+ 727 0214 92       		.byte	0x92
+ 728 0215 CE000000 		.4byte	0xce
+ 729 0219 8C020000 		.4byte	.LLST12
+ 730 021d 07       		.uleb128 0x7
+ 731 021e 41000000 		.4byte	.LASF31
+ 732 0222 01       		.byte	0x1
+ 733 0223 93       		.byte	0x93
+ 734 0224 CE000000 		.4byte	0xce
+ 735 0228 01       		.uleb128 0x1
+ 736 0229 5E       		.byte	0x5e
+ 737 022a 09       		.uleb128 0x9
+ 738 022b 743200   		.ascii	"t2\000"
+ 739 022e 01       		.byte	0x1
+ 740 022f 94       		.byte	0x94
+ 741 0230 CE000000 		.4byte	0xce
+ 742 0234 B1020000 		.4byte	.LLST13
+ 743 0238 0D       		.uleb128 0xd
+ 744 0239 743300   		.ascii	"t3\000"
+ 745 023c 01       		.byte	0x1
+ 746 023d 95       		.byte	0x95
+ 747 023e CE000000 		.4byte	0xce
+ 748 0242 01       		.uleb128 0x1
+ 749 0243 56       		.byte	0x56
+ 750 0244 0D       		.uleb128 0xd
+ 751 0245 763100   		.ascii	"v1\000"
+ 752 0248 01       		.byte	0x1
+ 753 0249 98       		.byte	0x98
+ 754 024a CE000000 		.4byte	0xce
+ 755 024e 05       		.uleb128 0x5
+ 756 024f 71       		.byte	0x71
+ 757 0250 00       		.sleb128 0
+ 758 0251 3A       		.byte	0x3a
+ 759 0252 25       		.byte	0x25
+ 760 0253 9F       		.byte	0x9f
+ 761 0254 09       		.uleb128 0x9
+ 762 0255 763200   		.ascii	"v2\000"
+ 763 0258 01       		.byte	0x1
+ 764 0259 99       		.byte	0x99
+ 765 025a CE000000 		.4byte	0xce
+ 766 025e EA020000 		.4byte	.LLST14
+ 767 0262 0D       		.uleb128 0xd
+ 768 0263 763300   		.ascii	"v3\000"
+ 769 0266 01       		.byte	0x1
+ 770 0267 9A       		.byte	0x9a
+ 771 0268 CE000000 		.4byte	0xce
+ 772 026c 05       		.uleb128 0x5
+ 773 026d 73       		.byte	0x73
+ 774 026e 00       		.sleb128 0
+ 775 026f 44       		.byte	0x44
+ 776 0270 25       		.byte	0x25
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 18
+
+
+ 777 0271 9F       		.byte	0x9f
+ 778 0272 09       		.uleb128 0x9
+ 779 0273 763400   		.ascii	"v4\000"
+ 780 0276 01       		.byte	0x1
+ 781 0277 9B       		.byte	0x9b
+ 782 0278 CE000000 		.4byte	0xce
+ 783 027c 12030000 		.4byte	.LLST15
+ 784 0280 00       		.byte	0
+ 785 0281 0E       		.uleb128 0xe
+ 786 0282 B8000000 		.4byte	0xb8
+ 787 0286 91020000 		.4byte	0x291
+ 788 028a 0F       		.uleb128 0xf
+ 789 028b 91020000 		.4byte	0x291
+ 790 028f 5A       		.byte	0x5a
+ 791 0290 00       		.byte	0
+ 792 0291 03       		.uleb128 0x3
+ 793 0292 04       		.byte	0x4
+ 794 0293 07       		.byte	0x7
+ 795 0294 F7010000 		.4byte	.LASF32
+ 796 0298 07       		.uleb128 0x7
+ 797 0299 95010000 		.4byte	.LASF33
+ 798 029d 01       		.byte	0x1
+ 799 029e 1B       		.byte	0x1b
+ 800 029f A9020000 		.4byte	0x2a9
+ 801 02a3 05       		.uleb128 0x5
+ 802 02a4 03       		.byte	0x3
+ 803 02a5 00000000 		.4byte	sin0_90_table
+ 804 02a9 10       		.uleb128 0x10
+ 805 02aa 81020000 		.4byte	0x281
+ 806 02ae 00       		.byte	0
+ 807              		.section	.debug_abbrev,"",%progbits
+ 808              	.Ldebug_abbrev0:
+ 809 0000 01       		.uleb128 0x1
+ 810 0001 11       		.uleb128 0x11
+ 811 0002 01       		.byte	0x1
+ 812 0003 25       		.uleb128 0x25
+ 813 0004 0E       		.uleb128 0xe
+ 814 0005 13       		.uleb128 0x13
+ 815 0006 0B       		.uleb128 0xb
+ 816 0007 03       		.uleb128 0x3
+ 817 0008 0E       		.uleb128 0xe
+ 818 0009 1B       		.uleb128 0x1b
+ 819 000a 0E       		.uleb128 0xe
+ 820 000b 55       		.uleb128 0x55
+ 821 000c 17       		.uleb128 0x17
+ 822 000d 11       		.uleb128 0x11
+ 823 000e 01       		.uleb128 0x1
+ 824 000f 10       		.uleb128 0x10
+ 825 0010 17       		.uleb128 0x17
+ 826 0011 00       		.byte	0
+ 827 0012 00       		.byte	0
+ 828 0013 02       		.uleb128 0x2
+ 829 0014 16       		.uleb128 0x16
+ 830 0015 00       		.byte	0
+ 831 0016 03       		.uleb128 0x3
+ 832 0017 0E       		.uleb128 0xe
+ 833 0018 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 19
+
+
+ 834 0019 0B       		.uleb128 0xb
+ 835 001a 3B       		.uleb128 0x3b
+ 836 001b 0B       		.uleb128 0xb
+ 837 001c 49       		.uleb128 0x49
+ 838 001d 13       		.uleb128 0x13
+ 839 001e 00       		.byte	0
+ 840 001f 00       		.byte	0
+ 841 0020 03       		.uleb128 0x3
+ 842 0021 24       		.uleb128 0x24
+ 843 0022 00       		.byte	0
+ 844 0023 0B       		.uleb128 0xb
+ 845 0024 0B       		.uleb128 0xb
+ 846 0025 3E       		.uleb128 0x3e
+ 847 0026 0B       		.uleb128 0xb
+ 848 0027 03       		.uleb128 0x3
+ 849 0028 0E       		.uleb128 0xe
+ 850 0029 00       		.byte	0
+ 851 002a 00       		.byte	0
+ 852 002b 04       		.uleb128 0x4
+ 853 002c 24       		.uleb128 0x24
+ 854 002d 00       		.byte	0
+ 855 002e 0B       		.uleb128 0xb
+ 856 002f 0B       		.uleb128 0xb
+ 857 0030 3E       		.uleb128 0x3e
+ 858 0031 0B       		.uleb128 0xb
+ 859 0032 03       		.uleb128 0x3
+ 860 0033 08       		.uleb128 0x8
+ 861 0034 00       		.byte	0
+ 862 0035 00       		.byte	0
+ 863 0036 05       		.uleb128 0x5
+ 864 0037 2E       		.uleb128 0x2e
+ 865 0038 01       		.byte	0x1
+ 866 0039 3F       		.uleb128 0x3f
+ 867 003a 19       		.uleb128 0x19
+ 868 003b 03       		.uleb128 0x3
+ 869 003c 0E       		.uleb128 0xe
+ 870 003d 3A       		.uleb128 0x3a
+ 871 003e 0B       		.uleb128 0xb
+ 872 003f 3B       		.uleb128 0x3b
+ 873 0040 0B       		.uleb128 0xb
+ 874 0041 27       		.uleb128 0x27
+ 875 0042 19       		.uleb128 0x19
+ 876 0043 49       		.uleb128 0x49
+ 877 0044 13       		.uleb128 0x13
+ 878 0045 11       		.uleb128 0x11
+ 879 0046 01       		.uleb128 0x1
+ 880 0047 12       		.uleb128 0x12
+ 881 0048 06       		.uleb128 0x6
+ 882 0049 40       		.uleb128 0x40
+ 883 004a 18       		.uleb128 0x18
+ 884 004b 9742     		.uleb128 0x2117
+ 885 004d 19       		.uleb128 0x19
+ 886 004e 01       		.uleb128 0x1
+ 887 004f 13       		.uleb128 0x13
+ 888 0050 00       		.byte	0
+ 889 0051 00       		.byte	0
+ 890 0052 06       		.uleb128 0x6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 20
+
+
+ 891 0053 05       		.uleb128 0x5
+ 892 0054 00       		.byte	0
+ 893 0055 03       		.uleb128 0x3
+ 894 0056 08       		.uleb128 0x8
+ 895 0057 3A       		.uleb128 0x3a
+ 896 0058 0B       		.uleb128 0xb
+ 897 0059 3B       		.uleb128 0x3b
+ 898 005a 0B       		.uleb128 0xb
+ 899 005b 49       		.uleb128 0x49
+ 900 005c 13       		.uleb128 0x13
+ 901 005d 02       		.uleb128 0x2
+ 902 005e 17       		.uleb128 0x17
+ 903 005f 00       		.byte	0
+ 904 0060 00       		.byte	0
+ 905 0061 07       		.uleb128 0x7
+ 906 0062 34       		.uleb128 0x34
+ 907 0063 00       		.byte	0
+ 908 0064 03       		.uleb128 0x3
+ 909 0065 0E       		.uleb128 0xe
+ 910 0066 3A       		.uleb128 0x3a
+ 911 0067 0B       		.uleb128 0xb
+ 912 0068 3B       		.uleb128 0x3b
+ 913 0069 0B       		.uleb128 0xb
+ 914 006a 49       		.uleb128 0x49
+ 915 006b 13       		.uleb128 0x13
+ 916 006c 02       		.uleb128 0x2
+ 917 006d 18       		.uleb128 0x18
+ 918 006e 00       		.byte	0
+ 919 006f 00       		.byte	0
+ 920 0070 08       		.uleb128 0x8
+ 921 0071 34       		.uleb128 0x34
+ 922 0072 00       		.byte	0
+ 923 0073 03       		.uleb128 0x3
+ 924 0074 0E       		.uleb128 0xe
+ 925 0075 3A       		.uleb128 0x3a
+ 926 0076 0B       		.uleb128 0xb
+ 927 0077 3B       		.uleb128 0x3b
+ 928 0078 0B       		.uleb128 0xb
+ 929 0079 49       		.uleb128 0x49
+ 930 007a 13       		.uleb128 0x13
+ 931 007b 02       		.uleb128 0x2
+ 932 007c 17       		.uleb128 0x17
+ 933 007d 00       		.byte	0
+ 934 007e 00       		.byte	0
+ 935 007f 09       		.uleb128 0x9
+ 936 0080 34       		.uleb128 0x34
+ 937 0081 00       		.byte	0
+ 938 0082 03       		.uleb128 0x3
+ 939 0083 08       		.uleb128 0x8
+ 940 0084 3A       		.uleb128 0x3a
+ 941 0085 0B       		.uleb128 0xb
+ 942 0086 3B       		.uleb128 0x3b
+ 943 0087 0B       		.uleb128 0xb
+ 944 0088 49       		.uleb128 0x49
+ 945 0089 13       		.uleb128 0x13
+ 946 008a 02       		.uleb128 0x2
+ 947 008b 17       		.uleb128 0x17
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 21
+
+
+ 948 008c 00       		.byte	0
+ 949 008d 00       		.byte	0
+ 950 008e 0A       		.uleb128 0xa
+ 951 008f 0F       		.uleb128 0xf
+ 952 0090 00       		.byte	0
+ 953 0091 0B       		.uleb128 0xb
+ 954 0092 0B       		.uleb128 0xb
+ 955 0093 49       		.uleb128 0x49
+ 956 0094 13       		.uleb128 0x13
+ 957 0095 00       		.byte	0
+ 958 0096 00       		.byte	0
+ 959 0097 0B       		.uleb128 0xb
+ 960 0098 05       		.uleb128 0x5
+ 961 0099 00       		.byte	0
+ 962 009a 03       		.uleb128 0x3
+ 963 009b 0E       		.uleb128 0xe
+ 964 009c 3A       		.uleb128 0x3a
+ 965 009d 0B       		.uleb128 0xb
+ 966 009e 3B       		.uleb128 0x3b
+ 967 009f 0B       		.uleb128 0xb
+ 968 00a0 49       		.uleb128 0x49
+ 969 00a1 13       		.uleb128 0x13
+ 970 00a2 02       		.uleb128 0x2
+ 971 00a3 17       		.uleb128 0x17
+ 972 00a4 00       		.byte	0
+ 973 00a5 00       		.byte	0
+ 974 00a6 0C       		.uleb128 0xc
+ 975 00a7 05       		.uleb128 0x5
+ 976 00a8 00       		.byte	0
+ 977 00a9 03       		.uleb128 0x3
+ 978 00aa 08       		.uleb128 0x8
+ 979 00ab 3A       		.uleb128 0x3a
+ 980 00ac 0B       		.uleb128 0xb
+ 981 00ad 3B       		.uleb128 0x3b
+ 982 00ae 0B       		.uleb128 0xb
+ 983 00af 49       		.uleb128 0x49
+ 984 00b0 13       		.uleb128 0x13
+ 985 00b1 02       		.uleb128 0x2
+ 986 00b2 18       		.uleb128 0x18
+ 987 00b3 00       		.byte	0
+ 988 00b4 00       		.byte	0
+ 989 00b5 0D       		.uleb128 0xd
+ 990 00b6 34       		.uleb128 0x34
+ 991 00b7 00       		.byte	0
+ 992 00b8 03       		.uleb128 0x3
+ 993 00b9 08       		.uleb128 0x8
+ 994 00ba 3A       		.uleb128 0x3a
+ 995 00bb 0B       		.uleb128 0xb
+ 996 00bc 3B       		.uleb128 0x3b
+ 997 00bd 0B       		.uleb128 0xb
+ 998 00be 49       		.uleb128 0x49
+ 999 00bf 13       		.uleb128 0x13
+ 1000 00c0 02       		.uleb128 0x2
+ 1001 00c1 18       		.uleb128 0x18
+ 1002 00c2 00       		.byte	0
+ 1003 00c3 00       		.byte	0
+ 1004 00c4 0E       		.uleb128 0xe
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 22
+
+
+ 1005 00c5 01       		.uleb128 0x1
+ 1006 00c6 01       		.byte	0x1
+ 1007 00c7 49       		.uleb128 0x49
+ 1008 00c8 13       		.uleb128 0x13
+ 1009 00c9 01       		.uleb128 0x1
+ 1010 00ca 13       		.uleb128 0x13
+ 1011 00cb 00       		.byte	0
+ 1012 00cc 00       		.byte	0
+ 1013 00cd 0F       		.uleb128 0xf
+ 1014 00ce 21       		.uleb128 0x21
+ 1015 00cf 00       		.byte	0
+ 1016 00d0 49       		.uleb128 0x49
+ 1017 00d1 13       		.uleb128 0x13
+ 1018 00d2 2F       		.uleb128 0x2f
+ 1019 00d3 0B       		.uleb128 0xb
+ 1020 00d4 00       		.byte	0
+ 1021 00d5 00       		.byte	0
+ 1022 00d6 10       		.uleb128 0x10
+ 1023 00d7 26       		.uleb128 0x26
+ 1024 00d8 00       		.byte	0
+ 1025 00d9 49       		.uleb128 0x49
+ 1026 00da 13       		.uleb128 0x13
+ 1027 00db 00       		.byte	0
+ 1028 00dc 00       		.byte	0
+ 1029 00dd 00       		.byte	0
+ 1030              		.section	.debug_loc,"",%progbits
+ 1031              	.Ldebug_loc0:
+ 1032              	.LLST0:
+ 1033 0000 00000000 		.4byte	.LVL0
+ 1034 0004 0C000000 		.4byte	.LVL1
+ 1035 0008 0100     		.2byte	0x1
+ 1036 000a 50       		.byte	0x50
+ 1037 000b 0C000000 		.4byte	.LVL1
+ 1038 000f 0E000000 		.4byte	.LVL2
+ 1039 0013 0400     		.2byte	0x4
+ 1040 0015 F3       		.byte	0xf3
+ 1041 0016 01       		.uleb128 0x1
+ 1042 0017 50       		.byte	0x50
+ 1043 0018 9F       		.byte	0x9f
+ 1044 0019 0E000000 		.4byte	.LVL2
+ 1045 001d 24000000 		.4byte	.LVL4
+ 1046 0021 0100     		.2byte	0x1
+ 1047 0023 50       		.byte	0x50
+ 1048 0024 24000000 		.4byte	.LVL4
+ 1049 0028 26000000 		.4byte	.LVL5
+ 1050 002c 0100     		.2byte	0x1
+ 1051 002e 54       		.byte	0x54
+ 1052 002f 26000000 		.4byte	.LVL5
+ 1053 0033 28000000 		.4byte	.LVL6
+ 1054 0037 0100     		.2byte	0x1
+ 1055 0039 50       		.byte	0x50
+ 1056 003a 28000000 		.4byte	.LVL6
+ 1057 003e 9E000000 		.4byte	.LVL19
+ 1058 0042 0100     		.2byte	0x1
+ 1059 0044 54       		.byte	0x54
+ 1060 0045 00000000 		.4byte	0
+ 1061 0049 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 23
+
+
+ 1062              	.LLST1:
+ 1063 004d 00000000 		.4byte	.LVL0
+ 1064 0051 1E000000 		.4byte	.LVL3
+ 1065 0055 0100     		.2byte	0x1
+ 1066 0057 51       		.byte	0x51
+ 1067 0058 1E000000 		.4byte	.LVL3
+ 1068 005c 26000000 		.4byte	.LVL5
+ 1069 0060 0100     		.2byte	0x1
+ 1070 0062 55       		.byte	0x55
+ 1071 0063 26000000 		.4byte	.LVL5
+ 1072 0067 28000000 		.4byte	.LVL6
+ 1073 006b 0100     		.2byte	0x1
+ 1074 006d 51       		.byte	0x51
+ 1075 006e 28000000 		.4byte	.LVL6
+ 1076 0072 C8000000 		.4byte	.LVL29
+ 1077 0076 0100     		.2byte	0x1
+ 1078 0078 55       		.byte	0x55
+ 1079 0079 00000000 		.4byte	0
+ 1080 007d 00000000 		.4byte	0
+ 1081              	.LLST2:
+ 1082 0081 28000000 		.4byte	.LVL6
+ 1083 0085 2E000000 		.4byte	.LVL7
+ 1084 0089 0200     		.2byte	0x2
+ 1085 008b 30       		.byte	0x30
+ 1086 008c 9F       		.byte	0x9f
+ 1087 008d 2E000000 		.4byte	.LVL7
+ 1088 0091 C2000000 		.4byte	.LVL27
+ 1089 0095 0100     		.2byte	0x1
+ 1090 0097 53       		.byte	0x53
+ 1091 0098 00000000 		.4byte	0
+ 1092 009c 00000000 		.4byte	0
+ 1093              	.LLST3:
+ 1094 00a0 28000000 		.4byte	.LVL6
+ 1095 00a4 2E000000 		.4byte	.LVL7
+ 1096 00a8 0200     		.2byte	0x2
+ 1097 00aa 4F       		.byte	0x4f
+ 1098 00ab 9F       		.byte	0x9f
+ 1099 00ac 2E000000 		.4byte	.LVL7
+ 1100 00b0 96000000 		.4byte	.LVL17
+ 1101 00b4 0100     		.2byte	0x1
+ 1102 00b6 52       		.byte	0x52
+ 1103 00b7 98000000 		.4byte	.LVL18
+ 1104 00bb A2000000 		.4byte	.LVL20
+ 1105 00bf 0100     		.2byte	0x1
+ 1106 00c1 52       		.byte	0x52
+ 1107 00c2 A2000000 		.4byte	.LVL20
+ 1108 00c6 BA000000 		.4byte	.LVL25
+ 1109 00ca 0100     		.2byte	0x1
+ 1110 00cc 50       		.byte	0x50
+ 1111 00cd BC000000 		.4byte	.LVL26
+ 1112 00d1 C6000000 		.4byte	.LVL28
+ 1113 00d5 0100     		.2byte	0x1
+ 1114 00d7 50       		.byte	0x50
+ 1115 00d8 00000000 		.4byte	0
+ 1116 00dc 00000000 		.4byte	0
+ 1117              	.LLST4:
+ 1118 00e0 AC000000 		.4byte	.LVL21
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 24
+
+
+ 1119 00e4 BC000000 		.4byte	.LVL26
+ 1120 00e8 0100     		.2byte	0x1
+ 1121 00ea 52       		.byte	0x52
+ 1122 00eb 00000000 		.4byte	0
+ 1123 00ef 00000000 		.4byte	0
+ 1124              	.LLST5:
+ 1125 00f3 A2000000 		.4byte	.LVL20
+ 1126 00f7 B2000000 		.4byte	.LVL22
+ 1127 00fb 0100     		.2byte	0x1
+ 1128 00fd 54       		.byte	0x54
+ 1129 00fe B2000000 		.4byte	.LVL22
+ 1130 0102 B8000000 		.4byte	.LVL24
+ 1131 0106 0200     		.2byte	0x2
+ 1132 0108 31       		.byte	0x31
+ 1133 0109 9F       		.byte	0x9f
+ 1134 010a B8000000 		.4byte	.LVL24
+ 1135 010e C8000000 		.4byte	.LVL29
+ 1136 0112 0100     		.2byte	0x1
+ 1137 0114 54       		.byte	0x54
+ 1138 0115 00000000 		.4byte	0
+ 1139 0119 00000000 		.4byte	0
+ 1140              	.LLST6:
+ 1141 011d 00000000 		.4byte	.LVL30
+ 1142 0121 16000000 		.4byte	.LVL31
+ 1143 0125 0100     		.2byte	0x1
+ 1144 0127 50       		.byte	0x50
+ 1145 0128 16000000 		.4byte	.LVL31
+ 1146 012c 18000000 		.4byte	.LVL32
+ 1147 0130 0400     		.2byte	0x4
+ 1148 0132 F3       		.byte	0xf3
+ 1149 0133 01       		.uleb128 0x1
+ 1150 0134 50       		.byte	0x50
+ 1151 0135 9F       		.byte	0x9f
+ 1152 0136 18000000 		.4byte	.LVL32
+ 1153 013a 1E000000 		.4byte	.LVL33
+ 1154 013e 0100     		.2byte	0x1
+ 1155 0140 50       		.byte	0x50
+ 1156 0141 1E000000 		.4byte	.LVL33
+ 1157 0145 20000000 		.4byte	.LVL34
+ 1158 0149 0400     		.2byte	0x4
+ 1159 014b 70       		.byte	0x70
+ 1160 014c 987D     		.sleb128 -360
+ 1161 014e 9F       		.byte	0x9f
+ 1162 014f 20000000 		.4byte	.LVL34
+ 1163 0153 2A000000 		.4byte	.LVL35
+ 1164 0157 0100     		.2byte	0x1
+ 1165 0159 50       		.byte	0x50
+ 1166 015a 2C000000 		.4byte	.LVL36
+ 1167 015e 3C000000 		.4byte	.LVL37
+ 1168 0162 0100     		.2byte	0x1
+ 1169 0164 50       		.byte	0x50
+ 1170 0165 3E000000 		.4byte	.LVL38
+ 1171 0169 44000000 		.4byte	.LVL39
+ 1172 016d 0100     		.2byte	0x1
+ 1173 016f 50       		.byte	0x50
+ 1174 0170 46000000 		.4byte	.LVL40
+ 1175 0174 52000000 		.4byte	.LVL41
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 25
+
+
+ 1176 0178 0100     		.2byte	0x1
+ 1177 017a 50       		.byte	0x50
+ 1178 017b 52000000 		.4byte	.LVL41
+ 1179 017f 5E000000 		.4byte	.LVL43
+ 1180 0183 0100     		.2byte	0x1
+ 1181 0185 53       		.byte	0x53
+ 1182 0186 5E000000 		.4byte	.LVL43
+ 1183 018a 62000000 		.4byte	.LVL44
+ 1184 018e 0100     		.2byte	0x1
+ 1185 0190 50       		.byte	0x50
+ 1186 0191 64000000 		.4byte	.LVL45
+ 1187 0195 6A000000 		.4byte	.LVL46
+ 1188 0199 0100     		.2byte	0x1
+ 1189 019b 50       		.byte	0x50
+ 1190 019c 00000000 		.4byte	0
+ 1191 01a0 00000000 		.4byte	0
+ 1192              	.LLST7:
+ 1193 01a4 00000000 		.4byte	.LVL30
+ 1194 01a8 2A000000 		.4byte	.LVL35
+ 1195 01ac 0200     		.2byte	0x2
+ 1196 01ae 30       		.byte	0x30
+ 1197 01af 9F       		.byte	0x9f
+ 1198 01b0 2A000000 		.4byte	.LVL35
+ 1199 01b4 2C000000 		.4byte	.LVL36
+ 1200 01b8 0100     		.2byte	0x1
+ 1201 01ba 50       		.byte	0x50
+ 1202 01bb 2C000000 		.4byte	.LVL36
+ 1203 01bf 44000000 		.4byte	.LVL39
+ 1204 01c3 0200     		.2byte	0x2
+ 1205 01c5 30       		.byte	0x30
+ 1206 01c6 9F       		.byte	0x9f
+ 1207 01c7 44000000 		.4byte	.LVL39
+ 1208 01cb 46000000 		.4byte	.LVL40
+ 1209 01cf 0100     		.2byte	0x1
+ 1210 01d1 50       		.byte	0x50
+ 1211 01d2 46000000 		.4byte	.LVL40
+ 1212 01d6 5C000000 		.4byte	.LVL42
+ 1213 01da 0200     		.2byte	0x2
+ 1214 01dc 30       		.byte	0x30
+ 1215 01dd 9F       		.byte	0x9f
+ 1216 01de 5C000000 		.4byte	.LVL42
+ 1217 01e2 5E000000 		.4byte	.LVL43
+ 1218 01e6 0100     		.2byte	0x1
+ 1219 01e8 50       		.byte	0x50
+ 1220 01e9 5E000000 		.4byte	.LVL43
+ 1221 01ed 6E000000 		.4byte	.LVL47
+ 1222 01f1 0200     		.2byte	0x2
+ 1223 01f3 30       		.byte	0x30
+ 1224 01f4 9F       		.byte	0x9f
+ 1225 01f5 6E000000 		.4byte	.LVL47
+ 1226 01f9 78000000 		.4byte	.LFE1
+ 1227 01fd 0100     		.2byte	0x1
+ 1228 01ff 50       		.byte	0x50
+ 1229 0200 00000000 		.4byte	0
+ 1230 0204 00000000 		.4byte	0
+ 1231              	.LLST8:
+ 1232 0208 00000000 		.4byte	.LVL48
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 26
+
+
+ 1233 020c 40000000 		.4byte	.LVL61
+ 1234 0210 0100     		.2byte	0x1
+ 1235 0212 50       		.byte	0x50
+ 1236 0213 40000000 		.4byte	.LVL61
+ 1237 0217 52000000 		.4byte	.LFE2
+ 1238 021b 0400     		.2byte	0x4
+ 1239 021d F3       		.byte	0xf3
+ 1240 021e 01       		.uleb128 0x1
+ 1241 021f 50       		.byte	0x50
+ 1242 0220 9F       		.byte	0x9f
+ 1243 0221 00000000 		.4byte	0
+ 1244 0225 00000000 		.4byte	0
+ 1245              	.LLST9:
+ 1246 0229 00000000 		.4byte	.LVL48
+ 1247 022d 24000000 		.4byte	.LVL54
+ 1248 0231 0100     		.2byte	0x1
+ 1249 0233 51       		.byte	0x51
+ 1250 0234 24000000 		.4byte	.LVL54
+ 1251 0238 52000000 		.4byte	.LFE2
+ 1252 023c 0400     		.2byte	0x4
+ 1253 023e F3       		.byte	0xf3
+ 1254 023f 01       		.uleb128 0x1
+ 1255 0240 51       		.byte	0x51
+ 1256 0241 9F       		.byte	0x9f
+ 1257 0242 00000000 		.4byte	0
+ 1258 0246 00000000 		.4byte	0
+ 1259              	.LLST10:
+ 1260 024a 00000000 		.4byte	.LVL48
+ 1261 024e 2C000000 		.4byte	.LVL56
+ 1262 0252 0100     		.2byte	0x1
+ 1263 0254 52       		.byte	0x52
+ 1264 0255 2C000000 		.4byte	.LVL56
+ 1265 0259 52000000 		.4byte	.LFE2
+ 1266 025d 0400     		.2byte	0x4
+ 1267 025f F3       		.byte	0xf3
+ 1268 0260 01       		.uleb128 0x1
+ 1269 0261 52       		.byte	0x52
+ 1270 0262 9F       		.byte	0x9f
+ 1271 0263 00000000 		.4byte	0
+ 1272 0267 00000000 		.4byte	0
+ 1273              	.LLST11:
+ 1274 026b 00000000 		.4byte	.LVL48
+ 1275 026f 3A000000 		.4byte	.LVL59
+ 1276 0273 0100     		.2byte	0x1
+ 1277 0275 53       		.byte	0x53
+ 1278 0276 3A000000 		.4byte	.LVL59
+ 1279 027a 52000000 		.4byte	.LFE2
+ 1280 027e 0400     		.2byte	0x4
+ 1281 0280 F3       		.byte	0xf3
+ 1282 0281 01       		.uleb128 0x1
+ 1283 0282 53       		.byte	0x53
+ 1284 0283 9F       		.byte	0x9f
+ 1285 0284 00000000 		.4byte	0
+ 1286 0288 00000000 		.4byte	0
+ 1287              	.LLST12:
+ 1288 028c 0C000000 		.4byte	.LVL50
+ 1289 0290 28000000 		.4byte	.LVL55
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 27
+
+
+ 1290 0294 0100     		.2byte	0x1
+ 1291 0296 54       		.byte	0x54
+ 1292 0297 28000000 		.4byte	.LVL55
+ 1293 029b 52000000 		.4byte	.LFE2
+ 1294 029f 0800     		.2byte	0x8
+ 1295 02a1 77       		.byte	0x77
+ 1296 02a2 00       		.sleb128 0
+ 1297 02a3 77       		.byte	0x77
+ 1298 02a4 00       		.sleb128 0
+ 1299 02a5 1E       		.byte	0x1e
+ 1300 02a6 3A       		.byte	0x3a
+ 1301 02a7 25       		.byte	0x25
+ 1302 02a8 9F       		.byte	0x9f
+ 1303 02a9 00000000 		.4byte	0
+ 1304 02ad 00000000 		.4byte	0
+ 1305              	.LLST13:
+ 1306 02b1 1A000000 		.4byte	.LVL52
+ 1307 02b5 36000000 		.4byte	.LVL58
+ 1308 02b9 0100     		.2byte	0x1
+ 1309 02bb 55       		.byte	0x55
+ 1310 02bc 36000000 		.4byte	.LVL58
+ 1311 02c0 40000000 		.4byte	.LVL61
+ 1312 02c4 0800     		.2byte	0x8
+ 1313 02c6 70       		.byte	0x70
+ 1314 02c7 00       		.sleb128 0
+ 1315 02c8 70       		.byte	0x70
+ 1316 02c9 00       		.sleb128 0
+ 1317 02ca 1E       		.byte	0x1e
+ 1318 02cb 3A       		.byte	0x3a
+ 1319 02cc 25       		.byte	0x25
+ 1320 02cd 9F       		.byte	0x9f
+ 1321 02ce 40000000 		.4byte	.LVL61
+ 1322 02d2 52000000 		.4byte	.LFE2
+ 1323 02d6 0A00     		.2byte	0xa
+ 1324 02d8 F3       		.byte	0xf3
+ 1325 02d9 01       		.uleb128 0x1
+ 1326 02da 50       		.byte	0x50
+ 1327 02db F3       		.byte	0xf3
+ 1328 02dc 01       		.uleb128 0x1
+ 1329 02dd 50       		.byte	0x50
+ 1330 02de 1E       		.byte	0x1e
+ 1331 02df 3A       		.byte	0x3a
+ 1332 02e0 25       		.byte	0x25
+ 1333 02e1 9F       		.byte	0x9f
+ 1334 02e2 00000000 		.4byte	0
+ 1335 02e6 00000000 		.4byte	0
+ 1336              	.LLST14:
+ 1337 02ea 32000000 		.4byte	.LVL57
+ 1338 02ee 48000000 		.4byte	.LVL63
+ 1339 02f2 0100     		.2byte	0x1
+ 1340 02f4 52       		.byte	0x52
+ 1341 02f5 48000000 		.4byte	.LVL63
+ 1342 02f9 52000000 		.4byte	.LFE2
+ 1343 02fd 0B00     		.2byte	0xb
+ 1344 02ff 74       		.byte	0x74
+ 1345 0300 00       		.sleb128 0
+ 1346 0301 F3       		.byte	0xf3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 28
+
+
+ 1347 0302 01       		.uleb128 0x1
+ 1348 0303 52       		.byte	0x52
+ 1349 0304 1E       		.byte	0x1e
+ 1350 0305 33       		.byte	0x33
+ 1351 0306 1E       		.byte	0x1e
+ 1352 0307 44       		.byte	0x44
+ 1353 0308 25       		.byte	0x25
+ 1354 0309 9F       		.byte	0x9f
+ 1355 030a 00000000 		.4byte	0
+ 1356 030e 00000000 		.4byte	0
+ 1357              	.LLST15:
+ 1358 0312 44000000 		.4byte	.LVL62
+ 1359 0316 50000000 		.4byte	.LVL64
+ 1360 031a 0500     		.2byte	0x5
+ 1361 031c 70       		.byte	0x70
+ 1362 031d 00       		.sleb128 0
+ 1363 031e 3A       		.byte	0x3a
+ 1364 031f 25       		.byte	0x25
+ 1365 0320 9F       		.byte	0x9f
+ 1366 0321 50000000 		.4byte	.LVL64
+ 1367 0325 52000000 		.4byte	.LFE2
+ 1368 0329 0900     		.2byte	0x9
+ 1369 032b 76       		.byte	0x76
+ 1370 032c 00       		.sleb128 0
+ 1371 032d 91       		.byte	0x91
+ 1372 032e 00       		.sleb128 0
+ 1373 032f 06       		.byte	0x6
+ 1374 0330 1E       		.byte	0x1e
+ 1375 0331 3A       		.byte	0x3a
+ 1376 0332 25       		.byte	0x25
+ 1377 0333 9F       		.byte	0x9f
+ 1378 0334 00000000 		.4byte	0
+ 1379 0338 00000000 		.4byte	0
+ 1380              		.section	.debug_aranges,"",%progbits
+ 1381 0000 2C000000 		.4byte	0x2c
+ 1382 0004 0200     		.2byte	0x2
+ 1383 0006 00000000 		.4byte	.Ldebug_info0
+ 1384 000a 04       		.byte	0x4
+ 1385 000b 00       		.byte	0
+ 1386 000c 0000     		.2byte	0
+ 1387 000e 0000     		.2byte	0
+ 1388 0010 00000000 		.4byte	.LFB0
+ 1389 0014 CA000000 		.4byte	.LFE0-.LFB0
+ 1390 0018 00000000 		.4byte	.LFB1
+ 1391 001c 78000000 		.4byte	.LFE1-.LFB1
+ 1392 0020 00000000 		.4byte	.LFB2
+ 1393 0024 52000000 		.4byte	.LFE2-.LFB2
+ 1394 0028 00000000 		.4byte	0
+ 1395 002c 00000000 		.4byte	0
+ 1396              		.section	.debug_ranges,"",%progbits
+ 1397              	.Ldebug_ranges0:
+ 1398 0000 00000000 		.4byte	.LFB0
+ 1399 0004 CA000000 		.4byte	.LFE0
+ 1400 0008 00000000 		.4byte	.LFB1
+ 1401 000c 78000000 		.4byte	.LFE1
+ 1402 0010 00000000 		.4byte	.LFB2
+ 1403 0014 52000000 		.4byte	.LFE2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 29
+
+
+ 1404 0018 00000000 		.4byte	0
+ 1405 001c 00000000 		.4byte	0
+ 1406              		.section	.debug_line,"",%progbits
+ 1407              	.Ldebug_line0:
+ 1408 0000 D0010000 		.section	.debug_str,"MS",%progbits,1
+ 1408      02002D01 
+ 1408      00000201 
+ 1408      FB0E0D00 
+ 1408      01010101 
+ 1409              	.LASF0:
+ 1410 0000 5F5F696E 		.ascii	"__int8_t\000"
+ 1410      74385F74 
+ 1410      00
+ 1411              	.LASF1:
+ 1412 0009 5F5F7569 		.ascii	"__uint8_t\000"
+ 1412      6E74385F 
+ 1412      7400
+ 1413              	.LASF4:
+ 1414 0013 5F5F696E 		.ascii	"__int16_t\000"
+ 1414      7431365F 
+ 1414      7400
+ 1415              	.LASF24:
+ 1416 001d 5F426F6F 		.ascii	"_Bool\000"
+ 1416      6C00
+ 1417              	.LASF26:
+ 1418 0023 6C765F74 		.ascii	"lv_trigo_sin\000"
+ 1418      7269676F 
+ 1418      5F73696E 
+ 1418      00
+ 1419              	.LASF7:
+ 1420 0030 5F5F696E 		.ascii	"__int32_t\000"
+ 1420      7433325F 
+ 1420      7400
+ 1421              	.LASF30:
+ 1422 003a 745F7265 		.ascii	"t_rem2\000"
+ 1422      6D3200
+ 1423              	.LASF31:
+ 1424 0041 745F7265 		.ascii	"t_rem3\000"
+ 1424      6D3300
+ 1425              	.LASF14:
+ 1426 0048 696E7438 		.ascii	"int8_t\000"
+ 1426      5F7400
+ 1427              	.LASF17:
+ 1428 004f 696E7433 		.ascii	"int32_t\000"
+ 1428      325F7400 
+ 1429              	.LASF28:
+ 1430 0057 6C765F62 		.ascii	"lv_bezier3\000"
+ 1430      657A6965 
+ 1430      723300
+ 1431              	.LASF19:
+ 1432 0062 6275665F 		.ascii	"buf_ori\000"
+ 1432      6F726900 
+ 1433              	.LASF3:
+ 1434 006a 756E7369 		.ascii	"unsigned char\000"
+ 1434      676E6564 
+ 1434      20636861 
+ 1434      7200
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 30
+
+
+ 1435              	.LASF34:
+ 1436 0078 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 1436      43313120 
+ 1436      352E342E 
+ 1436      31203230 
+ 1436      31363036 
+ 1437 00ab 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 1437      20726576 
+ 1437      6973696F 
+ 1437      6E203233 
+ 1437      37373135 
+ 1438 00de 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1438      66756E63 
+ 1438      74696F6E 
+ 1438      2D736563 
+ 1438      74696F6E 
+ 1439              	.LASF10:
+ 1440 0106 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1440      20756E73 
+ 1440      69676E65 
+ 1440      6420696E 
+ 1440      7400
+ 1441              	.LASF6:
+ 1442 0118 73686F72 		.ascii	"short unsigned int\000"
+ 1442      7420756E 
+ 1442      7369676E 
+ 1442      65642069 
+ 1442      6E7400
+ 1443              	.LASF27:
+ 1444 012b 616E676C 		.ascii	"angle\000"
+ 1444      6500
+ 1445              	.LASF36:
+ 1446 0131 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 1446      73657273 
+ 1446      5C643362 
+ 1446      75675C44 
+ 1446      6F63756D 
+ 1447 015f 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 1447      6F5F776F 
+ 1447      726C645F 
+ 1447      6C616265 
+ 1447      6C2E6379 
+ 1448              	.LASF25:
+ 1449 0177 6C765F6D 		.ascii	"lv_math_num_to_str\000"
+ 1449      6174685F 
+ 1449      6E756D5F 
+ 1449      746F5F73 
+ 1449      747200
+ 1450              	.LASF9:
+ 1451 018a 5F5F7569 		.ascii	"__uint32_t\000"
+ 1451      6E743332 
+ 1451      5F7400
+ 1452              	.LASF33:
+ 1453 0195 73696E30 		.ascii	"sin0_90_table\000"
+ 1453      5F39305F 
+ 1453      7461626C 
+ 1453      6500
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 31
+
+
+ 1454              	.LASF13:
+ 1455 01a3 756E7369 		.ascii	"unsigned int\000"
+ 1455      676E6564 
+ 1455      20696E74 
+ 1455      00
+ 1456              	.LASF21:
+ 1457 01b0 64696769 		.ascii	"digit\000"
+ 1457      7400
+ 1458              	.LASF12:
+ 1459 01b6 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1459      206C6F6E 
+ 1459      6720756E 
+ 1459      7369676E 
+ 1459      65642069 
+ 1460              	.LASF15:
+ 1461 01cd 75696E74 		.ascii	"uint8_t\000"
+ 1461      385F7400 
+ 1462              	.LASF16:
+ 1463 01d5 696E7431 		.ascii	"int16_t\000"
+ 1463      365F7400 
+ 1464              	.LASF35:
+ 1465 01dd 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_math.c\000"
+ 1465      76676C5C 
+ 1465      6C765F6D 
+ 1465      6973635C 
+ 1465      6C765F6D 
+ 1466              	.LASF32:
+ 1467 01f7 73697A65 		.ascii	"sizetype\000"
+ 1467      74797065 
+ 1467      00
+ 1468              	.LASF11:
+ 1469 0200 6C6F6E67 		.ascii	"long long int\000"
+ 1469      206C6F6E 
+ 1469      6720696E 
+ 1469      7400
+ 1470              	.LASF23:
+ 1471 020e 63686172 		.ascii	"char\000"
+ 1471      00
+ 1472              	.LASF22:
+ 1473 0213 6C656164 		.ascii	"leading_zero_ready\000"
+ 1473      696E675F 
+ 1473      7A65726F 
+ 1473      5F726561 
+ 1473      647900
+ 1474              	.LASF5:
+ 1475 0226 73686F72 		.ascii	"short int\000"
+ 1475      7420696E 
+ 1475      7400
+ 1476              	.LASF20:
+ 1477 0230 6F757470 		.ascii	"output\000"
+ 1477      757400
+ 1478              	.LASF18:
+ 1479 0237 75696E74 		.ascii	"uint32_t\000"
+ 1479      33325F74 
+ 1479      00
+ 1480              	.LASF8:
+ 1481 0240 6C6F6E67 		.ascii	"long int\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccpTinWG.s 			page 32
+
+
+ 1481      20696E74 
+ 1481      00
+ 1482              	.LASF29:
+ 1483 0249 745F7265 		.ascii	"t_rem\000"
+ 1483      6D00
+ 1484              	.LASF2:
+ 1485 024f 7369676E 		.ascii	"signed char\000"
+ 1485      65642063 
+ 1485      68617200 
+ 1486              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

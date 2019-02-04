@@ -1,0 +1,3010 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_font.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_font_init,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_font_init
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_font_init, %function
+  25              	lv_font_init:
+  26              	.LFB1:
+  27              		.file 1 "..\\lvgl\\lv_misc\\lv_font.c"
+   1:..\lvgl\lv_misc/lv_font.c **** /**
+   2:..\lvgl\lv_misc/lv_font.c ****  * @file lv_font.c
+   3:..\lvgl\lv_misc/lv_font.c ****  *
+   4:..\lvgl\lv_misc/lv_font.c ****  */
+   5:..\lvgl\lv_misc/lv_font.c **** 
+   6:..\lvgl\lv_misc/lv_font.c **** /*********************
+   7:..\lvgl\lv_misc/lv_font.c ****  *      INCLUDES
+   8:..\lvgl\lv_misc/lv_font.c ****  *********************/
+   9:..\lvgl\lv_misc/lv_font.c **** #include <stddef.h>
+  10:..\lvgl\lv_misc/lv_font.c **** #include "lv_font.h"
+  11:..\lvgl\lv_misc/lv_font.c **** #include "lv_log.h"
+  12:..\lvgl\lv_misc/lv_font.c **** 
+  13:..\lvgl\lv_misc/lv_font.c **** /*********************
+  14:..\lvgl\lv_misc/lv_font.c ****  *      DEFINES
+  15:..\lvgl\lv_misc/lv_font.c ****  *********************/
+  16:..\lvgl\lv_misc/lv_font.c **** 
+  17:..\lvgl\lv_misc/lv_font.c **** /**********************
+  18:..\lvgl\lv_misc/lv_font.c ****  *      TYPEDEFS
+  19:..\lvgl\lv_misc/lv_font.c ****  **********************/
+  20:..\lvgl\lv_misc/lv_font.c **** 
+  21:..\lvgl\lv_misc/lv_font.c **** /**********************
+  22:..\lvgl\lv_misc/lv_font.c ****  *  STATIC PROTOTYPES
+  23:..\lvgl\lv_misc/lv_font.c ****  **********************/
+  24:..\lvgl\lv_misc/lv_font.c **** 
+  25:..\lvgl\lv_misc/lv_font.c **** /**********************
+  26:..\lvgl\lv_misc/lv_font.c ****  *  STATIC VARIABLES
+  27:..\lvgl\lv_misc/lv_font.c ****  **********************/
+  28:..\lvgl\lv_misc/lv_font.c **** 
+  29:..\lvgl\lv_misc/lv_font.c **** /**********************
+  30:..\lvgl\lv_misc/lv_font.c ****  * GLOBAL PROTOTYPES
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 2
+
+
+  31:..\lvgl\lv_misc/lv_font.c ****  **********************/
+  32:..\lvgl\lv_misc/lv_font.c **** 
+  33:..\lvgl\lv_misc/lv_font.c **** /**********************
+  34:..\lvgl\lv_misc/lv_font.c ****  *      MACROS
+  35:..\lvgl\lv_misc/lv_font.c ****  **********************/
+  36:..\lvgl\lv_misc/lv_font.c **** 
+  37:..\lvgl\lv_misc/lv_font.c **** /**********************
+  38:..\lvgl\lv_misc/lv_font.c ****  *   GLOBAL FUNCTIONS
+  39:..\lvgl\lv_misc/lv_font.c ****  **********************/
+  40:..\lvgl\lv_misc/lv_font.c **** 
+  41:..\lvgl\lv_misc/lv_font.c **** /**
+  42:..\lvgl\lv_misc/lv_font.c ****  * Initialize the fonts
+  43:..\lvgl\lv_misc/lv_font.c ****  */
+  44:..\lvgl\lv_misc/lv_font.c **** void lv_font_init(void)
+  45:..\lvgl\lv_misc/lv_font.c **** {
+  28              		.loc 1 45 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 08B5     		push	{r3, lr}
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+  46:..\lvgl\lv_misc/lv_font.c ****     lv_font_builtin_init();
+  36              		.loc 1 46 0
+  37 0002 FFF7FEFF 		bl	lv_font_builtin_init
+  38              	.LVL0:
+  39 0006 08BD     		pop	{r3, pc}
+  40              		.cfi_endproc
+  41              	.LFE1:
+  42              		.size	lv_font_init, .-lv_font_init
+  43              		.section	.text.lv_font_add,"ax",%progbits
+  44              		.align	2
+  45              		.global	lv_font_add
+  46              		.thumb
+  47              		.thumb_func
+  48              		.type	lv_font_add, %function
+  49              	lv_font_add:
+  50              	.LFB2:
+  47:..\lvgl\lv_misc/lv_font.c **** }
+  48:..\lvgl\lv_misc/lv_font.c **** 
+  49:..\lvgl\lv_misc/lv_font.c **** /**
+  50:..\lvgl\lv_misc/lv_font.c ****  * Add a font to an other to extend the character set.
+  51:..\lvgl\lv_misc/lv_font.c ****  * @param child the font to add
+  52:..\lvgl\lv_misc/lv_font.c ****  * @param parent this font will be extended. Using it later will contain the characters from `child
+  53:..\lvgl\lv_misc/lv_font.c ****  */
+  54:..\lvgl\lv_misc/lv_font.c **** void lv_font_add(lv_font_t * child, lv_font_t * parent)
+  55:..\lvgl\lv_misc/lv_font.c **** {
+  51              		.loc 1 55 0
+  52              		.cfi_startproc
+  53              		@ args = 0, pretend = 0, frame = 0
+  54              		@ frame_needed = 0, uses_anonymous_args = 0
+  55              		@ link register save eliminated.
+  56              	.LVL1:
+  56:..\lvgl\lv_misc/lv_font.c ****     if(parent == NULL) return;
+  57              		.loc 1 56 0
+  58 0000 0A46     		mov	r2, r1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 3
+
+
+  59 0002 09B9     		cbnz	r1, .L5
+  60 0004 7047     		bx	lr
+  61              	.LVL2:
+  62              	.L6:
+  57:..\lvgl\lv_misc/lv_font.c **** 
+  58:..\lvgl\lv_misc/lv_font.c ****     while(parent->next_page != NULL) {
+  59:..\lvgl\lv_misc/lv_font.c ****         parent = parent->next_page; /*Got to the last page and add the new font there*/
+  63              		.loc 1 59 0
+  64 0006 1A46     		mov	r2, r3
+  65              	.LVL3:
+  66              	.L5:
+  58:..\lvgl\lv_misc/lv_font.c ****         parent = parent->next_page; /*Got to the last page and add the new font there*/
+  67              		.loc 1 58 0
+  68 0008 D369     		ldr	r3, [r2, #28]
+  69 000a 002B     		cmp	r3, #0
+  70 000c FBD1     		bne	.L6
+  60:..\lvgl\lv_misc/lv_font.c ****     }
+  61:..\lvgl\lv_misc/lv_font.c **** 
+  62:..\lvgl\lv_misc/lv_font.c ****     parent->next_page = child;
+  71              		.loc 1 62 0
+  72 000e D061     		str	r0, [r2, #28]
+  73 0010 7047     		bx	lr
+  74              		.cfi_endproc
+  75              	.LFE2:
+  76              		.size	lv_font_add, .-lv_font_add
+  77 0012 00BF     		.section	.text.lv_font_remove,"ax",%progbits
+  78              		.align	2
+  79              		.global	lv_font_remove
+  80              		.thumb
+  81              		.thumb_func
+  82              		.type	lv_font_remove, %function
+  83              	lv_font_remove:
+  84              	.LFB3:
+  63:..\lvgl\lv_misc/lv_font.c **** 
+  64:..\lvgl\lv_misc/lv_font.c **** }
+  65:..\lvgl\lv_misc/lv_font.c **** 
+  66:..\lvgl\lv_misc/lv_font.c **** /**
+  67:..\lvgl\lv_misc/lv_font.c ****  * Remove a font from a character set.
+  68:..\lvgl\lv_misc/lv_font.c ****  * @param child the font to remove
+  69:..\lvgl\lv_misc/lv_font.c ****  * @param parent remove `child` from here
+  70:..\lvgl\lv_misc/lv_font.c ****  */
+  71:..\lvgl\lv_misc/lv_font.c **** void lv_font_remove(lv_font_t * child, lv_font_t * parent)
+  72:..\lvgl\lv_misc/lv_font.c **** {
+  85              		.loc 1 72 0
+  86              		.cfi_startproc
+  87              		@ args = 0, pretend = 0, frame = 0
+  88              		@ frame_needed = 0, uses_anonymous_args = 0
+  89              		@ link register save eliminated.
+  90              	.LVL4:
+  73:..\lvgl\lv_misc/lv_font.c ****     if(parent == NULL) return;
+  91              		.loc 1 73 0
+  92 0000 0A46     		mov	r2, r1
+  93 0002 39B1     		cbz	r1, .L7
+  74:..\lvgl\lv_misc/lv_font.c ****     if(child == NULL) return;
+  94              		.loc 1 74 0
+  95 0004 08B9     		cbnz	r0, .L9
+  96 0006 7047     		bx	lr
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 4
+
+
+  97              	.LVL5:
+  98              	.L10:
+  75:..\lvgl\lv_misc/lv_font.c **** 
+  76:..\lvgl\lv_misc/lv_font.c ****     while(parent->next_page != child) {
+  77:..\lvgl\lv_misc/lv_font.c ****         parent = parent->next_page; /*Got to the last page and add the new font there*/
+  99              		.loc 1 77 0
+ 100 0008 1A46     		mov	r2, r3
+ 101              	.LVL6:
+ 102              	.L9:
+  76:..\lvgl\lv_misc/lv_font.c ****         parent = parent->next_page; /*Got to the last page and add the new font there*/
+ 103              		.loc 1 76 0
+ 104 000a D369     		ldr	r3, [r2, #28]
+ 105 000c 9842     		cmp	r0, r3
+ 106 000e FBD1     		bne	.L10
+  78:..\lvgl\lv_misc/lv_font.c ****     }
+  79:..\lvgl\lv_misc/lv_font.c **** 
+  80:..\lvgl\lv_misc/lv_font.c ****     parent->next_page = child->next_page;
+ 107              		.loc 1 80 0
+ 108 0010 C369     		ldr	r3, [r0, #28]
+ 109 0012 D361     		str	r3, [r2, #28]
+ 110              	.L7:
+ 111 0014 7047     		bx	lr
+ 112              		.cfi_endproc
+ 113              	.LFE3:
+ 114              		.size	lv_font_remove, .-lv_font_remove
+ 115 0016 00BF     		.section	.text.lv_font_is_monospace,"ax",%progbits
+ 116              		.align	2
+ 117              		.global	lv_font_is_monospace
+ 118              		.thumb
+ 119              		.thumb_func
+ 120              		.type	lv_font_is_monospace, %function
+ 121              	lv_font_is_monospace:
+ 122              	.LFB4:
+  81:..\lvgl\lv_misc/lv_font.c **** }
+  82:..\lvgl\lv_misc/lv_font.c **** 
+  83:..\lvgl\lv_misc/lv_font.c **** 
+  84:..\lvgl\lv_misc/lv_font.c **** /**
+  85:..\lvgl\lv_misc/lv_font.c ****  * Tells if font which contains `letter` is monospace or not
+  86:..\lvgl\lv_misc/lv_font.c ****  * @param font_p point to font
+  87:..\lvgl\lv_misc/lv_font.c ****  * @param letter an UNICODE character code
+  88:..\lvgl\lv_misc/lv_font.c ****  * @return true: the letter is monospace; false not monospace
+  89:..\lvgl\lv_misc/lv_font.c ****  */
+  90:..\lvgl\lv_misc/lv_font.c **** bool lv_font_is_monospace(const lv_font_t * font_p, uint32_t letter)
+  91:..\lvgl\lv_misc/lv_font.c **** {
+ 123              		.loc 1 91 0
+ 124              		.cfi_startproc
+ 125              		@ args = 0, pretend = 0, frame = 0
+ 126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127              	.LVL7:
+ 128 0000 38B5     		push	{r3, r4, r5, lr}
+ 129              		.cfi_def_cfa_offset 16
+ 130              		.cfi_offset 3, -16
+ 131              		.cfi_offset 4, -12
+ 132              		.cfi_offset 5, -8
+ 133              		.cfi_offset 14, -4
+ 134 0002 0446     		mov	r4, r0
+ 135 0004 0D46     		mov	r5, r1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 5
+
+
+ 136              	.LVL8:
+  92:..\lvgl\lv_misc/lv_font.c ****     const lv_font_t * font_i = font_p;
+  93:..\lvgl\lv_misc/lv_font.c ****     int16_t w;
+  94:..\lvgl\lv_misc/lv_font.c ****     while(font_i != NULL) {
+ 137              		.loc 1 94 0
+ 138 0006 0CE0     		b	.L12
+ 139              	.LVL9:
+ 140              	.L15:
+  95:..\lvgl\lv_misc/lv_font.c ****         w = font_i->get_width(font_i, letter);
+ 141              		.loc 1 95 0
+ 142 0008 A369     		ldr	r3, [r4, #24]
+ 143 000a 2946     		mov	r1, r5
+ 144 000c 2046     		mov	r0, r4
+ 145 000e 9847     		blx	r3
+ 146              	.LVL10:
+  96:..\lvgl\lv_misc/lv_font.c ****         if(w >= 0) {
+ 147              		.loc 1 96 0
+ 148 0010 0028     		cmp	r0, #0
+ 149 0012 05DB     		blt	.L13
+  97:..\lvgl\lv_misc/lv_font.c ****             /*Glyph found*/
+  98:..\lvgl\lv_misc/lv_font.c ****             if(font_i->monospace) return true;
+ 150              		.loc 1 98 0
+ 151 0014 236A     		ldr	r3, [r4, #32]
+ 152 0016 13F47F2F 		tst	r3, #1044480
+ 153 001a 06D0     		beq	.L16
+ 154 001c 0120     		movs	r0, #1
+ 155              	.LVL11:
+ 156 001e 38BD     		pop	{r3, r4, r5, pc}
+ 157              	.LVL12:
+ 158              	.L13:
+  99:..\lvgl\lv_misc/lv_font.c ****             return false;
+ 100:..\lvgl\lv_misc/lv_font.c ****         }
+ 101:..\lvgl\lv_misc/lv_font.c **** 
+ 102:..\lvgl\lv_misc/lv_font.c ****         font_i = font_i->next_page;
+ 159              		.loc 1 102 0
+ 160 0020 E469     		ldr	r4, [r4, #28]
+ 161              	.LVL13:
+ 162              	.L12:
+  94:..\lvgl\lv_misc/lv_font.c ****         w = font_i->get_width(font_i, letter);
+ 163              		.loc 1 94 0
+ 164 0022 002C     		cmp	r4, #0
+ 165 0024 F0D1     		bne	.L15
+ 103:..\lvgl\lv_misc/lv_font.c ****     }
+ 104:..\lvgl\lv_misc/lv_font.c **** 
+ 105:..\lvgl\lv_misc/lv_font.c ****     return 0;
+ 166              		.loc 1 105 0
+ 167 0026 0020     		movs	r0, #0
+ 168 0028 38BD     		pop	{r3, r4, r5, pc}
+ 169              	.LVL14:
+ 170              	.L16:
+  99:..\lvgl\lv_misc/lv_font.c ****         }
+ 171              		.loc 1 99 0
+ 172 002a 0020     		movs	r0, #0
+ 173              	.LVL15:
+ 106:..\lvgl\lv_misc/lv_font.c **** }
+ 174              		.loc 1 106 0
+ 175 002c 38BD     		pop	{r3, r4, r5, pc}
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 6
+
+
+ 176              		.cfi_endproc
+ 177              	.LFE4:
+ 178              		.size	lv_font_is_monospace, .-lv_font_is_monospace
+ 179 002e 00BF     		.section	.text.lv_font_get_bitmap,"ax",%progbits
+ 180              		.align	2
+ 181              		.global	lv_font_get_bitmap
+ 182              		.thumb
+ 183              		.thumb_func
+ 184              		.type	lv_font_get_bitmap, %function
+ 185              	lv_font_get_bitmap:
+ 186              	.LFB5:
+ 107:..\lvgl\lv_misc/lv_font.c **** 
+ 108:..\lvgl\lv_misc/lv_font.c **** /**
+ 109:..\lvgl\lv_misc/lv_font.c ****  * Return with the bitmap of a font.
+ 110:..\lvgl\lv_misc/lv_font.c ****  * @param font_p pointer to a font
+ 111:..\lvgl\lv_misc/lv_font.c ****  * @param letter an UNICODE character code
+ 112:..\lvgl\lv_misc/lv_font.c ****  * @return  pointer to the bitmap of the letter
+ 113:..\lvgl\lv_misc/lv_font.c ****  */
+ 114:..\lvgl\lv_misc/lv_font.c **** const uint8_t * lv_font_get_bitmap(const lv_font_t * font_p, uint32_t letter)
+ 115:..\lvgl\lv_misc/lv_font.c **** {
+ 187              		.loc 1 115 0
+ 188              		.cfi_startproc
+ 189              		@ args = 0, pretend = 0, frame = 0
+ 190              		@ frame_needed = 0, uses_anonymous_args = 0
+ 191              	.LVL16:
+ 192 0000 38B5     		push	{r3, r4, r5, lr}
+ 193              		.cfi_def_cfa_offset 16
+ 194              		.cfi_offset 3, -16
+ 195              		.cfi_offset 4, -12
+ 196              		.cfi_offset 5, -8
+ 197              		.cfi_offset 14, -4
+ 198 0002 0446     		mov	r4, r0
+ 199 0004 0D46     		mov	r5, r1
+ 200              	.LVL17:
+ 116:..\lvgl\lv_misc/lv_font.c ****     const lv_font_t * font_i = font_p;
+ 117:..\lvgl\lv_misc/lv_font.c ****     while(font_i != NULL) {
+ 201              		.loc 1 117 0
+ 202 0006 05E0     		b	.L19
+ 203              	.LVL18:
+ 204              	.L21:
+ 205              	.LBB2:
+ 118:..\lvgl\lv_misc/lv_font.c ****         const uint8_t * bitmap = font_i->get_bitmap(font_i, letter);
+ 206              		.loc 1 118 0
+ 207 0008 6369     		ldr	r3, [r4, #20]
+ 208 000a 2946     		mov	r1, r5
+ 209 000c 2046     		mov	r0, r4
+ 210 000e 9847     		blx	r3
+ 211              	.LVL19:
+ 119:..\lvgl\lv_misc/lv_font.c ****         if(bitmap) return bitmap;
+ 212              		.loc 1 119 0
+ 213 0010 20B9     		cbnz	r0, .L22
+ 120:..\lvgl\lv_misc/lv_font.c **** 
+ 121:..\lvgl\lv_misc/lv_font.c ****         font_i = font_i->next_page;
+ 214              		.loc 1 121 0
+ 215 0012 E469     		ldr	r4, [r4, #28]
+ 216              	.LVL20:
+ 217              	.L19:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 7
+
+
+ 218              	.LBE2:
+ 117:..\lvgl\lv_misc/lv_font.c ****         const uint8_t * bitmap = font_i->get_bitmap(font_i, letter);
+ 219              		.loc 1 117 0
+ 220 0014 002C     		cmp	r4, #0
+ 221 0016 F7D1     		bne	.L21
+ 122:..\lvgl\lv_misc/lv_font.c ****     }
+ 123:..\lvgl\lv_misc/lv_font.c **** 
+ 124:..\lvgl\lv_misc/lv_font.c ****     return NULL;
+ 222              		.loc 1 124 0
+ 223 0018 0020     		movs	r0, #0
+ 224 001a 38BD     		pop	{r3, r4, r5, pc}
+ 225              	.LVL21:
+ 226              	.L22:
+ 125:..\lvgl\lv_misc/lv_font.c **** }
+ 227              		.loc 1 125 0
+ 228 001c 38BD     		pop	{r3, r4, r5, pc}
+ 229              		.cfi_endproc
+ 230              	.LFE5:
+ 231              		.size	lv_font_get_bitmap, .-lv_font_get_bitmap
+ 232 001e 00BF     		.section	.text.lv_font_get_width,"ax",%progbits
+ 233              		.align	2
+ 234              		.global	lv_font_get_width
+ 235              		.thumb
+ 236              		.thumb_func
+ 237              		.type	lv_font_get_width, %function
+ 238              	lv_font_get_width:
+ 239              	.LFB6:
+ 126:..\lvgl\lv_misc/lv_font.c **** 
+ 127:..\lvgl\lv_misc/lv_font.c **** /**
+ 128:..\lvgl\lv_misc/lv_font.c ****  * Get the width of a letter in a font. If `monospace` is set then return with it.
+ 129:..\lvgl\lv_misc/lv_font.c ****  * @param font_p pointer to a font
+ 130:..\lvgl\lv_misc/lv_font.c ****  * @param letter an UNICODE character code
+ 131:..\lvgl\lv_misc/lv_font.c ****  * @return the width of a letter
+ 132:..\lvgl\lv_misc/lv_font.c ****  */
+ 133:..\lvgl\lv_misc/lv_font.c **** uint8_t lv_font_get_width(const lv_font_t * font_p, uint32_t letter)
+ 134:..\lvgl\lv_misc/lv_font.c **** {
+ 240              		.loc 1 134 0
+ 241              		.cfi_startproc
+ 242              		@ args = 0, pretend = 0, frame = 0
+ 243              		@ frame_needed = 0, uses_anonymous_args = 0
+ 244              	.LVL22:
+ 245 0000 38B5     		push	{r3, r4, r5, lr}
+ 246              		.cfi_def_cfa_offset 16
+ 247              		.cfi_offset 3, -16
+ 248              		.cfi_offset 4, -12
+ 249              		.cfi_offset 5, -8
+ 250              		.cfi_offset 14, -4
+ 251 0002 0446     		mov	r4, r0
+ 252 0004 0D46     		mov	r5, r1
+ 253              	.LVL23:
+ 135:..\lvgl\lv_misc/lv_font.c ****     const lv_font_t * font_i = font_p;
+ 136:..\lvgl\lv_misc/lv_font.c ****     int16_t w;
+ 137:..\lvgl\lv_misc/lv_font.c ****     while(font_i != NULL) {
+ 254              		.loc 1 137 0
+ 255 0006 0DE0     		b	.L25
+ 256              	.LVL24:
+ 257              	.L29:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 8
+
+
+ 138:..\lvgl\lv_misc/lv_font.c ****         w = font_i->get_width(font_i, letter);
+ 258              		.loc 1 138 0
+ 259 0008 A369     		ldr	r3, [r4, #24]
+ 260 000a 2946     		mov	r1, r5
+ 261 000c 2046     		mov	r0, r4
+ 262 000e 9847     		blx	r3
+ 263              	.LVL25:
+ 139:..\lvgl\lv_misc/lv_font.c ****         if(w >= 0) {
+ 264              		.loc 1 139 0
+ 265 0010 0028     		cmp	r0, #0
+ 266              	.LVL26:
+ 267 0012 06DB     		blt	.L26
+ 268              	.LBB3:
+ 140:..\lvgl\lv_misc/lv_font.c ****             /*Glyph found*/
+ 141:..\lvgl\lv_misc/lv_font.c ****             uint8_t m = font_i->monospace;
+ 269              		.loc 1 141 0
+ 270 0014 236A     		ldr	r3, [r4, #32]
+ 271 0016 C3F30733 		ubfx	r3, r3, #12, #8
+ 272              	.LVL27:
+ 142:..\lvgl\lv_misc/lv_font.c ****             if(m) w = m;
+ 273              		.loc 1 142 0
+ 274 001a 03B1     		cbz	r3, .L27
+ 275              		.loc 1 142 0 is_stmt 0 discriminator 1
+ 276 001c 18B2     		sxth	r0, r3
+ 277              	.LVL28:
+ 278              	.L27:
+ 143:..\lvgl\lv_misc/lv_font.c ****             return w;
+ 279              		.loc 1 143 0 is_stmt 1
+ 280 001e C0B2     		uxtb	r0, r0
+ 281              	.LVL29:
+ 282 0020 38BD     		pop	{r3, r4, r5, pc}
+ 283              	.LVL30:
+ 284              	.L26:
+ 285              	.LBE3:
+ 144:..\lvgl\lv_misc/lv_font.c ****         }
+ 145:..\lvgl\lv_misc/lv_font.c **** 
+ 146:..\lvgl\lv_misc/lv_font.c ****         font_i = font_i->next_page;
+ 286              		.loc 1 146 0
+ 287 0022 E469     		ldr	r4, [r4, #28]
+ 288              	.LVL31:
+ 289              	.L25:
+ 137:..\lvgl\lv_misc/lv_font.c ****         w = font_i->get_width(font_i, letter);
+ 290              		.loc 1 137 0
+ 291 0024 002C     		cmp	r4, #0
+ 292 0026 EFD1     		bne	.L29
+ 147:..\lvgl\lv_misc/lv_font.c ****     }
+ 148:..\lvgl\lv_misc/lv_font.c **** 
+ 149:..\lvgl\lv_misc/lv_font.c ****     return 0;
+ 293              		.loc 1 149 0
+ 294 0028 0020     		movs	r0, #0
+ 150:..\lvgl\lv_misc/lv_font.c **** 
+ 151:..\lvgl\lv_misc/lv_font.c **** }
+ 295              		.loc 1 151 0
+ 296 002a 38BD     		pop	{r3, r4, r5, pc}
+ 297              		.cfi_endproc
+ 298              	.LFE6:
+ 299              		.size	lv_font_get_width, .-lv_font_get_width
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 9
+
+
+ 300              		.section	.text.lv_font_get_real_width,"ax",%progbits
+ 301              		.align	2
+ 302              		.global	lv_font_get_real_width
+ 303              		.thumb
+ 304              		.thumb_func
+ 305              		.type	lv_font_get_real_width, %function
+ 306              	lv_font_get_real_width:
+ 307              	.LFB7:
+ 152:..\lvgl\lv_misc/lv_font.c **** 
+ 153:..\lvgl\lv_misc/lv_font.c **** /**
+ 154:..\lvgl\lv_misc/lv_font.c ****  * Get the width of the letter without overwriting it with the `monospace` attribute
+ 155:..\lvgl\lv_misc/lv_font.c ****  * @param font_p pointer to a font
+ 156:..\lvgl\lv_misc/lv_font.c ****  * @param letter an UNICODE character code
+ 157:..\lvgl\lv_misc/lv_font.c ****  * @return the width of a letter
+ 158:..\lvgl\lv_misc/lv_font.c ****  */
+ 159:..\lvgl\lv_misc/lv_font.c **** uint8_t lv_font_get_real_width(const lv_font_t * font_p, uint32_t letter)
+ 160:..\lvgl\lv_misc/lv_font.c **** {
+ 308              		.loc 1 160 0
+ 309              		.cfi_startproc
+ 310              		@ args = 0, pretend = 0, frame = 0
+ 311              		@ frame_needed = 0, uses_anonymous_args = 0
+ 312              	.LVL32:
+ 313 0000 38B5     		push	{r3, r4, r5, lr}
+ 314              		.cfi_def_cfa_offset 16
+ 315              		.cfi_offset 3, -16
+ 316              		.cfi_offset 4, -12
+ 317              		.cfi_offset 5, -8
+ 318              		.cfi_offset 14, -4
+ 319 0002 0446     		mov	r4, r0
+ 320 0004 0D46     		mov	r5, r1
+ 321              	.LVL33:
+ 161:..\lvgl\lv_misc/lv_font.c ****     const lv_font_t * font_i = font_p;
+ 162:..\lvgl\lv_misc/lv_font.c ****     int16_t w;
+ 163:..\lvgl\lv_misc/lv_font.c ****     while(font_i != NULL) {
+ 322              		.loc 1 163 0
+ 323 0006 08E0     		b	.L32
+ 324              	.LVL34:
+ 325              	.L35:
+ 164:..\lvgl\lv_misc/lv_font.c ****         w = font_i->get_width(font_i, letter);
+ 326              		.loc 1 164 0
+ 327 0008 A369     		ldr	r3, [r4, #24]
+ 328 000a 2946     		mov	r1, r5
+ 329 000c 2046     		mov	r0, r4
+ 330 000e 9847     		blx	r3
+ 331              	.LVL35:
+ 165:..\lvgl\lv_misc/lv_font.c ****         if(w >= 0) return w;
+ 332              		.loc 1 165 0
+ 333 0010 0028     		cmp	r0, #0
+ 334              	.LVL36:
+ 335 0012 01DB     		blt	.L33
+ 336              		.loc 1 165 0 is_stmt 0 discriminator 1
+ 337 0014 C0B2     		uxtb	r0, r0
+ 338 0016 38BD     		pop	{r3, r4, r5, pc}
+ 339              	.LVL37:
+ 340              	.L33:
+ 166:..\lvgl\lv_misc/lv_font.c **** 
+ 167:..\lvgl\lv_misc/lv_font.c ****         font_i = font_i->next_page;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 10
+
+
+ 341              		.loc 1 167 0 is_stmt 1
+ 342 0018 E469     		ldr	r4, [r4, #28]
+ 343              	.LVL38:
+ 344              	.L32:
+ 163:..\lvgl\lv_misc/lv_font.c ****         w = font_i->get_width(font_i, letter);
+ 345              		.loc 1 163 0
+ 346 001a 002C     		cmp	r4, #0
+ 347 001c F4D1     		bne	.L35
+ 168:..\lvgl\lv_misc/lv_font.c ****     }
+ 169:..\lvgl\lv_misc/lv_font.c **** 
+ 170:..\lvgl\lv_misc/lv_font.c ****     return 0;
+ 348              		.loc 1 170 0
+ 349 001e 0020     		movs	r0, #0
+ 171:..\lvgl\lv_misc/lv_font.c **** }
+ 350              		.loc 1 171 0
+ 351 0020 38BD     		pop	{r3, r4, r5, pc}
+ 352              		.cfi_endproc
+ 353              	.LFE7:
+ 354              		.size	lv_font_get_real_width, .-lv_font_get_real_width
+ 355 0022 00BF     		.section	.text.lv_font_get_bpp,"ax",%progbits
+ 356              		.align	2
+ 357              		.global	lv_font_get_bpp
+ 358              		.thumb
+ 359              		.thumb_func
+ 360              		.type	lv_font_get_bpp, %function
+ 361              	lv_font_get_bpp:
+ 362              	.LFB8:
+ 172:..\lvgl\lv_misc/lv_font.c **** 
+ 173:..\lvgl\lv_misc/lv_font.c **** /**
+ 174:..\lvgl\lv_misc/lv_font.c ****  * Get the bit-per-pixel of font
+ 175:..\lvgl\lv_misc/lv_font.c ****  * @param font pointer to font
+ 176:..\lvgl\lv_misc/lv_font.c ****  * @param letter a letter from font (font extensions can have different bpp)
+ 177:..\lvgl\lv_misc/lv_font.c ****  * @return bpp of the font (or font extension)
+ 178:..\lvgl\lv_misc/lv_font.c ****  */
+ 179:..\lvgl\lv_misc/lv_font.c **** uint8_t lv_font_get_bpp(const lv_font_t * font, uint32_t letter)
+ 180:..\lvgl\lv_misc/lv_font.c **** {
+ 363              		.loc 1 180 0
+ 364              		.cfi_startproc
+ 365              		@ args = 0, pretend = 0, frame = 0
+ 366              		@ frame_needed = 0, uses_anonymous_args = 0
+ 367              		@ link register save eliminated.
+ 368              	.LVL39:
+ 181:..\lvgl\lv_misc/lv_font.c ****     const lv_font_t * font_i = font;
+ 182:..\lvgl\lv_misc/lv_font.c ****     while(font_i != NULL) {
+ 369              		.loc 1 182 0
+ 370 0000 0BE0     		b	.L38
+ 371              	.LVL40:
+ 372              	.L41:
+ 183:..\lvgl\lv_misc/lv_font.c ****         if(letter >= font_i->unicode_first && letter <= font_i->unicode_last) {
+ 373              		.loc 1 183 0
+ 374 0002 0368     		ldr	r3, [r0]
+ 375 0004 8B42     		cmp	r3, r1
+ 376 0006 07D8     		bhi	.L39
+ 377              		.loc 1 183 0 is_stmt 0 discriminator 1
+ 378 0008 4368     		ldr	r3, [r0, #4]
+ 379 000a 9942     		cmp	r1, r3
+ 380 000c 04D8     		bhi	.L39
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 11
+
+
+ 184:..\lvgl\lv_misc/lv_font.c ****             return font_i->bpp;
+ 381              		.loc 1 184 0 is_stmt 1
+ 382 000e 90F82100 		ldrb	r0, [r0, #33]	@ zero_extendqisi2
+ 383              	.LVL41:
+ 384 0012 00F00F00 		and	r0, r0, #15
+ 385 0016 7047     		bx	lr
+ 386              	.LVL42:
+ 387              	.L39:
+ 185:..\lvgl\lv_misc/lv_font.c ****         }
+ 186:..\lvgl\lv_misc/lv_font.c ****         font_i = font_i->next_page;
+ 388              		.loc 1 186 0
+ 389 0018 C069     		ldr	r0, [r0, #28]
+ 390              	.LVL43:
+ 391              	.L38:
+ 182:..\lvgl\lv_misc/lv_font.c ****         if(letter >= font_i->unicode_first && letter <= font_i->unicode_last) {
+ 392              		.loc 1 182 0
+ 393 001a 0028     		cmp	r0, #0
+ 394 001c F1D1     		bne	.L41
+ 187:..\lvgl\lv_misc/lv_font.c ****     }
+ 188:..\lvgl\lv_misc/lv_font.c **** 
+ 189:..\lvgl\lv_misc/lv_font.c ****     return 0;
+ 190:..\lvgl\lv_misc/lv_font.c **** 
+ 191:..\lvgl\lv_misc/lv_font.c **** }
+ 395              		.loc 1 191 0
+ 396 001e 7047     		bx	lr
+ 397              		.cfi_endproc
+ 398              	.LFE8:
+ 399              		.size	lv_font_get_bpp, .-lv_font_get_bpp
+ 400              		.section	.text.lv_font_get_bitmap_continuous,"ax",%progbits
+ 401              		.align	2
+ 402              		.global	lv_font_get_bitmap_continuous
+ 403              		.thumb
+ 404              		.thumb_func
+ 405              		.type	lv_font_get_bitmap_continuous, %function
+ 406              	lv_font_get_bitmap_continuous:
+ 407              	.LFB9:
+ 192:..\lvgl\lv_misc/lv_font.c **** 
+ 193:..\lvgl\lv_misc/lv_font.c **** /**
+ 194:..\lvgl\lv_misc/lv_font.c ****  * Generic bitmap get function used in 'font->get_bitmap' when the font contains all characters in 
+ 195:..\lvgl\lv_misc/lv_font.c ****  * @param font pointer to font
+ 196:..\lvgl\lv_misc/lv_font.c ****  * @param unicode_letter an unicode letter which bitmap should be get
+ 197:..\lvgl\lv_misc/lv_font.c ****  * @return pointer to the bitmap or NULL if not found
+ 198:..\lvgl\lv_misc/lv_font.c ****  */
+ 199:..\lvgl\lv_misc/lv_font.c **** const uint8_t * lv_font_get_bitmap_continuous(const lv_font_t * font, uint32_t unicode_letter)
+ 200:..\lvgl\lv_misc/lv_font.c **** {
+ 408              		.loc 1 200 0
+ 409              		.cfi_startproc
+ 410              		@ args = 0, pretend = 0, frame = 0
+ 411              		@ frame_needed = 0, uses_anonymous_args = 0
+ 412              		@ link register save eliminated.
+ 413              	.LVL44:
+ 201:..\lvgl\lv_misc/lv_font.c ****     /*Check the range*/
+ 202:..\lvgl\lv_misc/lv_font.c ****     if(unicode_letter < font->unicode_first || unicode_letter > font->unicode_last) return NULL;
+ 414              		.loc 1 202 0
+ 415 0000 0368     		ldr	r3, [r0]
+ 416 0002 8B42     		cmp	r3, r1
+ 417 0004 0AD8     		bhi	.L44
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 12
+
+
+ 418              		.loc 1 202 0 is_stmt 0 discriminator 2
+ 419 0006 4268     		ldr	r2, [r0, #4]
+ 420 0008 9142     		cmp	r1, r2
+ 421 000a 09D8     		bhi	.L45
+ 203:..\lvgl\lv_misc/lv_font.c **** 
+ 204:..\lvgl\lv_misc/lv_font.c ****     uint32_t index = (unicode_letter - font->unicode_first);
+ 422              		.loc 1 204 0 is_stmt 1
+ 423 000c C91A     		subs	r1, r1, r3
+ 424              	.LVL45:
+ 205:..\lvgl\lv_misc/lv_font.c ****     return &font->glyph_bitmap[font->glyph_dsc[index].glyph_index];
+ 425              		.loc 1 205 0
+ 426 000e 8368     		ldr	r3, [r0, #8]
+ 427 0010 C268     		ldr	r2, [r0, #12]
+ 428 0012 52F82100 		ldr	r0, [r2, r1, lsl #2]
+ 429              	.LVL46:
+ 430 0016 03EB1020 		add	r0, r3, r0, lsr #8
+ 431 001a 7047     		bx	lr
+ 432              	.LVL47:
+ 433              	.L44:
+ 202:..\lvgl\lv_misc/lv_font.c **** 
+ 434              		.loc 1 202 0
+ 435 001c 0020     		movs	r0, #0
+ 436              	.LVL48:
+ 437 001e 7047     		bx	lr
+ 438              	.LVL49:
+ 439              	.L45:
+ 440 0020 0020     		movs	r0, #0
+ 441              	.LVL50:
+ 206:..\lvgl\lv_misc/lv_font.c **** }
+ 442              		.loc 1 206 0
+ 443 0022 7047     		bx	lr
+ 444              		.cfi_endproc
+ 445              	.LFE9:
+ 446              		.size	lv_font_get_bitmap_continuous, .-lv_font_get_bitmap_continuous
+ 447              		.section	.text.lv_font_get_bitmap_sparse,"ax",%progbits
+ 448              		.align	2
+ 449              		.global	lv_font_get_bitmap_sparse
+ 450              		.thumb
+ 451              		.thumb_func
+ 452              		.type	lv_font_get_bitmap_sparse, %function
+ 453              	lv_font_get_bitmap_sparse:
+ 454              	.LFB10:
+ 207:..\lvgl\lv_misc/lv_font.c **** 
+ 208:..\lvgl\lv_misc/lv_font.c **** /**
+ 209:..\lvgl\lv_misc/lv_font.c ****  * Generic bitmap get function used in 'font->get_bitmap' when the font NOT contains all characters
+ 210:..\lvgl\lv_misc/lv_font.c ****  * @param font pointer to font
+ 211:..\lvgl\lv_misc/lv_font.c ****  * @param unicode_letter an unicode letter which bitmap should be get
+ 212:..\lvgl\lv_misc/lv_font.c ****  * @return pointer to the bitmap or NULL if not found
+ 213:..\lvgl\lv_misc/lv_font.c ****  */
+ 214:..\lvgl\lv_misc/lv_font.c **** const uint8_t * lv_font_get_bitmap_sparse(const lv_font_t * font, uint32_t unicode_letter)
+ 215:..\lvgl\lv_misc/lv_font.c **** {
+ 455              		.loc 1 215 0
+ 456              		.cfi_startproc
+ 457              		@ args = 0, pretend = 0, frame = 0
+ 458              		@ frame_needed = 0, uses_anonymous_args = 0
+ 459              		@ link register save eliminated.
+ 460              	.LVL51:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 13
+
+
+ 216:..\lvgl\lv_misc/lv_font.c ****     /*Check the range*/
+ 217:..\lvgl\lv_misc/lv_font.c ****     if(unicode_letter < font->unicode_first || unicode_letter > font->unicode_last) return NULL;
+ 461              		.loc 1 217 0
+ 462 0000 0368     		ldr	r3, [r0]
+ 463 0002 8B42     		cmp	r3, r1
+ 464 0004 16D8     		bhi	.L51
+ 465              		.loc 1 217 0 is_stmt 0 discriminator 2
+ 466 0006 4368     		ldr	r3, [r0, #4]
+ 467 0008 9942     		cmp	r1, r3
+ 468 000a 15D8     		bhi	.L52
+ 215:..\lvgl\lv_misc/lv_font.c ****     /*Check the range*/
+ 469              		.loc 1 215 0 is_stmt 1
+ 470 000c 10B4     		push	{r4}
+ 471              		.cfi_def_cfa_offset 4
+ 472              		.cfi_offset 4, -4
+ 473 000e 0023     		movs	r3, #0
+ 474 0010 08E0     		b	.L48
+ 475              	.LVL52:
+ 476              	.L50:
+ 218:..\lvgl\lv_misc/lv_font.c **** 
+ 219:..\lvgl\lv_misc/lv_font.c ****     uint32_t i;
+ 220:..\lvgl\lv_misc/lv_font.c ****     for(i = 0; font->unicode_list[i] != 0; i++) {
+ 221:..\lvgl\lv_misc/lv_font.c ****         if(font->unicode_list[i] == unicode_letter) {
+ 477              		.loc 1 221 0
+ 478 0012 9142     		cmp	r1, r2
+ 479 0014 05D1     		bne	.L49
+ 222:..\lvgl\lv_misc/lv_font.c ****             return &font->glyph_bitmap[font->glyph_dsc[i].glyph_index];
+ 480              		.loc 1 222 0
+ 481 0016 8368     		ldr	r3, [r0, #8]
+ 482              	.LVL53:
+ 483 0018 C268     		ldr	r2, [r0, #12]
+ 484 001a 1059     		ldr	r0, [r2, r4]
+ 485              	.LVL54:
+ 486 001c 03EB1020 		add	r0, r3, r0, lsr #8
+ 487 0020 0CE0     		b	.L47
+ 488              	.LVL55:
+ 489              	.L49:
+ 220:..\lvgl\lv_misc/lv_font.c ****         if(font->unicode_list[i] == unicode_letter) {
+ 490              		.loc 1 220 0 discriminator 2
+ 491 0022 0133     		adds	r3, r3, #1
+ 492              	.LVL56:
+ 493              	.L48:
+ 220:..\lvgl\lv_misc/lv_font.c ****         if(font->unicode_list[i] == unicode_letter) {
+ 494              		.loc 1 220 0 is_stmt 0 discriminator 1
+ 495 0024 0269     		ldr	r2, [r0, #16]
+ 496 0026 9C00     		lsls	r4, r3, #2
+ 497 0028 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 498 002c 002A     		cmp	r2, #0
+ 499 002e F0D1     		bne	.L50
+ 223:..\lvgl\lv_misc/lv_font.c ****         }
+ 224:..\lvgl\lv_misc/lv_font.c ****     }
+ 225:..\lvgl\lv_misc/lv_font.c **** 
+ 226:..\lvgl\lv_misc/lv_font.c ****     return NULL;
+ 500              		.loc 1 226 0 is_stmt 1
+ 501 0030 0020     		movs	r0, #0
+ 502              	.LVL57:
+ 503 0032 03E0     		b	.L47
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 14
+
+
+ 504              	.LVL58:
+ 505              	.L51:
+ 506              		.cfi_def_cfa_offset 0
+ 507              		.cfi_restore 4
+ 217:..\lvgl\lv_misc/lv_font.c **** 
+ 508              		.loc 1 217 0
+ 509 0034 0020     		movs	r0, #0
+ 510              	.LVL59:
+ 511 0036 7047     		bx	lr
+ 512              	.LVL60:
+ 513              	.L52:
+ 514 0038 0020     		movs	r0, #0
+ 515              	.LVL61:
+ 516 003a 7047     		bx	lr
+ 517              	.L47:
+ 518              		.cfi_def_cfa_offset 4
+ 519              		.cfi_offset 4, -4
+ 227:..\lvgl\lv_misc/lv_font.c **** }
+ 520              		.loc 1 227 0
+ 521 003c 10BC     		pop	{r4}
+ 522              		.cfi_restore 4
+ 523              		.cfi_def_cfa_offset 0
+ 524 003e 7047     		bx	lr
+ 525              		.cfi_endproc
+ 526              	.LFE10:
+ 527              		.size	lv_font_get_bitmap_sparse, .-lv_font_get_bitmap_sparse
+ 528              		.section	.text.lv_font_get_width_continuous,"ax",%progbits
+ 529              		.align	2
+ 530              		.global	lv_font_get_width_continuous
+ 531              		.thumb
+ 532              		.thumb_func
+ 533              		.type	lv_font_get_width_continuous, %function
+ 534              	lv_font_get_width_continuous:
+ 535              	.LFB11:
+ 228:..\lvgl\lv_misc/lv_font.c **** 
+ 229:..\lvgl\lv_misc/lv_font.c **** /**
+ 230:..\lvgl\lv_misc/lv_font.c ****  * Generic glyph width get function used in 'font->get_width' when the font contains all characters
+ 231:..\lvgl\lv_misc/lv_font.c ****  * @param font pointer to font
+ 232:..\lvgl\lv_misc/lv_font.c ****  * @param unicode_letter an unicode letter which width should be get
+ 233:..\lvgl\lv_misc/lv_font.c ****  * @return width of the gylph or -1 if not found
+ 234:..\lvgl\lv_misc/lv_font.c ****  */
+ 235:..\lvgl\lv_misc/lv_font.c **** int16_t lv_font_get_width_continuous(const lv_font_t * font, uint32_t unicode_letter)
+ 236:..\lvgl\lv_misc/lv_font.c **** {
+ 536              		.loc 1 236 0
+ 537              		.cfi_startproc
+ 538              		@ args = 0, pretend = 0, frame = 0
+ 539              		@ frame_needed = 0, uses_anonymous_args = 0
+ 540              		@ link register save eliminated.
+ 541              	.LVL62:
+ 237:..\lvgl\lv_misc/lv_font.c ****     /*Check the range*/
+ 238:..\lvgl\lv_misc/lv_font.c ****     if(unicode_letter < font->unicode_first || unicode_letter > font->unicode_last) {
+ 542              		.loc 1 238 0
+ 543 0000 0368     		ldr	r3, [r0]
+ 544 0002 8B42     		cmp	r3, r1
+ 545 0004 07D8     		bhi	.L57
+ 546              		.loc 1 238 0 is_stmt 0 discriminator 1
+ 547 0006 4268     		ldr	r2, [r0, #4]
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 15
+
+
+ 548 0008 9142     		cmp	r1, r2
+ 549 000a 07D8     		bhi	.L58
+ 239:..\lvgl\lv_misc/lv_font.c ****         return -1;
+ 240:..\lvgl\lv_misc/lv_font.c ****     }
+ 241:..\lvgl\lv_misc/lv_font.c **** 
+ 242:..\lvgl\lv_misc/lv_font.c ****     uint32_t index = (unicode_letter - font->unicode_first);
+ 550              		.loc 1 242 0 is_stmt 1
+ 551 000c C91A     		subs	r1, r1, r3
+ 552              	.LVL63:
+ 243:..\lvgl\lv_misc/lv_font.c ****     return font->glyph_dsc[index].w_px;
+ 553              		.loc 1 243 0
+ 554 000e C368     		ldr	r3, [r0, #12]
+ 555 0010 13F82100 		ldrb	r0, [r3, r1, lsl #2]	@ zero_extendqisi2
+ 556              	.LVL64:
+ 557 0014 7047     		bx	lr
+ 558              	.LVL65:
+ 559              	.L57:
+ 239:..\lvgl\lv_misc/lv_font.c ****         return -1;
+ 560              		.loc 1 239 0
+ 561 0016 4FF0FF30 		mov	r0, #-1
+ 562              	.LVL66:
+ 563 001a 7047     		bx	lr
+ 564              	.LVL67:
+ 565              	.L58:
+ 566 001c 4FF0FF30 		mov	r0, #-1
+ 567              	.LVL68:
+ 244:..\lvgl\lv_misc/lv_font.c **** }
+ 568              		.loc 1 244 0
+ 569 0020 7047     		bx	lr
+ 570              		.cfi_endproc
+ 571              	.LFE11:
+ 572              		.size	lv_font_get_width_continuous, .-lv_font_get_width_continuous
+ 573 0022 00BF     		.section	.text.lv_font_get_width_sparse,"ax",%progbits
+ 574              		.align	2
+ 575              		.global	lv_font_get_width_sparse
+ 576              		.thumb
+ 577              		.thumb_func
+ 578              		.type	lv_font_get_width_sparse, %function
+ 579              	lv_font_get_width_sparse:
+ 580              	.LFB12:
+ 245:..\lvgl\lv_misc/lv_font.c **** 
+ 246:..\lvgl\lv_misc/lv_font.c **** /**
+ 247:..\lvgl\lv_misc/lv_font.c ****  * Generic glyph width get function used in 'font->get_bitmap' when the font NOT contains all chara
+ 248:..\lvgl\lv_misc/lv_font.c ****  * @param font pointer to font
+ 249:..\lvgl\lv_misc/lv_font.c ****  * @param unicode_letter an unicode letter which width should be get
+ 250:..\lvgl\lv_misc/lv_font.c ****  * @return width of the glyph or -1 if not found
+ 251:..\lvgl\lv_misc/lv_font.c ****  */
+ 252:..\lvgl\lv_misc/lv_font.c **** int16_t lv_font_get_width_sparse(const lv_font_t * font, uint32_t unicode_letter)
+ 253:..\lvgl\lv_misc/lv_font.c **** {
+ 581              		.loc 1 253 0
+ 582              		.cfi_startproc
+ 583              		@ args = 0, pretend = 0, frame = 0
+ 584              		@ frame_needed = 0, uses_anonymous_args = 0
+ 585              		@ link register save eliminated.
+ 586              	.LVL69:
+ 254:..\lvgl\lv_misc/lv_font.c ****     /*Check the range*/
+ 255:..\lvgl\lv_misc/lv_font.c ****     if(unicode_letter < font->unicode_first || unicode_letter > font->unicode_last) return -1;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 16
+
+
+ 587              		.loc 1 255 0
+ 588 0000 0368     		ldr	r3, [r0]
+ 589 0002 8B42     		cmp	r3, r1
+ 590 0004 14D8     		bhi	.L64
+ 591              		.loc 1 255 0 is_stmt 0 discriminator 2
+ 592 0006 4368     		ldr	r3, [r0, #4]
+ 593 0008 9942     		cmp	r1, r3
+ 594 000a 14D8     		bhi	.L65
+ 253:..\lvgl\lv_misc/lv_font.c ****     /*Check the range*/
+ 595              		.loc 1 253 0 is_stmt 1
+ 596 000c 10B4     		push	{r4}
+ 597              		.cfi_def_cfa_offset 4
+ 598              		.cfi_offset 4, -4
+ 599 000e 0023     		movs	r3, #0
+ 600 0010 05E0     		b	.L61
+ 601              	.LVL70:
+ 602              	.L63:
+ 256:..\lvgl\lv_misc/lv_font.c **** 
+ 257:..\lvgl\lv_misc/lv_font.c ****     uint32_t i;
+ 258:..\lvgl\lv_misc/lv_font.c ****     for(i = 0; font->unicode_list[i] != 0; i++) {
+ 259:..\lvgl\lv_misc/lv_font.c ****         if(font->unicode_list[i] == unicode_letter) {
+ 603              		.loc 1 259 0
+ 604 0012 9142     		cmp	r1, r2
+ 605 0014 02D1     		bne	.L62
+ 260:..\lvgl\lv_misc/lv_font.c ****             return font->glyph_dsc[i].w_px;
+ 606              		.loc 1 260 0
+ 607 0016 C368     		ldr	r3, [r0, #12]
+ 608              	.LVL71:
+ 609 0018 185D     		ldrb	r0, [r3, r4]	@ zero_extendqisi2
+ 610              	.LVL72:
+ 611 001a 0FE0     		b	.L60
+ 612              	.LVL73:
+ 613              	.L62:
+ 258:..\lvgl\lv_misc/lv_font.c ****         if(font->unicode_list[i] == unicode_letter) {
+ 614              		.loc 1 258 0 discriminator 2
+ 615 001c 0133     		adds	r3, r3, #1
+ 616              	.LVL74:
+ 617              	.L61:
+ 258:..\lvgl\lv_misc/lv_font.c ****         if(font->unicode_list[i] == unicode_letter) {
+ 618              		.loc 1 258 0 is_stmt 0 discriminator 1
+ 619 001e 0269     		ldr	r2, [r0, #16]
+ 620 0020 9C00     		lsls	r4, r3, #2
+ 621 0022 52F82320 		ldr	r2, [r2, r3, lsl #2]
+ 622 0026 002A     		cmp	r2, #0
+ 623 0028 F3D1     		bne	.L63
+ 261:..\lvgl\lv_misc/lv_font.c ****         }
+ 262:..\lvgl\lv_misc/lv_font.c ****     }
+ 263:..\lvgl\lv_misc/lv_font.c **** 
+ 264:..\lvgl\lv_misc/lv_font.c ****     return -1;
+ 624              		.loc 1 264 0 is_stmt 1
+ 625 002a 4FF0FF30 		mov	r0, #-1
+ 626              	.LVL75:
+ 627 002e 05E0     		b	.L60
+ 628              	.LVL76:
+ 629              	.L64:
+ 630              		.cfi_def_cfa_offset 0
+ 631              		.cfi_restore 4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 17
+
+
+ 255:..\lvgl\lv_misc/lv_font.c **** 
+ 632              		.loc 1 255 0
+ 633 0030 4FF0FF30 		mov	r0, #-1
+ 634              	.LVL77:
+ 635 0034 7047     		bx	lr
+ 636              	.LVL78:
+ 637              	.L65:
+ 638 0036 4FF0FF30 		mov	r0, #-1
+ 639              	.LVL79:
+ 640 003a 7047     		bx	lr
+ 641              	.L60:
+ 642              		.cfi_def_cfa_offset 4
+ 643              		.cfi_offset 4, -4
+ 265:..\lvgl\lv_misc/lv_font.c **** }
+ 644              		.loc 1 265 0
+ 645 003c 10BC     		pop	{r4}
+ 646              		.cfi_restore 4
+ 647              		.cfi_def_cfa_offset 0
+ 648 003e 7047     		bx	lr
+ 649              		.cfi_endproc
+ 650              	.LFE12:
+ 651              		.size	lv_font_get_width_sparse, .-lv_font_get_width_sparse
+ 652              		.text
+ 653              	.Letext0:
+ 654              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 655              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 656              		.file 4 "..\\lvgl\\lv_misc\\lv_font.h"
+ 657              		.file 5 "..\\lvgl\\lv_misc\\../lv_fonts/lv_font_builtin.h"
+ 658              		.section	.debug_info,"",%progbits
+ 659              	.Ldebug_info0:
+ 660 0000 CF050000 		.4byte	0x5cf
+ 661 0004 0400     		.2byte	0x4
+ 662 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 663 000a 04       		.byte	0x4
+ 664 000b 01       		.uleb128 0x1
+ 665 000c 0F030000 		.4byte	.LASF55
+ 666 0010 0C       		.byte	0xc
+ 667 0011 9A000000 		.4byte	.LASF56
+ 668 0015 CC000000 		.4byte	.LASF57
+ 669 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 670 001d 00000000 		.4byte	0
+ 671 0021 00000000 		.4byte	.Ldebug_line0
+ 672 0025 02       		.uleb128 0x2
+ 673 0026 04       		.byte	0x4
+ 674 0027 05       		.byte	0x5
+ 675 0028 696E7400 		.ascii	"int\000"
+ 676 002c 03       		.uleb128 0x3
+ 677 002d 04       		.byte	0x4
+ 678 002e 07       		.byte	0x7
+ 679 002f 9B010000 		.4byte	.LASF0
+ 680 0033 03       		.uleb128 0x3
+ 681 0034 08       		.byte	0x8
+ 682 0035 05       		.byte	0x5
+ 683 0036 12010000 		.4byte	.LASF1
+ 684 003a 03       		.uleb128 0x3
+ 685 003b 08       		.byte	0x8
+ 686 003c 04       		.byte	0x4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 18
+
+
+ 687 003d 55010000 		.4byte	.LASF2
+ 688 0041 03       		.uleb128 0x3
+ 689 0042 01       		.byte	0x1
+ 690 0043 06       		.byte	0x6
+ 691 0044 6F010000 		.4byte	.LASF3
+ 692 0048 04       		.uleb128 0x4
+ 693 0049 2E010000 		.4byte	.LASF5
+ 694 004d 02       		.byte	0x2
+ 695 004e 1D       		.byte	0x1d
+ 696 004f 53000000 		.4byte	0x53
+ 697 0053 03       		.uleb128 0x3
+ 698 0054 01       		.byte	0x1
+ 699 0055 08       		.byte	0x8
+ 700 0056 61010000 		.4byte	.LASF4
+ 701 005a 04       		.uleb128 0x4
+ 702 005b B7020000 		.4byte	.LASF6
+ 703 005f 02       		.byte	0x2
+ 704 0060 29       		.byte	0x29
+ 705 0061 65000000 		.4byte	0x65
+ 706 0065 03       		.uleb128 0x3
+ 707 0066 02       		.byte	0x2
+ 708 0067 05       		.byte	0x5
+ 709 0068 3E000000 		.4byte	.LASF7
+ 710 006c 04       		.uleb128 0x4
+ 711 006d 65000000 		.4byte	.LASF8
+ 712 0071 02       		.byte	0x2
+ 713 0072 2B       		.byte	0x2b
+ 714 0073 77000000 		.4byte	0x77
+ 715 0077 03       		.uleb128 0x3
+ 716 0078 02       		.byte	0x2
+ 717 0079 07       		.byte	0x7
+ 718 007a E1010000 		.4byte	.LASF9
+ 719 007e 03       		.uleb128 0x3
+ 720 007f 04       		.byte	0x4
+ 721 0080 05       		.byte	0x5
+ 722 0081 20010000 		.4byte	.LASF10
+ 723 0085 04       		.uleb128 0x4
+ 724 0086 5A000000 		.4byte	.LASF11
+ 725 008a 02       		.byte	0x2
+ 726 008b 41       		.byte	0x41
+ 727 008c 90000000 		.4byte	0x90
+ 728 0090 03       		.uleb128 0x3
+ 729 0091 04       		.byte	0x4
+ 730 0092 07       		.byte	0x7
+ 731 0093 6B020000 		.4byte	.LASF12
+ 732 0097 03       		.uleb128 0x3
+ 733 0098 08       		.byte	0x8
+ 734 0099 07       		.byte	0x7
+ 735 009a 7B010000 		.4byte	.LASF13
+ 736 009e 04       		.uleb128 0x4
+ 737 009f 92000000 		.4byte	.LASF14
+ 738 00a3 03       		.byte	0x3
+ 739 00a4 18       		.byte	0x18
+ 740 00a5 48000000 		.4byte	0x48
+ 741 00a9 04       		.uleb128 0x4
+ 742 00aa 03020000 		.4byte	.LASF15
+ 743 00ae 03       		.byte	0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 19
+
+
+ 744 00af 20       		.byte	0x20
+ 745 00b0 5A000000 		.4byte	0x5a
+ 746 00b4 04       		.uleb128 0x4
+ 747 00b5 AF010000 		.4byte	.LASF16
+ 748 00b9 03       		.byte	0x3
+ 749 00ba 24       		.byte	0x24
+ 750 00bb 6C000000 		.4byte	0x6c
+ 751 00bf 04       		.uleb128 0x4
+ 752 00c0 92010000 		.4byte	.LASF17
+ 753 00c4 03       		.byte	0x3
+ 754 00c5 30       		.byte	0x30
+ 755 00c6 85000000 		.4byte	0x85
+ 756 00ca 05       		.uleb128 0x5
+ 757 00cb 04       		.byte	0x4
+ 758 00cc 04       		.byte	0x4
+ 759 00cd 25       		.byte	0x25
+ 760 00ce F1000000 		.4byte	0xf1
+ 761 00d2 06       		.uleb128 0x6
+ 762 00d3 29010000 		.4byte	.LASF18
+ 763 00d7 04       		.byte	0x4
+ 764 00d8 27       		.byte	0x27
+ 765 00d9 BF000000 		.4byte	0xbf
+ 766 00dd 04       		.byte	0x4
+ 767 00de 08       		.byte	0x8
+ 768 00df 18       		.byte	0x18
+ 769 00e0 00       		.byte	0
+ 770 00e1 06       		.uleb128 0x6
+ 771 00e2 C1020000 		.4byte	.LASF19
+ 772 00e6 04       		.byte	0x4
+ 773 00e7 28       		.byte	0x28
+ 774 00e8 BF000000 		.4byte	0xbf
+ 775 00ec 04       		.byte	0x4
+ 776 00ed 18       		.byte	0x18
+ 777 00ee 00       		.byte	0
+ 778 00ef 00       		.byte	0
+ 779 00f0 00       		.byte	0
+ 780 00f1 04       		.uleb128 0x4
+ 781 00f2 A4030000 		.4byte	.LASF20
+ 782 00f6 04       		.byte	0x4
+ 783 00f7 29       		.byte	0x29
+ 784 00f8 CA000000 		.4byte	0xca
+ 785 00fc 07       		.uleb128 0x7
+ 786 00fd CD020000 		.4byte	.LASF58
+ 787 0101 28       		.byte	0x28
+ 788 0102 04       		.byte	0x4
+ 789 0103 31       		.byte	0x31
+ 790 0104 A2010000 		.4byte	0x1a2
+ 791 0108 08       		.uleb128 0x8
+ 792 0109 0B020000 		.4byte	.LASF21
+ 793 010d 04       		.byte	0x4
+ 794 010e 33       		.byte	0x33
+ 795 010f BF000000 		.4byte	0xbf
+ 796 0113 00       		.byte	0
+ 797 0114 08       		.uleb128 0x8
+ 798 0115 AA020000 		.4byte	.LASF22
+ 799 0119 04       		.byte	0x4
+ 800 011a 34       		.byte	0x34
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 20
+
+
+ 801 011b BF000000 		.4byte	0xbf
+ 802 011f 04       		.byte	0x4
+ 803 0120 08       		.uleb128 0x8
+ 804 0121 70000000 		.4byte	.LASF23
+ 805 0125 04       		.byte	0x4
+ 806 0126 35       		.byte	0x35
+ 807 0127 A2010000 		.4byte	0x1a2
+ 808 012b 08       		.byte	0x8
+ 809 012c 08       		.uleb128 0x8
+ 810 012d 38010000 		.4byte	.LASF24
+ 811 0131 04       		.byte	0x4
+ 812 0132 36       		.byte	0x36
+ 813 0133 AD010000 		.4byte	0x1ad
+ 814 0137 0C       		.byte	0xc
+ 815 0138 08       		.uleb128 0x8
+ 816 0139 02030000 		.4byte	.LASF25
+ 817 013d 04       		.byte	0x4
+ 818 013e 37       		.byte	0x37
+ 819 013f B8010000 		.4byte	0x1b8
+ 820 0143 10       		.byte	0x10
+ 821 0144 08       		.uleb128 0x8
+ 822 0145 2E000000 		.4byte	.LASF26
+ 823 0149 04       		.byte	0x4
+ 824 014a 38       		.byte	0x38
+ 825 014b E2010000 		.4byte	0x1e2
+ 826 014f 14       		.byte	0x14
+ 827 0150 08       		.uleb128 0x8
+ 828 0151 24000000 		.4byte	.LASF27
+ 829 0155 04       		.byte	0x4
+ 830 0156 39       		.byte	0x39
+ 831 0157 FC010000 		.4byte	0x1fc
+ 832 015b 18       		.byte	0x18
+ 833 015c 08       		.uleb128 0x8
+ 834 015d A0020000 		.4byte	.LASF28
+ 835 0161 04       		.byte	0x4
+ 836 0162 3A       		.byte	0x3a
+ 837 0163 02020000 		.4byte	0x202
+ 838 0167 1C       		.byte	0x1c
+ 839 0168 06       		.uleb128 0x6
+ 840 0169 00000000 		.4byte	.LASF29
+ 841 016d 04       		.byte	0x4
+ 842 016e 3B       		.byte	0x3b
+ 843 016f BF000000 		.4byte	0xbf
+ 844 0173 04       		.byte	0x4
+ 845 0174 08       		.byte	0x8
+ 846 0175 18       		.byte	0x18
+ 847 0176 20       		.byte	0x20
+ 848 0177 09       		.uleb128 0x9
+ 849 0178 62707000 		.ascii	"bpp\000"
+ 850 017c 04       		.byte	0x4
+ 851 017d 3C       		.byte	0x3c
+ 852 017e BF000000 		.4byte	0xbf
+ 853 0182 04       		.byte	0x4
+ 854 0183 04       		.byte	0x4
+ 855 0184 14       		.byte	0x14
+ 856 0185 20       		.byte	0x20
+ 857 0186 06       		.uleb128 0x6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 21
+
+
+ 858 0187 1A000000 		.4byte	.LASF30
+ 859 018b 04       		.byte	0x4
+ 860 018c 3D       		.byte	0x3d
+ 861 018d BF000000 		.4byte	0xbf
+ 862 0191 04       		.byte	0x4
+ 863 0192 08       		.byte	0x8
+ 864 0193 0C       		.byte	0xc
+ 865 0194 20       		.byte	0x20
+ 866 0195 08       		.uleb128 0x8
+ 867 0196 C2000000 		.4byte	.LASF31
+ 868 019a 04       		.byte	0x4
+ 869 019b 3E       		.byte	0x3e
+ 870 019c B4000000 		.4byte	0xb4
+ 871 01a0 24       		.byte	0x24
+ 872 01a1 00       		.byte	0
+ 873 01a2 0A       		.uleb128 0xa
+ 874 01a3 04       		.byte	0x4
+ 875 01a4 A8010000 		.4byte	0x1a8
+ 876 01a8 0B       		.uleb128 0xb
+ 877 01a9 9E000000 		.4byte	0x9e
+ 878 01ad 0A       		.uleb128 0xa
+ 879 01ae 04       		.byte	0x4
+ 880 01af B3010000 		.4byte	0x1b3
+ 881 01b3 0B       		.uleb128 0xb
+ 882 01b4 F1000000 		.4byte	0xf1
+ 883 01b8 0A       		.uleb128 0xa
+ 884 01b9 04       		.byte	0x4
+ 885 01ba BE010000 		.4byte	0x1be
+ 886 01be 0B       		.uleb128 0xb
+ 887 01bf BF000000 		.4byte	0xbf
+ 888 01c3 0C       		.uleb128 0xc
+ 889 01c4 A2010000 		.4byte	0x1a2
+ 890 01c8 D7010000 		.4byte	0x1d7
+ 891 01cc 0D       		.uleb128 0xd
+ 892 01cd D7010000 		.4byte	0x1d7
+ 893 01d1 0D       		.uleb128 0xd
+ 894 01d2 BF000000 		.4byte	0xbf
+ 895 01d6 00       		.byte	0
+ 896 01d7 0A       		.uleb128 0xa
+ 897 01d8 04       		.byte	0x4
+ 898 01d9 DD010000 		.4byte	0x1dd
+ 899 01dd 0B       		.uleb128 0xb
+ 900 01de FC000000 		.4byte	0xfc
+ 901 01e2 0A       		.uleb128 0xa
+ 902 01e3 04       		.byte	0x4
+ 903 01e4 C3010000 		.4byte	0x1c3
+ 904 01e8 0C       		.uleb128 0xc
+ 905 01e9 A9000000 		.4byte	0xa9
+ 906 01ed FC010000 		.4byte	0x1fc
+ 907 01f1 0D       		.uleb128 0xd
+ 908 01f2 D7010000 		.4byte	0x1d7
+ 909 01f6 0D       		.uleb128 0xd
+ 910 01f7 BF000000 		.4byte	0xbf
+ 911 01fb 00       		.byte	0
+ 912 01fc 0A       		.uleb128 0xa
+ 913 01fd 04       		.byte	0x4
+ 914 01fe E8010000 		.4byte	0x1e8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 22
+
+
+ 915 0202 0A       		.uleb128 0xa
+ 916 0203 04       		.byte	0x4
+ 917 0204 FC000000 		.4byte	0xfc
+ 918 0208 04       		.uleb128 0x4
+ 919 0209 51020000 		.4byte	.LASF32
+ 920 020d 04       		.byte	0x4
+ 921 020e 3F       		.byte	0x3f
+ 922 020f FC000000 		.4byte	0xfc
+ 923 0213 0E       		.uleb128 0xe
+ 924 0214 44020000 		.4byte	.LASF33
+ 925 0218 01       		.byte	0x1
+ 926 0219 2C       		.byte	0x2c
+ 927 021a 00000000 		.4byte	.LFB1
+ 928 021e 08000000 		.4byte	.LFE1-.LFB1
+ 929 0222 01       		.uleb128 0x1
+ 930 0223 9C       		.byte	0x9c
+ 931 0224 32020000 		.4byte	0x232
+ 932 0228 0F       		.uleb128 0xf
+ 933 0229 06000000 		.4byte	.LVL0
+ 934 022d C7050000 		.4byte	0x5c7
+ 935 0231 00       		.byte	0
+ 936 0232 0E       		.uleb128 0xe
+ 937 0233 38020000 		.4byte	.LASF34
+ 938 0237 01       		.byte	0x1
+ 939 0238 36       		.byte	0x36
+ 940 0239 00000000 		.4byte	.LFB2
+ 941 023d 12000000 		.4byte	.LFE2-.LFB2
+ 942 0241 01       		.uleb128 0x1
+ 943 0242 9C       		.byte	0x9c
+ 944 0243 64020000 		.4byte	0x264
+ 945 0247 10       		.uleb128 0x10
+ 946 0248 83020000 		.4byte	.LASF35
+ 947 024c 01       		.byte	0x1
+ 948 024d 36       		.byte	0x36
+ 949 024e 64020000 		.4byte	0x264
+ 950 0252 01       		.uleb128 0x1
+ 951 0253 50       		.byte	0x50
+ 952 0254 11       		.uleb128 0x11
+ 953 0255 B4000000 		.4byte	.LASF36
+ 954 0259 01       		.byte	0x1
+ 955 025a 36       		.byte	0x36
+ 956 025b 64020000 		.4byte	0x264
+ 957 025f 00000000 		.4byte	.LLST0
+ 958 0263 00       		.byte	0
+ 959 0264 0A       		.uleb128 0xa
+ 960 0265 04       		.byte	0x4
+ 961 0266 08020000 		.4byte	0x208
+ 962 026a 0E       		.uleb128 0xe
+ 963 026b F4010000 		.4byte	.LASF37
+ 964 026f 01       		.byte	0x1
+ 965 0270 47       		.byte	0x47
+ 966 0271 00000000 		.4byte	.LFB3
+ 967 0275 16000000 		.4byte	.LFE3-.LFB3
+ 968 0279 01       		.uleb128 0x1
+ 969 027a 9C       		.byte	0x9c
+ 970 027b 9C020000 		.4byte	0x29c
+ 971 027f 10       		.uleb128 0x10
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 23
+
+
+ 972 0280 83020000 		.4byte	.LASF35
+ 973 0284 01       		.byte	0x1
+ 974 0285 47       		.byte	0x47
+ 975 0286 64020000 		.4byte	0x264
+ 976 028a 01       		.uleb128 0x1
+ 977 028b 50       		.byte	0x50
+ 978 028c 11       		.uleb128 0x11
+ 979 028d B4000000 		.4byte	.LASF36
+ 980 0291 01       		.byte	0x1
+ 981 0292 47       		.byte	0x47
+ 982 0293 64020000 		.4byte	0x264
+ 983 0297 1E000000 		.4byte	.LLST1
+ 984 029b 00       		.byte	0
+ 985 029c 12       		.uleb128 0x12
+ 986 029d 05000000 		.4byte	.LASF42
+ 987 02a1 01       		.byte	0x1
+ 988 02a2 5A       		.byte	0x5a
+ 989 02a3 02030000 		.4byte	0x302
+ 990 02a7 00000000 		.4byte	.LFB4
+ 991 02ab 2E000000 		.4byte	.LFE4-.LFB4
+ 992 02af 01       		.uleb128 0x1
+ 993 02b0 9C       		.byte	0x9c
+ 994 02b1 02030000 		.4byte	0x302
+ 995 02b5 11       		.uleb128 0x11
+ 996 02b6 9D030000 		.4byte	.LASF38
+ 997 02ba 01       		.byte	0x1
+ 998 02bb 5A       		.byte	0x5a
+ 999 02bc 09030000 		.4byte	0x309
+ 1000 02c0 3C000000 		.4byte	.LLST2
+ 1001 02c4 11       		.uleb128 0x11
+ 1002 02c5 A8010000 		.4byte	.LASF39
+ 1003 02c9 01       		.byte	0x1
+ 1004 02ca 5A       		.byte	0x5a
+ 1005 02cb BF000000 		.4byte	0xbf
+ 1006 02cf 5D000000 		.4byte	.LLST3
+ 1007 02d3 13       		.uleb128 0x13
+ 1008 02d4 DD020000 		.4byte	.LASF40
+ 1009 02d8 01       		.byte	0x1
+ 1010 02d9 5C       		.byte	0x5c
+ 1011 02da 09030000 		.4byte	0x309
+ 1012 02de 7B000000 		.4byte	.LLST4
+ 1013 02e2 14       		.uleb128 0x14
+ 1014 02e3 7700     		.ascii	"w\000"
+ 1015 02e5 01       		.byte	0x1
+ 1016 02e6 5D       		.byte	0x5d
+ 1017 02e7 A9000000 		.4byte	0xa9
+ 1018 02eb 99000000 		.4byte	.LLST5
+ 1019 02ef 15       		.uleb128 0x15
+ 1020 02f0 10000000 		.4byte	.LVL10
+ 1021 02f4 16       		.uleb128 0x16
+ 1022 02f5 01       		.uleb128 0x1
+ 1023 02f6 50       		.byte	0x50
+ 1024 02f7 02       		.uleb128 0x2
+ 1025 02f8 74       		.byte	0x74
+ 1026 02f9 00       		.sleb128 0
+ 1027 02fa 16       		.uleb128 0x16
+ 1028 02fb 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 24
+
+
+ 1029 02fc 51       		.byte	0x51
+ 1030 02fd 02       		.uleb128 0x2
+ 1031 02fe 75       		.byte	0x75
+ 1032 02ff 00       		.sleb128 0
+ 1033 0300 00       		.byte	0
+ 1034 0301 00       		.byte	0
+ 1035 0302 03       		.uleb128 0x3
+ 1036 0303 01       		.byte	0x1
+ 1037 0304 02       		.byte	0x2
+ 1038 0305 19020000 		.4byte	.LASF41
+ 1039 0309 0A       		.uleb128 0xa
+ 1040 030a 04       		.byte	0x4
+ 1041 030b 0F030000 		.4byte	0x30f
+ 1042 030f 0B       		.uleb128 0xb
+ 1043 0310 08020000 		.4byte	0x208
+ 1044 0314 12       		.uleb128 0x12
+ 1045 0315 42010000 		.4byte	.LASF43
+ 1046 0319 01       		.byte	0x1
+ 1047 031a 72       		.byte	0x72
+ 1048 031b A2010000 		.4byte	0x1a2
+ 1049 031f 00000000 		.4byte	.LFB5
+ 1050 0323 1E000000 		.4byte	.LFE5-.LFB5
+ 1051 0327 01       		.uleb128 0x1
+ 1052 0328 9C       		.byte	0x9c
+ 1053 0329 86030000 		.4byte	0x386
+ 1054 032d 11       		.uleb128 0x11
+ 1055 032e 9D030000 		.4byte	.LASF38
+ 1056 0332 01       		.byte	0x1
+ 1057 0333 72       		.byte	0x72
+ 1058 0334 09030000 		.4byte	0x309
+ 1059 0338 C2000000 		.4byte	.LLST6
+ 1060 033c 11       		.uleb128 0x11
+ 1061 033d A8010000 		.4byte	.LASF39
+ 1062 0341 01       		.byte	0x1
+ 1063 0342 72       		.byte	0x72
+ 1064 0343 BF000000 		.4byte	0xbf
+ 1065 0347 E3000000 		.4byte	.LLST7
+ 1066 034b 13       		.uleb128 0x13
+ 1067 034c DD020000 		.4byte	.LASF40
+ 1068 0350 01       		.byte	0x1
+ 1069 0351 74       		.byte	0x74
+ 1070 0352 09030000 		.4byte	0x309
+ 1071 0356 01010000 		.4byte	.LLST8
+ 1072 035a 17       		.uleb128 0x17
+ 1073 035b 08000000 		.4byte	.LBB2
+ 1074 035f 0C000000 		.4byte	.LBE2-.LBB2
+ 1075 0363 13       		.uleb128 0x13
+ 1076 0364 BB000000 		.4byte	.LASF44
+ 1077 0368 01       		.byte	0x1
+ 1078 0369 76       		.byte	0x76
+ 1079 036a A2010000 		.4byte	0x1a2
+ 1080 036e 1F010000 		.4byte	.LLST9
+ 1081 0372 15       		.uleb128 0x15
+ 1082 0373 10000000 		.4byte	.LVL19
+ 1083 0377 16       		.uleb128 0x16
+ 1084 0378 01       		.uleb128 0x1
+ 1085 0379 50       		.byte	0x50
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 25
+
+
+ 1086 037a 02       		.uleb128 0x2
+ 1087 037b 74       		.byte	0x74
+ 1088 037c 00       		.sleb128 0
+ 1089 037d 16       		.uleb128 0x16
+ 1090 037e 01       		.uleb128 0x1
+ 1091 037f 51       		.byte	0x51
+ 1092 0380 02       		.uleb128 0x2
+ 1093 0381 75       		.byte	0x75
+ 1094 0382 00       		.sleb128 0
+ 1095 0383 00       		.byte	0
+ 1096 0384 00       		.byte	0
+ 1097 0385 00       		.byte	0
+ 1098 0386 12       		.uleb128 0x12
+ 1099 0387 48000000 		.4byte	.LASF45
+ 1100 038b 01       		.byte	0x1
+ 1101 038c 85       		.byte	0x85
+ 1102 038d 9E000000 		.4byte	0x9e
+ 1103 0391 00000000 		.4byte	.LFB6
+ 1104 0395 2C000000 		.4byte	.LFE6-.LFB6
+ 1105 0399 01       		.uleb128 0x1
+ 1106 039a 9C       		.byte	0x9c
+ 1107 039b 07040000 		.4byte	0x407
+ 1108 039f 11       		.uleb128 0x11
+ 1109 03a0 9D030000 		.4byte	.LASF38
+ 1110 03a4 01       		.byte	0x1
+ 1111 03a5 85       		.byte	0x85
+ 1112 03a6 09030000 		.4byte	0x309
+ 1113 03aa 3D010000 		.4byte	.LLST10
+ 1114 03ae 11       		.uleb128 0x11
+ 1115 03af A8010000 		.4byte	.LASF39
+ 1116 03b3 01       		.byte	0x1
+ 1117 03b4 85       		.byte	0x85
+ 1118 03b5 BF000000 		.4byte	0xbf
+ 1119 03b9 5E010000 		.4byte	.LLST11
+ 1120 03bd 13       		.uleb128 0x13
+ 1121 03be DD020000 		.4byte	.LASF40
+ 1122 03c2 01       		.byte	0x1
+ 1123 03c3 87       		.byte	0x87
+ 1124 03c4 09030000 		.4byte	0x309
+ 1125 03c8 7C010000 		.4byte	.LLST12
+ 1126 03cc 14       		.uleb128 0x14
+ 1127 03cd 7700     		.ascii	"w\000"
+ 1128 03cf 01       		.byte	0x1
+ 1129 03d0 88       		.byte	0x88
+ 1130 03d1 A9000000 		.4byte	0xa9
+ 1131 03d5 9A010000 		.4byte	.LLST13
+ 1132 03d9 18       		.uleb128 0x18
+ 1133 03da 14000000 		.4byte	.LBB3
+ 1134 03de 0E000000 		.4byte	.LBE3-.LBB3
+ 1135 03e2 F4030000 		.4byte	0x3f4
+ 1136 03e6 14       		.uleb128 0x14
+ 1137 03e7 6D00     		.ascii	"m\000"
+ 1138 03e9 01       		.byte	0x1
+ 1139 03ea 8D       		.byte	0x8d
+ 1140 03eb 9E000000 		.4byte	0x9e
+ 1141 03ef B8010000 		.4byte	.LLST14
+ 1142 03f3 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 26
+
+
+ 1143 03f4 15       		.uleb128 0x15
+ 1144 03f5 10000000 		.4byte	.LVL25
+ 1145 03f9 16       		.uleb128 0x16
+ 1146 03fa 01       		.uleb128 0x1
+ 1147 03fb 50       		.byte	0x50
+ 1148 03fc 02       		.uleb128 0x2
+ 1149 03fd 74       		.byte	0x74
+ 1150 03fe 00       		.sleb128 0
+ 1151 03ff 16       		.uleb128 0x16
+ 1152 0400 01       		.uleb128 0x1
+ 1153 0401 51       		.byte	0x51
+ 1154 0402 02       		.uleb128 0x2
+ 1155 0403 75       		.byte	0x75
+ 1156 0404 00       		.sleb128 0
+ 1157 0405 00       		.byte	0
+ 1158 0406 00       		.byte	0
+ 1159 0407 12       		.uleb128 0x12
+ 1160 0408 89020000 		.4byte	.LASF46
+ 1161 040c 01       		.byte	0x1
+ 1162 040d 9F       		.byte	0x9f
+ 1163 040e 9E000000 		.4byte	0x9e
+ 1164 0412 00000000 		.4byte	.LFB7
+ 1165 0416 22000000 		.4byte	.LFE7-.LFB7
+ 1166 041a 01       		.uleb128 0x1
+ 1167 041b 9C       		.byte	0x9c
+ 1168 041c 6D040000 		.4byte	0x46d
+ 1169 0420 11       		.uleb128 0x11
+ 1170 0421 9D030000 		.4byte	.LASF38
+ 1171 0425 01       		.byte	0x1
+ 1172 0426 9F       		.byte	0x9f
+ 1173 0427 09030000 		.4byte	0x309
+ 1174 042b D4010000 		.4byte	.LLST15
+ 1175 042f 11       		.uleb128 0x11
+ 1176 0430 A8010000 		.4byte	.LASF39
+ 1177 0434 01       		.byte	0x1
+ 1178 0435 9F       		.byte	0x9f
+ 1179 0436 BF000000 		.4byte	0xbf
+ 1180 043a F5010000 		.4byte	.LLST16
+ 1181 043e 13       		.uleb128 0x13
+ 1182 043f DD020000 		.4byte	.LASF40
+ 1183 0443 01       		.byte	0x1
+ 1184 0444 A1       		.byte	0xa1
+ 1185 0445 09030000 		.4byte	0x309
+ 1186 0449 13020000 		.4byte	.LLST17
+ 1187 044d 14       		.uleb128 0x14
+ 1188 044e 7700     		.ascii	"w\000"
+ 1189 0450 01       		.byte	0x1
+ 1190 0451 A2       		.byte	0xa2
+ 1191 0452 A9000000 		.4byte	0xa9
+ 1192 0456 31020000 		.4byte	.LLST18
+ 1193 045a 15       		.uleb128 0x15
+ 1194 045b 10000000 		.4byte	.LVL35
+ 1195 045f 16       		.uleb128 0x16
+ 1196 0460 01       		.uleb128 0x1
+ 1197 0461 50       		.byte	0x50
+ 1198 0462 02       		.uleb128 0x2
+ 1199 0463 74       		.byte	0x74
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 27
+
+
+ 1200 0464 00       		.sleb128 0
+ 1201 0465 16       		.uleb128 0x16
+ 1202 0466 01       		.uleb128 0x1
+ 1203 0467 51       		.byte	0x51
+ 1204 0468 02       		.uleb128 0x2
+ 1205 0469 75       		.byte	0x75
+ 1206 046a 00       		.sleb128 0
+ 1207 046b 00       		.byte	0
+ 1208 046c 00       		.byte	0
+ 1209 046d 12       		.uleb128 0x12
+ 1210 046e 5B020000 		.4byte	.LASF47
+ 1211 0472 01       		.byte	0x1
+ 1212 0473 B3       		.byte	0xb3
+ 1213 0474 9E000000 		.4byte	0x9e
+ 1214 0478 00000000 		.4byte	.LFB8
+ 1215 047c 20000000 		.4byte	.LFE8-.LFB8
+ 1216 0480 01       		.uleb128 0x1
+ 1217 0481 9C       		.byte	0x9c
+ 1218 0482 B2040000 		.4byte	0x4b2
+ 1219 0486 11       		.uleb128 0x11
+ 1220 0487 39000000 		.4byte	.LASF48
+ 1221 048b 01       		.byte	0x1
+ 1222 048c B3       		.byte	0xb3
+ 1223 048d 09030000 		.4byte	0x309
+ 1224 0491 44020000 		.4byte	.LLST19
+ 1225 0495 10       		.uleb128 0x10
+ 1226 0496 A8010000 		.4byte	.LASF39
+ 1227 049a 01       		.byte	0x1
+ 1228 049b B3       		.byte	0xb3
+ 1229 049c BF000000 		.4byte	0xbf
+ 1230 04a0 01       		.uleb128 0x1
+ 1231 04a1 51       		.byte	0x51
+ 1232 04a2 13       		.uleb128 0x13
+ 1233 04a3 DD020000 		.4byte	.LASF40
+ 1234 04a7 01       		.byte	0x1
+ 1235 04a8 B5       		.byte	0xb5
+ 1236 04a9 09030000 		.4byte	0x309
+ 1237 04ad 65020000 		.4byte	.LLST20
+ 1238 04b1 00       		.byte	0
+ 1239 04b2 12       		.uleb128 0x12
+ 1240 04b3 E4020000 		.4byte	.LASF49
+ 1241 04b7 01       		.byte	0x1
+ 1242 04b8 C7       		.byte	0xc7
+ 1243 04b9 A2010000 		.4byte	0x1a2
+ 1244 04bd 00000000 		.4byte	.LFB9
+ 1245 04c1 24000000 		.4byte	.LFE9-.LFB9
+ 1246 04c5 01       		.uleb128 0x1
+ 1247 04c6 9C       		.byte	0x9c
+ 1248 04c7 F9040000 		.4byte	0x4f9
+ 1249 04cb 11       		.uleb128 0x11
+ 1250 04cc 39000000 		.4byte	.LASF48
+ 1251 04d0 01       		.byte	0x1
+ 1252 04d1 C7       		.byte	0xc7
+ 1253 04d2 09030000 		.4byte	0x309
+ 1254 04d6 83020000 		.4byte	.LLST21
+ 1255 04da 11       		.uleb128 0x11
+ 1256 04db D2010000 		.4byte	.LASF50
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 28
+
+
+ 1257 04df 01       		.byte	0x1
+ 1258 04e0 C7       		.byte	0xc7
+ 1259 04e1 BF000000 		.4byte	0xbf
+ 1260 04e5 D6020000 		.4byte	.LLST22
+ 1261 04e9 13       		.uleb128 0x13
+ 1262 04ea 7D020000 		.4byte	.LASF51
+ 1263 04ee 01       		.byte	0x1
+ 1264 04ef CC       		.byte	0xcc
+ 1265 04f0 BF000000 		.4byte	0xbf
+ 1266 04f4 02030000 		.4byte	.LLST23
+ 1267 04f8 00       		.byte	0
+ 1268 04f9 12       		.uleb128 0x12
+ 1269 04fa B8010000 		.4byte	.LASF52
+ 1270 04fe 01       		.byte	0x1
+ 1271 04ff D6       		.byte	0xd6
+ 1272 0500 A2010000 		.4byte	0x1a2
+ 1273 0504 00000000 		.4byte	.LFB10
+ 1274 0508 40000000 		.4byte	.LFE10-.LFB10
+ 1275 050c 01       		.uleb128 0x1
+ 1276 050d 9C       		.byte	0x9c
+ 1277 050e 3C050000 		.4byte	0x53c
+ 1278 0512 11       		.uleb128 0x11
+ 1279 0513 39000000 		.4byte	.LASF48
+ 1280 0517 01       		.byte	0x1
+ 1281 0518 D6       		.byte	0xd6
+ 1282 0519 09030000 		.4byte	0x309
+ 1283 051d 15030000 		.4byte	.LLST24
+ 1284 0521 10       		.uleb128 0x10
+ 1285 0522 D2010000 		.4byte	.LASF50
+ 1286 0526 01       		.byte	0x1
+ 1287 0527 D6       		.byte	0xd6
+ 1288 0528 BF000000 		.4byte	0xbf
+ 1289 052c 01       		.uleb128 0x1
+ 1290 052d 51       		.byte	0x51
+ 1291 052e 14       		.uleb128 0x14
+ 1292 052f 6900     		.ascii	"i\000"
+ 1293 0531 01       		.byte	0x1
+ 1294 0532 DB       		.byte	0xdb
+ 1295 0533 BF000000 		.4byte	0xbf
+ 1296 0537 81030000 		.4byte	.LLST25
+ 1297 053b 00       		.byte	0
+ 1298 053c 12       		.uleb128 0x12
+ 1299 053d B8030000 		.4byte	.LASF53
+ 1300 0541 01       		.byte	0x1
+ 1301 0542 EB       		.byte	0xeb
+ 1302 0543 A9000000 		.4byte	0xa9
+ 1303 0547 00000000 		.4byte	.LFB11
+ 1304 054b 22000000 		.4byte	.LFE11-.LFB11
+ 1305 054f 01       		.uleb128 0x1
+ 1306 0550 9C       		.byte	0x9c
+ 1307 0551 83050000 		.4byte	0x583
+ 1308 0555 11       		.uleb128 0x11
+ 1309 0556 39000000 		.4byte	.LASF48
+ 1310 055a 01       		.byte	0x1
+ 1311 055b EB       		.byte	0xeb
+ 1312 055c 09030000 		.4byte	0x309
+ 1313 0560 9F030000 		.4byte	.LLST26
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 29
+
+
+ 1314 0564 11       		.uleb128 0x11
+ 1315 0565 D2010000 		.4byte	.LASF50
+ 1316 0569 01       		.byte	0x1
+ 1317 056a EB       		.byte	0xeb
+ 1318 056b BF000000 		.4byte	0xbf
+ 1319 056f F2030000 		.4byte	.LLST27
+ 1320 0573 13       		.uleb128 0x13
+ 1321 0574 7D020000 		.4byte	.LASF51
+ 1322 0578 01       		.byte	0x1
+ 1323 0579 F2       		.byte	0xf2
+ 1324 057a BF000000 		.4byte	0xbf
+ 1325 057e 1E040000 		.4byte	.LLST28
+ 1326 0582 00       		.byte	0
+ 1327 0583 12       		.uleb128 0x12
+ 1328 0584 1F020000 		.4byte	.LASF54
+ 1329 0588 01       		.byte	0x1
+ 1330 0589 FC       		.byte	0xfc
+ 1331 058a A9000000 		.4byte	0xa9
+ 1332 058e 00000000 		.4byte	.LFB12
+ 1333 0592 40000000 		.4byte	.LFE12-.LFB12
+ 1334 0596 01       		.uleb128 0x1
+ 1335 0597 9C       		.byte	0x9c
+ 1336 0598 C7050000 		.4byte	0x5c7
+ 1337 059c 11       		.uleb128 0x11
+ 1338 059d 39000000 		.4byte	.LASF48
+ 1339 05a1 01       		.byte	0x1
+ 1340 05a2 FC       		.byte	0xfc
+ 1341 05a3 09030000 		.4byte	0x309
+ 1342 05a7 31040000 		.4byte	.LLST29
+ 1343 05ab 10       		.uleb128 0x10
+ 1344 05ac D2010000 		.4byte	.LASF50
+ 1345 05b0 01       		.byte	0x1
+ 1346 05b1 FC       		.byte	0xfc
+ 1347 05b2 BF000000 		.4byte	0xbf
+ 1348 05b6 01       		.uleb128 0x1
+ 1349 05b7 51       		.byte	0x51
+ 1350 05b8 19       		.uleb128 0x19
+ 1351 05b9 6900     		.ascii	"i\000"
+ 1352 05bb 01       		.byte	0x1
+ 1353 05bc 0101     		.2byte	0x101
+ 1354 05be BF000000 		.4byte	0xbf
+ 1355 05c2 9D040000 		.4byte	.LLST30
+ 1356 05c6 00       		.byte	0
+ 1357 05c7 1A       		.uleb128 0x1a
+ 1358 05c8 7D000000 		.4byte	.LASF59
+ 1359 05cc 7D000000 		.4byte	.LASF59
+ 1360 05d0 05       		.byte	0x5
+ 1361 05d1 27       		.byte	0x27
+ 1362 05d2 00       		.byte	0
+ 1363              		.section	.debug_abbrev,"",%progbits
+ 1364              	.Ldebug_abbrev0:
+ 1365 0000 01       		.uleb128 0x1
+ 1366 0001 11       		.uleb128 0x11
+ 1367 0002 01       		.byte	0x1
+ 1368 0003 25       		.uleb128 0x25
+ 1369 0004 0E       		.uleb128 0xe
+ 1370 0005 13       		.uleb128 0x13
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 30
+
+
+ 1371 0006 0B       		.uleb128 0xb
+ 1372 0007 03       		.uleb128 0x3
+ 1373 0008 0E       		.uleb128 0xe
+ 1374 0009 1B       		.uleb128 0x1b
+ 1375 000a 0E       		.uleb128 0xe
+ 1376 000b 55       		.uleb128 0x55
+ 1377 000c 17       		.uleb128 0x17
+ 1378 000d 11       		.uleb128 0x11
+ 1379 000e 01       		.uleb128 0x1
+ 1380 000f 10       		.uleb128 0x10
+ 1381 0010 17       		.uleb128 0x17
+ 1382 0011 00       		.byte	0
+ 1383 0012 00       		.byte	0
+ 1384 0013 02       		.uleb128 0x2
+ 1385 0014 24       		.uleb128 0x24
+ 1386 0015 00       		.byte	0
+ 1387 0016 0B       		.uleb128 0xb
+ 1388 0017 0B       		.uleb128 0xb
+ 1389 0018 3E       		.uleb128 0x3e
+ 1390 0019 0B       		.uleb128 0xb
+ 1391 001a 03       		.uleb128 0x3
+ 1392 001b 08       		.uleb128 0x8
+ 1393 001c 00       		.byte	0
+ 1394 001d 00       		.byte	0
+ 1395 001e 03       		.uleb128 0x3
+ 1396 001f 24       		.uleb128 0x24
+ 1397 0020 00       		.byte	0
+ 1398 0021 0B       		.uleb128 0xb
+ 1399 0022 0B       		.uleb128 0xb
+ 1400 0023 3E       		.uleb128 0x3e
+ 1401 0024 0B       		.uleb128 0xb
+ 1402 0025 03       		.uleb128 0x3
+ 1403 0026 0E       		.uleb128 0xe
+ 1404 0027 00       		.byte	0
+ 1405 0028 00       		.byte	0
+ 1406 0029 04       		.uleb128 0x4
+ 1407 002a 16       		.uleb128 0x16
+ 1408 002b 00       		.byte	0
+ 1409 002c 03       		.uleb128 0x3
+ 1410 002d 0E       		.uleb128 0xe
+ 1411 002e 3A       		.uleb128 0x3a
+ 1412 002f 0B       		.uleb128 0xb
+ 1413 0030 3B       		.uleb128 0x3b
+ 1414 0031 0B       		.uleb128 0xb
+ 1415 0032 49       		.uleb128 0x49
+ 1416 0033 13       		.uleb128 0x13
+ 1417 0034 00       		.byte	0
+ 1418 0035 00       		.byte	0
+ 1419 0036 05       		.uleb128 0x5
+ 1420 0037 13       		.uleb128 0x13
+ 1421 0038 01       		.byte	0x1
+ 1422 0039 0B       		.uleb128 0xb
+ 1423 003a 0B       		.uleb128 0xb
+ 1424 003b 3A       		.uleb128 0x3a
+ 1425 003c 0B       		.uleb128 0xb
+ 1426 003d 3B       		.uleb128 0x3b
+ 1427 003e 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 31
+
+
+ 1428 003f 01       		.uleb128 0x1
+ 1429 0040 13       		.uleb128 0x13
+ 1430 0041 00       		.byte	0
+ 1431 0042 00       		.byte	0
+ 1432 0043 06       		.uleb128 0x6
+ 1433 0044 0D       		.uleb128 0xd
+ 1434 0045 00       		.byte	0
+ 1435 0046 03       		.uleb128 0x3
+ 1436 0047 0E       		.uleb128 0xe
+ 1437 0048 3A       		.uleb128 0x3a
+ 1438 0049 0B       		.uleb128 0xb
+ 1439 004a 3B       		.uleb128 0x3b
+ 1440 004b 0B       		.uleb128 0xb
+ 1441 004c 49       		.uleb128 0x49
+ 1442 004d 13       		.uleb128 0x13
+ 1443 004e 0B       		.uleb128 0xb
+ 1444 004f 0B       		.uleb128 0xb
+ 1445 0050 0D       		.uleb128 0xd
+ 1446 0051 0B       		.uleb128 0xb
+ 1447 0052 0C       		.uleb128 0xc
+ 1448 0053 0B       		.uleb128 0xb
+ 1449 0054 38       		.uleb128 0x38
+ 1450 0055 0B       		.uleb128 0xb
+ 1451 0056 00       		.byte	0
+ 1452 0057 00       		.byte	0
+ 1453 0058 07       		.uleb128 0x7
+ 1454 0059 13       		.uleb128 0x13
+ 1455 005a 01       		.byte	0x1
+ 1456 005b 03       		.uleb128 0x3
+ 1457 005c 0E       		.uleb128 0xe
+ 1458 005d 0B       		.uleb128 0xb
+ 1459 005e 0B       		.uleb128 0xb
+ 1460 005f 3A       		.uleb128 0x3a
+ 1461 0060 0B       		.uleb128 0xb
+ 1462 0061 3B       		.uleb128 0x3b
+ 1463 0062 0B       		.uleb128 0xb
+ 1464 0063 01       		.uleb128 0x1
+ 1465 0064 13       		.uleb128 0x13
+ 1466 0065 00       		.byte	0
+ 1467 0066 00       		.byte	0
+ 1468 0067 08       		.uleb128 0x8
+ 1469 0068 0D       		.uleb128 0xd
+ 1470 0069 00       		.byte	0
+ 1471 006a 03       		.uleb128 0x3
+ 1472 006b 0E       		.uleb128 0xe
+ 1473 006c 3A       		.uleb128 0x3a
+ 1474 006d 0B       		.uleb128 0xb
+ 1475 006e 3B       		.uleb128 0x3b
+ 1476 006f 0B       		.uleb128 0xb
+ 1477 0070 49       		.uleb128 0x49
+ 1478 0071 13       		.uleb128 0x13
+ 1479 0072 38       		.uleb128 0x38
+ 1480 0073 0B       		.uleb128 0xb
+ 1481 0074 00       		.byte	0
+ 1482 0075 00       		.byte	0
+ 1483 0076 09       		.uleb128 0x9
+ 1484 0077 0D       		.uleb128 0xd
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 32
+
+
+ 1485 0078 00       		.byte	0
+ 1486 0079 03       		.uleb128 0x3
+ 1487 007a 08       		.uleb128 0x8
+ 1488 007b 3A       		.uleb128 0x3a
+ 1489 007c 0B       		.uleb128 0xb
+ 1490 007d 3B       		.uleb128 0x3b
+ 1491 007e 0B       		.uleb128 0xb
+ 1492 007f 49       		.uleb128 0x49
+ 1493 0080 13       		.uleb128 0x13
+ 1494 0081 0B       		.uleb128 0xb
+ 1495 0082 0B       		.uleb128 0xb
+ 1496 0083 0D       		.uleb128 0xd
+ 1497 0084 0B       		.uleb128 0xb
+ 1498 0085 0C       		.uleb128 0xc
+ 1499 0086 0B       		.uleb128 0xb
+ 1500 0087 38       		.uleb128 0x38
+ 1501 0088 0B       		.uleb128 0xb
+ 1502 0089 00       		.byte	0
+ 1503 008a 00       		.byte	0
+ 1504 008b 0A       		.uleb128 0xa
+ 1505 008c 0F       		.uleb128 0xf
+ 1506 008d 00       		.byte	0
+ 1507 008e 0B       		.uleb128 0xb
+ 1508 008f 0B       		.uleb128 0xb
+ 1509 0090 49       		.uleb128 0x49
+ 1510 0091 13       		.uleb128 0x13
+ 1511 0092 00       		.byte	0
+ 1512 0093 00       		.byte	0
+ 1513 0094 0B       		.uleb128 0xb
+ 1514 0095 26       		.uleb128 0x26
+ 1515 0096 00       		.byte	0
+ 1516 0097 49       		.uleb128 0x49
+ 1517 0098 13       		.uleb128 0x13
+ 1518 0099 00       		.byte	0
+ 1519 009a 00       		.byte	0
+ 1520 009b 0C       		.uleb128 0xc
+ 1521 009c 15       		.uleb128 0x15
+ 1522 009d 01       		.byte	0x1
+ 1523 009e 27       		.uleb128 0x27
+ 1524 009f 19       		.uleb128 0x19
+ 1525 00a0 49       		.uleb128 0x49
+ 1526 00a1 13       		.uleb128 0x13
+ 1527 00a2 01       		.uleb128 0x1
+ 1528 00a3 13       		.uleb128 0x13
+ 1529 00a4 00       		.byte	0
+ 1530 00a5 00       		.byte	0
+ 1531 00a6 0D       		.uleb128 0xd
+ 1532 00a7 05       		.uleb128 0x5
+ 1533 00a8 00       		.byte	0
+ 1534 00a9 49       		.uleb128 0x49
+ 1535 00aa 13       		.uleb128 0x13
+ 1536 00ab 00       		.byte	0
+ 1537 00ac 00       		.byte	0
+ 1538 00ad 0E       		.uleb128 0xe
+ 1539 00ae 2E       		.uleb128 0x2e
+ 1540 00af 01       		.byte	0x1
+ 1541 00b0 3F       		.uleb128 0x3f
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 33
+
+
+ 1542 00b1 19       		.uleb128 0x19
+ 1543 00b2 03       		.uleb128 0x3
+ 1544 00b3 0E       		.uleb128 0xe
+ 1545 00b4 3A       		.uleb128 0x3a
+ 1546 00b5 0B       		.uleb128 0xb
+ 1547 00b6 3B       		.uleb128 0x3b
+ 1548 00b7 0B       		.uleb128 0xb
+ 1549 00b8 27       		.uleb128 0x27
+ 1550 00b9 19       		.uleb128 0x19
+ 1551 00ba 11       		.uleb128 0x11
+ 1552 00bb 01       		.uleb128 0x1
+ 1553 00bc 12       		.uleb128 0x12
+ 1554 00bd 06       		.uleb128 0x6
+ 1555 00be 40       		.uleb128 0x40
+ 1556 00bf 18       		.uleb128 0x18
+ 1557 00c0 9742     		.uleb128 0x2117
+ 1558 00c2 19       		.uleb128 0x19
+ 1559 00c3 01       		.uleb128 0x1
+ 1560 00c4 13       		.uleb128 0x13
+ 1561 00c5 00       		.byte	0
+ 1562 00c6 00       		.byte	0
+ 1563 00c7 0F       		.uleb128 0xf
+ 1564 00c8 898201   		.uleb128 0x4109
+ 1565 00cb 00       		.byte	0
+ 1566 00cc 11       		.uleb128 0x11
+ 1567 00cd 01       		.uleb128 0x1
+ 1568 00ce 31       		.uleb128 0x31
+ 1569 00cf 13       		.uleb128 0x13
+ 1570 00d0 00       		.byte	0
+ 1571 00d1 00       		.byte	0
+ 1572 00d2 10       		.uleb128 0x10
+ 1573 00d3 05       		.uleb128 0x5
+ 1574 00d4 00       		.byte	0
+ 1575 00d5 03       		.uleb128 0x3
+ 1576 00d6 0E       		.uleb128 0xe
+ 1577 00d7 3A       		.uleb128 0x3a
+ 1578 00d8 0B       		.uleb128 0xb
+ 1579 00d9 3B       		.uleb128 0x3b
+ 1580 00da 0B       		.uleb128 0xb
+ 1581 00db 49       		.uleb128 0x49
+ 1582 00dc 13       		.uleb128 0x13
+ 1583 00dd 02       		.uleb128 0x2
+ 1584 00de 18       		.uleb128 0x18
+ 1585 00df 00       		.byte	0
+ 1586 00e0 00       		.byte	0
+ 1587 00e1 11       		.uleb128 0x11
+ 1588 00e2 05       		.uleb128 0x5
+ 1589 00e3 00       		.byte	0
+ 1590 00e4 03       		.uleb128 0x3
+ 1591 00e5 0E       		.uleb128 0xe
+ 1592 00e6 3A       		.uleb128 0x3a
+ 1593 00e7 0B       		.uleb128 0xb
+ 1594 00e8 3B       		.uleb128 0x3b
+ 1595 00e9 0B       		.uleb128 0xb
+ 1596 00ea 49       		.uleb128 0x49
+ 1597 00eb 13       		.uleb128 0x13
+ 1598 00ec 02       		.uleb128 0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 34
+
+
+ 1599 00ed 17       		.uleb128 0x17
+ 1600 00ee 00       		.byte	0
+ 1601 00ef 00       		.byte	0
+ 1602 00f0 12       		.uleb128 0x12
+ 1603 00f1 2E       		.uleb128 0x2e
+ 1604 00f2 01       		.byte	0x1
+ 1605 00f3 3F       		.uleb128 0x3f
+ 1606 00f4 19       		.uleb128 0x19
+ 1607 00f5 03       		.uleb128 0x3
+ 1608 00f6 0E       		.uleb128 0xe
+ 1609 00f7 3A       		.uleb128 0x3a
+ 1610 00f8 0B       		.uleb128 0xb
+ 1611 00f9 3B       		.uleb128 0x3b
+ 1612 00fa 0B       		.uleb128 0xb
+ 1613 00fb 27       		.uleb128 0x27
+ 1614 00fc 19       		.uleb128 0x19
+ 1615 00fd 49       		.uleb128 0x49
+ 1616 00fe 13       		.uleb128 0x13
+ 1617 00ff 11       		.uleb128 0x11
+ 1618 0100 01       		.uleb128 0x1
+ 1619 0101 12       		.uleb128 0x12
+ 1620 0102 06       		.uleb128 0x6
+ 1621 0103 40       		.uleb128 0x40
+ 1622 0104 18       		.uleb128 0x18
+ 1623 0105 9742     		.uleb128 0x2117
+ 1624 0107 19       		.uleb128 0x19
+ 1625 0108 01       		.uleb128 0x1
+ 1626 0109 13       		.uleb128 0x13
+ 1627 010a 00       		.byte	0
+ 1628 010b 00       		.byte	0
+ 1629 010c 13       		.uleb128 0x13
+ 1630 010d 34       		.uleb128 0x34
+ 1631 010e 00       		.byte	0
+ 1632 010f 03       		.uleb128 0x3
+ 1633 0110 0E       		.uleb128 0xe
+ 1634 0111 3A       		.uleb128 0x3a
+ 1635 0112 0B       		.uleb128 0xb
+ 1636 0113 3B       		.uleb128 0x3b
+ 1637 0114 0B       		.uleb128 0xb
+ 1638 0115 49       		.uleb128 0x49
+ 1639 0116 13       		.uleb128 0x13
+ 1640 0117 02       		.uleb128 0x2
+ 1641 0118 17       		.uleb128 0x17
+ 1642 0119 00       		.byte	0
+ 1643 011a 00       		.byte	0
+ 1644 011b 14       		.uleb128 0x14
+ 1645 011c 34       		.uleb128 0x34
+ 1646 011d 00       		.byte	0
+ 1647 011e 03       		.uleb128 0x3
+ 1648 011f 08       		.uleb128 0x8
+ 1649 0120 3A       		.uleb128 0x3a
+ 1650 0121 0B       		.uleb128 0xb
+ 1651 0122 3B       		.uleb128 0x3b
+ 1652 0123 0B       		.uleb128 0xb
+ 1653 0124 49       		.uleb128 0x49
+ 1654 0125 13       		.uleb128 0x13
+ 1655 0126 02       		.uleb128 0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 35
+
+
+ 1656 0127 17       		.uleb128 0x17
+ 1657 0128 00       		.byte	0
+ 1658 0129 00       		.byte	0
+ 1659 012a 15       		.uleb128 0x15
+ 1660 012b 898201   		.uleb128 0x4109
+ 1661 012e 01       		.byte	0x1
+ 1662 012f 11       		.uleb128 0x11
+ 1663 0130 01       		.uleb128 0x1
+ 1664 0131 00       		.byte	0
+ 1665 0132 00       		.byte	0
+ 1666 0133 16       		.uleb128 0x16
+ 1667 0134 8A8201   		.uleb128 0x410a
+ 1668 0137 00       		.byte	0
+ 1669 0138 02       		.uleb128 0x2
+ 1670 0139 18       		.uleb128 0x18
+ 1671 013a 9142     		.uleb128 0x2111
+ 1672 013c 18       		.uleb128 0x18
+ 1673 013d 00       		.byte	0
+ 1674 013e 00       		.byte	0
+ 1675 013f 17       		.uleb128 0x17
+ 1676 0140 0B       		.uleb128 0xb
+ 1677 0141 01       		.byte	0x1
+ 1678 0142 11       		.uleb128 0x11
+ 1679 0143 01       		.uleb128 0x1
+ 1680 0144 12       		.uleb128 0x12
+ 1681 0145 06       		.uleb128 0x6
+ 1682 0146 00       		.byte	0
+ 1683 0147 00       		.byte	0
+ 1684 0148 18       		.uleb128 0x18
+ 1685 0149 0B       		.uleb128 0xb
+ 1686 014a 01       		.byte	0x1
+ 1687 014b 11       		.uleb128 0x11
+ 1688 014c 01       		.uleb128 0x1
+ 1689 014d 12       		.uleb128 0x12
+ 1690 014e 06       		.uleb128 0x6
+ 1691 014f 01       		.uleb128 0x1
+ 1692 0150 13       		.uleb128 0x13
+ 1693 0151 00       		.byte	0
+ 1694 0152 00       		.byte	0
+ 1695 0153 19       		.uleb128 0x19
+ 1696 0154 34       		.uleb128 0x34
+ 1697 0155 00       		.byte	0
+ 1698 0156 03       		.uleb128 0x3
+ 1699 0157 08       		.uleb128 0x8
+ 1700 0158 3A       		.uleb128 0x3a
+ 1701 0159 0B       		.uleb128 0xb
+ 1702 015a 3B       		.uleb128 0x3b
+ 1703 015b 05       		.uleb128 0x5
+ 1704 015c 49       		.uleb128 0x49
+ 1705 015d 13       		.uleb128 0x13
+ 1706 015e 02       		.uleb128 0x2
+ 1707 015f 17       		.uleb128 0x17
+ 1708 0160 00       		.byte	0
+ 1709 0161 00       		.byte	0
+ 1710 0162 1A       		.uleb128 0x1a
+ 1711 0163 2E       		.uleb128 0x2e
+ 1712 0164 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 36
+
+
+ 1713 0165 3F       		.uleb128 0x3f
+ 1714 0166 19       		.uleb128 0x19
+ 1715 0167 3C       		.uleb128 0x3c
+ 1716 0168 19       		.uleb128 0x19
+ 1717 0169 6E       		.uleb128 0x6e
+ 1718 016a 0E       		.uleb128 0xe
+ 1719 016b 03       		.uleb128 0x3
+ 1720 016c 0E       		.uleb128 0xe
+ 1721 016d 3A       		.uleb128 0x3a
+ 1722 016e 0B       		.uleb128 0xb
+ 1723 016f 3B       		.uleb128 0x3b
+ 1724 0170 0B       		.uleb128 0xb
+ 1725 0171 00       		.byte	0
+ 1726 0172 00       		.byte	0
+ 1727 0173 00       		.byte	0
+ 1728              		.section	.debug_loc,"",%progbits
+ 1729              	.Ldebug_loc0:
+ 1730              	.LLST0:
+ 1731 0000 00000000 		.4byte	.LVL1
+ 1732 0004 06000000 		.4byte	.LVL2
+ 1733 0008 0100     		.2byte	0x1
+ 1734 000a 51       		.byte	0x51
+ 1735 000b 06000000 		.4byte	.LVL2
+ 1736 000f 12000000 		.4byte	.LFE2
+ 1737 0013 0100     		.2byte	0x1
+ 1738 0015 52       		.byte	0x52
+ 1739 0016 00000000 		.4byte	0
+ 1740 001a 00000000 		.4byte	0
+ 1741              	.LLST1:
+ 1742 001e 00000000 		.4byte	.LVL4
+ 1743 0022 08000000 		.4byte	.LVL5
+ 1744 0026 0100     		.2byte	0x1
+ 1745 0028 51       		.byte	0x51
+ 1746 0029 08000000 		.4byte	.LVL5
+ 1747 002d 16000000 		.4byte	.LFE3
+ 1748 0031 0100     		.2byte	0x1
+ 1749 0033 52       		.byte	0x52
+ 1750 0034 00000000 		.4byte	0
+ 1751 0038 00000000 		.4byte	0
+ 1752              	.LLST2:
+ 1753 003c 00000000 		.4byte	.LVL7
+ 1754 0040 08000000 		.4byte	.LVL9
+ 1755 0044 0100     		.2byte	0x1
+ 1756 0046 50       		.byte	0x50
+ 1757 0047 08000000 		.4byte	.LVL9
+ 1758 004b 2E000000 		.4byte	.LFE4
+ 1759 004f 0400     		.2byte	0x4
+ 1760 0051 F3       		.byte	0xf3
+ 1761 0052 01       		.uleb128 0x1
+ 1762 0053 50       		.byte	0x50
+ 1763 0054 9F       		.byte	0x9f
+ 1764 0055 00000000 		.4byte	0
+ 1765 0059 00000000 		.4byte	0
+ 1766              	.LLST3:
+ 1767 005d 00000000 		.4byte	.LVL7
+ 1768 0061 08000000 		.4byte	.LVL9
+ 1769 0065 0100     		.2byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 37
+
+
+ 1770 0067 51       		.byte	0x51
+ 1771 0068 08000000 		.4byte	.LVL9
+ 1772 006c 2E000000 		.4byte	.LFE4
+ 1773 0070 0100     		.2byte	0x1
+ 1774 0072 55       		.byte	0x55
+ 1775 0073 00000000 		.4byte	0
+ 1776 0077 00000000 		.4byte	0
+ 1777              	.LLST4:
+ 1778 007b 06000000 		.4byte	.LVL8
+ 1779 007f 08000000 		.4byte	.LVL9
+ 1780 0083 0100     		.2byte	0x1
+ 1781 0085 50       		.byte	0x50
+ 1782 0086 08000000 		.4byte	.LVL9
+ 1783 008a 2E000000 		.4byte	.LFE4
+ 1784 008e 0100     		.2byte	0x1
+ 1785 0090 54       		.byte	0x54
+ 1786 0091 00000000 		.4byte	0
+ 1787 0095 00000000 		.4byte	0
+ 1788              	.LLST5:
+ 1789 0099 10000000 		.4byte	.LVL10
+ 1790 009d 1E000000 		.4byte	.LVL11
+ 1791 00a1 0100     		.2byte	0x1
+ 1792 00a3 50       		.byte	0x50
+ 1793 00a4 20000000 		.4byte	.LVL12
+ 1794 00a8 22000000 		.4byte	.LVL13
+ 1795 00ac 0100     		.2byte	0x1
+ 1796 00ae 50       		.byte	0x50
+ 1797 00af 2A000000 		.4byte	.LVL14
+ 1798 00b3 2C000000 		.4byte	.LVL15
+ 1799 00b7 0100     		.2byte	0x1
+ 1800 00b9 50       		.byte	0x50
+ 1801 00ba 00000000 		.4byte	0
+ 1802 00be 00000000 		.4byte	0
+ 1803              	.LLST6:
+ 1804 00c2 00000000 		.4byte	.LVL16
+ 1805 00c6 08000000 		.4byte	.LVL18
+ 1806 00ca 0100     		.2byte	0x1
+ 1807 00cc 50       		.byte	0x50
+ 1808 00cd 08000000 		.4byte	.LVL18
+ 1809 00d1 1E000000 		.4byte	.LFE5
+ 1810 00d5 0400     		.2byte	0x4
+ 1811 00d7 F3       		.byte	0xf3
+ 1812 00d8 01       		.uleb128 0x1
+ 1813 00d9 50       		.byte	0x50
+ 1814 00da 9F       		.byte	0x9f
+ 1815 00db 00000000 		.4byte	0
+ 1816 00df 00000000 		.4byte	0
+ 1817              	.LLST7:
+ 1818 00e3 00000000 		.4byte	.LVL16
+ 1819 00e7 08000000 		.4byte	.LVL18
+ 1820 00eb 0100     		.2byte	0x1
+ 1821 00ed 51       		.byte	0x51
+ 1822 00ee 08000000 		.4byte	.LVL18
+ 1823 00f2 1E000000 		.4byte	.LFE5
+ 1824 00f6 0100     		.2byte	0x1
+ 1825 00f8 55       		.byte	0x55
+ 1826 00f9 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 38
+
+
+ 1827 00fd 00000000 		.4byte	0
+ 1828              	.LLST8:
+ 1829 0101 06000000 		.4byte	.LVL17
+ 1830 0105 08000000 		.4byte	.LVL18
+ 1831 0109 0100     		.2byte	0x1
+ 1832 010b 50       		.byte	0x50
+ 1833 010c 08000000 		.4byte	.LVL18
+ 1834 0110 1E000000 		.4byte	.LFE5
+ 1835 0114 0100     		.2byte	0x1
+ 1836 0116 54       		.byte	0x54
+ 1837 0117 00000000 		.4byte	0
+ 1838 011b 00000000 		.4byte	0
+ 1839              	.LLST9:
+ 1840 011f 10000000 		.4byte	.LVL19
+ 1841 0123 14000000 		.4byte	.LVL20
+ 1842 0127 0100     		.2byte	0x1
+ 1843 0129 50       		.byte	0x50
+ 1844 012a 1C000000 		.4byte	.LVL21
+ 1845 012e 1E000000 		.4byte	.LFE5
+ 1846 0132 0100     		.2byte	0x1
+ 1847 0134 50       		.byte	0x50
+ 1848 0135 00000000 		.4byte	0
+ 1849 0139 00000000 		.4byte	0
+ 1850              	.LLST10:
+ 1851 013d 00000000 		.4byte	.LVL22
+ 1852 0141 08000000 		.4byte	.LVL24
+ 1853 0145 0100     		.2byte	0x1
+ 1854 0147 50       		.byte	0x50
+ 1855 0148 08000000 		.4byte	.LVL24
+ 1856 014c 2C000000 		.4byte	.LFE6
+ 1857 0150 0400     		.2byte	0x4
+ 1858 0152 F3       		.byte	0xf3
+ 1859 0153 01       		.uleb128 0x1
+ 1860 0154 50       		.byte	0x50
+ 1861 0155 9F       		.byte	0x9f
+ 1862 0156 00000000 		.4byte	0
+ 1863 015a 00000000 		.4byte	0
+ 1864              	.LLST11:
+ 1865 015e 00000000 		.4byte	.LVL22
+ 1866 0162 08000000 		.4byte	.LVL24
+ 1867 0166 0100     		.2byte	0x1
+ 1868 0168 51       		.byte	0x51
+ 1869 0169 08000000 		.4byte	.LVL24
+ 1870 016d 2C000000 		.4byte	.LFE6
+ 1871 0171 0100     		.2byte	0x1
+ 1872 0173 55       		.byte	0x55
+ 1873 0174 00000000 		.4byte	0
+ 1874 0178 00000000 		.4byte	0
+ 1875              	.LLST12:
+ 1876 017c 06000000 		.4byte	.LVL23
+ 1877 0180 08000000 		.4byte	.LVL24
+ 1878 0184 0100     		.2byte	0x1
+ 1879 0186 50       		.byte	0x50
+ 1880 0187 08000000 		.4byte	.LVL24
+ 1881 018b 2C000000 		.4byte	.LFE6
+ 1882 018f 0100     		.2byte	0x1
+ 1883 0191 54       		.byte	0x54
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 39
+
+
+ 1884 0192 00000000 		.4byte	0
+ 1885 0196 00000000 		.4byte	0
+ 1886              	.LLST13:
+ 1887 019a 10000000 		.4byte	.LVL25
+ 1888 019e 12000000 		.4byte	.LVL26
+ 1889 01a2 0100     		.2byte	0x1
+ 1890 01a4 50       		.byte	0x50
+ 1891 01a5 1E000000 		.4byte	.LVL28
+ 1892 01a9 20000000 		.4byte	.LVL29
+ 1893 01ad 0100     		.2byte	0x1
+ 1894 01af 50       		.byte	0x50
+ 1895 01b0 00000000 		.4byte	0
+ 1896 01b4 00000000 		.4byte	0
+ 1897              	.LLST14:
+ 1898 01b8 1A000000 		.4byte	.LVL27
+ 1899 01bc 22000000 		.4byte	.LVL30
+ 1900 01c0 0A00     		.2byte	0xa
+ 1901 01c2 74       		.byte	0x74
+ 1902 01c3 20       		.sleb128 32
+ 1903 01c4 06       		.byte	0x6
+ 1904 01c5 09       		.byte	0x9
+ 1905 01c6 F0       		.byte	0xf0
+ 1906 01c7 24       		.byte	0x24
+ 1907 01c8 09       		.byte	0x9
+ 1908 01c9 FC       		.byte	0xfc
+ 1909 01ca 25       		.byte	0x25
+ 1910 01cb 9F       		.byte	0x9f
+ 1911 01cc 00000000 		.4byte	0
+ 1912 01d0 00000000 		.4byte	0
+ 1913              	.LLST15:
+ 1914 01d4 00000000 		.4byte	.LVL32
+ 1915 01d8 08000000 		.4byte	.LVL34
+ 1916 01dc 0100     		.2byte	0x1
+ 1917 01de 50       		.byte	0x50
+ 1918 01df 08000000 		.4byte	.LVL34
+ 1919 01e3 22000000 		.4byte	.LFE7
+ 1920 01e7 0400     		.2byte	0x4
+ 1921 01e9 F3       		.byte	0xf3
+ 1922 01ea 01       		.uleb128 0x1
+ 1923 01eb 50       		.byte	0x50
+ 1924 01ec 9F       		.byte	0x9f
+ 1925 01ed 00000000 		.4byte	0
+ 1926 01f1 00000000 		.4byte	0
+ 1927              	.LLST16:
+ 1928 01f5 00000000 		.4byte	.LVL32
+ 1929 01f9 08000000 		.4byte	.LVL34
+ 1930 01fd 0100     		.2byte	0x1
+ 1931 01ff 51       		.byte	0x51
+ 1932 0200 08000000 		.4byte	.LVL34
+ 1933 0204 22000000 		.4byte	.LFE7
+ 1934 0208 0100     		.2byte	0x1
+ 1935 020a 55       		.byte	0x55
+ 1936 020b 00000000 		.4byte	0
+ 1937 020f 00000000 		.4byte	0
+ 1938              	.LLST17:
+ 1939 0213 06000000 		.4byte	.LVL33
+ 1940 0217 08000000 		.4byte	.LVL34
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 40
+
+
+ 1941 021b 0100     		.2byte	0x1
+ 1942 021d 50       		.byte	0x50
+ 1943 021e 08000000 		.4byte	.LVL34
+ 1944 0222 22000000 		.4byte	.LFE7
+ 1945 0226 0100     		.2byte	0x1
+ 1946 0228 54       		.byte	0x54
+ 1947 0229 00000000 		.4byte	0
+ 1948 022d 00000000 		.4byte	0
+ 1949              	.LLST18:
+ 1950 0231 10000000 		.4byte	.LVL35
+ 1951 0235 12000000 		.4byte	.LVL36
+ 1952 0239 0100     		.2byte	0x1
+ 1953 023b 50       		.byte	0x50
+ 1954 023c 00000000 		.4byte	0
+ 1955 0240 00000000 		.4byte	0
+ 1956              	.LLST19:
+ 1957 0244 00000000 		.4byte	.LVL39
+ 1958 0248 02000000 		.4byte	.LVL40
+ 1959 024c 0100     		.2byte	0x1
+ 1960 024e 50       		.byte	0x50
+ 1961 024f 02000000 		.4byte	.LVL40
+ 1962 0253 20000000 		.4byte	.LFE8
+ 1963 0257 0400     		.2byte	0x4
+ 1964 0259 F3       		.byte	0xf3
+ 1965 025a 01       		.uleb128 0x1
+ 1966 025b 50       		.byte	0x50
+ 1967 025c 9F       		.byte	0x9f
+ 1968 025d 00000000 		.4byte	0
+ 1969 0261 00000000 		.4byte	0
+ 1970              	.LLST20:
+ 1971 0265 00000000 		.4byte	.LVL39
+ 1972 0269 12000000 		.4byte	.LVL41
+ 1973 026d 0100     		.2byte	0x1
+ 1974 026f 50       		.byte	0x50
+ 1975 0270 18000000 		.4byte	.LVL42
+ 1976 0274 20000000 		.4byte	.LFE8
+ 1977 0278 0100     		.2byte	0x1
+ 1978 027a 50       		.byte	0x50
+ 1979 027b 00000000 		.4byte	0
+ 1980 027f 00000000 		.4byte	0
+ 1981              	.LLST21:
+ 1982 0283 00000000 		.4byte	.LVL44
+ 1983 0287 16000000 		.4byte	.LVL46
+ 1984 028b 0100     		.2byte	0x1
+ 1985 028d 50       		.byte	0x50
+ 1986 028e 16000000 		.4byte	.LVL46
+ 1987 0292 1C000000 		.4byte	.LVL47
+ 1988 0296 0400     		.2byte	0x4
+ 1989 0298 F3       		.byte	0xf3
+ 1990 0299 01       		.uleb128 0x1
+ 1991 029a 50       		.byte	0x50
+ 1992 029b 9F       		.byte	0x9f
+ 1993 029c 1C000000 		.4byte	.LVL47
+ 1994 02a0 1E000000 		.4byte	.LVL48
+ 1995 02a4 0100     		.2byte	0x1
+ 1996 02a6 50       		.byte	0x50
+ 1997 02a7 1E000000 		.4byte	.LVL48
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 41
+
+
+ 1998 02ab 20000000 		.4byte	.LVL49
+ 1999 02af 0400     		.2byte	0x4
+ 2000 02b1 F3       		.byte	0xf3
+ 2001 02b2 01       		.uleb128 0x1
+ 2002 02b3 50       		.byte	0x50
+ 2003 02b4 9F       		.byte	0x9f
+ 2004 02b5 20000000 		.4byte	.LVL49
+ 2005 02b9 22000000 		.4byte	.LVL50
+ 2006 02bd 0100     		.2byte	0x1
+ 2007 02bf 50       		.byte	0x50
+ 2008 02c0 22000000 		.4byte	.LVL50
+ 2009 02c4 24000000 		.4byte	.LFE9
+ 2010 02c8 0400     		.2byte	0x4
+ 2011 02ca F3       		.byte	0xf3
+ 2012 02cb 01       		.uleb128 0x1
+ 2013 02cc 50       		.byte	0x50
+ 2014 02cd 9F       		.byte	0x9f
+ 2015 02ce 00000000 		.4byte	0
+ 2016 02d2 00000000 		.4byte	0
+ 2017              	.LLST22:
+ 2018 02d6 00000000 		.4byte	.LVL44
+ 2019 02da 0E000000 		.4byte	.LVL45
+ 2020 02de 0100     		.2byte	0x1
+ 2021 02e0 51       		.byte	0x51
+ 2022 02e1 0E000000 		.4byte	.LVL45
+ 2023 02e5 1C000000 		.4byte	.LVL47
+ 2024 02e9 0400     		.2byte	0x4
+ 2025 02eb F3       		.byte	0xf3
+ 2026 02ec 01       		.uleb128 0x1
+ 2027 02ed 51       		.byte	0x51
+ 2028 02ee 9F       		.byte	0x9f
+ 2029 02ef 1C000000 		.4byte	.LVL47
+ 2030 02f3 24000000 		.4byte	.LFE9
+ 2031 02f7 0100     		.2byte	0x1
+ 2032 02f9 51       		.byte	0x51
+ 2033 02fa 00000000 		.4byte	0
+ 2034 02fe 00000000 		.4byte	0
+ 2035              	.LLST23:
+ 2036 0302 0E000000 		.4byte	.LVL45
+ 2037 0306 1C000000 		.4byte	.LVL47
+ 2038 030a 0100     		.2byte	0x1
+ 2039 030c 51       		.byte	0x51
+ 2040 030d 00000000 		.4byte	0
+ 2041 0311 00000000 		.4byte	0
+ 2042              	.LLST24:
+ 2043 0315 00000000 		.4byte	.LVL51
+ 2044 0319 1C000000 		.4byte	.LVL54
+ 2045 031d 0100     		.2byte	0x1
+ 2046 031f 50       		.byte	0x50
+ 2047 0320 1C000000 		.4byte	.LVL54
+ 2048 0324 22000000 		.4byte	.LVL55
+ 2049 0328 0400     		.2byte	0x4
+ 2050 032a F3       		.byte	0xf3
+ 2051 032b 01       		.uleb128 0x1
+ 2052 032c 50       		.byte	0x50
+ 2053 032d 9F       		.byte	0x9f
+ 2054 032e 22000000 		.4byte	.LVL55
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 42
+
+
+ 2055 0332 32000000 		.4byte	.LVL57
+ 2056 0336 0100     		.2byte	0x1
+ 2057 0338 50       		.byte	0x50
+ 2058 0339 32000000 		.4byte	.LVL57
+ 2059 033d 34000000 		.4byte	.LVL58
+ 2060 0341 0400     		.2byte	0x4
+ 2061 0343 F3       		.byte	0xf3
+ 2062 0344 01       		.uleb128 0x1
+ 2063 0345 50       		.byte	0x50
+ 2064 0346 9F       		.byte	0x9f
+ 2065 0347 34000000 		.4byte	.LVL58
+ 2066 034b 36000000 		.4byte	.LVL59
+ 2067 034f 0100     		.2byte	0x1
+ 2068 0351 50       		.byte	0x50
+ 2069 0352 36000000 		.4byte	.LVL59
+ 2070 0356 38000000 		.4byte	.LVL60
+ 2071 035a 0400     		.2byte	0x4
+ 2072 035c F3       		.byte	0xf3
+ 2073 035d 01       		.uleb128 0x1
+ 2074 035e 50       		.byte	0x50
+ 2075 035f 9F       		.byte	0x9f
+ 2076 0360 38000000 		.4byte	.LVL60
+ 2077 0364 3A000000 		.4byte	.LVL61
+ 2078 0368 0100     		.2byte	0x1
+ 2079 036a 50       		.byte	0x50
+ 2080 036b 3A000000 		.4byte	.LVL61
+ 2081 036f 40000000 		.4byte	.LFE10
+ 2082 0373 0400     		.2byte	0x4
+ 2083 0375 F3       		.byte	0xf3
+ 2084 0376 01       		.uleb128 0x1
+ 2085 0377 50       		.byte	0x50
+ 2086 0378 9F       		.byte	0x9f
+ 2087 0379 00000000 		.4byte	0
+ 2088 037d 00000000 		.4byte	0
+ 2089              	.LLST25:
+ 2090 0381 12000000 		.4byte	.LVL52
+ 2091 0385 18000000 		.4byte	.LVL53
+ 2092 0389 0100     		.2byte	0x1
+ 2093 038b 53       		.byte	0x53
+ 2094 038c 22000000 		.4byte	.LVL55
+ 2095 0390 34000000 		.4byte	.LVL58
+ 2096 0394 0100     		.2byte	0x1
+ 2097 0396 53       		.byte	0x53
+ 2098 0397 00000000 		.4byte	0
+ 2099 039b 00000000 		.4byte	0
+ 2100              	.LLST26:
+ 2101 039f 00000000 		.4byte	.LVL62
+ 2102 03a3 14000000 		.4byte	.LVL64
+ 2103 03a7 0100     		.2byte	0x1
+ 2104 03a9 50       		.byte	0x50
+ 2105 03aa 14000000 		.4byte	.LVL64
+ 2106 03ae 16000000 		.4byte	.LVL65
+ 2107 03b2 0400     		.2byte	0x4
+ 2108 03b4 F3       		.byte	0xf3
+ 2109 03b5 01       		.uleb128 0x1
+ 2110 03b6 50       		.byte	0x50
+ 2111 03b7 9F       		.byte	0x9f
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 43
+
+
+ 2112 03b8 16000000 		.4byte	.LVL65
+ 2113 03bc 1A000000 		.4byte	.LVL66
+ 2114 03c0 0100     		.2byte	0x1
+ 2115 03c2 50       		.byte	0x50
+ 2116 03c3 1A000000 		.4byte	.LVL66
+ 2117 03c7 1C000000 		.4byte	.LVL67
+ 2118 03cb 0400     		.2byte	0x4
+ 2119 03cd F3       		.byte	0xf3
+ 2120 03ce 01       		.uleb128 0x1
+ 2121 03cf 50       		.byte	0x50
+ 2122 03d0 9F       		.byte	0x9f
+ 2123 03d1 1C000000 		.4byte	.LVL67
+ 2124 03d5 20000000 		.4byte	.LVL68
+ 2125 03d9 0100     		.2byte	0x1
+ 2126 03db 50       		.byte	0x50
+ 2127 03dc 20000000 		.4byte	.LVL68
+ 2128 03e0 22000000 		.4byte	.LFE11
+ 2129 03e4 0400     		.2byte	0x4
+ 2130 03e6 F3       		.byte	0xf3
+ 2131 03e7 01       		.uleb128 0x1
+ 2132 03e8 50       		.byte	0x50
+ 2133 03e9 9F       		.byte	0x9f
+ 2134 03ea 00000000 		.4byte	0
+ 2135 03ee 00000000 		.4byte	0
+ 2136              	.LLST27:
+ 2137 03f2 00000000 		.4byte	.LVL62
+ 2138 03f6 0E000000 		.4byte	.LVL63
+ 2139 03fa 0100     		.2byte	0x1
+ 2140 03fc 51       		.byte	0x51
+ 2141 03fd 0E000000 		.4byte	.LVL63
+ 2142 0401 16000000 		.4byte	.LVL65
+ 2143 0405 0400     		.2byte	0x4
+ 2144 0407 F3       		.byte	0xf3
+ 2145 0408 01       		.uleb128 0x1
+ 2146 0409 51       		.byte	0x51
+ 2147 040a 9F       		.byte	0x9f
+ 2148 040b 16000000 		.4byte	.LVL65
+ 2149 040f 22000000 		.4byte	.LFE11
+ 2150 0413 0100     		.2byte	0x1
+ 2151 0415 51       		.byte	0x51
+ 2152 0416 00000000 		.4byte	0
+ 2153 041a 00000000 		.4byte	0
+ 2154              	.LLST28:
+ 2155 041e 0E000000 		.4byte	.LVL63
+ 2156 0422 16000000 		.4byte	.LVL65
+ 2157 0426 0100     		.2byte	0x1
+ 2158 0428 51       		.byte	0x51
+ 2159 0429 00000000 		.4byte	0
+ 2160 042d 00000000 		.4byte	0
+ 2161              	.LLST29:
+ 2162 0431 00000000 		.4byte	.LVL69
+ 2163 0435 1A000000 		.4byte	.LVL72
+ 2164 0439 0100     		.2byte	0x1
+ 2165 043b 50       		.byte	0x50
+ 2166 043c 1A000000 		.4byte	.LVL72
+ 2167 0440 1C000000 		.4byte	.LVL73
+ 2168 0444 0400     		.2byte	0x4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 44
+
+
+ 2169 0446 F3       		.byte	0xf3
+ 2170 0447 01       		.uleb128 0x1
+ 2171 0448 50       		.byte	0x50
+ 2172 0449 9F       		.byte	0x9f
+ 2173 044a 1C000000 		.4byte	.LVL73
+ 2174 044e 2E000000 		.4byte	.LVL75
+ 2175 0452 0100     		.2byte	0x1
+ 2176 0454 50       		.byte	0x50
+ 2177 0455 2E000000 		.4byte	.LVL75
+ 2178 0459 30000000 		.4byte	.LVL76
+ 2179 045d 0400     		.2byte	0x4
+ 2180 045f F3       		.byte	0xf3
+ 2181 0460 01       		.uleb128 0x1
+ 2182 0461 50       		.byte	0x50
+ 2183 0462 9F       		.byte	0x9f
+ 2184 0463 30000000 		.4byte	.LVL76
+ 2185 0467 34000000 		.4byte	.LVL77
+ 2186 046b 0100     		.2byte	0x1
+ 2187 046d 50       		.byte	0x50
+ 2188 046e 34000000 		.4byte	.LVL77
+ 2189 0472 36000000 		.4byte	.LVL78
+ 2190 0476 0400     		.2byte	0x4
+ 2191 0478 F3       		.byte	0xf3
+ 2192 0479 01       		.uleb128 0x1
+ 2193 047a 50       		.byte	0x50
+ 2194 047b 9F       		.byte	0x9f
+ 2195 047c 36000000 		.4byte	.LVL78
+ 2196 0480 3A000000 		.4byte	.LVL79
+ 2197 0484 0100     		.2byte	0x1
+ 2198 0486 50       		.byte	0x50
+ 2199 0487 3A000000 		.4byte	.LVL79
+ 2200 048b 40000000 		.4byte	.LFE12
+ 2201 048f 0400     		.2byte	0x4
+ 2202 0491 F3       		.byte	0xf3
+ 2203 0492 01       		.uleb128 0x1
+ 2204 0493 50       		.byte	0x50
+ 2205 0494 9F       		.byte	0x9f
+ 2206 0495 00000000 		.4byte	0
+ 2207 0499 00000000 		.4byte	0
+ 2208              	.LLST30:
+ 2209 049d 12000000 		.4byte	.LVL70
+ 2210 04a1 18000000 		.4byte	.LVL71
+ 2211 04a5 0100     		.2byte	0x1
+ 2212 04a7 53       		.byte	0x53
+ 2213 04a8 1C000000 		.4byte	.LVL73
+ 2214 04ac 30000000 		.4byte	.LVL76
+ 2215 04b0 0100     		.2byte	0x1
+ 2216 04b2 53       		.byte	0x53
+ 2217 04b3 00000000 		.4byte	0
+ 2218 04b7 00000000 		.4byte	0
+ 2219              		.section	.debug_aranges,"",%progbits
+ 2220 0000 74000000 		.4byte	0x74
+ 2221 0004 0200     		.2byte	0x2
+ 2222 0006 00000000 		.4byte	.Ldebug_info0
+ 2223 000a 04       		.byte	0x4
+ 2224 000b 00       		.byte	0
+ 2225 000c 0000     		.2byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 45
+
+
+ 2226 000e 0000     		.2byte	0
+ 2227 0010 00000000 		.4byte	.LFB1
+ 2228 0014 08000000 		.4byte	.LFE1-.LFB1
+ 2229 0018 00000000 		.4byte	.LFB2
+ 2230 001c 12000000 		.4byte	.LFE2-.LFB2
+ 2231 0020 00000000 		.4byte	.LFB3
+ 2232 0024 16000000 		.4byte	.LFE3-.LFB3
+ 2233 0028 00000000 		.4byte	.LFB4
+ 2234 002c 2E000000 		.4byte	.LFE4-.LFB4
+ 2235 0030 00000000 		.4byte	.LFB5
+ 2236 0034 1E000000 		.4byte	.LFE5-.LFB5
+ 2237 0038 00000000 		.4byte	.LFB6
+ 2238 003c 2C000000 		.4byte	.LFE6-.LFB6
+ 2239 0040 00000000 		.4byte	.LFB7
+ 2240 0044 22000000 		.4byte	.LFE7-.LFB7
+ 2241 0048 00000000 		.4byte	.LFB8
+ 2242 004c 20000000 		.4byte	.LFE8-.LFB8
+ 2243 0050 00000000 		.4byte	.LFB9
+ 2244 0054 24000000 		.4byte	.LFE9-.LFB9
+ 2245 0058 00000000 		.4byte	.LFB10
+ 2246 005c 40000000 		.4byte	.LFE10-.LFB10
+ 2247 0060 00000000 		.4byte	.LFB11
+ 2248 0064 22000000 		.4byte	.LFE11-.LFB11
+ 2249 0068 00000000 		.4byte	.LFB12
+ 2250 006c 40000000 		.4byte	.LFE12-.LFB12
+ 2251 0070 00000000 		.4byte	0
+ 2252 0074 00000000 		.4byte	0
+ 2253              		.section	.debug_ranges,"",%progbits
+ 2254              	.Ldebug_ranges0:
+ 2255 0000 00000000 		.4byte	.LFB1
+ 2256 0004 08000000 		.4byte	.LFE1
+ 2257 0008 00000000 		.4byte	.LFB2
+ 2258 000c 12000000 		.4byte	.LFE2
+ 2259 0010 00000000 		.4byte	.LFB3
+ 2260 0014 16000000 		.4byte	.LFE3
+ 2261 0018 00000000 		.4byte	.LFB4
+ 2262 001c 2E000000 		.4byte	.LFE4
+ 2263 0020 00000000 		.4byte	.LFB5
+ 2264 0024 1E000000 		.4byte	.LFE5
+ 2265 0028 00000000 		.4byte	.LFB6
+ 2266 002c 2C000000 		.4byte	.LFE6
+ 2267 0030 00000000 		.4byte	.LFB7
+ 2268 0034 22000000 		.4byte	.LFE7
+ 2269 0038 00000000 		.4byte	.LFB8
+ 2270 003c 20000000 		.4byte	.LFE8
+ 2271 0040 00000000 		.4byte	.LFB9
+ 2272 0044 24000000 		.4byte	.LFE9
+ 2273 0048 00000000 		.4byte	.LFB10
+ 2274 004c 40000000 		.4byte	.LFE10
+ 2275 0050 00000000 		.4byte	.LFB11
+ 2276 0054 22000000 		.4byte	.LFE11
+ 2277 0058 00000000 		.4byte	.LFB12
+ 2278 005c 40000000 		.4byte	.LFE12
+ 2279 0060 00000000 		.4byte	0
+ 2280 0064 00000000 		.4byte	0
+ 2281              		.section	.debug_line,"",%progbits
+ 2282              	.Ldebug_line0:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 46
+
+
+ 2283 0000 D5020000 		.section	.debug_str,"MS",%progbits,1
+ 2283      02006B01 
+ 2283      00000201 
+ 2283      FB0E0D00 
+ 2283      01010101 
+ 2284              	.LASF29:
+ 2285 0000 685F7078 		.ascii	"h_px\000"
+ 2285      00
+ 2286              	.LASF42:
+ 2287 0005 6C765F66 		.ascii	"lv_font_is_monospace\000"
+ 2287      6F6E745F 
+ 2287      69735F6D 
+ 2287      6F6E6F73 
+ 2287      70616365 
+ 2288              	.LASF30:
+ 2289 001a 6D6F6E6F 		.ascii	"monospace\000"
+ 2289      73706163 
+ 2289      6500
+ 2290              	.LASF27:
+ 2291 0024 6765745F 		.ascii	"get_width\000"
+ 2291      77696474 
+ 2291      6800
+ 2292              	.LASF26:
+ 2293 002e 6765745F 		.ascii	"get_bitmap\000"
+ 2293      6269746D 
+ 2293      617000
+ 2294              	.LASF48:
+ 2295 0039 666F6E74 		.ascii	"font\000"
+ 2295      00
+ 2296              	.LASF7:
+ 2297 003e 73686F72 		.ascii	"short int\000"
+ 2297      7420696E 
+ 2297      7400
+ 2298              	.LASF45:
+ 2299 0048 6C765F66 		.ascii	"lv_font_get_width\000"
+ 2299      6F6E745F 
+ 2299      6765745F 
+ 2299      77696474 
+ 2299      6800
+ 2300              	.LASF11:
+ 2301 005a 5F5F7569 		.ascii	"__uint32_t\000"
+ 2301      6E743332 
+ 2301      5F7400
+ 2302              	.LASF8:
+ 2303 0065 5F5F7569 		.ascii	"__uint16_t\000"
+ 2303      6E743136 
+ 2303      5F7400
+ 2304              	.LASF23:
+ 2305 0070 676C7970 		.ascii	"glyph_bitmap\000"
+ 2305      685F6269 
+ 2305      746D6170 
+ 2305      00
+ 2306              	.LASF59:
+ 2307 007d 6C765F66 		.ascii	"lv_font_builtin_init\000"
+ 2307      6F6E745F 
+ 2307      6275696C 
+ 2307      74696E5F 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 47
+
+
+ 2307      696E6974 
+ 2308              	.LASF14:
+ 2309 0092 75696E74 		.ascii	"uint8_t\000"
+ 2309      385F7400 
+ 2310              	.LASF56:
+ 2311 009a 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_font.c\000"
+ 2311      76676C5C 
+ 2311      6C765F6D 
+ 2311      6973635C 
+ 2311      6C765F66 
+ 2312              	.LASF36:
+ 2313 00b4 70617265 		.ascii	"parent\000"
+ 2313      6E7400
+ 2314              	.LASF44:
+ 2315 00bb 6269746D 		.ascii	"bitmap\000"
+ 2315      617000
+ 2316              	.LASF31:
+ 2317 00c2 676C7970 		.ascii	"glyph_cnt\000"
+ 2317      685F636E 
+ 2317      7400
+ 2318              	.LASF57:
+ 2319 00cc 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 2319      73657273 
+ 2319      5C643362 
+ 2319      75675C44 
+ 2319      6F63756D 
+ 2320 00fa 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 2320      6F5F776F 
+ 2320      726C645F 
+ 2320      6C616265 
+ 2320      6C2E6379 
+ 2321              	.LASF1:
+ 2322 0112 6C6F6E67 		.ascii	"long long int\000"
+ 2322      206C6F6E 
+ 2322      6720696E 
+ 2322      7400
+ 2323              	.LASF10:
+ 2324 0120 6C6F6E67 		.ascii	"long int\000"
+ 2324      20696E74 
+ 2324      00
+ 2325              	.LASF18:
+ 2326 0129 775F7078 		.ascii	"w_px\000"
+ 2326      00
+ 2327              	.LASF5:
+ 2328 012e 5F5F7569 		.ascii	"__uint8_t\000"
+ 2328      6E74385F 
+ 2328      7400
+ 2329              	.LASF24:
+ 2330 0138 676C7970 		.ascii	"glyph_dsc\000"
+ 2330      685F6473 
+ 2330      6300
+ 2331              	.LASF43:
+ 2332 0142 6C765F66 		.ascii	"lv_font_get_bitmap\000"
+ 2332      6F6E745F 
+ 2332      6765745F 
+ 2332      6269746D 
+ 2332      617000
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 48
+
+
+ 2333              	.LASF2:
+ 2334 0155 6C6F6E67 		.ascii	"long double\000"
+ 2334      20646F75 
+ 2334      626C6500 
+ 2335              	.LASF4:
+ 2336 0161 756E7369 		.ascii	"unsigned char\000"
+ 2336      676E6564 
+ 2336      20636861 
+ 2336      7200
+ 2337              	.LASF3:
+ 2338 016f 7369676E 		.ascii	"signed char\000"
+ 2338      65642063 
+ 2338      68617200 
+ 2339              	.LASF13:
+ 2340 017b 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 2340      206C6F6E 
+ 2340      6720756E 
+ 2340      7369676E 
+ 2340      65642069 
+ 2341              	.LASF17:
+ 2342 0192 75696E74 		.ascii	"uint32_t\000"
+ 2342      33325F74 
+ 2342      00
+ 2343              	.LASF0:
+ 2344 019b 756E7369 		.ascii	"unsigned int\000"
+ 2344      676E6564 
+ 2344      20696E74 
+ 2344      00
+ 2345              	.LASF39:
+ 2346 01a8 6C657474 		.ascii	"letter\000"
+ 2346      657200
+ 2347              	.LASF16:
+ 2348 01af 75696E74 		.ascii	"uint16_t\000"
+ 2348      31365F74 
+ 2348      00
+ 2349              	.LASF52:
+ 2350 01b8 6C765F66 		.ascii	"lv_font_get_bitmap_sparse\000"
+ 2350      6F6E745F 
+ 2350      6765745F 
+ 2350      6269746D 
+ 2350      61705F73 
+ 2351              	.LASF50:
+ 2352 01d2 756E6963 		.ascii	"unicode_letter\000"
+ 2352      6F64655F 
+ 2352      6C657474 
+ 2352      657200
+ 2353              	.LASF9:
+ 2354 01e1 73686F72 		.ascii	"short unsigned int\000"
+ 2354      7420756E 
+ 2354      7369676E 
+ 2354      65642069 
+ 2354      6E7400
+ 2355              	.LASF37:
+ 2356 01f4 6C765F66 		.ascii	"lv_font_remove\000"
+ 2356      6F6E745F 
+ 2356      72656D6F 
+ 2356      766500
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 49
+
+
+ 2357              	.LASF15:
+ 2358 0203 696E7431 		.ascii	"int16_t\000"
+ 2358      365F7400 
+ 2359              	.LASF21:
+ 2360 020b 756E6963 		.ascii	"unicode_first\000"
+ 2360      6F64655F 
+ 2360      66697273 
+ 2360      7400
+ 2361              	.LASF41:
+ 2362 0219 5F426F6F 		.ascii	"_Bool\000"
+ 2362      6C00
+ 2363              	.LASF54:
+ 2364 021f 6C765F66 		.ascii	"lv_font_get_width_sparse\000"
+ 2364      6F6E745F 
+ 2364      6765745F 
+ 2364      77696474 
+ 2364      685F7370 
+ 2365              	.LASF34:
+ 2366 0238 6C765F66 		.ascii	"lv_font_add\000"
+ 2366      6F6E745F 
+ 2366      61646400 
+ 2367              	.LASF33:
+ 2368 0244 6C765F66 		.ascii	"lv_font_init\000"
+ 2368      6F6E745F 
+ 2368      696E6974 
+ 2368      00
+ 2369              	.LASF32:
+ 2370 0251 6C765F66 		.ascii	"lv_font_t\000"
+ 2370      6F6E745F 
+ 2370      7400
+ 2371              	.LASF47:
+ 2372 025b 6C765F66 		.ascii	"lv_font_get_bpp\000"
+ 2372      6F6E745F 
+ 2372      6765745F 
+ 2372      62707000 
+ 2373              	.LASF12:
+ 2374 026b 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2374      20756E73 
+ 2374      69676E65 
+ 2374      6420696E 
+ 2374      7400
+ 2375              	.LASF51:
+ 2376 027d 696E6465 		.ascii	"index\000"
+ 2376      7800
+ 2377              	.LASF35:
+ 2378 0283 6368696C 		.ascii	"child\000"
+ 2378      6400
+ 2379              	.LASF46:
+ 2380 0289 6C765F66 		.ascii	"lv_font_get_real_width\000"
+ 2380      6F6E745F 
+ 2380      6765745F 
+ 2380      7265616C 
+ 2380      5F776964 
+ 2381              	.LASF28:
+ 2382 02a0 6E657874 		.ascii	"next_page\000"
+ 2382      5F706167 
+ 2382      6500
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 50
+
+
+ 2383              	.LASF22:
+ 2384 02aa 756E6963 		.ascii	"unicode_last\000"
+ 2384      6F64655F 
+ 2384      6C617374 
+ 2384      00
+ 2385              	.LASF6:
+ 2386 02b7 5F5F696E 		.ascii	"__int16_t\000"
+ 2386      7431365F 
+ 2386      7400
+ 2387              	.LASF19:
+ 2388 02c1 676C7970 		.ascii	"glyph_index\000"
+ 2388      685F696E 
+ 2388      64657800 
+ 2389              	.LASF58:
+ 2390 02cd 5F6C765F 		.ascii	"_lv_font_struct\000"
+ 2390      666F6E74 
+ 2390      5F737472 
+ 2390      75637400 
+ 2391              	.LASF40:
+ 2392 02dd 666F6E74 		.ascii	"font_i\000"
+ 2392      5F6900
+ 2393              	.LASF49:
+ 2394 02e4 6C765F66 		.ascii	"lv_font_get_bitmap_continuous\000"
+ 2394      6F6E745F 
+ 2394      6765745F 
+ 2394      6269746D 
+ 2394      61705F63 
+ 2395              	.LASF25:
+ 2396 0302 756E6963 		.ascii	"unicode_list\000"
+ 2396      6F64655F 
+ 2396      6C697374 
+ 2396      00
+ 2397              	.LASF55:
+ 2398 030f 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 2398      43313120 
+ 2398      352E342E 
+ 2398      31203230 
+ 2398      31363036 
+ 2399 0342 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 2399      20726576 
+ 2399      6973696F 
+ 2399      6E203233 
+ 2399      37373135 
+ 2400 0375 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 2400      66756E63 
+ 2400      74696F6E 
+ 2400      2D736563 
+ 2400      74696F6E 
+ 2401              	.LASF38:
+ 2402 039d 666F6E74 		.ascii	"font_p\000"
+ 2402      5F7000
+ 2403              	.LASF20:
+ 2404 03a4 6C765F66 		.ascii	"lv_font_glyph_dsc_t\000"
+ 2404      6F6E745F 
+ 2404      676C7970 
+ 2404      685F6473 
+ 2404      635F7400 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccRilSBU.s 			page 51
+
+
+ 2405              	.LASF53:
+ 2406 03b8 6C765F66 		.ascii	"lv_font_get_width_continuous\000"
+ 2406      6F6E745F 
+ 2406      6765745F 
+ 2406      77696474 
+ 2406      685F636F 
+ 2407              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

@@ -1,0 +1,2905 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_draw.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_draw_aa_get_opa,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_draw_aa_get_opa
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_draw_aa_get_opa, %function
+  25              	lv_draw_aa_get_opa:
+  26              	.LFB13:
+  27              		.file 1 "..\\lvgl\\lv_draw\\lv_draw.c"
+   1:..\lvgl\lv_draw/lv_draw.c **** /**
+   2:..\lvgl\lv_draw/lv_draw.c ****  * @file lv_draw.c
+   3:..\lvgl\lv_draw/lv_draw.c ****  *
+   4:..\lvgl\lv_draw/lv_draw.c ****  */
+   5:..\lvgl\lv_draw/lv_draw.c **** 
+   6:..\lvgl\lv_draw/lv_draw.c **** /*********************
+   7:..\lvgl\lv_draw/lv_draw.c ****  *      INCLUDES
+   8:..\lvgl\lv_draw/lv_draw.c ****  *********************/
+   9:..\lvgl\lv_draw/lv_draw.c **** 
+  10:..\lvgl\lv_draw/lv_draw.c **** #include <stdio.h>
+  11:..\lvgl\lv_draw/lv_draw.c **** #include <stdbool.h>
+  12:..\lvgl\lv_draw/lv_draw.c **** #include "lv_draw.h"
+  13:..\lvgl\lv_draw/lv_draw.c **** #include "lv_draw_rbasic.h"
+  14:..\lvgl\lv_draw/lv_draw.c **** #include "lv_draw_vbasic.h"
+  15:..\lvgl\lv_draw/lv_draw.c **** #include "../lv_misc/lv_fs.h"
+  16:..\lvgl\lv_draw/lv_draw.c **** #include "../lv_misc/lv_math.h"
+  17:..\lvgl\lv_draw/lv_draw.c **** #include "../lv_misc/lv_ufs.h"
+  18:..\lvgl\lv_draw/lv_draw.c **** #include "../lv_objx/lv_img.h"
+  19:..\lvgl\lv_draw/lv_draw.c **** 
+  20:..\lvgl\lv_draw/lv_draw.c **** /*********************
+  21:..\lvgl\lv_draw/lv_draw.c ****  *      DEFINES
+  22:..\lvgl\lv_draw/lv_draw.c ****  *********************/
+  23:..\lvgl\lv_draw/lv_draw.c **** 
+  24:..\lvgl\lv_draw/lv_draw.c **** /**********************
+  25:..\lvgl\lv_draw/lv_draw.c ****  *      TYPEDEFS
+  26:..\lvgl\lv_draw/lv_draw.c ****  **********************/
+  27:..\lvgl\lv_draw/lv_draw.c **** 
+  28:..\lvgl\lv_draw/lv_draw.c **** /**********************
+  29:..\lvgl\lv_draw/lv_draw.c ****  *  STATIC PROTOTYPES
+  30:..\lvgl\lv_draw/lv_draw.c ****  **********************/
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 2
+
+
+  31:..\lvgl\lv_draw/lv_draw.c **** 
+  32:..\lvgl\lv_draw/lv_draw.c **** /**********************
+  33:..\lvgl\lv_draw/lv_draw.c ****  *  STATIC VARIABLES
+  34:..\lvgl\lv_draw/lv_draw.c ****  **********************/
+  35:..\lvgl\lv_draw/lv_draw.c **** 
+  36:..\lvgl\lv_draw/lv_draw.c **** #if LV_VDB_SIZE != 0
+  37:..\lvgl\lv_draw/lv_draw.c **** void (*const px_fp)(lv_coord_t x, lv_coord_t y, const lv_area_t * mask, lv_color_t color, lv_opa_t 
+  38:..\lvgl\lv_draw/lv_draw.c **** void (*const fill_fp)(const lv_area_t * coords, const lv_area_t * mask, lv_color_t color, lv_opa_t 
+  39:..\lvgl\lv_draw/lv_draw.c **** void (*const letter_fp)(const lv_point_t * pos_p, const lv_area_t * mask, const lv_font_t * font_p,
+  40:..\lvgl\lv_draw/lv_draw.c **** void (*const map_fp)(const lv_area_t * cords_p, const lv_area_t * mask_p,
+  41:..\lvgl\lv_draw/lv_draw.c ****                      const uint8_t * map_p, lv_opa_t opa, bool chroma_key, bool alpha_byte,
+  42:..\lvgl\lv_draw/lv_draw.c ****                      lv_color_t recolor, lv_opa_t recolor_opa) = lv_vmap;
+  43:..\lvgl\lv_draw/lv_draw.c **** #else
+  44:..\lvgl\lv_draw/lv_draw.c **** void (*const px_fp)(lv_coord_t x, lv_coord_t y, const lv_area_t * mask, lv_color_t color, lv_opa_t 
+  45:..\lvgl\lv_draw/lv_draw.c **** void (*const fill_fp)(const lv_area_t * coords, const lv_area_t * mask, lv_color_t color, lv_opa_t 
+  46:..\lvgl\lv_draw/lv_draw.c **** void (*const letter_fp)(const lv_point_t * pos_p, const lv_area_t * mask, const lv_font_t * font_p,
+  47:..\lvgl\lv_draw/lv_draw.c **** void (*const map_fp)(const lv_area_t * cords_p, const lv_area_t * mask_p,
+  48:..\lvgl\lv_draw/lv_draw.c ****                      const uint8_t * map_p, lv_opa_t opa, bool chroma_key, bool alpha_byte,
+  49:..\lvgl\lv_draw/lv_draw.c ****                      lv_color_t recolor, lv_opa_t recolor_opa) = lv_rmap;
+  50:..\lvgl\lv_draw/lv_draw.c **** #endif
+  51:..\lvgl\lv_draw/lv_draw.c **** 
+  52:..\lvgl\lv_draw/lv_draw.c **** /**********************
+  53:..\lvgl\lv_draw/lv_draw.c ****  *      MACROS
+  54:..\lvgl\lv_draw/lv_draw.c ****  **********************/
+  55:..\lvgl\lv_draw/lv_draw.c **** 
+  56:..\lvgl\lv_draw/lv_draw.c **** /**********************
+  57:..\lvgl\lv_draw/lv_draw.c ****  *   GLOBAL FUNCTIONS
+  58:..\lvgl\lv_draw/lv_draw.c ****  **********************/
+  59:..\lvgl\lv_draw/lv_draw.c **** 
+  60:..\lvgl\lv_draw/lv_draw.c **** /**********************
+  61:..\lvgl\lv_draw/lv_draw.c ****  *   STATIC FUNCTIONS
+  62:..\lvgl\lv_draw/lv_draw.c ****  **********************/
+  63:..\lvgl\lv_draw/lv_draw.c **** 
+  64:..\lvgl\lv_draw/lv_draw.c **** #if LV_ANTIALIAS != 0
+  65:..\lvgl\lv_draw/lv_draw.c **** 
+  66:..\lvgl\lv_draw/lv_draw.c **** /**
+  67:..\lvgl\lv_draw/lv_draw.c ****  * Get the opacity of a pixel based it's position in a line segment
+  68:..\lvgl\lv_draw/lv_draw.c ****  * @param seg segment length
+  69:..\lvgl\lv_draw/lv_draw.c ****  * @param px_id position of  of a pixel which opacity should be get [0..seg-1]
+  70:..\lvgl\lv_draw/lv_draw.c ****  * @param base_opa the base opacity
+  71:..\lvgl\lv_draw/lv_draw.c ****  * @return the opacity of the given pixel
+  72:..\lvgl\lv_draw/lv_draw.c ****  */
+  73:..\lvgl\lv_draw/lv_draw.c **** lv_opa_t lv_draw_aa_get_opa(lv_coord_t seg, lv_coord_t px_id, lv_opa_t base_opa)
+  74:..\lvgl\lv_draw/lv_draw.c **** {
+  28              		.loc 1 74 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+  75:..\lvgl\lv_draw/lv_draw.c ****     /* How to calculate the opacity of pixels on the edges which makes the anti-aliasing?
+  76:..\lvgl\lv_draw/lv_draw.c ****      * For example we have a line like this (y = -0.5 * x):
+  77:..\lvgl\lv_draw/lv_draw.c ****      *
+  78:..\lvgl\lv_draw/lv_draw.c ****      *  | _ _
+  79:..\lvgl\lv_draw/lv_draw.c ****      *    * * |
+  80:..\lvgl\lv_draw/lv_draw.c ****      *
+  81:..\lvgl\lv_draw/lv_draw.c ****      * Anti-aliased pixels come to the '*' characters
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 3
+
+
+  82:..\lvgl\lv_draw/lv_draw.c ****      * Calculate what percentage of the pixels should be covered if real line (not rasterized) woul
+  83:..\lvgl\lv_draw/lv_draw.c ****      * 1. A real line should start on (0;0) and end on (2;1)
+  84:..\lvgl\lv_draw/lv_draw.c ****      * 2. So the line intersection coordinates on the first pixel: (0;0) (1;0.5) -> 25% covered pix
+  85:..\lvgl\lv_draw/lv_draw.c ****      * 3. For the second pixel: (1;0.5) (2;1) -> 75% covered pixel in average
+  86:..\lvgl\lv_draw/lv_draw.c ****      * 4. The equation: (px_id * 2 + 1) / (segment_width * 2)
+  87:..\lvgl\lv_draw/lv_draw.c ****      *                   segment_width: the line segment which is being anti-aliased (was 2 in the 
+  88:..\lvgl\lv_draw/lv_draw.c ****      *                   px_id: pixel ID from 0 to  (segment_width - 1)
+  89:..\lvgl\lv_draw/lv_draw.c ****      *                   result: [0..1] coverage of the pixel
+  90:..\lvgl\lv_draw/lv_draw.c ****      */
+  91:..\lvgl\lv_draw/lv_draw.c **** 
+  92:..\lvgl\lv_draw/lv_draw.c ****     /*Accelerate the common segment sizes to avoid division*/
+  93:..\lvgl\lv_draw/lv_draw.c ****     static const  lv_opa_t seg1[1] = {128};
+  94:..\lvgl\lv_draw/lv_draw.c ****     static const  lv_opa_t seg2[2] = {64, 192};
+  95:..\lvgl\lv_draw/lv_draw.c ****     static const  lv_opa_t seg3[3] = {42, 128, 212};
+  96:..\lvgl\lv_draw/lv_draw.c ****     static const  lv_opa_t seg4[4] = {32, 96, 159, 223};
+  97:..\lvgl\lv_draw/lv_draw.c ****     static const  lv_opa_t seg5[5] = {26,  76, 128, 178, 230};
+  98:..\lvgl\lv_draw/lv_draw.c ****     static const  lv_opa_t seg6[6] = {21,  64, 106, 148, 191, 234};
+  99:..\lvgl\lv_draw/lv_draw.c ****     static const  lv_opa_t seg7[7] = {18,  55, 91, 128, 164, 200, 237};
+ 100:..\lvgl\lv_draw/lv_draw.c ****     static const  lv_opa_t seg8[8] = {16,  48, 80, 112, 143, 175, 207, 239};
+ 101:..\lvgl\lv_draw/lv_draw.c **** 
+ 102:..\lvgl\lv_draw/lv_draw.c ****     static const lv_opa_t * seg_map[] = {seg1, seg2, seg3, seg4,
+ 103:..\lvgl\lv_draw/lv_draw.c ****                                          seg5, seg6, seg7, seg8
+ 104:..\lvgl\lv_draw/lv_draw.c ****                                         };
+ 105:..\lvgl\lv_draw/lv_draw.c **** 
+ 106:..\lvgl\lv_draw/lv_draw.c ****     if(seg == 0) return LV_OPA_TRANSP;
+  34              		.loc 1 106 0
+  35 0000 0346     		mov	r3, r0
+  36 0002 98B1     		cbz	r0, .L4
+ 107:..\lvgl\lv_draw/lv_draw.c ****     else if(seg < 8) return (uint32_t)((uint32_t)seg_map[seg - 1][px_id] * base_opa) >> 8;
+  37              		.loc 1 107 0
+  38 0004 0728     		cmp	r0, #7
+  39 0006 09DC     		bgt	.L3
+  40              		.loc 1 107 0 is_stmt 0 discriminator 1
+  41 0008 431E     		subs	r3, r0, #1
+  42 000a 0948     		ldr	r0, .L5
+  43              	.LVL1:
+  44 000c 50F82330 		ldr	r3, [r0, r3, lsl #2]
+  45 0010 585C     		ldrb	r0, [r3, r1]	@ zero_extendqisi2
+  46 0012 00FB02F0 		mul	r0, r0, r2
+  47 0016 C0F30720 		ubfx	r0, r0, #8, #8
+  48 001a 7047     		bx	lr
+  49              	.LVL2:
+  50              	.L3:
+ 108:..\lvgl\lv_draw/lv_draw.c ****     else {
+ 109:..\lvgl\lv_draw/lv_draw.c ****         return ((px_id * 2 + 1) * base_opa) / (2 * seg);
+  51              		.loc 1 109 0 is_stmt 1
+  52 001c 4800     		lsls	r0, r1, #1
+  53              	.LVL3:
+  54 001e 00FB0222 		mla	r2, r0, r2, r2
+  55              	.LVL4:
+  56 0022 5800     		lsls	r0, r3, #1
+  57 0024 92FBF0F0 		sdiv	r0, r2, r0
+  58 0028 C0B2     		uxtb	r0, r0
+  59 002a 7047     		bx	lr
+  60              	.LVL5:
+  61              	.L4:
+ 106:..\lvgl\lv_draw/lv_draw.c ****     else if(seg < 8) return (uint32_t)((uint32_t)seg_map[seg - 1][px_id] * base_opa) >> 8;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 4
+
+
+  62              		.loc 1 106 0
+  63 002c 0020     		movs	r0, #0
+  64              	.LVL6:
+ 110:..\lvgl\lv_draw/lv_draw.c ****     }
+ 111:..\lvgl\lv_draw/lv_draw.c **** 
+ 112:..\lvgl\lv_draw/lv_draw.c **** }
+  65              		.loc 1 112 0
+  66 002e 7047     		bx	lr
+  67              	.L6:
+  68              		.align	2
+  69              	.L5:
+  70 0030 00000000 		.word	.LANCHOR0
+  71              		.cfi_endproc
+  72              	.LFE13:
+  73              		.size	lv_draw_aa_get_opa, .-lv_draw_aa_get_opa
+  74              		.section	.text.lv_draw_aa_ver_seg,"ax",%progbits
+  75              		.align	2
+  76              		.global	lv_draw_aa_ver_seg
+  77              		.thumb
+  78              		.thumb_func
+  79              		.type	lv_draw_aa_ver_seg, %function
+  80              	lv_draw_aa_ver_seg:
+  81              	.LFB14:
+ 113:..\lvgl\lv_draw/lv_draw.c **** 
+ 114:..\lvgl\lv_draw/lv_draw.c **** /**
+ 115:..\lvgl\lv_draw/lv_draw.c ****  * Add a vertical  anti-aliasing segment (pixels with decreasing opacity)
+ 116:..\lvgl\lv_draw/lv_draw.c ****  * @param x start point x coordinate
+ 117:..\lvgl\lv_draw/lv_draw.c ****  * @param y start point y coordinate
+ 118:..\lvgl\lv_draw/lv_draw.c ****  * @param length length of segment (negative value to start from 0 opacity)
+ 119:..\lvgl\lv_draw/lv_draw.c ****  * @param mask draw only in this area
+ 120:..\lvgl\lv_draw/lv_draw.c ****  * @param color color of pixels
+ 121:..\lvgl\lv_draw/lv_draw.c ****  * @param opa maximum opacity
+ 122:..\lvgl\lv_draw/lv_draw.c ****  */
+ 123:..\lvgl\lv_draw/lv_draw.c **** void lv_draw_aa_ver_seg(lv_coord_t x, lv_coord_t y, lv_coord_t length, const lv_area_t * mask, lv_c
+ 124:..\lvgl\lv_draw/lv_draw.c **** {
+  82              		.loc 1 124 0
+  83              		.cfi_startproc
+  84              		@ args = 8, pretend = 0, frame = 0
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              	.LVL7:
+  87 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  88              		.cfi_def_cfa_offset 36
+  89              		.cfi_offset 4, -36
+  90              		.cfi_offset 5, -32
+  91              		.cfi_offset 6, -28
+  92              		.cfi_offset 7, -24
+  93              		.cfi_offset 8, -20
+  94              		.cfi_offset 9, -16
+  95              		.cfi_offset 10, -12
+  96              		.cfi_offset 11, -8
+  97              		.cfi_offset 14, -4
+  98 0004 83B0     		sub	sp, sp, #12
+  99              		.cfi_def_cfa_offset 48
+ 100 0006 8346     		mov	fp, r0
+ 101 0008 8846     		mov	r8, r1
+ 102 000a 9946     		mov	r9, r3
+ 103 000c 9DF830A0 		ldrb	r10, [sp, #48]	@ zero_extendqisi2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 5
+
+
+ 104 0010 9DF83460 		ldrb	r6, [sp, #52]	@ zero_extendqisi2
+ 105              	.LVL8:
+ 125:..\lvgl\lv_draw/lv_draw.c ****     bool aa_inv = false;
+ 126:..\lvgl\lv_draw/lv_draw.c ****     if(length < 0) {
+ 106              		.loc 1 126 0
+ 107 0014 151E     		subs	r5, r2, #0
+ 108 0016 03DA     		bge	.L12
+ 109              	.LVL9:
+ 127:..\lvgl\lv_draw/lv_draw.c ****         aa_inv = true;
+ 128:..\lvgl\lv_draw/lv_draw.c ****         length = -length;
+ 110              		.loc 1 128 0
+ 111 0018 6D42     		negs	r5, r5
+ 112 001a 2DB2     		sxth	r5, r5
+ 113              	.LVL10:
+ 127:..\lvgl\lv_draw/lv_draw.c ****         aa_inv = true;
+ 114              		.loc 1 127 0
+ 115 001c 0127     		movs	r7, #1
+ 116 001e 00E0     		b	.L8
+ 117              	.LVL11:
+ 118              	.L12:
+ 125:..\lvgl\lv_draw/lv_draw.c ****     bool aa_inv = false;
+ 119              		.loc 1 125 0
+ 120 0020 0027     		movs	r7, #0
+ 121              	.LVL12:
+ 122              	.L8:
+ 129:..\lvgl\lv_draw/lv_draw.c ****     }
+ 130:..\lvgl\lv_draw/lv_draw.c **** 
+ 131:..\lvgl\lv_draw/lv_draw.c ****     lv_coord_t i;
+ 132:..\lvgl\lv_draw/lv_draw.c ****     for(i = 0; i < length; i++) {
+ 123              		.loc 1 132 0
+ 124 0022 0024     		movs	r4, #0
+ 125 0024 13E0     		b	.L9
+ 126              	.LVL13:
+ 127              	.L11:
+ 128              	.LBB2:
+ 133:..\lvgl\lv_draw/lv_draw.c ****         lv_opa_t px_opa = lv_draw_aa_get_opa(length, i, opa);
+ 129              		.loc 1 133 0
+ 130 0026 3246     		mov	r2, r6
+ 131 0028 2146     		mov	r1, r4
+ 132 002a 2846     		mov	r0, r5
+ 133 002c FFF7FEFF 		bl	lv_draw_aa_get_opa
+ 134              	.LVL14:
+ 134:..\lvgl\lv_draw/lv_draw.c ****         if(aa_inv) px_opa = opa - px_opa;
+ 135              		.loc 1 134 0
+ 136 0030 0FB1     		cbz	r7, .L10
+ 137              		.loc 1 134 0 is_stmt 0 discriminator 1
+ 138 0032 301A     		subs	r0, r6, r0
+ 139              	.LVL15:
+ 140 0034 C0B2     		uxtb	r0, r0
+ 141              	.LVL16:
+ 142              	.L10:
+ 135:..\lvgl\lv_draw/lv_draw.c ****         px_fp(x, y + i, mask, color, px_opa);
+ 143              		.loc 1 135 0 is_stmt 1 discriminator 2
+ 144 0036 A4B2     		uxth	r4, r4
+ 145 0038 04EB0801 		add	r1, r4, r8
+ 146 003c 0090     		str	r0, [sp]
+ 147 003e 5346     		mov	r3, r10
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 6
+
+
+ 148 0040 4A46     		mov	r2, r9
+ 149 0042 09B2     		sxth	r1, r1
+ 150 0044 5846     		mov	r0, fp
+ 151              	.LVL17:
+ 152 0046 FFF7FEFF 		bl	lv_vpx
+ 153              	.LVL18:
+ 154              	.LBE2:
+ 132:..\lvgl\lv_draw/lv_draw.c ****         lv_opa_t px_opa = lv_draw_aa_get_opa(length, i, opa);
+ 155              		.loc 1 132 0 discriminator 2
+ 156 004a 0134     		adds	r4, r4, #1
+ 157              	.LVL19:
+ 158 004c 24B2     		sxth	r4, r4
+ 159              	.LVL20:
+ 160              	.L9:
+ 132:..\lvgl\lv_draw/lv_draw.c ****         lv_opa_t px_opa = lv_draw_aa_get_opa(length, i, opa);
+ 161              		.loc 1 132 0 is_stmt 0 discriminator 1
+ 162 004e A542     		cmp	r5, r4
+ 163 0050 E9DC     		bgt	.L11
+ 136:..\lvgl\lv_draw/lv_draw.c ****     }
+ 137:..\lvgl\lv_draw/lv_draw.c **** }
+ 164              		.loc 1 137 0 is_stmt 1
+ 165 0052 03B0     		add	sp, sp, #12
+ 166              		.cfi_def_cfa_offset 36
+ 167              		@ sp needed
+ 168 0054 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 169              		.cfi_endproc
+ 170              	.LFE14:
+ 171              		.size	lv_draw_aa_ver_seg, .-lv_draw_aa_ver_seg
+ 172              		.section	.text.lv_draw_aa_hor_seg,"ax",%progbits
+ 173              		.align	2
+ 174              		.global	lv_draw_aa_hor_seg
+ 175              		.thumb
+ 176              		.thumb_func
+ 177              		.type	lv_draw_aa_hor_seg, %function
+ 178              	lv_draw_aa_hor_seg:
+ 179              	.LFB15:
+ 138:..\lvgl\lv_draw/lv_draw.c **** 
+ 139:..\lvgl\lv_draw/lv_draw.c **** /**
+ 140:..\lvgl\lv_draw/lv_draw.c ****  * Add a horizontal anti-aliasing segment (pixels with decreasing opacity)
+ 141:..\lvgl\lv_draw/lv_draw.c ****  * @param x start point x coordinate
+ 142:..\lvgl\lv_draw/lv_draw.c ****  * @param y start point y coordinate
+ 143:..\lvgl\lv_draw/lv_draw.c ****  * @param length length of segment (negative value to start from 0 opacity)
+ 144:..\lvgl\lv_draw/lv_draw.c ****  * @param mask draw only in this area
+ 145:..\lvgl\lv_draw/lv_draw.c ****  * @param color color of pixels
+ 146:..\lvgl\lv_draw/lv_draw.c ****  * @param opa maximum opacity
+ 147:..\lvgl\lv_draw/lv_draw.c ****  */
+ 148:..\lvgl\lv_draw/lv_draw.c **** void lv_draw_aa_hor_seg(lv_coord_t x, lv_coord_t y, lv_coord_t length, const lv_area_t * mask, lv_c
+ 149:..\lvgl\lv_draw/lv_draw.c **** {
+ 180              		.loc 1 149 0
+ 181              		.cfi_startproc
+ 182              		@ args = 8, pretend = 0, frame = 0
+ 183              		@ frame_needed = 0, uses_anonymous_args = 0
+ 184              	.LVL21:
+ 185 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 186              		.cfi_def_cfa_offset 36
+ 187              		.cfi_offset 4, -36
+ 188              		.cfi_offset 5, -32
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 7
+
+
+ 189              		.cfi_offset 6, -28
+ 190              		.cfi_offset 7, -24
+ 191              		.cfi_offset 8, -20
+ 192              		.cfi_offset 9, -16
+ 193              		.cfi_offset 10, -12
+ 194              		.cfi_offset 11, -8
+ 195              		.cfi_offset 14, -4
+ 196 0004 83B0     		sub	sp, sp, #12
+ 197              		.cfi_def_cfa_offset 48
+ 198 0006 0746     		mov	r7, r0
+ 199 0008 8846     		mov	r8, r1
+ 200 000a 9946     		mov	r9, r3
+ 201 000c 9DF830A0 		ldrb	r10, [sp, #48]	@ zero_extendqisi2
+ 202 0010 9DF83460 		ldrb	r6, [sp, #52]	@ zero_extendqisi2
+ 203              	.LVL22:
+ 150:..\lvgl\lv_draw/lv_draw.c ****     bool aa_inv = false;
+ 151:..\lvgl\lv_draw/lv_draw.c ****     if(length < 0) {
+ 204              		.loc 1 151 0
+ 205 0014 151E     		subs	r5, r2, #0
+ 206 0016 04DA     		bge	.L19
+ 207              	.LVL23:
+ 152:..\lvgl\lv_draw/lv_draw.c ****         aa_inv = true;
+ 153:..\lvgl\lv_draw/lv_draw.c ****         length = -length;
+ 208              		.loc 1 153 0
+ 209 0018 6D42     		negs	r5, r5
+ 210 001a 2DB2     		sxth	r5, r5
+ 211              	.LVL24:
+ 152:..\lvgl\lv_draw/lv_draw.c ****         aa_inv = true;
+ 212              		.loc 1 152 0
+ 213 001c 4FF0010B 		mov	fp, #1
+ 214 0020 01E0     		b	.L15
+ 215              	.LVL25:
+ 216              	.L19:
+ 150:..\lvgl\lv_draw/lv_draw.c ****     bool aa_inv = false;
+ 217              		.loc 1 150 0
+ 218 0022 4FF0000B 		mov	fp, #0
+ 219              	.LVL26:
+ 220              	.L15:
+ 154:..\lvgl\lv_draw/lv_draw.c ****     }
+ 155:..\lvgl\lv_draw/lv_draw.c **** 
+ 156:..\lvgl\lv_draw/lv_draw.c ****     lv_coord_t i;
+ 157:..\lvgl\lv_draw/lv_draw.c ****     for(i = 0; i < length; i++) {
+ 221              		.loc 1 157 0
+ 222 0026 0024     		movs	r4, #0
+ 223 0028 16E0     		b	.L16
+ 224              	.LVL27:
+ 225              	.L18:
+ 226              	.LBB3:
+ 158:..\lvgl\lv_draw/lv_draw.c ****         lv_opa_t px_opa = lv_draw_aa_get_opa(length, i, opa);
+ 227              		.loc 1 158 0
+ 228 002a 3246     		mov	r2, r6
+ 229 002c 2146     		mov	r1, r4
+ 230 002e 2846     		mov	r0, r5
+ 231 0030 FFF7FEFF 		bl	lv_draw_aa_get_opa
+ 232              	.LVL28:
+ 159:..\lvgl\lv_draw/lv_draw.c ****         if(aa_inv) px_opa = opa - px_opa;
+ 233              		.loc 1 159 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 8
+
+
+ 234 0034 BBF1000F 		cmp	fp, #0
+ 235 0038 01D0     		beq	.L17
+ 236              		.loc 1 159 0 is_stmt 0 discriminator 1
+ 237 003a 301A     		subs	r0, r6, r0
+ 238              	.LVL29:
+ 239 003c C0B2     		uxtb	r0, r0
+ 240              	.LVL30:
+ 241              	.L17:
+ 160:..\lvgl\lv_draw/lv_draw.c ****         px_fp(x + i, y, mask, color, px_opa);
+ 242              		.loc 1 160 0 is_stmt 1 discriminator 2
+ 243 003e A4B2     		uxth	r4, r4
+ 244 0040 04EB070E 		add	lr, r4, r7
+ 245 0044 0090     		str	r0, [sp]
+ 246 0046 5346     		mov	r3, r10
+ 247 0048 4A46     		mov	r2, r9
+ 248 004a 4146     		mov	r1, r8
+ 249 004c 0FFA8EF0 		sxth	r0, lr
+ 250              	.LVL31:
+ 251 0050 FFF7FEFF 		bl	lv_vpx
+ 252              	.LVL32:
+ 253              	.LBE3:
+ 157:..\lvgl\lv_draw/lv_draw.c ****         lv_opa_t px_opa = lv_draw_aa_get_opa(length, i, opa);
+ 254              		.loc 1 157 0 discriminator 2
+ 255 0054 0134     		adds	r4, r4, #1
+ 256              	.LVL33:
+ 257 0056 24B2     		sxth	r4, r4
+ 258              	.LVL34:
+ 259              	.L16:
+ 157:..\lvgl\lv_draw/lv_draw.c ****         lv_opa_t px_opa = lv_draw_aa_get_opa(length, i, opa);
+ 260              		.loc 1 157 0 is_stmt 0 discriminator 1
+ 261 0058 A542     		cmp	r5, r4
+ 262 005a E6DC     		bgt	.L18
+ 161:..\lvgl\lv_draw/lv_draw.c ****     }
+ 162:..\lvgl\lv_draw/lv_draw.c **** }
+ 263              		.loc 1 162 0 is_stmt 1
+ 264 005c 03B0     		add	sp, sp, #12
+ 265              		.cfi_def_cfa_offset 36
+ 266              		@ sp needed
+ 267 005e BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 268              		.cfi_endproc
+ 269              	.LFE15:
+ 270              		.size	lv_draw_aa_hor_seg, .-lv_draw_aa_hor_seg
+ 271              		.global	map_fp
+ 272              		.global	letter_fp
+ 273              		.global	fill_fp
+ 274              		.global	px_fp
+ 275 0062 00BF     		.section	.rodata
+ 276              		.align	2
+ 277              		.set	.LANCHOR0,. + 0
+ 278              		.type	seg_map.6344, %object
+ 279              		.size	seg_map.6344, 32
+ 280              	seg_map.6344:
+ 281 0000 20000000 		.word	seg1.6336
+ 282 0004 24000000 		.word	seg2.6337
+ 283 0008 28000000 		.word	seg3.6338
+ 284 000c 2C000000 		.word	seg4.6339
+ 285 0010 30000000 		.word	seg5.6340
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 9
+
+
+ 286 0014 38000000 		.word	seg6.6341
+ 287 0018 40000000 		.word	seg7.6342
+ 288 001c 48000000 		.word	seg8.6343
+ 289              		.type	seg1.6336, %object
+ 290              		.size	seg1.6336, 1
+ 291              	seg1.6336:
+ 292 0020 80       		.byte	-128
+ 293 0021 000000   		.space	3
+ 294              		.type	seg2.6337, %object
+ 295              		.size	seg2.6337, 2
+ 296              	seg2.6337:
+ 297 0024 40       		.byte	64
+ 298 0025 C0       		.byte	-64
+ 299 0026 0000     		.space	2
+ 300              		.type	seg3.6338, %object
+ 301              		.size	seg3.6338, 3
+ 302              	seg3.6338:
+ 303 0028 2A       		.byte	42
+ 304 0029 80       		.byte	-128
+ 305 002a D4       		.byte	-44
+ 306 002b 00       		.space	1
+ 307              		.type	seg4.6339, %object
+ 308              		.size	seg4.6339, 4
+ 309              	seg4.6339:
+ 310 002c 20       		.byte	32
+ 311 002d 60       		.byte	96
+ 312 002e 9F       		.byte	-97
+ 313 002f DF       		.byte	-33
+ 314              		.type	seg5.6340, %object
+ 315              		.size	seg5.6340, 5
+ 316              	seg5.6340:
+ 317 0030 1A       		.byte	26
+ 318 0031 4C       		.byte	76
+ 319 0032 80       		.byte	-128
+ 320 0033 B2       		.byte	-78
+ 321 0034 E6       		.byte	-26
+ 322 0035 000000   		.space	3
+ 323              		.type	seg6.6341, %object
+ 324              		.size	seg6.6341, 6
+ 325              	seg6.6341:
+ 326 0038 15       		.byte	21
+ 327 0039 40       		.byte	64
+ 328 003a 6A       		.byte	106
+ 329 003b 94       		.byte	-108
+ 330 003c BF       		.byte	-65
+ 331 003d EA       		.byte	-22
+ 332 003e 0000     		.space	2
+ 333              		.type	seg7.6342, %object
+ 334              		.size	seg7.6342, 7
+ 335              	seg7.6342:
+ 336 0040 12       		.byte	18
+ 337 0041 37       		.byte	55
+ 338 0042 5B       		.byte	91
+ 339 0043 80       		.byte	-128
+ 340 0044 A4       		.byte	-92
+ 341 0045 C8       		.byte	-56
+ 342 0046 ED       		.byte	-19
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 10
+
+
+ 343 0047 00       		.space	1
+ 344              		.type	seg8.6343, %object
+ 345              		.size	seg8.6343, 8
+ 346              	seg8.6343:
+ 347 0048 10       		.byte	16
+ 348 0049 30       		.byte	48
+ 349 004a 50       		.byte	80
+ 350 004b 70       		.byte	112
+ 351 004c 8F       		.byte	-113
+ 352 004d AF       		.byte	-81
+ 353 004e CF       		.byte	-49
+ 354 004f EF       		.byte	-17
+ 355              		.type	map_fp, %object
+ 356              		.size	map_fp, 4
+ 357              	map_fp:
+ 358 0050 00000000 		.word	lv_vmap
+ 359              		.type	letter_fp, %object
+ 360              		.size	letter_fp, 4
+ 361              	letter_fp:
+ 362 0054 00000000 		.word	lv_vletter
+ 363              		.type	fill_fp, %object
+ 364              		.size	fill_fp, 4
+ 365              	fill_fp:
+ 366 0058 00000000 		.word	lv_vfill
+ 367              		.type	px_fp, %object
+ 368              		.size	px_fp, 4
+ 369              	px_fp:
+ 370 005c 00000000 		.word	lv_vpx
+ 371              		.text
+ 372              	.Letext0:
+ 373              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 374              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 375              		.file 4 "..\\lvgl\\lv_draw\\../lv_core/../lv_misc/lv_color.h"
+ 376              		.file 5 "..\\lvgl\\lv_draw\\../lv_core/../lv_misc/lv_area.h"
+ 377              		.file 6 "..\\lvgl\\lv_draw\\../lv_core/../lv_misc/lv_font.h"
+ 378              		.file 7 "..\\lvgl\\lv_draw\\lv_draw_vbasic.h"
+ 379              		.section	.debug_info,"",%progbits
+ 380              	.Ldebug_info0:
+ 381 0000 EA070000 		.4byte	0x7ea
+ 382 0004 0400     		.2byte	0x4
+ 383 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 384 000a 04       		.byte	0x4
+ 385 000b 01       		.uleb128 0x1
+ 386 000c 64030000 		.4byte	.LASF80
+ 387 0010 0C       		.byte	0xc
+ 388 0011 BA020000 		.4byte	.LASF81
+ 389 0015 EB000000 		.4byte	.LASF82
+ 390 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 391 001d 00000000 		.4byte	0
+ 392 0021 00000000 		.4byte	.Ldebug_line0
+ 393 0025 02       		.uleb128 0x2
+ 394 0026 01       		.byte	0x1
+ 395 0027 06       		.byte	0x6
+ 396 0028 A2010000 		.4byte	.LASF0
+ 397 002c 03       		.uleb128 0x3
+ 398 002d 57010000 		.4byte	.LASF2
+ 399 0031 02       		.byte	0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 11
+
+
+ 400 0032 1D       		.byte	0x1d
+ 401 0033 37000000 		.4byte	0x37
+ 402 0037 02       		.uleb128 0x2
+ 403 0038 01       		.byte	0x1
+ 404 0039 08       		.byte	0x8
+ 405 003a 71010000 		.4byte	.LASF1
+ 406 003e 03       		.uleb128 0x3
+ 407 003f 14030000 		.4byte	.LASF3
+ 408 0043 02       		.byte	0x2
+ 409 0044 29       		.byte	0x29
+ 410 0045 49000000 		.4byte	0x49
+ 411 0049 02       		.uleb128 0x2
+ 412 004a 02       		.byte	0x2
+ 413 004b 05       		.byte	0x5
+ 414 004c 7E000000 		.4byte	.LASF4
+ 415 0050 03       		.uleb128 0x3
+ 416 0051 61000000 		.4byte	.LASF5
+ 417 0055 02       		.byte	0x2
+ 418 0056 2B       		.byte	0x2b
+ 419 0057 5B000000 		.4byte	0x5b
+ 420 005b 02       		.uleb128 0x2
+ 421 005c 02       		.byte	0x2
+ 422 005d 07       		.byte	0x7
+ 423 005e 04020000 		.4byte	.LASF6
+ 424 0062 02       		.uleb128 0x2
+ 425 0063 04       		.byte	0x4
+ 426 0064 05       		.byte	0x5
+ 427 0065 3F010000 		.4byte	.LASF7
+ 428 0069 03       		.uleb128 0x3
+ 429 006a 4E000000 		.4byte	.LASF8
+ 430 006e 02       		.byte	0x2
+ 431 006f 41       		.byte	0x41
+ 432 0070 74000000 		.4byte	0x74
+ 433 0074 02       		.uleb128 0x2
+ 434 0075 04       		.byte	0x4
+ 435 0076 07       		.byte	0x7
+ 436 0077 A8020000 		.4byte	.LASF9
+ 437 007b 02       		.uleb128 0x2
+ 438 007c 08       		.byte	0x8
+ 439 007d 05       		.byte	0x5
+ 440 007e 31010000 		.4byte	.LASF10
+ 441 0082 02       		.uleb128 0x2
+ 442 0083 08       		.byte	0x8
+ 443 0084 07       		.byte	0x7
+ 444 0085 AE010000 		.4byte	.LASF11
+ 445 0089 04       		.uleb128 0x4
+ 446 008a 04       		.byte	0x4
+ 447 008b 05       		.byte	0x5
+ 448 008c 696E7400 		.ascii	"int\000"
+ 449 0090 02       		.uleb128 0x2
+ 450 0091 04       		.byte	0x4
+ 451 0092 07       		.byte	0x7
+ 452 0093 CE010000 		.4byte	.LASF12
+ 453 0097 02       		.uleb128 0x2
+ 454 0098 08       		.byte	0x8
+ 455 0099 04       		.byte	0x4
+ 456 009a 8C010000 		.4byte	.LASF13
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 12
+
+
+ 457 009e 02       		.uleb128 0x2
+ 458 009f 04       		.byte	0x4
+ 459 00a0 07       		.byte	0x7
+ 460 00a1 28030000 		.4byte	.LASF14
+ 461 00a5 02       		.uleb128 0x2
+ 462 00a6 01       		.byte	0x1
+ 463 00a7 08       		.byte	0x8
+ 464 00a8 23020000 		.4byte	.LASF15
+ 465 00ac 03       		.uleb128 0x3
+ 466 00ad C1000000 		.4byte	.LASF16
+ 467 00b1 03       		.byte	0x3
+ 468 00b2 18       		.byte	0x18
+ 469 00b3 2C000000 		.4byte	0x2c
+ 470 00b7 03       		.uleb128 0x3
+ 471 00b8 54020000 		.4byte	.LASF17
+ 472 00bc 03       		.byte	0x3
+ 473 00bd 20       		.byte	0x20
+ 474 00be 3E000000 		.4byte	0x3e
+ 475 00c2 03       		.uleb128 0x3
+ 476 00c3 E6010000 		.4byte	.LASF18
+ 477 00c7 03       		.byte	0x3
+ 478 00c8 24       		.byte	0x24
+ 479 00c9 50000000 		.4byte	0x50
+ 480 00cd 03       		.uleb128 0x3
+ 481 00ce C5010000 		.4byte	.LASF19
+ 482 00d2 03       		.byte	0x3
+ 483 00d3 30       		.byte	0x30
+ 484 00d4 69000000 		.4byte	0x69
+ 485 00d8 05       		.uleb128 0x5
+ 486 00d9 01       		.byte	0x1
+ 487 00da 37000000 		.4byte	0x37
+ 488 00de 04       		.byte	0x4
+ 489 00df 3C       		.byte	0x3c
+ 490 00e0 33010000 		.4byte	0x133
+ 491 00e4 06       		.uleb128 0x6
+ 492 00e5 32020000 		.4byte	.LASF20
+ 493 00e9 00       		.byte	0
+ 494 00ea 06       		.uleb128 0x6
+ 495 00eb DA020000 		.4byte	.LASF21
+ 496 00ef 00       		.byte	0
+ 497 00f0 06       		.uleb128 0x6
+ 498 00f1 EF010000 		.4byte	.LASF22
+ 499 00f5 19       		.byte	0x19
+ 500 00f6 06       		.uleb128 0x6
+ 501 00f7 1E030000 		.4byte	.LASF23
+ 502 00fb 33       		.byte	0x33
+ 503 00fc 06       		.uleb128 0x6
+ 504 00fd 44000000 		.4byte	.LASF24
+ 505 0101 4C       		.byte	0x4c
+ 506 0102 06       		.uleb128 0x6
+ 507 0103 48010000 		.4byte	.LASF25
+ 508 0107 66       		.byte	0x66
+ 509 0108 06       		.uleb128 0x6
+ 510 0109 28020000 		.4byte	.LASF26
+ 511 010d 7F       		.byte	0x7f
+ 512 010e 06       		.uleb128 0x6
+ 513 010f 5A030000 		.4byte	.LASF27
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 13
+
+
+ 514 0113 99       		.byte	0x99
+ 515 0114 06       		.uleb128 0x6
+ 516 0115 74000000 		.4byte	.LASF28
+ 517 0119 B2       		.byte	0xb2
+ 518 011a 06       		.uleb128 0x6
+ 519 011b C9000000 		.4byte	.LASF29
+ 520 011f CC       		.byte	0xcc
+ 521 0120 06       		.uleb128 0x6
+ 522 0121 94020000 		.4byte	.LASF30
+ 523 0125 E5       		.byte	0xe5
+ 524 0126 06       		.uleb128 0x6
+ 525 0127 F9010000 		.4byte	.LASF31
+ 526 012b FF       		.byte	0xff
+ 527 012c 06       		.uleb128 0x6
+ 528 012d 7F010000 		.4byte	.LASF32
+ 529 0131 FF       		.byte	0xff
+ 530 0132 00       		.byte	0
+ 531 0133 07       		.uleb128 0x7
+ 532 0134 01       		.byte	0x1
+ 533 0135 04       		.byte	0x4
+ 534 0136 5F       		.byte	0x5f
+ 535 0137 74010000 		.4byte	0x174
+ 536 013b 08       		.uleb128 0x8
+ 537 013c 88000000 		.4byte	.LASF33
+ 538 0140 04       		.byte	0x4
+ 539 0141 61       		.byte	0x61
+ 540 0142 AC000000 		.4byte	0xac
+ 541 0146 01       		.byte	0x1
+ 542 0147 01       		.byte	0x1
+ 543 0148 07       		.byte	0x7
+ 544 0149 08       		.uleb128 0x8
+ 545 014a 61010000 		.4byte	.LASF34
+ 546 014e 04       		.byte	0x4
+ 547 014f 62       		.byte	0x62
+ 548 0150 AC000000 		.4byte	0xac
+ 549 0154 01       		.byte	0x1
+ 550 0155 01       		.byte	0x1
+ 551 0156 07       		.byte	0x7
+ 552 0157 09       		.uleb128 0x9
+ 553 0158 72656400 		.ascii	"red\000"
+ 554 015c 04       		.byte	0x4
+ 555 015d 63       		.byte	0x63
+ 556 015e AC000000 		.4byte	0xac
+ 557 0162 01       		.byte	0x1
+ 558 0163 01       		.byte	0x1
+ 559 0164 07       		.byte	0x7
+ 560 0165 08       		.uleb128 0x8
+ 561 0166 02030000 		.4byte	.LASF35
+ 562 016a 04       		.byte	0x4
+ 563 016b 64       		.byte	0x64
+ 564 016c AC000000 		.4byte	0xac
+ 565 0170 01       		.byte	0x1
+ 566 0171 01       		.byte	0x1
+ 567 0172 07       		.byte	0x7
+ 568 0173 00       		.byte	0
+ 569 0174 03       		.uleb128 0x3
+ 570 0175 17020000 		.4byte	.LASF36
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 14
+
+
+ 571 0179 04       		.byte	0x4
+ 572 017a 65       		.byte	0x65
+ 573 017b 33010000 		.4byte	0x133
+ 574 017f 03       		.uleb128 0x3
+ 575 0180 DB010000 		.4byte	.LASF37
+ 576 0184 04       		.byte	0x4
+ 577 0185 92       		.byte	0x92
+ 578 0186 74010000 		.4byte	0x174
+ 579 018a 03       		.uleb128 0x3
+ 580 018b 8D000000 		.4byte	.LASF38
+ 581 018f 04       		.byte	0x4
+ 582 0190 A0       		.byte	0xa0
+ 583 0191 AC000000 		.4byte	0xac
+ 584 0195 03       		.uleb128 0x3
+ 585 0196 40020000 		.4byte	.LASF39
+ 586 019a 05       		.byte	0x5
+ 587 019b 1E       		.byte	0x1e
+ 588 019c B7000000 		.4byte	0xb7
+ 589 01a0 0A       		.uleb128 0xa
+ 590 01a1 04       		.byte	0x4
+ 591 01a2 05       		.byte	0x5
+ 592 01a3 20       		.byte	0x20
+ 593 01a4 BD010000 		.4byte	0x1bd
+ 594 01a8 0B       		.uleb128 0xb
+ 595 01a9 7800     		.ascii	"x\000"
+ 596 01ab 05       		.byte	0x5
+ 597 01ac 22       		.byte	0x22
+ 598 01ad 95010000 		.4byte	0x195
+ 599 01b1 00       		.byte	0
+ 600 01b2 0B       		.uleb128 0xb
+ 601 01b3 7900     		.ascii	"y\000"
+ 602 01b5 05       		.byte	0x5
+ 603 01b6 23       		.byte	0x23
+ 604 01b7 95010000 		.4byte	0x195
+ 605 01bb 02       		.byte	0x2
+ 606 01bc 00       		.byte	0
+ 607 01bd 03       		.uleb128 0x3
+ 608 01be A3000000 		.4byte	.LASF40
+ 609 01c2 05       		.byte	0x5
+ 610 01c3 24       		.byte	0x24
+ 611 01c4 A0010000 		.4byte	0x1a0
+ 612 01c8 0A       		.uleb128 0xa
+ 613 01c9 08       		.byte	0x8
+ 614 01ca 05       		.byte	0x5
+ 615 01cb 26       		.byte	0x26
+ 616 01cc FD010000 		.4byte	0x1fd
+ 617 01d0 0B       		.uleb128 0xb
+ 618 01d1 783100   		.ascii	"x1\000"
+ 619 01d4 05       		.byte	0x5
+ 620 01d5 28       		.byte	0x28
+ 621 01d6 95010000 		.4byte	0x195
+ 622 01da 00       		.byte	0
+ 623 01db 0B       		.uleb128 0xb
+ 624 01dc 793100   		.ascii	"y1\000"
+ 625 01df 05       		.byte	0x5
+ 626 01e0 29       		.byte	0x29
+ 627 01e1 95010000 		.4byte	0x195
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 15
+
+
+ 628 01e5 02       		.byte	0x2
+ 629 01e6 0B       		.uleb128 0xb
+ 630 01e7 783200   		.ascii	"x2\000"
+ 631 01ea 05       		.byte	0x5
+ 632 01eb 2A       		.byte	0x2a
+ 633 01ec 95010000 		.4byte	0x195
+ 634 01f0 04       		.byte	0x4
+ 635 01f1 0B       		.uleb128 0xb
+ 636 01f2 793200   		.ascii	"y2\000"
+ 637 01f5 05       		.byte	0x5
+ 638 01f6 2B       		.byte	0x2b
+ 639 01f7 95010000 		.4byte	0x195
+ 640 01fb 06       		.byte	0x6
+ 641 01fc 00       		.byte	0
+ 642 01fd 03       		.uleb128 0x3
+ 643 01fe 8A020000 		.4byte	.LASF41
+ 644 0202 05       		.byte	0x5
+ 645 0203 2C       		.byte	0x2c
+ 646 0204 C8010000 		.4byte	0x1c8
+ 647 0208 0A       		.uleb128 0xa
+ 648 0209 04       		.byte	0x4
+ 649 020a 06       		.byte	0x6
+ 650 020b 25       		.byte	0x25
+ 651 020c 2F020000 		.4byte	0x22f
+ 652 0210 0C       		.uleb128 0xc
+ 653 0211 52010000 		.4byte	.LASF42
+ 654 0215 06       		.byte	0x6
+ 655 0216 27       		.byte	0x27
+ 656 0217 CD000000 		.4byte	0xcd
+ 657 021b 04       		.byte	0x4
+ 658 021c 08       		.byte	0x8
+ 659 021d 18       		.byte	0x18
+ 660 021e 00       		.byte	0
+ 661 021f 0C       		.uleb128 0xc
+ 662 0220 31030000 		.4byte	.LASF43
+ 663 0224 06       		.byte	0x6
+ 664 0225 28       		.byte	0x28
+ 665 0226 CD000000 		.4byte	0xcd
+ 666 022a 04       		.byte	0x4
+ 667 022b 18       		.byte	0x18
+ 668 022c 00       		.byte	0
+ 669 022d 00       		.byte	0
+ 670 022e 00       		.byte	0
+ 671 022f 03       		.uleb128 0x3
+ 672 0230 F7030000 		.4byte	.LASF44
+ 673 0234 06       		.byte	0x6
+ 674 0235 29       		.byte	0x29
+ 675 0236 08020000 		.4byte	0x208
+ 676 023a 0D       		.uleb128 0xd
+ 677 023b 3D030000 		.4byte	.LASF83
+ 678 023f 28       		.byte	0x28
+ 679 0240 06       		.byte	0x6
+ 680 0241 31       		.byte	0x31
+ 681 0242 E0020000 		.4byte	0x2e0
+ 682 0246 0E       		.uleb128 0xe
+ 683 0247 5C020000 		.4byte	.LASF45
+ 684 024b 06       		.byte	0x6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 16
+
+
+ 685 024c 33       		.byte	0x33
+ 686 024d CD000000 		.4byte	0xcd
+ 687 0251 00       		.byte	0
+ 688 0252 0E       		.uleb128 0xe
+ 689 0253 07030000 		.4byte	.LASF46
+ 690 0257 06       		.byte	0x6
+ 691 0258 34       		.byte	0x34
+ 692 0259 CD000000 		.4byte	0xcd
+ 693 025d 04       		.byte	0x4
+ 694 025e 0E       		.uleb128 0xe
+ 695 025f 96000000 		.4byte	.LASF47
+ 696 0263 06       		.byte	0x6
+ 697 0264 35       		.byte	0x35
+ 698 0265 E0020000 		.4byte	0x2e0
+ 699 0269 08       		.byte	0x8
+ 700 026a 0E       		.uleb128 0xe
+ 701 026b 67010000 		.4byte	.LASF48
+ 702 026f 06       		.byte	0x6
+ 703 0270 36       		.byte	0x36
+ 704 0271 EB020000 		.4byte	0x2eb
+ 705 0275 0C       		.byte	0xc
+ 706 0276 0E       		.uleb128 0xe
+ 707 0277 4D030000 		.4byte	.LASF49
+ 708 027b 06       		.byte	0x6
+ 709 027c 37       		.byte	0x37
+ 710 027d F6020000 		.4byte	0x2f6
+ 711 0281 10       		.byte	0x10
+ 712 0282 0E       		.uleb128 0xe
+ 713 0283 23000000 		.4byte	.LASF50
+ 714 0287 06       		.byte	0x6
+ 715 0288 38       		.byte	0x38
+ 716 0289 20030000 		.4byte	0x320
+ 717 028d 14       		.byte	0x14
+ 718 028e 0E       		.uleb128 0xe
+ 719 028f 19000000 		.4byte	.LASF51
+ 720 0293 06       		.byte	0x6
+ 721 0294 39       		.byte	0x39
+ 722 0295 3A030000 		.4byte	0x33a
+ 723 0299 18       		.byte	0x18
+ 724 029a 0E       		.uleb128 0xe
+ 725 029b 34000000 		.4byte	.LASF52
+ 726 029f 06       		.byte	0x6
+ 727 02a0 3A       		.byte	0x3a
+ 728 02a1 40030000 		.4byte	0x340
+ 729 02a5 1C       		.byte	0x1c
+ 730 02a6 0C       		.uleb128 0xc
+ 731 02a7 F2030000 		.4byte	.LASF53
+ 732 02ab 06       		.byte	0x6
+ 733 02ac 3B       		.byte	0x3b
+ 734 02ad CD000000 		.4byte	0xcd
+ 735 02b1 04       		.byte	0x4
+ 736 02b2 08       		.byte	0x8
+ 737 02b3 18       		.byte	0x18
+ 738 02b4 20       		.byte	0x20
+ 739 02b5 0F       		.uleb128 0xf
+ 740 02b6 62707000 		.ascii	"bpp\000"
+ 741 02ba 06       		.byte	0x6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 17
+
+
+ 742 02bb 3C       		.byte	0x3c
+ 743 02bc CD000000 		.4byte	0xcd
+ 744 02c0 04       		.byte	0x4
+ 745 02c1 04       		.byte	0x4
+ 746 02c2 14       		.byte	0x14
+ 747 02c3 20       		.byte	0x20
+ 748 02c4 0C       		.uleb128 0xc
+ 749 02c5 0F000000 		.4byte	.LASF54
+ 750 02c9 06       		.byte	0x6
+ 751 02ca 3D       		.byte	0x3d
+ 752 02cb CD000000 		.4byte	0xcd
+ 753 02cf 04       		.byte	0x4
+ 754 02d0 08       		.byte	0x8
+ 755 02d1 0C       		.byte	0xc
+ 756 02d2 20       		.byte	0x20
+ 757 02d3 0E       		.uleb128 0xe
+ 758 02d4 D3000000 		.4byte	.LASF55
+ 759 02d8 06       		.byte	0x6
+ 760 02d9 3E       		.byte	0x3e
+ 761 02da C2000000 		.4byte	0xc2
+ 762 02de 24       		.byte	0x24
+ 763 02df 00       		.byte	0
+ 764 02e0 10       		.uleb128 0x10
+ 765 02e1 04       		.byte	0x4
+ 766 02e2 E6020000 		.4byte	0x2e6
+ 767 02e6 11       		.uleb128 0x11
+ 768 02e7 AC000000 		.4byte	0xac
+ 769 02eb 10       		.uleb128 0x10
+ 770 02ec 04       		.byte	0x4
+ 771 02ed F1020000 		.4byte	0x2f1
+ 772 02f1 11       		.uleb128 0x11
+ 773 02f2 2F020000 		.4byte	0x22f
+ 774 02f6 10       		.uleb128 0x10
+ 775 02f7 04       		.byte	0x4
+ 776 02f8 FC020000 		.4byte	0x2fc
+ 777 02fc 11       		.uleb128 0x11
+ 778 02fd CD000000 		.4byte	0xcd
+ 779 0301 12       		.uleb128 0x12
+ 780 0302 E0020000 		.4byte	0x2e0
+ 781 0306 15030000 		.4byte	0x315
+ 782 030a 13       		.uleb128 0x13
+ 783 030b 15030000 		.4byte	0x315
+ 784 030f 13       		.uleb128 0x13
+ 785 0310 CD000000 		.4byte	0xcd
+ 786 0314 00       		.byte	0
+ 787 0315 10       		.uleb128 0x10
+ 788 0316 04       		.byte	0x4
+ 789 0317 1B030000 		.4byte	0x31b
+ 790 031b 11       		.uleb128 0x11
+ 791 031c 3A020000 		.4byte	0x23a
+ 792 0320 10       		.uleb128 0x10
+ 793 0321 04       		.byte	0x4
+ 794 0322 01030000 		.4byte	0x301
+ 795 0326 12       		.uleb128 0x12
+ 796 0327 B7000000 		.4byte	0xb7
+ 797 032b 3A030000 		.4byte	0x33a
+ 798 032f 13       		.uleb128 0x13
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 18
+
+
+ 799 0330 15030000 		.4byte	0x315
+ 800 0334 13       		.uleb128 0x13
+ 801 0335 CD000000 		.4byte	0xcd
+ 802 0339 00       		.byte	0
+ 803 033a 10       		.uleb128 0x10
+ 804 033b 04       		.byte	0x4
+ 805 033c 26030000 		.4byte	0x326
+ 806 0340 10       		.uleb128 0x10
+ 807 0341 04       		.byte	0x4
+ 808 0342 3A020000 		.4byte	0x23a
+ 809 0346 03       		.uleb128 0x3
+ 810 0347 9E020000 		.4byte	.LASF56
+ 811 034b 06       		.byte	0x6
+ 812 034c 3F       		.byte	0x3f
+ 813 034d 3A020000 		.4byte	0x23a
+ 814 0351 10       		.uleb128 0x10
+ 815 0352 04       		.byte	0x4
+ 816 0353 57030000 		.4byte	0x357
+ 817 0357 11       		.uleb128 0x11
+ 818 0358 46030000 		.4byte	0x346
+ 819 035c 02       		.uleb128 0x2
+ 820 035d 01       		.byte	0x1
+ 821 035e 02       		.byte	0x2
+ 822 035f 6A020000 		.4byte	.LASF57
+ 823 0363 10       		.uleb128 0x10
+ 824 0364 04       		.byte	0x4
+ 825 0365 69030000 		.4byte	0x369
+ 826 0369 11       		.uleb128 0x11
+ 827 036a FD010000 		.4byte	0x1fd
+ 828 036e 14       		.uleb128 0x14
+ 829 036f AE000000 		.4byte	.LASF84
+ 830 0373 01       		.byte	0x1
+ 831 0374 49       		.byte	0x49
+ 832 0375 8A010000 		.4byte	0x18a
+ 833 0379 00000000 		.4byte	.LFB13
+ 834 037d 34000000 		.4byte	.LFE13-.LFB13
+ 835 0381 01       		.uleb128 0x1
+ 836 0382 9C       		.byte	0x9c
+ 837 0383 4C040000 		.4byte	0x44c
+ 838 0387 15       		.uleb128 0x15
+ 839 0388 73656700 		.ascii	"seg\000"
+ 840 038c 01       		.byte	0x1
+ 841 038d 49       		.byte	0x49
+ 842 038e 95010000 		.4byte	0x195
+ 843 0392 00000000 		.4byte	.LLST0
+ 844 0396 16       		.uleb128 0x16
+ 845 0397 D4020000 		.4byte	.LASF58
+ 846 039b 01       		.byte	0x1
+ 847 039c 49       		.byte	0x49
+ 848 039d 95010000 		.4byte	0x195
+ 849 03a1 01       		.uleb128 0x1
+ 850 03a2 51       		.byte	0x51
+ 851 03a3 17       		.uleb128 0x17
+ 852 03a4 4B020000 		.4byte	.LASF59
+ 853 03a8 01       		.byte	0x1
+ 854 03a9 49       		.byte	0x49
+ 855 03aa 8A010000 		.4byte	0x18a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 19
+
+
+ 856 03ae 53000000 		.4byte	.LLST1
+ 857 03b2 18       		.uleb128 0x18
+ 858 03b3 12040000 		.4byte	.LASF60
+ 859 03b7 01       		.byte	0x1
+ 860 03b8 5D       		.byte	0x5d
+ 861 03b9 61040000 		.4byte	0x461
+ 862 03bd 05       		.uleb128 0x5
+ 863 03be 03       		.byte	0x3
+ 864 03bf 20000000 		.4byte	seg1.6336
+ 865 03c3 18       		.uleb128 0x18
+ 866 03c4 17040000 		.4byte	.LASF61
+ 867 03c8 01       		.byte	0x1
+ 868 03c9 5E       		.byte	0x5e
+ 869 03ca 76040000 		.4byte	0x476
+ 870 03ce 05       		.uleb128 0x5
+ 871 03cf 03       		.byte	0x3
+ 872 03d0 24000000 		.4byte	seg2.6337
+ 873 03d4 18       		.uleb128 0x18
+ 874 03d5 1C040000 		.4byte	.LASF62
+ 875 03d9 01       		.byte	0x1
+ 876 03da 5F       		.byte	0x5f
+ 877 03db 8B040000 		.4byte	0x48b
+ 878 03df 05       		.uleb128 0x5
+ 879 03e0 03       		.byte	0x3
+ 880 03e1 28000000 		.4byte	seg3.6338
+ 881 03e5 18       		.uleb128 0x18
+ 882 03e6 21040000 		.4byte	.LASF63
+ 883 03ea 01       		.byte	0x1
+ 884 03eb 60       		.byte	0x60
+ 885 03ec A0040000 		.4byte	0x4a0
+ 886 03f0 05       		.uleb128 0x5
+ 887 03f1 03       		.byte	0x3
+ 888 03f2 2C000000 		.4byte	seg4.6339
+ 889 03f6 18       		.uleb128 0x18
+ 890 03f7 26040000 		.4byte	.LASF64
+ 891 03fb 01       		.byte	0x1
+ 892 03fc 61       		.byte	0x61
+ 893 03fd B5040000 		.4byte	0x4b5
+ 894 0401 05       		.uleb128 0x5
+ 895 0402 03       		.byte	0x3
+ 896 0403 30000000 		.4byte	seg5.6340
+ 897 0407 18       		.uleb128 0x18
+ 898 0408 00000000 		.4byte	.LASF65
+ 899 040c 01       		.byte	0x1
+ 900 040d 62       		.byte	0x62
+ 901 040e CA040000 		.4byte	0x4ca
+ 902 0412 05       		.uleb128 0x5
+ 903 0413 03       		.byte	0x3
+ 904 0414 38000000 		.4byte	seg6.6341
+ 905 0418 18       		.uleb128 0x18
+ 906 0419 05000000 		.4byte	.LASF66
+ 907 041d 01       		.byte	0x1
+ 908 041e 63       		.byte	0x63
+ 909 041f DF040000 		.4byte	0x4df
+ 910 0423 05       		.uleb128 0x5
+ 911 0424 03       		.byte	0x3
+ 912 0425 40000000 		.4byte	seg7.6342
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 20
+
+
+ 913 0429 18       		.uleb128 0x18
+ 914 042a 0A000000 		.4byte	.LASF67
+ 915 042e 01       		.byte	0x1
+ 916 042f 64       		.byte	0x64
+ 917 0430 F4040000 		.4byte	0x4f4
+ 918 0434 05       		.uleb128 0x5
+ 919 0435 03       		.byte	0x3
+ 920 0436 48000000 		.4byte	seg8.6343
+ 921 043a 18       		.uleb128 0x18
+ 922 043b 6C000000 		.4byte	.LASF68
+ 923 043f 01       		.byte	0x1
+ 924 0440 66       		.byte	0x66
+ 925 0441 0F050000 		.4byte	0x50f
+ 926 0445 05       		.uleb128 0x5
+ 927 0446 03       		.byte	0x3
+ 928 0447 00000000 		.4byte	seg_map.6344
+ 929 044b 00       		.byte	0
+ 930 044c 19       		.uleb128 0x19
+ 931 044d 5C040000 		.4byte	0x45c
+ 932 0451 5C040000 		.4byte	0x45c
+ 933 0455 1A       		.uleb128 0x1a
+ 934 0456 9E000000 		.4byte	0x9e
+ 935 045a 00       		.byte	0
+ 936 045b 00       		.byte	0
+ 937 045c 11       		.uleb128 0x11
+ 938 045d 8A010000 		.4byte	0x18a
+ 939 0461 11       		.uleb128 0x11
+ 940 0462 4C040000 		.4byte	0x44c
+ 941 0466 19       		.uleb128 0x19
+ 942 0467 5C040000 		.4byte	0x45c
+ 943 046b 76040000 		.4byte	0x476
+ 944 046f 1A       		.uleb128 0x1a
+ 945 0470 9E000000 		.4byte	0x9e
+ 946 0474 01       		.byte	0x1
+ 947 0475 00       		.byte	0
+ 948 0476 11       		.uleb128 0x11
+ 949 0477 66040000 		.4byte	0x466
+ 950 047b 19       		.uleb128 0x19
+ 951 047c 5C040000 		.4byte	0x45c
+ 952 0480 8B040000 		.4byte	0x48b
+ 953 0484 1A       		.uleb128 0x1a
+ 954 0485 9E000000 		.4byte	0x9e
+ 955 0489 02       		.byte	0x2
+ 956 048a 00       		.byte	0
+ 957 048b 11       		.uleb128 0x11
+ 958 048c 7B040000 		.4byte	0x47b
+ 959 0490 19       		.uleb128 0x19
+ 960 0491 5C040000 		.4byte	0x45c
+ 961 0495 A0040000 		.4byte	0x4a0
+ 962 0499 1A       		.uleb128 0x1a
+ 963 049a 9E000000 		.4byte	0x9e
+ 964 049e 03       		.byte	0x3
+ 965 049f 00       		.byte	0
+ 966 04a0 11       		.uleb128 0x11
+ 967 04a1 90040000 		.4byte	0x490
+ 968 04a5 19       		.uleb128 0x19
+ 969 04a6 5C040000 		.4byte	0x45c
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 21
+
+
+ 970 04aa B5040000 		.4byte	0x4b5
+ 971 04ae 1A       		.uleb128 0x1a
+ 972 04af 9E000000 		.4byte	0x9e
+ 973 04b3 04       		.byte	0x4
+ 974 04b4 00       		.byte	0
+ 975 04b5 11       		.uleb128 0x11
+ 976 04b6 A5040000 		.4byte	0x4a5
+ 977 04ba 19       		.uleb128 0x19
+ 978 04bb 5C040000 		.4byte	0x45c
+ 979 04bf CA040000 		.4byte	0x4ca
+ 980 04c3 1A       		.uleb128 0x1a
+ 981 04c4 9E000000 		.4byte	0x9e
+ 982 04c8 05       		.byte	0x5
+ 983 04c9 00       		.byte	0
+ 984 04ca 11       		.uleb128 0x11
+ 985 04cb BA040000 		.4byte	0x4ba
+ 986 04cf 19       		.uleb128 0x19
+ 987 04d0 5C040000 		.4byte	0x45c
+ 988 04d4 DF040000 		.4byte	0x4df
+ 989 04d8 1A       		.uleb128 0x1a
+ 990 04d9 9E000000 		.4byte	0x9e
+ 991 04dd 06       		.byte	0x6
+ 992 04de 00       		.byte	0
+ 993 04df 11       		.uleb128 0x11
+ 994 04e0 CF040000 		.4byte	0x4cf
+ 995 04e4 19       		.uleb128 0x19
+ 996 04e5 5C040000 		.4byte	0x45c
+ 997 04e9 F4040000 		.4byte	0x4f4
+ 998 04ed 1A       		.uleb128 0x1a
+ 999 04ee 9E000000 		.4byte	0x9e
+ 1000 04f2 07       		.byte	0x7
+ 1001 04f3 00       		.byte	0
+ 1002 04f4 11       		.uleb128 0x11
+ 1003 04f5 E4040000 		.4byte	0x4e4
+ 1004 04f9 19       		.uleb128 0x19
+ 1005 04fa 09050000 		.4byte	0x509
+ 1006 04fe 09050000 		.4byte	0x509
+ 1007 0502 1A       		.uleb128 0x1a
+ 1008 0503 9E000000 		.4byte	0x9e
+ 1009 0507 07       		.byte	0x7
+ 1010 0508 00       		.byte	0
+ 1011 0509 10       		.uleb128 0x10
+ 1012 050a 04       		.byte	0x4
+ 1013 050b 5C040000 		.4byte	0x45c
+ 1014 050f 11       		.uleb128 0x11
+ 1015 0510 F9040000 		.4byte	0x4f9
+ 1016 0514 1B       		.uleb128 0x1b
+ 1017 0515 E3020000 		.4byte	.LASF74
+ 1018 0519 01       		.byte	0x1
+ 1019 051a 7B       		.byte	0x7b
+ 1020 051b 00000000 		.4byte	.LFB14
+ 1021 051f 58000000 		.4byte	.LFE14-.LFB14
+ 1022 0523 01       		.uleb128 0x1
+ 1023 0524 9C       		.byte	0x9c
+ 1024 0525 F8050000 		.4byte	0x5f8
+ 1025 0529 15       		.uleb128 0x15
+ 1026 052a 7800     		.ascii	"x\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 22
+
+
+ 1027 052c 01       		.byte	0x1
+ 1028 052d 7B       		.byte	0x7b
+ 1029 052e 95010000 		.4byte	0x195
+ 1030 0532 7F000000 		.4byte	.LLST2
+ 1031 0536 15       		.uleb128 0x15
+ 1032 0537 7900     		.ascii	"y\000"
+ 1033 0539 01       		.byte	0x1
+ 1034 053a 7B       		.byte	0x7b
+ 1035 053b 95010000 		.4byte	0x195
+ 1036 053f A0000000 		.4byte	.LLST3
+ 1037 0543 17       		.uleb128 0x17
+ 1038 0544 E4000000 		.4byte	.LASF69
+ 1039 0548 01       		.byte	0x1
+ 1040 0549 7B       		.byte	0x7b
+ 1041 054a 95010000 		.4byte	0x195
+ 1042 054e C1000000 		.4byte	.LLST4
+ 1043 0552 17       		.uleb128 0x17
+ 1044 0553 FD020000 		.4byte	.LASF70
+ 1045 0557 01       		.byte	0x1
+ 1046 0558 7B       		.byte	0x7b
+ 1047 0559 63030000 		.4byte	0x363
+ 1048 055d F5000000 		.4byte	.LLST5
+ 1049 0561 16       		.uleb128 0x16
+ 1050 0562 3E000000 		.4byte	.LASF71
+ 1051 0566 01       		.byte	0x1
+ 1052 0567 7B       		.byte	0x7b
+ 1053 0568 7F010000 		.4byte	0x17f
+ 1054 056c 02       		.uleb128 0x2
+ 1055 056d 91       		.byte	0x91
+ 1056 056e 00       		.sleb128 0
+ 1057 056f 1C       		.uleb128 0x1c
+ 1058 0570 6F706100 		.ascii	"opa\000"
+ 1059 0574 01       		.byte	0x1
+ 1060 0575 7B       		.byte	0x7b
+ 1061 0576 8A010000 		.4byte	0x18a
+ 1062 057a 02       		.uleb128 0x2
+ 1063 057b 91       		.byte	0x91
+ 1064 057c 04       		.sleb128 4
+ 1065 057d 1D       		.uleb128 0x1d
+ 1066 057e 0B040000 		.4byte	.LASF72
+ 1067 0582 01       		.byte	0x1
+ 1068 0583 7D       		.byte	0x7d
+ 1069 0584 5C030000 		.4byte	0x35c
+ 1070 0588 13010000 		.4byte	.LLST6
+ 1071 058c 1E       		.uleb128 0x1e
+ 1072 058d 6900     		.ascii	"i\000"
+ 1073 058f 01       		.byte	0x1
+ 1074 0590 83       		.byte	0x83
+ 1075 0591 95010000 		.4byte	0x195
+ 1076 0595 4A010000 		.4byte	.LLST7
+ 1077 0599 1F       		.uleb128 0x1f
+ 1078 059a 26000000 		.4byte	.LBB2
+ 1079 059e 24000000 		.4byte	.LBE2-.LBB2
+ 1080 05a2 1D       		.uleb128 0x1d
+ 1081 05a3 70020000 		.4byte	.LASF73
+ 1082 05a7 01       		.byte	0x1
+ 1083 05a8 85       		.byte	0x85
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 23
+
+
+ 1084 05a9 8A010000 		.4byte	0x18a
+ 1085 05ad 81010000 		.4byte	.LLST8
+ 1086 05b1 20       		.uleb128 0x20
+ 1087 05b2 30000000 		.4byte	.LVL14
+ 1088 05b6 6E030000 		.4byte	0x36e
+ 1089 05ba D1050000 		.4byte	0x5d1
+ 1090 05be 21       		.uleb128 0x21
+ 1091 05bf 01       		.uleb128 0x1
+ 1092 05c0 50       		.byte	0x50
+ 1093 05c1 02       		.uleb128 0x2
+ 1094 05c2 75       		.byte	0x75
+ 1095 05c3 00       		.sleb128 0
+ 1096 05c4 21       		.uleb128 0x21
+ 1097 05c5 01       		.uleb128 0x1
+ 1098 05c6 51       		.byte	0x51
+ 1099 05c7 02       		.uleb128 0x2
+ 1100 05c8 74       		.byte	0x74
+ 1101 05c9 00       		.sleb128 0
+ 1102 05ca 21       		.uleb128 0x21
+ 1103 05cb 01       		.uleb128 0x1
+ 1104 05cc 52       		.byte	0x52
+ 1105 05cd 02       		.uleb128 0x2
+ 1106 05ce 76       		.byte	0x76
+ 1107 05cf 00       		.sleb128 0
+ 1108 05d0 00       		.byte	0
+ 1109 05d1 22       		.uleb128 0x22
+ 1110 05d2 4A000000 		.4byte	.LVL18
+ 1111 05d6 E2070000 		.4byte	0x7e2
+ 1112 05da 21       		.uleb128 0x21
+ 1113 05db 01       		.uleb128 0x1
+ 1114 05dc 50       		.byte	0x50
+ 1115 05dd 02       		.uleb128 0x2
+ 1116 05de 7B       		.byte	0x7b
+ 1117 05df 00       		.sleb128 0
+ 1118 05e0 21       		.uleb128 0x21
+ 1119 05e1 01       		.uleb128 0x1
+ 1120 05e2 51       		.byte	0x51
+ 1121 05e3 05       		.uleb128 0x5
+ 1122 05e4 74       		.byte	0x74
+ 1123 05e5 00       		.sleb128 0
+ 1124 05e6 78       		.byte	0x78
+ 1125 05e7 00       		.sleb128 0
+ 1126 05e8 22       		.byte	0x22
+ 1127 05e9 21       		.uleb128 0x21
+ 1128 05ea 01       		.uleb128 0x1
+ 1129 05eb 52       		.byte	0x52
+ 1130 05ec 02       		.uleb128 0x2
+ 1131 05ed 79       		.byte	0x79
+ 1132 05ee 00       		.sleb128 0
+ 1133 05ef 21       		.uleb128 0x21
+ 1134 05f0 01       		.uleb128 0x1
+ 1135 05f1 53       		.byte	0x53
+ 1136 05f2 02       		.uleb128 0x2
+ 1137 05f3 7A       		.byte	0x7a
+ 1138 05f4 00       		.sleb128 0
+ 1139 05f5 00       		.byte	0
+ 1140 05f6 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 24
+
+
+ 1141 05f7 00       		.byte	0
+ 1142 05f8 1B       		.uleb128 0x1b
+ 1143 05f9 77020000 		.4byte	.LASF75
+ 1144 05fd 01       		.byte	0x1
+ 1145 05fe 94       		.byte	0x94
+ 1146 05ff 00000000 		.4byte	.LFB15
+ 1147 0603 62000000 		.4byte	.LFE15-.LFB15
+ 1148 0607 01       		.uleb128 0x1
+ 1149 0608 9C       		.byte	0x9c
+ 1150 0609 DC060000 		.4byte	0x6dc
+ 1151 060d 15       		.uleb128 0x15
+ 1152 060e 7800     		.ascii	"x\000"
+ 1153 0610 01       		.byte	0x1
+ 1154 0611 94       		.byte	0x94
+ 1155 0612 95010000 		.4byte	0x195
+ 1156 0616 9F010000 		.4byte	.LLST9
+ 1157 061a 15       		.uleb128 0x15
+ 1158 061b 7900     		.ascii	"y\000"
+ 1159 061d 01       		.byte	0x1
+ 1160 061e 94       		.byte	0x94
+ 1161 061f 95010000 		.4byte	0x195
+ 1162 0623 C0010000 		.4byte	.LLST10
+ 1163 0627 17       		.uleb128 0x17
+ 1164 0628 E4000000 		.4byte	.LASF69
+ 1165 062c 01       		.byte	0x1
+ 1166 062d 94       		.byte	0x94
+ 1167 062e 95010000 		.4byte	0x195
+ 1168 0632 E1010000 		.4byte	.LLST11
+ 1169 0636 17       		.uleb128 0x17
+ 1170 0637 FD020000 		.4byte	.LASF70
+ 1171 063b 01       		.byte	0x1
+ 1172 063c 94       		.byte	0x94
+ 1173 063d 63030000 		.4byte	0x363
+ 1174 0641 15020000 		.4byte	.LLST12
+ 1175 0645 16       		.uleb128 0x16
+ 1176 0646 3E000000 		.4byte	.LASF71
+ 1177 064a 01       		.byte	0x1
+ 1178 064b 94       		.byte	0x94
+ 1179 064c 7F010000 		.4byte	0x17f
+ 1180 0650 02       		.uleb128 0x2
+ 1181 0651 91       		.byte	0x91
+ 1182 0652 00       		.sleb128 0
+ 1183 0653 1C       		.uleb128 0x1c
+ 1184 0654 6F706100 		.ascii	"opa\000"
+ 1185 0658 01       		.byte	0x1
+ 1186 0659 94       		.byte	0x94
+ 1187 065a 8A010000 		.4byte	0x18a
+ 1188 065e 02       		.uleb128 0x2
+ 1189 065f 91       		.byte	0x91
+ 1190 0660 04       		.sleb128 4
+ 1191 0661 1D       		.uleb128 0x1d
+ 1192 0662 0B040000 		.4byte	.LASF72
+ 1193 0666 01       		.byte	0x1
+ 1194 0667 96       		.byte	0x96
+ 1195 0668 5C030000 		.4byte	0x35c
+ 1196 066c 33020000 		.4byte	.LLST13
+ 1197 0670 1E       		.uleb128 0x1e
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 25
+
+
+ 1198 0671 6900     		.ascii	"i\000"
+ 1199 0673 01       		.byte	0x1
+ 1200 0674 9C       		.byte	0x9c
+ 1201 0675 95010000 		.4byte	0x195
+ 1202 0679 6A020000 		.4byte	.LLST14
+ 1203 067d 1F       		.uleb128 0x1f
+ 1204 067e 2A000000 		.4byte	.LBB3
+ 1205 0682 2A000000 		.4byte	.LBE3-.LBB3
+ 1206 0686 1D       		.uleb128 0x1d
+ 1207 0687 70020000 		.4byte	.LASF73
+ 1208 068b 01       		.byte	0x1
+ 1209 068c 9E       		.byte	0x9e
+ 1210 068d 8A010000 		.4byte	0x18a
+ 1211 0691 A1020000 		.4byte	.LLST15
+ 1212 0695 20       		.uleb128 0x20
+ 1213 0696 34000000 		.4byte	.LVL28
+ 1214 069a 6E030000 		.4byte	0x36e
+ 1215 069e B5060000 		.4byte	0x6b5
+ 1216 06a2 21       		.uleb128 0x21
+ 1217 06a3 01       		.uleb128 0x1
+ 1218 06a4 50       		.byte	0x50
+ 1219 06a5 02       		.uleb128 0x2
+ 1220 06a6 75       		.byte	0x75
+ 1221 06a7 00       		.sleb128 0
+ 1222 06a8 21       		.uleb128 0x21
+ 1223 06a9 01       		.uleb128 0x1
+ 1224 06aa 51       		.byte	0x51
+ 1225 06ab 02       		.uleb128 0x2
+ 1226 06ac 74       		.byte	0x74
+ 1227 06ad 00       		.sleb128 0
+ 1228 06ae 21       		.uleb128 0x21
+ 1229 06af 01       		.uleb128 0x1
+ 1230 06b0 52       		.byte	0x52
+ 1231 06b1 02       		.uleb128 0x2
+ 1232 06b2 76       		.byte	0x76
+ 1233 06b3 00       		.sleb128 0
+ 1234 06b4 00       		.byte	0
+ 1235 06b5 22       		.uleb128 0x22
+ 1236 06b6 54000000 		.4byte	.LVL32
+ 1237 06ba E2070000 		.4byte	0x7e2
+ 1238 06be 21       		.uleb128 0x21
+ 1239 06bf 01       		.uleb128 0x1
+ 1240 06c0 50       		.byte	0x50
+ 1241 06c1 05       		.uleb128 0x5
+ 1242 06c2 74       		.byte	0x74
+ 1243 06c3 00       		.sleb128 0
+ 1244 06c4 77       		.byte	0x77
+ 1245 06c5 00       		.sleb128 0
+ 1246 06c6 22       		.byte	0x22
+ 1247 06c7 21       		.uleb128 0x21
+ 1248 06c8 01       		.uleb128 0x1
+ 1249 06c9 51       		.byte	0x51
+ 1250 06ca 02       		.uleb128 0x2
+ 1251 06cb 78       		.byte	0x78
+ 1252 06cc 00       		.sleb128 0
+ 1253 06cd 21       		.uleb128 0x21
+ 1254 06ce 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 26
+
+
+ 1255 06cf 52       		.byte	0x52
+ 1256 06d0 02       		.uleb128 0x2
+ 1257 06d1 79       		.byte	0x79
+ 1258 06d2 00       		.sleb128 0
+ 1259 06d3 21       		.uleb128 0x21
+ 1260 06d4 01       		.uleb128 0x1
+ 1261 06d5 53       		.byte	0x53
+ 1262 06d6 02       		.uleb128 0x2
+ 1263 06d7 7A       		.byte	0x7a
+ 1264 06d8 00       		.sleb128 0
+ 1265 06d9 00       		.byte	0
+ 1266 06da 00       		.byte	0
+ 1267 06db 00       		.byte	0
+ 1268 06dc 23       		.uleb128 0x23
+ 1269 06dd FB060000 		.4byte	0x6fb
+ 1270 06e1 13       		.uleb128 0x13
+ 1271 06e2 95010000 		.4byte	0x195
+ 1272 06e6 13       		.uleb128 0x13
+ 1273 06e7 95010000 		.4byte	0x195
+ 1274 06eb 13       		.uleb128 0x13
+ 1275 06ec 63030000 		.4byte	0x363
+ 1276 06f0 13       		.uleb128 0x13
+ 1277 06f1 7F010000 		.4byte	0x17f
+ 1278 06f5 13       		.uleb128 0x13
+ 1279 06f6 8A010000 		.4byte	0x18a
+ 1280 06fa 00       		.byte	0
+ 1281 06fb 24       		.uleb128 0x24
+ 1282 06fc 2E000000 		.4byte	.LASF76
+ 1283 0700 01       		.byte	0x1
+ 1284 0701 25       		.byte	0x25
+ 1285 0702 12070000 		.4byte	0x712
+ 1286 0706 05       		.uleb128 0x5
+ 1287 0707 03       		.byte	0x3
+ 1288 0708 00000000 		.4byte	px_fp
+ 1289 070c 10       		.uleb128 0x10
+ 1290 070d 04       		.byte	0x4
+ 1291 070e DC060000 		.4byte	0x6dc
+ 1292 0712 11       		.uleb128 0x11
+ 1293 0713 0C070000 		.4byte	0x70c
+ 1294 0717 23       		.uleb128 0x23
+ 1295 0718 31070000 		.4byte	0x731
+ 1296 071c 13       		.uleb128 0x13
+ 1297 071d 63030000 		.4byte	0x363
+ 1298 0721 13       		.uleb128 0x13
+ 1299 0722 63030000 		.4byte	0x363
+ 1300 0726 13       		.uleb128 0x13
+ 1301 0727 7F010000 		.4byte	0x17f
+ 1302 072b 13       		.uleb128 0x13
+ 1303 072c 8A010000 		.4byte	0x18a
+ 1304 0730 00       		.byte	0
+ 1305 0731 24       		.uleb128 0x24
+ 1306 0732 59000000 		.4byte	.LASF77
+ 1307 0736 01       		.byte	0x1
+ 1308 0737 26       		.byte	0x26
+ 1309 0738 48070000 		.4byte	0x748
+ 1310 073c 05       		.uleb128 0x5
+ 1311 073d 03       		.byte	0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 27
+
+
+ 1312 073e 00000000 		.4byte	fill_fp
+ 1313 0742 10       		.uleb128 0x10
+ 1314 0743 04       		.byte	0x4
+ 1315 0744 17070000 		.4byte	0x717
+ 1316 0748 11       		.uleb128 0x11
+ 1317 0749 42070000 		.4byte	0x742
+ 1318 074d 23       		.uleb128 0x23
+ 1319 074e 71070000 		.4byte	0x771
+ 1320 0752 13       		.uleb128 0x13
+ 1321 0753 71070000 		.4byte	0x771
+ 1322 0757 13       		.uleb128 0x13
+ 1323 0758 63030000 		.4byte	0x363
+ 1324 075c 13       		.uleb128 0x13
+ 1325 075d 51030000 		.4byte	0x351
+ 1326 0761 13       		.uleb128 0x13
+ 1327 0762 CD000000 		.4byte	0xcd
+ 1328 0766 13       		.uleb128 0x13
+ 1329 0767 7F010000 		.4byte	0x17f
+ 1330 076b 13       		.uleb128 0x13
+ 1331 076c 8A010000 		.4byte	0x18a
+ 1332 0770 00       		.byte	0
+ 1333 0771 10       		.uleb128 0x10
+ 1334 0772 04       		.byte	0x4
+ 1335 0773 77070000 		.4byte	0x777
+ 1336 0777 11       		.uleb128 0x11
+ 1337 0778 BD010000 		.4byte	0x1bd
+ 1338 077c 24       		.uleb128 0x24
+ 1339 077d 98010000 		.4byte	.LASF78
+ 1340 0781 01       		.byte	0x1
+ 1341 0782 27       		.byte	0x27
+ 1342 0783 93070000 		.4byte	0x793
+ 1343 0787 05       		.uleb128 0x5
+ 1344 0788 03       		.byte	0x3
+ 1345 0789 00000000 		.4byte	letter_fp
+ 1346 078d 10       		.uleb128 0x10
+ 1347 078e 04       		.byte	0x4
+ 1348 078f 4D070000 		.4byte	0x74d
+ 1349 0793 11       		.uleb128 0x11
+ 1350 0794 8D070000 		.4byte	0x78d
+ 1351 0798 23       		.uleb128 0x23
+ 1352 0799 C6070000 		.4byte	0x7c6
+ 1353 079d 13       		.uleb128 0x13
+ 1354 079e 63030000 		.4byte	0x363
+ 1355 07a2 13       		.uleb128 0x13
+ 1356 07a3 63030000 		.4byte	0x363
+ 1357 07a7 13       		.uleb128 0x13
+ 1358 07a8 E0020000 		.4byte	0x2e0
+ 1359 07ac 13       		.uleb128 0x13
+ 1360 07ad 8A010000 		.4byte	0x18a
+ 1361 07b1 13       		.uleb128 0x13
+ 1362 07b2 5C030000 		.4byte	0x35c
+ 1363 07b6 13       		.uleb128 0x13
+ 1364 07b7 5C030000 		.4byte	0x35c
+ 1365 07bb 13       		.uleb128 0x13
+ 1366 07bc 7F010000 		.4byte	0x17f
+ 1367 07c0 13       		.uleb128 0x13
+ 1368 07c1 8A010000 		.4byte	0x18a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 28
+
+
+ 1369 07c5 00       		.byte	0
+ 1370 07c6 24       		.uleb128 0x24
+ 1371 07c7 DD000000 		.4byte	.LASF79
+ 1372 07cb 01       		.byte	0x1
+ 1373 07cc 28       		.byte	0x28
+ 1374 07cd DD070000 		.4byte	0x7dd
+ 1375 07d1 05       		.uleb128 0x5
+ 1376 07d2 03       		.byte	0x3
+ 1377 07d3 00000000 		.4byte	map_fp
+ 1378 07d7 10       		.uleb128 0x10
+ 1379 07d8 04       		.byte	0x4
+ 1380 07d9 98070000 		.4byte	0x798
+ 1381 07dd 11       		.uleb128 0x11
+ 1382 07de D7070000 		.4byte	0x7d7
+ 1383 07e2 25       		.uleb128 0x25
+ 1384 07e3 F6020000 		.4byte	.LASF85
+ 1385 07e7 F6020000 		.4byte	.LASF85
+ 1386 07eb 07       		.byte	0x7
+ 1387 07ec 28       		.byte	0x28
+ 1388 07ed 00       		.byte	0
+ 1389              		.section	.debug_abbrev,"",%progbits
+ 1390              	.Ldebug_abbrev0:
+ 1391 0000 01       		.uleb128 0x1
+ 1392 0001 11       		.uleb128 0x11
+ 1393 0002 01       		.byte	0x1
+ 1394 0003 25       		.uleb128 0x25
+ 1395 0004 0E       		.uleb128 0xe
+ 1396 0005 13       		.uleb128 0x13
+ 1397 0006 0B       		.uleb128 0xb
+ 1398 0007 03       		.uleb128 0x3
+ 1399 0008 0E       		.uleb128 0xe
+ 1400 0009 1B       		.uleb128 0x1b
+ 1401 000a 0E       		.uleb128 0xe
+ 1402 000b 55       		.uleb128 0x55
+ 1403 000c 17       		.uleb128 0x17
+ 1404 000d 11       		.uleb128 0x11
+ 1405 000e 01       		.uleb128 0x1
+ 1406 000f 10       		.uleb128 0x10
+ 1407 0010 17       		.uleb128 0x17
+ 1408 0011 00       		.byte	0
+ 1409 0012 00       		.byte	0
+ 1410 0013 02       		.uleb128 0x2
+ 1411 0014 24       		.uleb128 0x24
+ 1412 0015 00       		.byte	0
+ 1413 0016 0B       		.uleb128 0xb
+ 1414 0017 0B       		.uleb128 0xb
+ 1415 0018 3E       		.uleb128 0x3e
+ 1416 0019 0B       		.uleb128 0xb
+ 1417 001a 03       		.uleb128 0x3
+ 1418 001b 0E       		.uleb128 0xe
+ 1419 001c 00       		.byte	0
+ 1420 001d 00       		.byte	0
+ 1421 001e 03       		.uleb128 0x3
+ 1422 001f 16       		.uleb128 0x16
+ 1423 0020 00       		.byte	0
+ 1424 0021 03       		.uleb128 0x3
+ 1425 0022 0E       		.uleb128 0xe
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 29
+
+
+ 1426 0023 3A       		.uleb128 0x3a
+ 1427 0024 0B       		.uleb128 0xb
+ 1428 0025 3B       		.uleb128 0x3b
+ 1429 0026 0B       		.uleb128 0xb
+ 1430 0027 49       		.uleb128 0x49
+ 1431 0028 13       		.uleb128 0x13
+ 1432 0029 00       		.byte	0
+ 1433 002a 00       		.byte	0
+ 1434 002b 04       		.uleb128 0x4
+ 1435 002c 24       		.uleb128 0x24
+ 1436 002d 00       		.byte	0
+ 1437 002e 0B       		.uleb128 0xb
+ 1438 002f 0B       		.uleb128 0xb
+ 1439 0030 3E       		.uleb128 0x3e
+ 1440 0031 0B       		.uleb128 0xb
+ 1441 0032 03       		.uleb128 0x3
+ 1442 0033 08       		.uleb128 0x8
+ 1443 0034 00       		.byte	0
+ 1444 0035 00       		.byte	0
+ 1445 0036 05       		.uleb128 0x5
+ 1446 0037 04       		.uleb128 0x4
+ 1447 0038 01       		.byte	0x1
+ 1448 0039 0B       		.uleb128 0xb
+ 1449 003a 0B       		.uleb128 0xb
+ 1450 003b 49       		.uleb128 0x49
+ 1451 003c 13       		.uleb128 0x13
+ 1452 003d 3A       		.uleb128 0x3a
+ 1453 003e 0B       		.uleb128 0xb
+ 1454 003f 3B       		.uleb128 0x3b
+ 1455 0040 0B       		.uleb128 0xb
+ 1456 0041 01       		.uleb128 0x1
+ 1457 0042 13       		.uleb128 0x13
+ 1458 0043 00       		.byte	0
+ 1459 0044 00       		.byte	0
+ 1460 0045 06       		.uleb128 0x6
+ 1461 0046 28       		.uleb128 0x28
+ 1462 0047 00       		.byte	0
+ 1463 0048 03       		.uleb128 0x3
+ 1464 0049 0E       		.uleb128 0xe
+ 1465 004a 1C       		.uleb128 0x1c
+ 1466 004b 0B       		.uleb128 0xb
+ 1467 004c 00       		.byte	0
+ 1468 004d 00       		.byte	0
+ 1469 004e 07       		.uleb128 0x7
+ 1470 004f 17       		.uleb128 0x17
+ 1471 0050 01       		.byte	0x1
+ 1472 0051 0B       		.uleb128 0xb
+ 1473 0052 0B       		.uleb128 0xb
+ 1474 0053 3A       		.uleb128 0x3a
+ 1475 0054 0B       		.uleb128 0xb
+ 1476 0055 3B       		.uleb128 0x3b
+ 1477 0056 0B       		.uleb128 0xb
+ 1478 0057 01       		.uleb128 0x1
+ 1479 0058 13       		.uleb128 0x13
+ 1480 0059 00       		.byte	0
+ 1481 005a 00       		.byte	0
+ 1482 005b 08       		.uleb128 0x8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 30
+
+
+ 1483 005c 0D       		.uleb128 0xd
+ 1484 005d 00       		.byte	0
+ 1485 005e 03       		.uleb128 0x3
+ 1486 005f 0E       		.uleb128 0xe
+ 1487 0060 3A       		.uleb128 0x3a
+ 1488 0061 0B       		.uleb128 0xb
+ 1489 0062 3B       		.uleb128 0x3b
+ 1490 0063 0B       		.uleb128 0xb
+ 1491 0064 49       		.uleb128 0x49
+ 1492 0065 13       		.uleb128 0x13
+ 1493 0066 0B       		.uleb128 0xb
+ 1494 0067 0B       		.uleb128 0xb
+ 1495 0068 0D       		.uleb128 0xd
+ 1496 0069 0B       		.uleb128 0xb
+ 1497 006a 0C       		.uleb128 0xc
+ 1498 006b 0B       		.uleb128 0xb
+ 1499 006c 00       		.byte	0
+ 1500 006d 00       		.byte	0
+ 1501 006e 09       		.uleb128 0x9
+ 1502 006f 0D       		.uleb128 0xd
+ 1503 0070 00       		.byte	0
+ 1504 0071 03       		.uleb128 0x3
+ 1505 0072 08       		.uleb128 0x8
+ 1506 0073 3A       		.uleb128 0x3a
+ 1507 0074 0B       		.uleb128 0xb
+ 1508 0075 3B       		.uleb128 0x3b
+ 1509 0076 0B       		.uleb128 0xb
+ 1510 0077 49       		.uleb128 0x49
+ 1511 0078 13       		.uleb128 0x13
+ 1512 0079 0B       		.uleb128 0xb
+ 1513 007a 0B       		.uleb128 0xb
+ 1514 007b 0D       		.uleb128 0xd
+ 1515 007c 0B       		.uleb128 0xb
+ 1516 007d 0C       		.uleb128 0xc
+ 1517 007e 0B       		.uleb128 0xb
+ 1518 007f 00       		.byte	0
+ 1519 0080 00       		.byte	0
+ 1520 0081 0A       		.uleb128 0xa
+ 1521 0082 13       		.uleb128 0x13
+ 1522 0083 01       		.byte	0x1
+ 1523 0084 0B       		.uleb128 0xb
+ 1524 0085 0B       		.uleb128 0xb
+ 1525 0086 3A       		.uleb128 0x3a
+ 1526 0087 0B       		.uleb128 0xb
+ 1527 0088 3B       		.uleb128 0x3b
+ 1528 0089 0B       		.uleb128 0xb
+ 1529 008a 01       		.uleb128 0x1
+ 1530 008b 13       		.uleb128 0x13
+ 1531 008c 00       		.byte	0
+ 1532 008d 00       		.byte	0
+ 1533 008e 0B       		.uleb128 0xb
+ 1534 008f 0D       		.uleb128 0xd
+ 1535 0090 00       		.byte	0
+ 1536 0091 03       		.uleb128 0x3
+ 1537 0092 08       		.uleb128 0x8
+ 1538 0093 3A       		.uleb128 0x3a
+ 1539 0094 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 31
+
+
+ 1540 0095 3B       		.uleb128 0x3b
+ 1541 0096 0B       		.uleb128 0xb
+ 1542 0097 49       		.uleb128 0x49
+ 1543 0098 13       		.uleb128 0x13
+ 1544 0099 38       		.uleb128 0x38
+ 1545 009a 0B       		.uleb128 0xb
+ 1546 009b 00       		.byte	0
+ 1547 009c 00       		.byte	0
+ 1548 009d 0C       		.uleb128 0xc
+ 1549 009e 0D       		.uleb128 0xd
+ 1550 009f 00       		.byte	0
+ 1551 00a0 03       		.uleb128 0x3
+ 1552 00a1 0E       		.uleb128 0xe
+ 1553 00a2 3A       		.uleb128 0x3a
+ 1554 00a3 0B       		.uleb128 0xb
+ 1555 00a4 3B       		.uleb128 0x3b
+ 1556 00a5 0B       		.uleb128 0xb
+ 1557 00a6 49       		.uleb128 0x49
+ 1558 00a7 13       		.uleb128 0x13
+ 1559 00a8 0B       		.uleb128 0xb
+ 1560 00a9 0B       		.uleb128 0xb
+ 1561 00aa 0D       		.uleb128 0xd
+ 1562 00ab 0B       		.uleb128 0xb
+ 1563 00ac 0C       		.uleb128 0xc
+ 1564 00ad 0B       		.uleb128 0xb
+ 1565 00ae 38       		.uleb128 0x38
+ 1566 00af 0B       		.uleb128 0xb
+ 1567 00b0 00       		.byte	0
+ 1568 00b1 00       		.byte	0
+ 1569 00b2 0D       		.uleb128 0xd
+ 1570 00b3 13       		.uleb128 0x13
+ 1571 00b4 01       		.byte	0x1
+ 1572 00b5 03       		.uleb128 0x3
+ 1573 00b6 0E       		.uleb128 0xe
+ 1574 00b7 0B       		.uleb128 0xb
+ 1575 00b8 0B       		.uleb128 0xb
+ 1576 00b9 3A       		.uleb128 0x3a
+ 1577 00ba 0B       		.uleb128 0xb
+ 1578 00bb 3B       		.uleb128 0x3b
+ 1579 00bc 0B       		.uleb128 0xb
+ 1580 00bd 01       		.uleb128 0x1
+ 1581 00be 13       		.uleb128 0x13
+ 1582 00bf 00       		.byte	0
+ 1583 00c0 00       		.byte	0
+ 1584 00c1 0E       		.uleb128 0xe
+ 1585 00c2 0D       		.uleb128 0xd
+ 1586 00c3 00       		.byte	0
+ 1587 00c4 03       		.uleb128 0x3
+ 1588 00c5 0E       		.uleb128 0xe
+ 1589 00c6 3A       		.uleb128 0x3a
+ 1590 00c7 0B       		.uleb128 0xb
+ 1591 00c8 3B       		.uleb128 0x3b
+ 1592 00c9 0B       		.uleb128 0xb
+ 1593 00ca 49       		.uleb128 0x49
+ 1594 00cb 13       		.uleb128 0x13
+ 1595 00cc 38       		.uleb128 0x38
+ 1596 00cd 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 32
+
+
+ 1597 00ce 00       		.byte	0
+ 1598 00cf 00       		.byte	0
+ 1599 00d0 0F       		.uleb128 0xf
+ 1600 00d1 0D       		.uleb128 0xd
+ 1601 00d2 00       		.byte	0
+ 1602 00d3 03       		.uleb128 0x3
+ 1603 00d4 08       		.uleb128 0x8
+ 1604 00d5 3A       		.uleb128 0x3a
+ 1605 00d6 0B       		.uleb128 0xb
+ 1606 00d7 3B       		.uleb128 0x3b
+ 1607 00d8 0B       		.uleb128 0xb
+ 1608 00d9 49       		.uleb128 0x49
+ 1609 00da 13       		.uleb128 0x13
+ 1610 00db 0B       		.uleb128 0xb
+ 1611 00dc 0B       		.uleb128 0xb
+ 1612 00dd 0D       		.uleb128 0xd
+ 1613 00de 0B       		.uleb128 0xb
+ 1614 00df 0C       		.uleb128 0xc
+ 1615 00e0 0B       		.uleb128 0xb
+ 1616 00e1 38       		.uleb128 0x38
+ 1617 00e2 0B       		.uleb128 0xb
+ 1618 00e3 00       		.byte	0
+ 1619 00e4 00       		.byte	0
+ 1620 00e5 10       		.uleb128 0x10
+ 1621 00e6 0F       		.uleb128 0xf
+ 1622 00e7 00       		.byte	0
+ 1623 00e8 0B       		.uleb128 0xb
+ 1624 00e9 0B       		.uleb128 0xb
+ 1625 00ea 49       		.uleb128 0x49
+ 1626 00eb 13       		.uleb128 0x13
+ 1627 00ec 00       		.byte	0
+ 1628 00ed 00       		.byte	0
+ 1629 00ee 11       		.uleb128 0x11
+ 1630 00ef 26       		.uleb128 0x26
+ 1631 00f0 00       		.byte	0
+ 1632 00f1 49       		.uleb128 0x49
+ 1633 00f2 13       		.uleb128 0x13
+ 1634 00f3 00       		.byte	0
+ 1635 00f4 00       		.byte	0
+ 1636 00f5 12       		.uleb128 0x12
+ 1637 00f6 15       		.uleb128 0x15
+ 1638 00f7 01       		.byte	0x1
+ 1639 00f8 27       		.uleb128 0x27
+ 1640 00f9 19       		.uleb128 0x19
+ 1641 00fa 49       		.uleb128 0x49
+ 1642 00fb 13       		.uleb128 0x13
+ 1643 00fc 01       		.uleb128 0x1
+ 1644 00fd 13       		.uleb128 0x13
+ 1645 00fe 00       		.byte	0
+ 1646 00ff 00       		.byte	0
+ 1647 0100 13       		.uleb128 0x13
+ 1648 0101 05       		.uleb128 0x5
+ 1649 0102 00       		.byte	0
+ 1650 0103 49       		.uleb128 0x49
+ 1651 0104 13       		.uleb128 0x13
+ 1652 0105 00       		.byte	0
+ 1653 0106 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 33
+
+
+ 1654 0107 14       		.uleb128 0x14
+ 1655 0108 2E       		.uleb128 0x2e
+ 1656 0109 01       		.byte	0x1
+ 1657 010a 3F       		.uleb128 0x3f
+ 1658 010b 19       		.uleb128 0x19
+ 1659 010c 03       		.uleb128 0x3
+ 1660 010d 0E       		.uleb128 0xe
+ 1661 010e 3A       		.uleb128 0x3a
+ 1662 010f 0B       		.uleb128 0xb
+ 1663 0110 3B       		.uleb128 0x3b
+ 1664 0111 0B       		.uleb128 0xb
+ 1665 0112 27       		.uleb128 0x27
+ 1666 0113 19       		.uleb128 0x19
+ 1667 0114 49       		.uleb128 0x49
+ 1668 0115 13       		.uleb128 0x13
+ 1669 0116 11       		.uleb128 0x11
+ 1670 0117 01       		.uleb128 0x1
+ 1671 0118 12       		.uleb128 0x12
+ 1672 0119 06       		.uleb128 0x6
+ 1673 011a 40       		.uleb128 0x40
+ 1674 011b 18       		.uleb128 0x18
+ 1675 011c 9742     		.uleb128 0x2117
+ 1676 011e 19       		.uleb128 0x19
+ 1677 011f 01       		.uleb128 0x1
+ 1678 0120 13       		.uleb128 0x13
+ 1679 0121 00       		.byte	0
+ 1680 0122 00       		.byte	0
+ 1681 0123 15       		.uleb128 0x15
+ 1682 0124 05       		.uleb128 0x5
+ 1683 0125 00       		.byte	0
+ 1684 0126 03       		.uleb128 0x3
+ 1685 0127 08       		.uleb128 0x8
+ 1686 0128 3A       		.uleb128 0x3a
+ 1687 0129 0B       		.uleb128 0xb
+ 1688 012a 3B       		.uleb128 0x3b
+ 1689 012b 0B       		.uleb128 0xb
+ 1690 012c 49       		.uleb128 0x49
+ 1691 012d 13       		.uleb128 0x13
+ 1692 012e 02       		.uleb128 0x2
+ 1693 012f 17       		.uleb128 0x17
+ 1694 0130 00       		.byte	0
+ 1695 0131 00       		.byte	0
+ 1696 0132 16       		.uleb128 0x16
+ 1697 0133 05       		.uleb128 0x5
+ 1698 0134 00       		.byte	0
+ 1699 0135 03       		.uleb128 0x3
+ 1700 0136 0E       		.uleb128 0xe
+ 1701 0137 3A       		.uleb128 0x3a
+ 1702 0138 0B       		.uleb128 0xb
+ 1703 0139 3B       		.uleb128 0x3b
+ 1704 013a 0B       		.uleb128 0xb
+ 1705 013b 49       		.uleb128 0x49
+ 1706 013c 13       		.uleb128 0x13
+ 1707 013d 02       		.uleb128 0x2
+ 1708 013e 18       		.uleb128 0x18
+ 1709 013f 00       		.byte	0
+ 1710 0140 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 34
+
+
+ 1711 0141 17       		.uleb128 0x17
+ 1712 0142 05       		.uleb128 0x5
+ 1713 0143 00       		.byte	0
+ 1714 0144 03       		.uleb128 0x3
+ 1715 0145 0E       		.uleb128 0xe
+ 1716 0146 3A       		.uleb128 0x3a
+ 1717 0147 0B       		.uleb128 0xb
+ 1718 0148 3B       		.uleb128 0x3b
+ 1719 0149 0B       		.uleb128 0xb
+ 1720 014a 49       		.uleb128 0x49
+ 1721 014b 13       		.uleb128 0x13
+ 1722 014c 02       		.uleb128 0x2
+ 1723 014d 17       		.uleb128 0x17
+ 1724 014e 00       		.byte	0
+ 1725 014f 00       		.byte	0
+ 1726 0150 18       		.uleb128 0x18
+ 1727 0151 34       		.uleb128 0x34
+ 1728 0152 00       		.byte	0
+ 1729 0153 03       		.uleb128 0x3
+ 1730 0154 0E       		.uleb128 0xe
+ 1731 0155 3A       		.uleb128 0x3a
+ 1732 0156 0B       		.uleb128 0xb
+ 1733 0157 3B       		.uleb128 0x3b
+ 1734 0158 0B       		.uleb128 0xb
+ 1735 0159 49       		.uleb128 0x49
+ 1736 015a 13       		.uleb128 0x13
+ 1737 015b 02       		.uleb128 0x2
+ 1738 015c 18       		.uleb128 0x18
+ 1739 015d 00       		.byte	0
+ 1740 015e 00       		.byte	0
+ 1741 015f 19       		.uleb128 0x19
+ 1742 0160 01       		.uleb128 0x1
+ 1743 0161 01       		.byte	0x1
+ 1744 0162 49       		.uleb128 0x49
+ 1745 0163 13       		.uleb128 0x13
+ 1746 0164 01       		.uleb128 0x1
+ 1747 0165 13       		.uleb128 0x13
+ 1748 0166 00       		.byte	0
+ 1749 0167 00       		.byte	0
+ 1750 0168 1A       		.uleb128 0x1a
+ 1751 0169 21       		.uleb128 0x21
+ 1752 016a 00       		.byte	0
+ 1753 016b 49       		.uleb128 0x49
+ 1754 016c 13       		.uleb128 0x13
+ 1755 016d 2F       		.uleb128 0x2f
+ 1756 016e 0B       		.uleb128 0xb
+ 1757 016f 00       		.byte	0
+ 1758 0170 00       		.byte	0
+ 1759 0171 1B       		.uleb128 0x1b
+ 1760 0172 2E       		.uleb128 0x2e
+ 1761 0173 01       		.byte	0x1
+ 1762 0174 3F       		.uleb128 0x3f
+ 1763 0175 19       		.uleb128 0x19
+ 1764 0176 03       		.uleb128 0x3
+ 1765 0177 0E       		.uleb128 0xe
+ 1766 0178 3A       		.uleb128 0x3a
+ 1767 0179 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 35
+
+
+ 1768 017a 3B       		.uleb128 0x3b
+ 1769 017b 0B       		.uleb128 0xb
+ 1770 017c 27       		.uleb128 0x27
+ 1771 017d 19       		.uleb128 0x19
+ 1772 017e 11       		.uleb128 0x11
+ 1773 017f 01       		.uleb128 0x1
+ 1774 0180 12       		.uleb128 0x12
+ 1775 0181 06       		.uleb128 0x6
+ 1776 0182 40       		.uleb128 0x40
+ 1777 0183 18       		.uleb128 0x18
+ 1778 0184 9742     		.uleb128 0x2117
+ 1779 0186 19       		.uleb128 0x19
+ 1780 0187 01       		.uleb128 0x1
+ 1781 0188 13       		.uleb128 0x13
+ 1782 0189 00       		.byte	0
+ 1783 018a 00       		.byte	0
+ 1784 018b 1C       		.uleb128 0x1c
+ 1785 018c 05       		.uleb128 0x5
+ 1786 018d 00       		.byte	0
+ 1787 018e 03       		.uleb128 0x3
+ 1788 018f 08       		.uleb128 0x8
+ 1789 0190 3A       		.uleb128 0x3a
+ 1790 0191 0B       		.uleb128 0xb
+ 1791 0192 3B       		.uleb128 0x3b
+ 1792 0193 0B       		.uleb128 0xb
+ 1793 0194 49       		.uleb128 0x49
+ 1794 0195 13       		.uleb128 0x13
+ 1795 0196 02       		.uleb128 0x2
+ 1796 0197 18       		.uleb128 0x18
+ 1797 0198 00       		.byte	0
+ 1798 0199 00       		.byte	0
+ 1799 019a 1D       		.uleb128 0x1d
+ 1800 019b 34       		.uleb128 0x34
+ 1801 019c 00       		.byte	0
+ 1802 019d 03       		.uleb128 0x3
+ 1803 019e 0E       		.uleb128 0xe
+ 1804 019f 3A       		.uleb128 0x3a
+ 1805 01a0 0B       		.uleb128 0xb
+ 1806 01a1 3B       		.uleb128 0x3b
+ 1807 01a2 0B       		.uleb128 0xb
+ 1808 01a3 49       		.uleb128 0x49
+ 1809 01a4 13       		.uleb128 0x13
+ 1810 01a5 02       		.uleb128 0x2
+ 1811 01a6 17       		.uleb128 0x17
+ 1812 01a7 00       		.byte	0
+ 1813 01a8 00       		.byte	0
+ 1814 01a9 1E       		.uleb128 0x1e
+ 1815 01aa 34       		.uleb128 0x34
+ 1816 01ab 00       		.byte	0
+ 1817 01ac 03       		.uleb128 0x3
+ 1818 01ad 08       		.uleb128 0x8
+ 1819 01ae 3A       		.uleb128 0x3a
+ 1820 01af 0B       		.uleb128 0xb
+ 1821 01b0 3B       		.uleb128 0x3b
+ 1822 01b1 0B       		.uleb128 0xb
+ 1823 01b2 49       		.uleb128 0x49
+ 1824 01b3 13       		.uleb128 0x13
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 36
+
+
+ 1825 01b4 02       		.uleb128 0x2
+ 1826 01b5 17       		.uleb128 0x17
+ 1827 01b6 00       		.byte	0
+ 1828 01b7 00       		.byte	0
+ 1829 01b8 1F       		.uleb128 0x1f
+ 1830 01b9 0B       		.uleb128 0xb
+ 1831 01ba 01       		.byte	0x1
+ 1832 01bb 11       		.uleb128 0x11
+ 1833 01bc 01       		.uleb128 0x1
+ 1834 01bd 12       		.uleb128 0x12
+ 1835 01be 06       		.uleb128 0x6
+ 1836 01bf 00       		.byte	0
+ 1837 01c0 00       		.byte	0
+ 1838 01c1 20       		.uleb128 0x20
+ 1839 01c2 898201   		.uleb128 0x4109
+ 1840 01c5 01       		.byte	0x1
+ 1841 01c6 11       		.uleb128 0x11
+ 1842 01c7 01       		.uleb128 0x1
+ 1843 01c8 31       		.uleb128 0x31
+ 1844 01c9 13       		.uleb128 0x13
+ 1845 01ca 01       		.uleb128 0x1
+ 1846 01cb 13       		.uleb128 0x13
+ 1847 01cc 00       		.byte	0
+ 1848 01cd 00       		.byte	0
+ 1849 01ce 21       		.uleb128 0x21
+ 1850 01cf 8A8201   		.uleb128 0x410a
+ 1851 01d2 00       		.byte	0
+ 1852 01d3 02       		.uleb128 0x2
+ 1853 01d4 18       		.uleb128 0x18
+ 1854 01d5 9142     		.uleb128 0x2111
+ 1855 01d7 18       		.uleb128 0x18
+ 1856 01d8 00       		.byte	0
+ 1857 01d9 00       		.byte	0
+ 1858 01da 22       		.uleb128 0x22
+ 1859 01db 898201   		.uleb128 0x4109
+ 1860 01de 01       		.byte	0x1
+ 1861 01df 11       		.uleb128 0x11
+ 1862 01e0 01       		.uleb128 0x1
+ 1863 01e1 31       		.uleb128 0x31
+ 1864 01e2 13       		.uleb128 0x13
+ 1865 01e3 00       		.byte	0
+ 1866 01e4 00       		.byte	0
+ 1867 01e5 23       		.uleb128 0x23
+ 1868 01e6 15       		.uleb128 0x15
+ 1869 01e7 01       		.byte	0x1
+ 1870 01e8 27       		.uleb128 0x27
+ 1871 01e9 19       		.uleb128 0x19
+ 1872 01ea 01       		.uleb128 0x1
+ 1873 01eb 13       		.uleb128 0x13
+ 1874 01ec 00       		.byte	0
+ 1875 01ed 00       		.byte	0
+ 1876 01ee 24       		.uleb128 0x24
+ 1877 01ef 34       		.uleb128 0x34
+ 1878 01f0 00       		.byte	0
+ 1879 01f1 03       		.uleb128 0x3
+ 1880 01f2 0E       		.uleb128 0xe
+ 1881 01f3 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 37
+
+
+ 1882 01f4 0B       		.uleb128 0xb
+ 1883 01f5 3B       		.uleb128 0x3b
+ 1884 01f6 0B       		.uleb128 0xb
+ 1885 01f7 49       		.uleb128 0x49
+ 1886 01f8 13       		.uleb128 0x13
+ 1887 01f9 3F       		.uleb128 0x3f
+ 1888 01fa 19       		.uleb128 0x19
+ 1889 01fb 02       		.uleb128 0x2
+ 1890 01fc 18       		.uleb128 0x18
+ 1891 01fd 00       		.byte	0
+ 1892 01fe 00       		.byte	0
+ 1893 01ff 25       		.uleb128 0x25
+ 1894 0200 2E       		.uleb128 0x2e
+ 1895 0201 00       		.byte	0
+ 1896 0202 3F       		.uleb128 0x3f
+ 1897 0203 19       		.uleb128 0x19
+ 1898 0204 3C       		.uleb128 0x3c
+ 1899 0205 19       		.uleb128 0x19
+ 1900 0206 6E       		.uleb128 0x6e
+ 1901 0207 0E       		.uleb128 0xe
+ 1902 0208 03       		.uleb128 0x3
+ 1903 0209 0E       		.uleb128 0xe
+ 1904 020a 3A       		.uleb128 0x3a
+ 1905 020b 0B       		.uleb128 0xb
+ 1906 020c 3B       		.uleb128 0x3b
+ 1907 020d 0B       		.uleb128 0xb
+ 1908 020e 00       		.byte	0
+ 1909 020f 00       		.byte	0
+ 1910 0210 00       		.byte	0
+ 1911              		.section	.debug_loc,"",%progbits
+ 1912              	.Ldebug_loc0:
+ 1913              	.LLST0:
+ 1914 0000 00000000 		.4byte	.LVL0
+ 1915 0004 0C000000 		.4byte	.LVL1
+ 1916 0008 0100     		.2byte	0x1
+ 1917 000a 50       		.byte	0x50
+ 1918 000b 0C000000 		.4byte	.LVL1
+ 1919 000f 1C000000 		.4byte	.LVL2
+ 1920 0013 0400     		.2byte	0x4
+ 1921 0015 F3       		.byte	0xf3
+ 1922 0016 01       		.uleb128 0x1
+ 1923 0017 50       		.byte	0x50
+ 1924 0018 9F       		.byte	0x9f
+ 1925 0019 1C000000 		.4byte	.LVL2
+ 1926 001d 1E000000 		.4byte	.LVL3
+ 1927 0021 0100     		.2byte	0x1
+ 1928 0023 50       		.byte	0x50
+ 1929 0024 1E000000 		.4byte	.LVL3
+ 1930 0028 2C000000 		.4byte	.LVL5
+ 1931 002c 0400     		.2byte	0x4
+ 1932 002e F3       		.byte	0xf3
+ 1933 002f 01       		.uleb128 0x1
+ 1934 0030 50       		.byte	0x50
+ 1935 0031 9F       		.byte	0x9f
+ 1936 0032 2C000000 		.4byte	.LVL5
+ 1937 0036 2E000000 		.4byte	.LVL6
+ 1938 003a 0100     		.2byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 38
+
+
+ 1939 003c 50       		.byte	0x50
+ 1940 003d 2E000000 		.4byte	.LVL6
+ 1941 0041 34000000 		.4byte	.LFE13
+ 1942 0045 0400     		.2byte	0x4
+ 1943 0047 F3       		.byte	0xf3
+ 1944 0048 01       		.uleb128 0x1
+ 1945 0049 50       		.byte	0x50
+ 1946 004a 9F       		.byte	0x9f
+ 1947 004b 00000000 		.4byte	0
+ 1948 004f 00000000 		.4byte	0
+ 1949              	.LLST1:
+ 1950 0053 00000000 		.4byte	.LVL0
+ 1951 0057 22000000 		.4byte	.LVL4
+ 1952 005b 0100     		.2byte	0x1
+ 1953 005d 52       		.byte	0x52
+ 1954 005e 22000000 		.4byte	.LVL4
+ 1955 0062 2C000000 		.4byte	.LVL5
+ 1956 0066 0400     		.2byte	0x4
+ 1957 0068 F3       		.byte	0xf3
+ 1958 0069 01       		.uleb128 0x1
+ 1959 006a 52       		.byte	0x52
+ 1960 006b 9F       		.byte	0x9f
+ 1961 006c 2C000000 		.4byte	.LVL5
+ 1962 0070 34000000 		.4byte	.LFE13
+ 1963 0074 0100     		.2byte	0x1
+ 1964 0076 52       		.byte	0x52
+ 1965 0077 00000000 		.4byte	0
+ 1966 007b 00000000 		.4byte	0
+ 1967              	.LLST2:
+ 1968 007f 00000000 		.4byte	.LVL7
+ 1969 0083 26000000 		.4byte	.LVL13
+ 1970 0087 0100     		.2byte	0x1
+ 1971 0089 50       		.byte	0x50
+ 1972 008a 26000000 		.4byte	.LVL13
+ 1973 008e 58000000 		.4byte	.LFE14
+ 1974 0092 0400     		.2byte	0x4
+ 1975 0094 F3       		.byte	0xf3
+ 1976 0095 01       		.uleb128 0x1
+ 1977 0096 50       		.byte	0x50
+ 1978 0097 9F       		.byte	0x9f
+ 1979 0098 00000000 		.4byte	0
+ 1980 009c 00000000 		.4byte	0
+ 1981              	.LLST3:
+ 1982 00a0 00000000 		.4byte	.LVL7
+ 1983 00a4 26000000 		.4byte	.LVL13
+ 1984 00a8 0100     		.2byte	0x1
+ 1985 00aa 51       		.byte	0x51
+ 1986 00ab 26000000 		.4byte	.LVL13
+ 1987 00af 58000000 		.4byte	.LFE14
+ 1988 00b3 0400     		.2byte	0x4
+ 1989 00b5 F3       		.byte	0xf3
+ 1990 00b6 01       		.uleb128 0x1
+ 1991 00b7 51       		.byte	0x51
+ 1992 00b8 9F       		.byte	0x9f
+ 1993 00b9 00000000 		.4byte	0
+ 1994 00bd 00000000 		.4byte	0
+ 1995              	.LLST4:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 39
+
+
+ 1996 00c1 00000000 		.4byte	.LVL7
+ 1997 00c5 1C000000 		.4byte	.LVL10
+ 1998 00c9 0100     		.2byte	0x1
+ 1999 00cb 52       		.byte	0x52
+ 2000 00cc 1C000000 		.4byte	.LVL10
+ 2001 00d0 20000000 		.4byte	.LVL11
+ 2002 00d4 0100     		.2byte	0x1
+ 2003 00d6 55       		.byte	0x55
+ 2004 00d7 20000000 		.4byte	.LVL11
+ 2005 00db 22000000 		.4byte	.LVL12
+ 2006 00df 0100     		.2byte	0x1
+ 2007 00e1 52       		.byte	0x52
+ 2008 00e2 22000000 		.4byte	.LVL12
+ 2009 00e6 58000000 		.4byte	.LFE14
+ 2010 00ea 0100     		.2byte	0x1
+ 2011 00ec 55       		.byte	0x55
+ 2012 00ed 00000000 		.4byte	0
+ 2013 00f1 00000000 		.4byte	0
+ 2014              	.LLST5:
+ 2015 00f5 00000000 		.4byte	.LVL7
+ 2016 00f9 26000000 		.4byte	.LVL13
+ 2017 00fd 0100     		.2byte	0x1
+ 2018 00ff 53       		.byte	0x53
+ 2019 0100 26000000 		.4byte	.LVL13
+ 2020 0104 58000000 		.4byte	.LFE14
+ 2021 0108 0100     		.2byte	0x1
+ 2022 010a 59       		.byte	0x59
+ 2023 010b 00000000 		.4byte	0
+ 2024 010f 00000000 		.4byte	0
+ 2025              	.LLST6:
+ 2026 0113 14000000 		.4byte	.LVL8
+ 2027 0117 18000000 		.4byte	.LVL9
+ 2028 011b 0200     		.2byte	0x2
+ 2029 011d 30       		.byte	0x30
+ 2030 011e 9F       		.byte	0x9f
+ 2031 011f 18000000 		.4byte	.LVL9
+ 2032 0123 20000000 		.4byte	.LVL11
+ 2033 0127 0200     		.2byte	0x2
+ 2034 0129 31       		.byte	0x31
+ 2035 012a 9F       		.byte	0x9f
+ 2036 012b 20000000 		.4byte	.LVL11
+ 2037 012f 22000000 		.4byte	.LVL12
+ 2038 0133 0200     		.2byte	0x2
+ 2039 0135 30       		.byte	0x30
+ 2040 0136 9F       		.byte	0x9f
+ 2041 0137 22000000 		.4byte	.LVL12
+ 2042 013b 58000000 		.4byte	.LFE14
+ 2043 013f 0100     		.2byte	0x1
+ 2044 0141 57       		.byte	0x57
+ 2045 0142 00000000 		.4byte	0
+ 2046 0146 00000000 		.4byte	0
+ 2047              	.LLST7:
+ 2048 014a 22000000 		.4byte	.LVL12
+ 2049 014e 26000000 		.4byte	.LVL13
+ 2050 0152 0200     		.2byte	0x2
+ 2051 0154 30       		.byte	0x30
+ 2052 0155 9F       		.byte	0x9f
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 40
+
+
+ 2053 0156 26000000 		.4byte	.LVL13
+ 2054 015a 4C000000 		.4byte	.LVL19
+ 2055 015e 0100     		.2byte	0x1
+ 2056 0160 54       		.byte	0x54
+ 2057 0161 4C000000 		.4byte	.LVL19
+ 2058 0165 4E000000 		.4byte	.LVL20
+ 2059 0169 0300     		.2byte	0x3
+ 2060 016b 74       		.byte	0x74
+ 2061 016c 7F       		.sleb128 -1
+ 2062 016d 9F       		.byte	0x9f
+ 2063 016e 4E000000 		.4byte	.LVL20
+ 2064 0172 58000000 		.4byte	.LFE14
+ 2065 0176 0100     		.2byte	0x1
+ 2066 0178 54       		.byte	0x54
+ 2067 0179 00000000 		.4byte	0
+ 2068 017d 00000000 		.4byte	0
+ 2069              	.LLST8:
+ 2070 0181 30000000 		.4byte	.LVL14
+ 2071 0185 34000000 		.4byte	.LVL15
+ 2072 0189 0100     		.2byte	0x1
+ 2073 018b 50       		.byte	0x50
+ 2074 018c 36000000 		.4byte	.LVL16
+ 2075 0190 46000000 		.4byte	.LVL17
+ 2076 0194 0100     		.2byte	0x1
+ 2077 0196 50       		.byte	0x50
+ 2078 0197 00000000 		.4byte	0
+ 2079 019b 00000000 		.4byte	0
+ 2080              	.LLST9:
+ 2081 019f 00000000 		.4byte	.LVL21
+ 2082 01a3 2A000000 		.4byte	.LVL27
+ 2083 01a7 0100     		.2byte	0x1
+ 2084 01a9 50       		.byte	0x50
+ 2085 01aa 2A000000 		.4byte	.LVL27
+ 2086 01ae 62000000 		.4byte	.LFE15
+ 2087 01b2 0400     		.2byte	0x4
+ 2088 01b4 F3       		.byte	0xf3
+ 2089 01b5 01       		.uleb128 0x1
+ 2090 01b6 50       		.byte	0x50
+ 2091 01b7 9F       		.byte	0x9f
+ 2092 01b8 00000000 		.4byte	0
+ 2093 01bc 00000000 		.4byte	0
+ 2094              	.LLST10:
+ 2095 01c0 00000000 		.4byte	.LVL21
+ 2096 01c4 2A000000 		.4byte	.LVL27
+ 2097 01c8 0100     		.2byte	0x1
+ 2098 01ca 51       		.byte	0x51
+ 2099 01cb 2A000000 		.4byte	.LVL27
+ 2100 01cf 62000000 		.4byte	.LFE15
+ 2101 01d3 0400     		.2byte	0x4
+ 2102 01d5 F3       		.byte	0xf3
+ 2103 01d6 01       		.uleb128 0x1
+ 2104 01d7 51       		.byte	0x51
+ 2105 01d8 9F       		.byte	0x9f
+ 2106 01d9 00000000 		.4byte	0
+ 2107 01dd 00000000 		.4byte	0
+ 2108              	.LLST11:
+ 2109 01e1 00000000 		.4byte	.LVL21
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 41
+
+
+ 2110 01e5 1C000000 		.4byte	.LVL24
+ 2111 01e9 0100     		.2byte	0x1
+ 2112 01eb 52       		.byte	0x52
+ 2113 01ec 1C000000 		.4byte	.LVL24
+ 2114 01f0 22000000 		.4byte	.LVL25
+ 2115 01f4 0100     		.2byte	0x1
+ 2116 01f6 55       		.byte	0x55
+ 2117 01f7 22000000 		.4byte	.LVL25
+ 2118 01fb 26000000 		.4byte	.LVL26
+ 2119 01ff 0100     		.2byte	0x1
+ 2120 0201 52       		.byte	0x52
+ 2121 0202 26000000 		.4byte	.LVL26
+ 2122 0206 62000000 		.4byte	.LFE15
+ 2123 020a 0100     		.2byte	0x1
+ 2124 020c 55       		.byte	0x55
+ 2125 020d 00000000 		.4byte	0
+ 2126 0211 00000000 		.4byte	0
+ 2127              	.LLST12:
+ 2128 0215 00000000 		.4byte	.LVL21
+ 2129 0219 2A000000 		.4byte	.LVL27
+ 2130 021d 0100     		.2byte	0x1
+ 2131 021f 53       		.byte	0x53
+ 2132 0220 2A000000 		.4byte	.LVL27
+ 2133 0224 62000000 		.4byte	.LFE15
+ 2134 0228 0100     		.2byte	0x1
+ 2135 022a 59       		.byte	0x59
+ 2136 022b 00000000 		.4byte	0
+ 2137 022f 00000000 		.4byte	0
+ 2138              	.LLST13:
+ 2139 0233 14000000 		.4byte	.LVL22
+ 2140 0237 18000000 		.4byte	.LVL23
+ 2141 023b 0200     		.2byte	0x2
+ 2142 023d 30       		.byte	0x30
+ 2143 023e 9F       		.byte	0x9f
+ 2144 023f 18000000 		.4byte	.LVL23
+ 2145 0243 22000000 		.4byte	.LVL25
+ 2146 0247 0200     		.2byte	0x2
+ 2147 0249 31       		.byte	0x31
+ 2148 024a 9F       		.byte	0x9f
+ 2149 024b 22000000 		.4byte	.LVL25
+ 2150 024f 26000000 		.4byte	.LVL26
+ 2151 0253 0200     		.2byte	0x2
+ 2152 0255 30       		.byte	0x30
+ 2153 0256 9F       		.byte	0x9f
+ 2154 0257 26000000 		.4byte	.LVL26
+ 2155 025b 62000000 		.4byte	.LFE15
+ 2156 025f 0100     		.2byte	0x1
+ 2157 0261 5B       		.byte	0x5b
+ 2158 0262 00000000 		.4byte	0
+ 2159 0266 00000000 		.4byte	0
+ 2160              	.LLST14:
+ 2161 026a 26000000 		.4byte	.LVL26
+ 2162 026e 2A000000 		.4byte	.LVL27
+ 2163 0272 0200     		.2byte	0x2
+ 2164 0274 30       		.byte	0x30
+ 2165 0275 9F       		.byte	0x9f
+ 2166 0276 2A000000 		.4byte	.LVL27
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 42
+
+
+ 2167 027a 56000000 		.4byte	.LVL33
+ 2168 027e 0100     		.2byte	0x1
+ 2169 0280 54       		.byte	0x54
+ 2170 0281 56000000 		.4byte	.LVL33
+ 2171 0285 58000000 		.4byte	.LVL34
+ 2172 0289 0300     		.2byte	0x3
+ 2173 028b 74       		.byte	0x74
+ 2174 028c 7F       		.sleb128 -1
+ 2175 028d 9F       		.byte	0x9f
+ 2176 028e 58000000 		.4byte	.LVL34
+ 2177 0292 62000000 		.4byte	.LFE15
+ 2178 0296 0100     		.2byte	0x1
+ 2179 0298 54       		.byte	0x54
+ 2180 0299 00000000 		.4byte	0
+ 2181 029d 00000000 		.4byte	0
+ 2182              	.LLST15:
+ 2183 02a1 34000000 		.4byte	.LVL28
+ 2184 02a5 3C000000 		.4byte	.LVL29
+ 2185 02a9 0100     		.2byte	0x1
+ 2186 02ab 50       		.byte	0x50
+ 2187 02ac 3E000000 		.4byte	.LVL30
+ 2188 02b0 50000000 		.4byte	.LVL31
+ 2189 02b4 0100     		.2byte	0x1
+ 2190 02b6 50       		.byte	0x50
+ 2191 02b7 00000000 		.4byte	0
+ 2192 02bb 00000000 		.4byte	0
+ 2193              		.section	.debug_aranges,"",%progbits
+ 2194 0000 2C000000 		.4byte	0x2c
+ 2195 0004 0200     		.2byte	0x2
+ 2196 0006 00000000 		.4byte	.Ldebug_info0
+ 2197 000a 04       		.byte	0x4
+ 2198 000b 00       		.byte	0
+ 2199 000c 0000     		.2byte	0
+ 2200 000e 0000     		.2byte	0
+ 2201 0010 00000000 		.4byte	.LFB13
+ 2202 0014 34000000 		.4byte	.LFE13-.LFB13
+ 2203 0018 00000000 		.4byte	.LFB14
+ 2204 001c 58000000 		.4byte	.LFE14-.LFB14
+ 2205 0020 00000000 		.4byte	.LFB15
+ 2206 0024 62000000 		.4byte	.LFE15-.LFB15
+ 2207 0028 00000000 		.4byte	0
+ 2208 002c 00000000 		.4byte	0
+ 2209              		.section	.debug_ranges,"",%progbits
+ 2210              	.Ldebug_ranges0:
+ 2211 0000 00000000 		.4byte	.LFB13
+ 2212 0004 34000000 		.4byte	.LFE13
+ 2213 0008 00000000 		.4byte	.LFB14
+ 2214 000c 58000000 		.4byte	.LFE14
+ 2215 0010 00000000 		.4byte	.LFB15
+ 2216 0014 62000000 		.4byte	.LFE15
+ 2217 0018 00000000 		.4byte	0
+ 2218 001c 00000000 		.4byte	0
+ 2219              		.section	.debug_line,"",%progbits
+ 2220              	.Ldebug_line0:
+ 2221 0000 13020000 		.section	.debug_str,"MS",%progbits,1
+ 2221      02008F01 
+ 2221      00000201 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 43
+
+
+ 2221      FB0E0D00 
+ 2221      01010101 
+ 2222              	.LASF65:
+ 2223 0000 73656736 		.ascii	"seg6\000"
+ 2223      00
+ 2224              	.LASF66:
+ 2225 0005 73656737 		.ascii	"seg7\000"
+ 2225      00
+ 2226              	.LASF67:
+ 2227 000a 73656738 		.ascii	"seg8\000"
+ 2227      00
+ 2228              	.LASF54:
+ 2229 000f 6D6F6E6F 		.ascii	"monospace\000"
+ 2229      73706163 
+ 2229      6500
+ 2230              	.LASF51:
+ 2231 0019 6765745F 		.ascii	"get_width\000"
+ 2231      77696474 
+ 2231      6800
+ 2232              	.LASF50:
+ 2233 0023 6765745F 		.ascii	"get_bitmap\000"
+ 2233      6269746D 
+ 2233      617000
+ 2234              	.LASF76:
+ 2235 002e 70785F66 		.ascii	"px_fp\000"
+ 2235      7000
+ 2236              	.LASF52:
+ 2237 0034 6E657874 		.ascii	"next_page\000"
+ 2237      5F706167 
+ 2237      6500
+ 2238              	.LASF71:
+ 2239 003e 636F6C6F 		.ascii	"color\000"
+ 2239      7200
+ 2240              	.LASF24:
+ 2241 0044 4C565F4F 		.ascii	"LV_OPA_30\000"
+ 2241      50415F33 
+ 2241      3000
+ 2242              	.LASF8:
+ 2243 004e 5F5F7569 		.ascii	"__uint32_t\000"
+ 2243      6E743332 
+ 2243      5F7400
+ 2244              	.LASF77:
+ 2245 0059 66696C6C 		.ascii	"fill_fp\000"
+ 2245      5F667000 
+ 2246              	.LASF5:
+ 2247 0061 5F5F7569 		.ascii	"__uint16_t\000"
+ 2247      6E743136 
+ 2247      5F7400
+ 2248              	.LASF68:
+ 2249 006c 7365675F 		.ascii	"seg_map\000"
+ 2249      6D617000 
+ 2250              	.LASF28:
+ 2251 0074 4C565F4F 		.ascii	"LV_OPA_70\000"
+ 2251      50415F37 
+ 2251      3000
+ 2252              	.LASF4:
+ 2253 007e 73686F72 		.ascii	"short int\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 44
+
+
+ 2253      7420696E 
+ 2253      7400
+ 2254              	.LASF33:
+ 2255 0088 626C7565 		.ascii	"blue\000"
+ 2255      00
+ 2256              	.LASF38:
+ 2257 008d 6C765F6F 		.ascii	"lv_opa_t\000"
+ 2257      70615F74 
+ 2257      00
+ 2258              	.LASF47:
+ 2259 0096 676C7970 		.ascii	"glyph_bitmap\000"
+ 2259      685F6269 
+ 2259      746D6170 
+ 2259      00
+ 2260              	.LASF40:
+ 2261 00a3 6C765F70 		.ascii	"lv_point_t\000"
+ 2261      6F696E74 
+ 2261      5F7400
+ 2262              	.LASF84:
+ 2263 00ae 6C765F64 		.ascii	"lv_draw_aa_get_opa\000"
+ 2263      7261775F 
+ 2263      61615F67 
+ 2263      65745F6F 
+ 2263      706100
+ 2264              	.LASF16:
+ 2265 00c1 75696E74 		.ascii	"uint8_t\000"
+ 2265      385F7400 
+ 2266              	.LASF29:
+ 2267 00c9 4C565F4F 		.ascii	"LV_OPA_80\000"
+ 2267      50415F38 
+ 2267      3000
+ 2268              	.LASF55:
+ 2269 00d3 676C7970 		.ascii	"glyph_cnt\000"
+ 2269      685F636E 
+ 2269      7400
+ 2270              	.LASF79:
+ 2271 00dd 6D61705F 		.ascii	"map_fp\000"
+ 2271      667000
+ 2272              	.LASF69:
+ 2273 00e4 6C656E67 		.ascii	"length\000"
+ 2273      746800
+ 2274              	.LASF82:
+ 2275 00eb 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 2275      73657273 
+ 2275      5C643362 
+ 2275      75675C44 
+ 2275      6F63756D 
+ 2276 0119 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 2276      6F5F776F 
+ 2276      726C645F 
+ 2276      6C616265 
+ 2276      6C2E6379 
+ 2277              	.LASF10:
+ 2278 0131 6C6F6E67 		.ascii	"long long int\000"
+ 2278      206C6F6E 
+ 2278      6720696E 
+ 2278      7400
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 45
+
+
+ 2279              	.LASF7:
+ 2280 013f 6C6F6E67 		.ascii	"long int\000"
+ 2280      20696E74 
+ 2280      00
+ 2281              	.LASF25:
+ 2282 0148 4C565F4F 		.ascii	"LV_OPA_40\000"
+ 2282      50415F34 
+ 2282      3000
+ 2283              	.LASF42:
+ 2284 0152 775F7078 		.ascii	"w_px\000"
+ 2284      00
+ 2285              	.LASF2:
+ 2286 0157 5F5F7569 		.ascii	"__uint8_t\000"
+ 2286      6E74385F 
+ 2286      7400
+ 2287              	.LASF34:
+ 2288 0161 67726565 		.ascii	"green\000"
+ 2288      6E00
+ 2289              	.LASF48:
+ 2290 0167 676C7970 		.ascii	"glyph_dsc\000"
+ 2290      685F6473 
+ 2290      6300
+ 2291              	.LASF1:
+ 2292 0171 756E7369 		.ascii	"unsigned char\000"
+ 2292      676E6564 
+ 2292      20636861 
+ 2292      7200
+ 2293              	.LASF32:
+ 2294 017f 4C565F4F 		.ascii	"LV_OPA_COVER\000"
+ 2294      50415F43 
+ 2294      4F564552 
+ 2294      00
+ 2295              	.LASF13:
+ 2296 018c 6C6F6E67 		.ascii	"long double\000"
+ 2296      20646F75 
+ 2296      626C6500 
+ 2297              	.LASF78:
+ 2298 0198 6C657474 		.ascii	"letter_fp\000"
+ 2298      65725F66 
+ 2298      7000
+ 2299              	.LASF0:
+ 2300 01a2 7369676E 		.ascii	"signed char\000"
+ 2300      65642063 
+ 2300      68617200 
+ 2301              	.LASF11:
+ 2302 01ae 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 2302      206C6F6E 
+ 2302      6720756E 
+ 2302      7369676E 
+ 2302      65642069 
+ 2303              	.LASF19:
+ 2304 01c5 75696E74 		.ascii	"uint32_t\000"
+ 2304      33325F74 
+ 2304      00
+ 2305              	.LASF12:
+ 2306 01ce 756E7369 		.ascii	"unsigned int\000"
+ 2306      676E6564 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 46
+
+
+ 2306      20696E74 
+ 2306      00
+ 2307              	.LASF37:
+ 2308 01db 6C765F63 		.ascii	"lv_color_t\000"
+ 2308      6F6C6F72 
+ 2308      5F7400
+ 2309              	.LASF18:
+ 2310 01e6 75696E74 		.ascii	"uint16_t\000"
+ 2310      31365F74 
+ 2310      00
+ 2311              	.LASF22:
+ 2312 01ef 4C565F4F 		.ascii	"LV_OPA_10\000"
+ 2312      50415F31 
+ 2312      3000
+ 2313              	.LASF31:
+ 2314 01f9 4C565F4F 		.ascii	"LV_OPA_100\000"
+ 2314      50415F31 
+ 2314      303000
+ 2315              	.LASF6:
+ 2316 0204 73686F72 		.ascii	"short unsigned int\000"
+ 2316      7420756E 
+ 2316      7369676E 
+ 2316      65642069 
+ 2316      6E7400
+ 2317              	.LASF36:
+ 2318 0217 6C765F63 		.ascii	"lv_color1_t\000"
+ 2318      6F6C6F72 
+ 2318      315F7400 
+ 2319              	.LASF15:
+ 2320 0223 63686172 		.ascii	"char\000"
+ 2320      00
+ 2321              	.LASF26:
+ 2322 0228 4C565F4F 		.ascii	"LV_OPA_50\000"
+ 2322      50415F35 
+ 2322      3000
+ 2323              	.LASF20:
+ 2324 0232 4C565F4F 		.ascii	"LV_OPA_TRANSP\000"
+ 2324      50415F54 
+ 2324      52414E53 
+ 2324      5000
+ 2325              	.LASF39:
+ 2326 0240 6C765F63 		.ascii	"lv_coord_t\000"
+ 2326      6F6F7264 
+ 2326      5F7400
+ 2327              	.LASF59:
+ 2328 024b 62617365 		.ascii	"base_opa\000"
+ 2328      5F6F7061 
+ 2328      00
+ 2329              	.LASF17:
+ 2330 0254 696E7431 		.ascii	"int16_t\000"
+ 2330      365F7400 
+ 2331              	.LASF45:
+ 2332 025c 756E6963 		.ascii	"unicode_first\000"
+ 2332      6F64655F 
+ 2332      66697273 
+ 2332      7400
+ 2333              	.LASF57:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 47
+
+
+ 2334 026a 5F426F6F 		.ascii	"_Bool\000"
+ 2334      6C00
+ 2335              	.LASF73:
+ 2336 0270 70785F6F 		.ascii	"px_opa\000"
+ 2336      706100
+ 2337              	.LASF75:
+ 2338 0277 6C765F64 		.ascii	"lv_draw_aa_hor_seg\000"
+ 2338      7261775F 
+ 2338      61615F68 
+ 2338      6F725F73 
+ 2338      656700
+ 2339              	.LASF41:
+ 2340 028a 6C765F61 		.ascii	"lv_area_t\000"
+ 2340      7265615F 
+ 2340      7400
+ 2341              	.LASF30:
+ 2342 0294 4C565F4F 		.ascii	"LV_OPA_90\000"
+ 2342      50415F39 
+ 2342      3000
+ 2343              	.LASF56:
+ 2344 029e 6C765F66 		.ascii	"lv_font_t\000"
+ 2344      6F6E745F 
+ 2344      7400
+ 2345              	.LASF9:
+ 2346 02a8 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2346      20756E73 
+ 2346      69676E65 
+ 2346      6420696E 
+ 2346      7400
+ 2347              	.LASF81:
+ 2348 02ba 2E2E5C6C 		.ascii	"..\\lvgl\\lv_draw\\lv_draw.c\000"
+ 2348      76676C5C 
+ 2348      6C765F64 
+ 2348      7261775C 
+ 2348      6C765F64 
+ 2349              	.LASF58:
+ 2350 02d4 70785F69 		.ascii	"px_id\000"
+ 2350      6400
+ 2351              	.LASF21:
+ 2352 02da 4C565F4F 		.ascii	"LV_OPA_0\000"
+ 2352      50415F30 
+ 2352      00
+ 2353              	.LASF74:
+ 2354 02e3 6C765F64 		.ascii	"lv_draw_aa_ver_seg\000"
+ 2354      7261775F 
+ 2354      61615F76 
+ 2354      65725F73 
+ 2354      656700
+ 2355              	.LASF85:
+ 2356 02f6 6C765F76 		.ascii	"lv_vpx\000"
+ 2356      707800
+ 2357              	.LASF70:
+ 2358 02fd 6D61736B 		.ascii	"mask\000"
+ 2358      00
+ 2359              	.LASF35:
+ 2360 0302 66756C6C 		.ascii	"full\000"
+ 2360      00
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 48
+
+
+ 2361              	.LASF46:
+ 2362 0307 756E6963 		.ascii	"unicode_last\000"
+ 2362      6F64655F 
+ 2362      6C617374 
+ 2362      00
+ 2363              	.LASF3:
+ 2364 0314 5F5F696E 		.ascii	"__int16_t\000"
+ 2364      7431365F 
+ 2364      7400
+ 2365              	.LASF23:
+ 2366 031e 4C565F4F 		.ascii	"LV_OPA_20\000"
+ 2366      50415F32 
+ 2366      3000
+ 2367              	.LASF14:
+ 2368 0328 73697A65 		.ascii	"sizetype\000"
+ 2368      74797065 
+ 2368      00
+ 2369              	.LASF43:
+ 2370 0331 676C7970 		.ascii	"glyph_index\000"
+ 2370      685F696E 
+ 2370      64657800 
+ 2371              	.LASF83:
+ 2372 033d 5F6C765F 		.ascii	"_lv_font_struct\000"
+ 2372      666F6E74 
+ 2372      5F737472 
+ 2372      75637400 
+ 2373              	.LASF49:
+ 2374 034d 756E6963 		.ascii	"unicode_list\000"
+ 2374      6F64655F 
+ 2374      6C697374 
+ 2374      00
+ 2375              	.LASF27:
+ 2376 035a 4C565F4F 		.ascii	"LV_OPA_60\000"
+ 2376      50415F36 
+ 2376      3000
+ 2377              	.LASF80:
+ 2378 0364 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 2378      43313120 
+ 2378      352E342E 
+ 2378      31203230 
+ 2378      31363036 
+ 2379 0397 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 2379      20726576 
+ 2379      6973696F 
+ 2379      6E203233 
+ 2379      37373135 
+ 2380 03ca 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 2380      66756E63 
+ 2380      74696F6E 
+ 2380      2D736563 
+ 2380      74696F6E 
+ 2381              	.LASF53:
+ 2382 03f2 685F7078 		.ascii	"h_px\000"
+ 2382      00
+ 2383              	.LASF44:
+ 2384 03f7 6C765F66 		.ascii	"lv_font_glyph_dsc_t\000"
+ 2384      6F6E745F 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccNNaexT.s 			page 49
+
+
+ 2384      676C7970 
+ 2384      685F6473 
+ 2384      635F7400 
+ 2385              	.LASF72:
+ 2386 040b 61615F69 		.ascii	"aa_inv\000"
+ 2386      6E7600
+ 2387              	.LASF60:
+ 2388 0412 73656731 		.ascii	"seg1\000"
+ 2388      00
+ 2389              	.LASF61:
+ 2390 0417 73656732 		.ascii	"seg2\000"
+ 2390      00
+ 2391              	.LASF62:
+ 2392 041c 73656733 		.ascii	"seg3\000"
+ 2392      00
+ 2393              	.LASF63:
+ 2394 0421 73656734 		.ascii	"seg4\000"
+ 2394      00
+ 2395              	.LASF64:
+ 2396 0426 73656735 		.ascii	"seg5\000"
+ 2396      00
+ 2397              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

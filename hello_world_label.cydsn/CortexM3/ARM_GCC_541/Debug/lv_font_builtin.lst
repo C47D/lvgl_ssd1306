@@ -1,0 +1,343 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccUv3aix.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_font_builtin.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_font_builtin_init,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_font_builtin_init
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_font_builtin_init, %function
+  25              	lv_font_builtin_init:
+  26              	.LFB1:
+  27              		.file 1 "..\\lvgl\\lv_fonts\\lv_font_builtin.c"
+   1:..\lvgl\lv_fonts/lv_font_builtin.c **** /**
+   2:..\lvgl\lv_fonts/lv_font_builtin.c ****  * @file lv_font_built_in.c
+   3:..\lvgl\lv_fonts/lv_font_builtin.c ****  *
+   4:..\lvgl\lv_fonts/lv_font_builtin.c ****  */
+   5:..\lvgl\lv_fonts/lv_font_builtin.c **** 
+   6:..\lvgl\lv_fonts/lv_font_builtin.c **** /*********************
+   7:..\lvgl\lv_fonts/lv_font_builtin.c ****  *      INCLUDES
+   8:..\lvgl\lv_fonts/lv_font_builtin.c ****  *********************/
+   9:..\lvgl\lv_fonts/lv_font_builtin.c **** #include "lv_font_builtin.h"
+  10:..\lvgl\lv_fonts/lv_font_builtin.c **** 
+  11:..\lvgl\lv_fonts/lv_font_builtin.c **** /*********************
+  12:..\lvgl\lv_fonts/lv_font_builtin.c ****  *      DEFINES
+  13:..\lvgl\lv_fonts/lv_font_builtin.c ****  *********************/
+  14:..\lvgl\lv_fonts/lv_font_builtin.c **** 
+  15:..\lvgl\lv_fonts/lv_font_builtin.c **** /**********************
+  16:..\lvgl\lv_fonts/lv_font_builtin.c ****  *      TYPEDEFS
+  17:..\lvgl\lv_fonts/lv_font_builtin.c ****  **********************/
+  18:..\lvgl\lv_fonts/lv_font_builtin.c **** 
+  19:..\lvgl\lv_fonts/lv_font_builtin.c **** /**********************
+  20:..\lvgl\lv_fonts/lv_font_builtin.c ****  *  STATIC PROTOTYPES
+  21:..\lvgl\lv_fonts/lv_font_builtin.c ****  **********************/
+  22:..\lvgl\lv_fonts/lv_font_builtin.c **** 
+  23:..\lvgl\lv_fonts/lv_font_builtin.c **** /**********************
+  24:..\lvgl\lv_fonts/lv_font_builtin.c ****  *  STATIC VARIABLES
+  25:..\lvgl\lv_fonts/lv_font_builtin.c ****  **********************/
+  26:..\lvgl\lv_fonts/lv_font_builtin.c **** 
+  27:..\lvgl\lv_fonts/lv_font_builtin.c **** /**********************
+  28:..\lvgl\lv_fonts/lv_font_builtin.c ****  *      MACROS
+  29:..\lvgl\lv_fonts/lv_font_builtin.c ****  **********************/
+  30:..\lvgl\lv_fonts/lv_font_builtin.c **** 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccUv3aix.s 			page 2
+
+
+  31:..\lvgl\lv_fonts/lv_font_builtin.c **** /**********************
+  32:..\lvgl\lv_fonts/lv_font_builtin.c ****  *   GLOBAL FUNCTIONS
+  33:..\lvgl\lv_fonts/lv_font_builtin.c ****  **********************/
+  34:..\lvgl\lv_fonts/lv_font_builtin.c **** 
+  35:..\lvgl\lv_fonts/lv_font_builtin.c **** /**
+  36:..\lvgl\lv_fonts/lv_font_builtin.c ****  * Initialize the built-in fonts
+  37:..\lvgl\lv_fonts/lv_font_builtin.c ****  */
+  38:..\lvgl\lv_fonts/lv_font_builtin.c **** void lv_font_builtin_init(void)
+  39:..\lvgl\lv_fonts/lv_font_builtin.c **** {
+  28              		.loc 1 39 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33 0000 7047     		bx	lr
+  34              		.cfi_endproc
+  35              	.LFE1:
+  36              		.size	lv_font_builtin_init, .-lv_font_builtin_init
+  37 0002 00BF     		.text
+  38              	.Letext0:
+  39              		.section	.debug_info,"",%progbits
+  40              	.Ldebug_info0:
+  41 0000 80000000 		.4byte	0x80
+  42 0004 0400     		.2byte	0x4
+  43 0006 00000000 		.4byte	.Ldebug_abbrev0
+  44 000a 04       		.byte	0x4
+  45 000b 01       		.uleb128 0x1
+  46 000c ED000000 		.4byte	.LASF10
+  47 0010 0C       		.byte	0xc
+  48 0011 6F000000 		.4byte	.LASF11
+  49 0015 A7000000 		.4byte	.LASF12
+  50 0019 00000000 		.4byte	.Ldebug_ranges0+0
+  51 001d 00000000 		.4byte	0
+  52 0021 00000000 		.4byte	.Ldebug_line0
+  53 0025 02       		.uleb128 0x2
+  54 0026 01       		.byte	0x1
+  55 0027 06       		.byte	0x6
+  56 0028 1F000000 		.4byte	.LASF0
+  57 002c 02       		.uleb128 0x2
+  58 002d 01       		.byte	0x1
+  59 002e 08       		.byte	0x8
+  60 002f 58000000 		.4byte	.LASF1
+  61 0033 02       		.uleb128 0x2
+  62 0034 02       		.byte	0x2
+  63 0035 05       		.byte	0x5
+  64 0036 37000000 		.4byte	.LASF2
+  65 003a 02       		.uleb128 0x2
+  66 003b 02       		.byte	0x2
+  67 003c 07       		.byte	0x7
+  68 003d 7B010000 		.4byte	.LASF3
+  69 0041 02       		.uleb128 0x2
+  70 0042 04       		.byte	0x4
+  71 0043 05       		.byte	0x5
+  72 0044 66000000 		.4byte	.LASF4
+  73 0048 02       		.uleb128 0x2
+  74 0049 04       		.byte	0x4
+  75 004a 07       		.byte	0x7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccUv3aix.s 			page 3
+
+
+  76 004b 0D000000 		.4byte	.LASF5
+  77 004f 02       		.uleb128 0x2
+  78 0050 08       		.byte	0x8
+  79 0051 05       		.byte	0x5
+  80 0052 8E010000 		.4byte	.LASF6
+  81 0056 02       		.uleb128 0x2
+  82 0057 08       		.byte	0x8
+  83 0058 07       		.byte	0x7
+  84 0059 41000000 		.4byte	.LASF7
+  85 005d 03       		.uleb128 0x3
+  86 005e 04       		.byte	0x4
+  87 005f 05       		.byte	0x5
+  88 0060 696E7400 		.ascii	"int\000"
+  89 0064 02       		.uleb128 0x2
+  90 0065 04       		.byte	0x4
+  91 0066 07       		.byte	0x7
+  92 0067 00000000 		.4byte	.LASF8
+  93 006b 02       		.uleb128 0x2
+  94 006c 08       		.byte	0x8
+  95 006d 04       		.byte	0x4
+  96 006e 2B000000 		.4byte	.LASF9
+  97 0072 04       		.uleb128 0x4
+  98 0073 92000000 		.4byte	.LASF13
+  99 0077 01       		.byte	0x1
+ 100 0078 26       		.byte	0x26
+ 101 0079 00000000 		.4byte	.LFB1
+ 102 007d 02000000 		.4byte	.LFE1-.LFB1
+ 103 0081 01       		.uleb128 0x1
+ 104 0082 9C       		.byte	0x9c
+ 105 0083 00       		.byte	0
+ 106              		.section	.debug_abbrev,"",%progbits
+ 107              	.Ldebug_abbrev0:
+ 108 0000 01       		.uleb128 0x1
+ 109 0001 11       		.uleb128 0x11
+ 110 0002 01       		.byte	0x1
+ 111 0003 25       		.uleb128 0x25
+ 112 0004 0E       		.uleb128 0xe
+ 113 0005 13       		.uleb128 0x13
+ 114 0006 0B       		.uleb128 0xb
+ 115 0007 03       		.uleb128 0x3
+ 116 0008 0E       		.uleb128 0xe
+ 117 0009 1B       		.uleb128 0x1b
+ 118 000a 0E       		.uleb128 0xe
+ 119 000b 55       		.uleb128 0x55
+ 120 000c 17       		.uleb128 0x17
+ 121 000d 11       		.uleb128 0x11
+ 122 000e 01       		.uleb128 0x1
+ 123 000f 10       		.uleb128 0x10
+ 124 0010 17       		.uleb128 0x17
+ 125 0011 00       		.byte	0
+ 126 0012 00       		.byte	0
+ 127 0013 02       		.uleb128 0x2
+ 128 0014 24       		.uleb128 0x24
+ 129 0015 00       		.byte	0
+ 130 0016 0B       		.uleb128 0xb
+ 131 0017 0B       		.uleb128 0xb
+ 132 0018 3E       		.uleb128 0x3e
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccUv3aix.s 			page 4
+
+
+ 133 0019 0B       		.uleb128 0xb
+ 134 001a 03       		.uleb128 0x3
+ 135 001b 0E       		.uleb128 0xe
+ 136 001c 00       		.byte	0
+ 137 001d 00       		.byte	0
+ 138 001e 03       		.uleb128 0x3
+ 139 001f 24       		.uleb128 0x24
+ 140 0020 00       		.byte	0
+ 141 0021 0B       		.uleb128 0xb
+ 142 0022 0B       		.uleb128 0xb
+ 143 0023 3E       		.uleb128 0x3e
+ 144 0024 0B       		.uleb128 0xb
+ 145 0025 03       		.uleb128 0x3
+ 146 0026 08       		.uleb128 0x8
+ 147 0027 00       		.byte	0
+ 148 0028 00       		.byte	0
+ 149 0029 04       		.uleb128 0x4
+ 150 002a 2E       		.uleb128 0x2e
+ 151 002b 00       		.byte	0
+ 152 002c 3F       		.uleb128 0x3f
+ 153 002d 19       		.uleb128 0x19
+ 154 002e 03       		.uleb128 0x3
+ 155 002f 0E       		.uleb128 0xe
+ 156 0030 3A       		.uleb128 0x3a
+ 157 0031 0B       		.uleb128 0xb
+ 158 0032 3B       		.uleb128 0x3b
+ 159 0033 0B       		.uleb128 0xb
+ 160 0034 27       		.uleb128 0x27
+ 161 0035 19       		.uleb128 0x19
+ 162 0036 11       		.uleb128 0x11
+ 163 0037 01       		.uleb128 0x1
+ 164 0038 12       		.uleb128 0x12
+ 165 0039 06       		.uleb128 0x6
+ 166 003a 40       		.uleb128 0x40
+ 167 003b 18       		.uleb128 0x18
+ 168 003c 9742     		.uleb128 0x2117
+ 169 003e 19       		.uleb128 0x19
+ 170 003f 00       		.byte	0
+ 171 0040 00       		.byte	0
+ 172 0041 00       		.byte	0
+ 173              		.section	.debug_aranges,"",%progbits
+ 174 0000 1C000000 		.4byte	0x1c
+ 175 0004 0200     		.2byte	0x2
+ 176 0006 00000000 		.4byte	.Ldebug_info0
+ 177 000a 04       		.byte	0x4
+ 178 000b 00       		.byte	0
+ 179 000c 0000     		.2byte	0
+ 180 000e 0000     		.2byte	0
+ 181 0010 00000000 		.4byte	.LFB1
+ 182 0014 02000000 		.4byte	.LFE1-.LFB1
+ 183 0018 00000000 		.4byte	0
+ 184 001c 00000000 		.4byte	0
+ 185              		.section	.debug_ranges,"",%progbits
+ 186              	.Ldebug_ranges0:
+ 187 0000 00000000 		.4byte	.LFB1
+ 188 0004 02000000 		.4byte	.LFE1
+ 189 0008 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccUv3aix.s 			page 5
+
+
+ 190 000c 00000000 		.4byte	0
+ 191              		.section	.debug_line,"",%progbits
+ 192              	.Ldebug_line0:
+ 193 0000 4E000000 		.section	.debug_str,"MS",%progbits,1
+ 193      02003900 
+ 193      00000201 
+ 193      FB0E0D00 
+ 193      01010101 
+ 194              	.LASF8:
+ 195 0000 756E7369 		.ascii	"unsigned int\000"
+ 195      676E6564 
+ 195      20696E74 
+ 195      00
+ 196              	.LASF5:
+ 197 000d 6C6F6E67 		.ascii	"long unsigned int\000"
+ 197      20756E73 
+ 197      69676E65 
+ 197      6420696E 
+ 197      7400
+ 198              	.LASF0:
+ 199 001f 7369676E 		.ascii	"signed char\000"
+ 199      65642063 
+ 199      68617200 
+ 200              	.LASF9:
+ 201 002b 6C6F6E67 		.ascii	"long double\000"
+ 201      20646F75 
+ 201      626C6500 
+ 202              	.LASF2:
+ 203 0037 73686F72 		.ascii	"short int\000"
+ 203      7420696E 
+ 203      7400
+ 204              	.LASF7:
+ 205 0041 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 205      206C6F6E 
+ 205      6720756E 
+ 205      7369676E 
+ 205      65642069 
+ 206              	.LASF1:
+ 207 0058 756E7369 		.ascii	"unsigned char\000"
+ 207      676E6564 
+ 207      20636861 
+ 207      7200
+ 208              	.LASF4:
+ 209 0066 6C6F6E67 		.ascii	"long int\000"
+ 209      20696E74 
+ 209      00
+ 210              	.LASF11:
+ 211 006f 2E2E5C6C 		.ascii	"..\\lvgl\\lv_fonts\\lv_font_builtin.c\000"
+ 211      76676C5C 
+ 211      6C765F66 
+ 211      6F6E7473 
+ 211      5C6C765F 
+ 212              	.LASF13:
+ 213 0092 6C765F66 		.ascii	"lv_font_builtin_init\000"
+ 213      6F6E745F 
+ 213      6275696C 
+ 213      74696E5F 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccUv3aix.s 			page 6
+
+
+ 213      696E6974 
+ 214              	.LASF12:
+ 215 00a7 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 215      73657273 
+ 215      5C643362 
+ 215      75675C44 
+ 215      6F63756D 
+ 216 00d5 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 216      6F5F776F 
+ 216      726C645F 
+ 216      6C616265 
+ 216      6C2E6379 
+ 217              	.LASF10:
+ 218 00ed 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 218      43313120 
+ 218      352E342E 
+ 218      31203230 
+ 218      31363036 
+ 219 0120 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 219      20726576 
+ 219      6973696F 
+ 219      6E203233 
+ 219      37373135 
+ 220 0153 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 220      66756E63 
+ 220      74696F6E 
+ 220      2D736563 
+ 220      74696F6E 
+ 221              	.LASF3:
+ 222 017b 73686F72 		.ascii	"short unsigned int\000"
+ 222      7420756E 
+ 222      7369676E 
+ 222      65642069 
+ 222      6E7400
+ 223              	.LASF6:
+ 224 018e 6C6F6E67 		.ascii	"long long int\000"
+ 224      206C6F6E 
+ 224      6720696E 
+ 224      7400
+ 225              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

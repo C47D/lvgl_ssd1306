@@ -1,0 +1,3738 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_mem.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.ent_get_next,"ax",%progbits
+  20              		.align	2
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	ent_get_next, %function
+  24              	ent_get_next:
+  25              	.LFB7:
+  26              		.file 1 "..\\lvgl\\lv_misc\\lv_mem.c"
+   1:..\lvgl\lv_misc/lv_mem.c **** /**
+   2:..\lvgl\lv_misc/lv_mem.c ****  * @file lv_mem.c
+   3:..\lvgl\lv_misc/lv_mem.c ****  * General and portable implementation of malloc and free.
+   4:..\lvgl\lv_misc/lv_mem.c ****  * The dynamic memory monitoring is also supported.
+   5:..\lvgl\lv_misc/lv_mem.c ****  */
+   6:..\lvgl\lv_misc/lv_mem.c **** 
+   7:..\lvgl\lv_misc/lv_mem.c **** /*********************
+   8:..\lvgl\lv_misc/lv_mem.c ****  *      INCLUDES
+   9:..\lvgl\lv_misc/lv_mem.c ****  *********************/
+  10:..\lvgl\lv_misc/lv_mem.c **** #include "lv_mem.h"
+  11:..\lvgl\lv_misc/lv_mem.c **** #include "lv_math.h"
+  12:..\lvgl\lv_misc/lv_mem.c **** #include <string.h>
+  13:..\lvgl\lv_misc/lv_mem.c **** 
+  14:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM != 0
+  15:..\lvgl\lv_misc/lv_mem.c **** #include LV_MEM_CUSTOM_INCLUDE
+  16:..\lvgl\lv_misc/lv_mem.c **** #endif
+  17:..\lvgl\lv_misc/lv_mem.c **** 
+  18:..\lvgl\lv_misc/lv_mem.c **** /*********************
+  19:..\lvgl\lv_misc/lv_mem.c ****  *      DEFINES
+  20:..\lvgl\lv_misc/lv_mem.c ****  *********************/
+  21:..\lvgl\lv_misc/lv_mem.c **** #define LV_MEM_ADD_JUNK     0   /*Add memory junk on alloc (0xaa) and free(0xbb) (just for testing 
+  22:..\lvgl\lv_misc/lv_mem.c **** 
+  23:..\lvgl\lv_misc/lv_mem.c **** 
+  24:..\lvgl\lv_misc/lv_mem.c **** #ifdef LV_MEM_ENV64
+  25:..\lvgl\lv_misc/lv_mem.c **** # define MEM_UNIT uint64_t
+  26:..\lvgl\lv_misc/lv_mem.c **** #else
+  27:..\lvgl\lv_misc/lv_mem.c **** # define MEM_UNIT uint32_t
+  28:..\lvgl\lv_misc/lv_mem.c **** #endif
+  29:..\lvgl\lv_misc/lv_mem.c **** 
+  30:..\lvgl\lv_misc/lv_mem.c **** 
+  31:..\lvgl\lv_misc/lv_mem.c **** /**********************
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 2
+
+
+  32:..\lvgl\lv_misc/lv_mem.c ****  *      TYPEDEFS
+  33:..\lvgl\lv_misc/lv_mem.c ****  **********************/
+  34:..\lvgl\lv_misc/lv_mem.c **** 
+  35:..\lvgl\lv_misc/lv_mem.c **** #if LV_ENABLE_GC == 0 /*gc custom allocations must not include header*/
+  36:..\lvgl\lv_misc/lv_mem.c **** 
+  37:..\lvgl\lv_misc/lv_mem.c **** /*The size of this union must be 4 bytes (uint32_t)*/
+  38:..\lvgl\lv_misc/lv_mem.c **** typedef union {
+  39:..\lvgl\lv_misc/lv_mem.c ****     struct {
+  40:..\lvgl\lv_misc/lv_mem.c ****         MEM_UNIT used: 1;       //1: if the entry is used
+  41:..\lvgl\lv_misc/lv_mem.c ****         MEM_UNIT d_size: 31;    //Size off the data (1 means 4 bytes)
+  42:..\lvgl\lv_misc/lv_mem.c ****     };
+  43:..\lvgl\lv_misc/lv_mem.c ****     MEM_UNIT header;            //The header (used + d_size)
+  44:..\lvgl\lv_misc/lv_mem.c **** } lv_mem_header_t;
+  45:..\lvgl\lv_misc/lv_mem.c **** 
+  46:..\lvgl\lv_misc/lv_mem.c **** typedef struct {
+  47:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_header_t header;
+  48:..\lvgl\lv_misc/lv_mem.c ****     uint8_t first_data;        /*First data byte in the allocated data (Just for easily create a po
+  49:..\lvgl\lv_misc/lv_mem.c **** } lv_mem_ent_t;
+  50:..\lvgl\lv_misc/lv_mem.c **** 
+  51:..\lvgl\lv_misc/lv_mem.c **** #endif /* LV_ENABLE_GC */
+  52:..\lvgl\lv_misc/lv_mem.c **** 
+  53:..\lvgl\lv_misc/lv_mem.c **** /**********************
+  54:..\lvgl\lv_misc/lv_mem.c ****  *  STATIC PROTOTYPES
+  55:..\lvgl\lv_misc/lv_mem.c ****  **********************/
+  56:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+  57:..\lvgl\lv_misc/lv_mem.c **** static lv_mem_ent_t  * ent_get_next(lv_mem_ent_t * act_e);
+  58:..\lvgl\lv_misc/lv_mem.c **** static void * ent_alloc(lv_mem_ent_t * e, uint32_t size);
+  59:..\lvgl\lv_misc/lv_mem.c **** static void ent_trunc(lv_mem_ent_t * e, uint32_t size);
+  60:..\lvgl\lv_misc/lv_mem.c **** #endif
+  61:..\lvgl\lv_misc/lv_mem.c **** 
+  62:..\lvgl\lv_misc/lv_mem.c **** /**********************
+  63:..\lvgl\lv_misc/lv_mem.c ****  *  STATIC VARIABLES
+  64:..\lvgl\lv_misc/lv_mem.c ****  **********************/
+  65:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+  66:..\lvgl\lv_misc/lv_mem.c **** static uint8_t * work_mem;
+  67:..\lvgl\lv_misc/lv_mem.c **** #endif
+  68:..\lvgl\lv_misc/lv_mem.c **** 
+  69:..\lvgl\lv_misc/lv_mem.c **** static uint32_t zero_mem;       /*Give the address of this variable if 0 byte should be allocated*/
+  70:..\lvgl\lv_misc/lv_mem.c **** 
+  71:..\lvgl\lv_misc/lv_mem.c **** /**********************
+  72:..\lvgl\lv_misc/lv_mem.c ****  *      MACROS
+  73:..\lvgl\lv_misc/lv_mem.c ****  **********************/
+  74:..\lvgl\lv_misc/lv_mem.c **** 
+  75:..\lvgl\lv_misc/lv_mem.c **** /**********************
+  76:..\lvgl\lv_misc/lv_mem.c ****  *   GLOBAL FUNCTIONS
+  77:..\lvgl\lv_misc/lv_mem.c ****  **********************/
+  78:..\lvgl\lv_misc/lv_mem.c **** 
+  79:..\lvgl\lv_misc/lv_mem.c **** /**
+  80:..\lvgl\lv_misc/lv_mem.c ****  * Initiaiize the dyn_mem module (work memory and other variables)
+  81:..\lvgl\lv_misc/lv_mem.c ****  */
+  82:..\lvgl\lv_misc/lv_mem.c **** void lv_mem_init(void)
+  83:..\lvgl\lv_misc/lv_mem.c **** {
+  84:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+  85:..\lvgl\lv_misc/lv_mem.c **** 
+  86:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_ADR == 0
+  87:..\lvgl\lv_misc/lv_mem.c ****     /*Allocate a large array to store the dynamically allocated data*/
+  88:..\lvgl\lv_misc/lv_mem.c ****     static LV_MEM_ATTR MEM_UNIT work_mem_int[LV_MEM_SIZE / sizeof(MEM_UNIT)];
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 3
+
+
+  89:..\lvgl\lv_misc/lv_mem.c ****     work_mem = (uint8_t *) work_mem_int;
+  90:..\lvgl\lv_misc/lv_mem.c **** #else
+  91:..\lvgl\lv_misc/lv_mem.c ****     work_mem = (uint8_t *) LV_MEM_ADR;
+  92:..\lvgl\lv_misc/lv_mem.c **** #endif
+  93:..\lvgl\lv_misc/lv_mem.c **** 
+  94:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * full = (lv_mem_ent_t *)work_mem;
+  95:..\lvgl\lv_misc/lv_mem.c ****     full->header.used = 0;
+  96:..\lvgl\lv_misc/lv_mem.c ****     /*The total mem size id reduced by the first header and the close patterns */
+  97:..\lvgl\lv_misc/lv_mem.c ****     full->header.d_size = LV_MEM_SIZE - sizeof(lv_mem_header_t);
+  98:..\lvgl\lv_misc/lv_mem.c **** #endif
+  99:..\lvgl\lv_misc/lv_mem.c **** }
+ 100:..\lvgl\lv_misc/lv_mem.c **** 
+ 101:..\lvgl\lv_misc/lv_mem.c **** /**
+ 102:..\lvgl\lv_misc/lv_mem.c ****  * Allocate a memory dynamically
+ 103:..\lvgl\lv_misc/lv_mem.c ****  * @param size size of the memory to allocate in bytes
+ 104:..\lvgl\lv_misc/lv_mem.c ****  * @return pointer to the allocated memory
+ 105:..\lvgl\lv_misc/lv_mem.c ****  */
+ 106:..\lvgl\lv_misc/lv_mem.c **** void * lv_mem_alloc(uint32_t size)
+ 107:..\lvgl\lv_misc/lv_mem.c **** {
+ 108:..\lvgl\lv_misc/lv_mem.c ****     if(size == 0) {
+ 109:..\lvgl\lv_misc/lv_mem.c ****         return &zero_mem;
+ 110:..\lvgl\lv_misc/lv_mem.c ****     }
+ 111:..\lvgl\lv_misc/lv_mem.c **** 
+ 112:..\lvgl\lv_misc/lv_mem.c **** #ifdef LV_MEM_ENV64
+ 113:..\lvgl\lv_misc/lv_mem.c ****     /*Round the size up to 8*/
+ 114:..\lvgl\lv_misc/lv_mem.c ****     if(size & 0x7) {
+ 115:..\lvgl\lv_misc/lv_mem.c ****         size = size & (~0x7);
+ 116:..\lvgl\lv_misc/lv_mem.c ****         size += 8;
+ 117:..\lvgl\lv_misc/lv_mem.c ****     }
+ 118:..\lvgl\lv_misc/lv_mem.c **** #else
+ 119:..\lvgl\lv_misc/lv_mem.c ****     /*Round the size up to 4*/
+ 120:..\lvgl\lv_misc/lv_mem.c ****     if(size & 0x3) {
+ 121:..\lvgl\lv_misc/lv_mem.c ****         size = size & (~0x3);
+ 122:..\lvgl\lv_misc/lv_mem.c ****         size += 4;
+ 123:..\lvgl\lv_misc/lv_mem.c ****     }
+ 124:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 125:..\lvgl\lv_misc/lv_mem.c ****     void * alloc = NULL;
+ 126:..\lvgl\lv_misc/lv_mem.c **** 
+ 127:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0 /*Use the allocation from dyn_mem*/
+ 128:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * e = NULL;
+ 129:..\lvgl\lv_misc/lv_mem.c **** 
+ 130:..\lvgl\lv_misc/lv_mem.c ****     //Search for a appropriate entry
+ 131:..\lvgl\lv_misc/lv_mem.c ****     do {
+ 132:..\lvgl\lv_misc/lv_mem.c ****         //Get the next entry
+ 133:..\lvgl\lv_misc/lv_mem.c ****         e = ent_get_next(e);
+ 134:..\lvgl\lv_misc/lv_mem.c **** 
+ 135:..\lvgl\lv_misc/lv_mem.c ****         /*If there is next entry then try to allocate there*/
+ 136:..\lvgl\lv_misc/lv_mem.c ****         if(e != NULL) {
+ 137:..\lvgl\lv_misc/lv_mem.c ****             alloc = ent_alloc(e, size);
+ 138:..\lvgl\lv_misc/lv_mem.c ****         }
+ 139:..\lvgl\lv_misc/lv_mem.c ****         //End if there is not next entry OR the alloc. is successful
+ 140:..\lvgl\lv_misc/lv_mem.c ****     } while(e != NULL && alloc == NULL);
+ 141:..\lvgl\lv_misc/lv_mem.c **** 
+ 142:..\lvgl\lv_misc/lv_mem.c **** 
+ 143:..\lvgl\lv_misc/lv_mem.c **** #else  /*Use custom, user defined malloc function*/
+ 144:..\lvgl\lv_misc/lv_mem.c **** #if LV_ENABLE_GC == 1 /*gc must not include header*/
+ 145:..\lvgl\lv_misc/lv_mem.c ****     alloc = LV_MEM_CUSTOM_ALLOC(size);
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 4
+
+
+ 146:..\lvgl\lv_misc/lv_mem.c **** #else /* LV_ENABLE_GC */
+ 147:..\lvgl\lv_misc/lv_mem.c ****     /*Allocate a header too to store the size*/
+ 148:..\lvgl\lv_misc/lv_mem.c ****     alloc = LV_MEM_CUSTOM_ALLOC(size + sizeof(lv_mem_header_t));
+ 149:..\lvgl\lv_misc/lv_mem.c ****     if(alloc != NULL) {
+ 150:..\lvgl\lv_misc/lv_mem.c ****         ((lv_mem_ent_t *) alloc)->header.d_size = size;
+ 151:..\lvgl\lv_misc/lv_mem.c ****         ((lv_mem_ent_t *) alloc)->header.used = 1;
+ 152:..\lvgl\lv_misc/lv_mem.c ****         alloc = &((lv_mem_ent_t *) alloc)->first_data;
+ 153:..\lvgl\lv_misc/lv_mem.c ****     }
+ 154:..\lvgl\lv_misc/lv_mem.c **** #endif /* LV_ENABLE_GC */
+ 155:..\lvgl\lv_misc/lv_mem.c **** #endif /* LV_MEM_CUSTOM */
+ 156:..\lvgl\lv_misc/lv_mem.c **** 
+ 157:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_ADD_JUNK
+ 158:..\lvgl\lv_misc/lv_mem.c ****     if(alloc != NULL) memset(alloc, 0xaa, size);
+ 159:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 160:..\lvgl\lv_misc/lv_mem.c **** 
+ 161:..\lvgl\lv_misc/lv_mem.c ****     if(alloc == NULL) LV_LOG_WARN("Couldn't allocate memory");
+ 162:..\lvgl\lv_misc/lv_mem.c **** 
+ 163:..\lvgl\lv_misc/lv_mem.c ****     return alloc;
+ 164:..\lvgl\lv_misc/lv_mem.c **** }
+ 165:..\lvgl\lv_misc/lv_mem.c **** 
+ 166:..\lvgl\lv_misc/lv_mem.c **** /**
+ 167:..\lvgl\lv_misc/lv_mem.c ****  * Free an allocated data
+ 168:..\lvgl\lv_misc/lv_mem.c ****  * @param data pointer to an allocated memory
+ 169:..\lvgl\lv_misc/lv_mem.c ****  */
+ 170:..\lvgl\lv_misc/lv_mem.c **** void lv_mem_free(const void * data)
+ 171:..\lvgl\lv_misc/lv_mem.c **** {
+ 172:..\lvgl\lv_misc/lv_mem.c ****     if(data == &zero_mem) return;
+ 173:..\lvgl\lv_misc/lv_mem.c ****     if(data == NULL) return;
+ 174:..\lvgl\lv_misc/lv_mem.c **** 
+ 175:..\lvgl\lv_misc/lv_mem.c **** 
+ 176:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_ADD_JUNK
+ 177:..\lvgl\lv_misc/lv_mem.c ****     memset((void *)data, 0xbb, lv_mem_get_size(data));
+ 178:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 179:..\lvgl\lv_misc/lv_mem.c **** 
+ 180:..\lvgl\lv_misc/lv_mem.c **** #if LV_ENABLE_GC==0
+ 181:..\lvgl\lv_misc/lv_mem.c ****     /*e points to the header*/
+ 182:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * e = (lv_mem_ent_t *)((uint8_t *) data - sizeof(lv_mem_header_t));
+ 183:..\lvgl\lv_misc/lv_mem.c ****     e->header.used = 0;
+ 184:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 185:..\lvgl\lv_misc/lv_mem.c **** 
+ 186:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 187:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_AUTO_DEFRAG
+ 188:..\lvgl\lv_misc/lv_mem.c ****     /* Make a simple defrag.
+ 189:..\lvgl\lv_misc/lv_mem.c ****      * Join the following free entries after this*/
+ 190:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * e_next;
+ 191:..\lvgl\lv_misc/lv_mem.c ****     e_next = ent_get_next(e);
+ 192:..\lvgl\lv_misc/lv_mem.c ****     while(e_next != NULL) {
+ 193:..\lvgl\lv_misc/lv_mem.c ****         if(e_next->header.used == 0) {
+ 194:..\lvgl\lv_misc/lv_mem.c ****             e->header.d_size += e_next->header.d_size + sizeof(e->header);
+ 195:..\lvgl\lv_misc/lv_mem.c ****         } else {
+ 196:..\lvgl\lv_misc/lv_mem.c ****             break;
+ 197:..\lvgl\lv_misc/lv_mem.c ****         }
+ 198:..\lvgl\lv_misc/lv_mem.c ****         e_next = ent_get_next(e_next);
+ 199:..\lvgl\lv_misc/lv_mem.c ****     }
+ 200:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 201:..\lvgl\lv_misc/lv_mem.c **** #else /*Use custom, user defined free function*/
+ 202:..\lvgl\lv_misc/lv_mem.c **** #if LV_ENABLE_GC==0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 5
+
+
+ 203:..\lvgl\lv_misc/lv_mem.c ****     LV_MEM_CUSTOM_FREE(e);
+ 204:..\lvgl\lv_misc/lv_mem.c **** #else
+ 205:..\lvgl\lv_misc/lv_mem.c ****     LV_MEM_CUSTOM_FREE((void*)data);
+ 206:..\lvgl\lv_misc/lv_mem.c **** #endif /*LV_ENABLE_GC*/
+ 207:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 208:..\lvgl\lv_misc/lv_mem.c **** }
+ 209:..\lvgl\lv_misc/lv_mem.c **** 
+ 210:..\lvgl\lv_misc/lv_mem.c **** /**
+ 211:..\lvgl\lv_misc/lv_mem.c ****  * Reallocate a memory with a new size. The old content will be kept.
+ 212:..\lvgl\lv_misc/lv_mem.c ****  * @param data pointer to an allocated memory.
+ 213:..\lvgl\lv_misc/lv_mem.c ****  * Its content will be copied to the new memory block and freed
+ 214:..\lvgl\lv_misc/lv_mem.c ****  * @param new_size the desired new size in byte
+ 215:..\lvgl\lv_misc/lv_mem.c ****  * @return pointer to the new memory
+ 216:..\lvgl\lv_misc/lv_mem.c ****  */
+ 217:..\lvgl\lv_misc/lv_mem.c **** 
+ 218:..\lvgl\lv_misc/lv_mem.c **** #if LV_ENABLE_GC==0
+ 219:..\lvgl\lv_misc/lv_mem.c **** 
+ 220:..\lvgl\lv_misc/lv_mem.c **** void * lv_mem_realloc(void * data_p, uint32_t new_size)
+ 221:..\lvgl\lv_misc/lv_mem.c **** {
+ 222:..\lvgl\lv_misc/lv_mem.c ****     /*data_p could be previously freed pointer (in this case it is invalid)*/
+ 223:..\lvgl\lv_misc/lv_mem.c ****     if(data_p != NULL) {
+ 224:..\lvgl\lv_misc/lv_mem.c ****         lv_mem_ent_t * e = (lv_mem_ent_t *)((uint8_t *) data_p - sizeof(lv_mem_header_t));
+ 225:..\lvgl\lv_misc/lv_mem.c ****         if(e->header.used == 0) {
+ 226:..\lvgl\lv_misc/lv_mem.c ****             data_p = NULL;
+ 227:..\lvgl\lv_misc/lv_mem.c ****         }
+ 228:..\lvgl\lv_misc/lv_mem.c ****     }
+ 229:..\lvgl\lv_misc/lv_mem.c **** 
+ 230:..\lvgl\lv_misc/lv_mem.c ****     uint32_t old_size = lv_mem_get_size(data_p);
+ 231:..\lvgl\lv_misc/lv_mem.c ****     if(old_size == new_size) return data_p;     /*Also avoid reallocating the same memory*/
+ 232:..\lvgl\lv_misc/lv_mem.c **** 
+ 233:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 234:..\lvgl\lv_misc/lv_mem.c ****     /* Only truncate the memory is possible
+ 235:..\lvgl\lv_misc/lv_mem.c ****      * If the 'old_size' was extended by a header size in 'ent_trunc' it avoids reallocating this s
+ 236:..\lvgl\lv_misc/lv_mem.c ****     if(new_size < old_size) {
+ 237:..\lvgl\lv_misc/lv_mem.c ****         lv_mem_ent_t * e = (lv_mem_ent_t *)((uint8_t *) data_p - sizeof(lv_mem_header_t));
+ 238:..\lvgl\lv_misc/lv_mem.c ****         ent_trunc(e, new_size);
+ 239:..\lvgl\lv_misc/lv_mem.c ****         return &e->first_data;
+ 240:..\lvgl\lv_misc/lv_mem.c ****     }
+ 241:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 242:..\lvgl\lv_misc/lv_mem.c **** 
+ 243:..\lvgl\lv_misc/lv_mem.c ****     void * new_p;
+ 244:..\lvgl\lv_misc/lv_mem.c ****     new_p = lv_mem_alloc(new_size);
+ 245:..\lvgl\lv_misc/lv_mem.c **** 
+ 246:..\lvgl\lv_misc/lv_mem.c ****     if(new_p != NULL && data_p != NULL) {
+ 247:..\lvgl\lv_misc/lv_mem.c ****         /*Copy the old data to the new. Use the smaller size*/
+ 248:..\lvgl\lv_misc/lv_mem.c ****         if(old_size != 0) {
+ 249:..\lvgl\lv_misc/lv_mem.c ****             memcpy(new_p, data_p, LV_MATH_MIN(new_size, old_size));
+ 250:..\lvgl\lv_misc/lv_mem.c ****             lv_mem_free(data_p);
+ 251:..\lvgl\lv_misc/lv_mem.c ****         }
+ 252:..\lvgl\lv_misc/lv_mem.c ****     }
+ 253:..\lvgl\lv_misc/lv_mem.c **** 
+ 254:..\lvgl\lv_misc/lv_mem.c **** 
+ 255:..\lvgl\lv_misc/lv_mem.c ****     if(new_p == NULL) LV_LOG_WARN("Couldn't allocate memory");
+ 256:..\lvgl\lv_misc/lv_mem.c **** 
+ 257:..\lvgl\lv_misc/lv_mem.c ****     return new_p;
+ 258:..\lvgl\lv_misc/lv_mem.c **** }
+ 259:..\lvgl\lv_misc/lv_mem.c **** 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 6
+
+
+ 260:..\lvgl\lv_misc/lv_mem.c **** #else /* LV_ENABLE_GC */
+ 261:..\lvgl\lv_misc/lv_mem.c **** 
+ 262:..\lvgl\lv_misc/lv_mem.c **** void * lv_mem_realloc(void * data_p, uint32_t new_size)
+ 263:..\lvgl\lv_misc/lv_mem.c **** {
+ 264:..\lvgl\lv_misc/lv_mem.c ****     void * new_p = LV_MEM_CUSTOM_REALLOC(data_p, new_size);
+ 265:..\lvgl\lv_misc/lv_mem.c ****     if(new_p == NULL) LV_LOG_WARN("Couldn't allocate memory");
+ 266:..\lvgl\lv_misc/lv_mem.c ****     return new_p;
+ 267:..\lvgl\lv_misc/lv_mem.c **** }
+ 268:..\lvgl\lv_misc/lv_mem.c **** 
+ 269:..\lvgl\lv_misc/lv_mem.c **** #endif /* lv_enable_gc */
+ 270:..\lvgl\lv_misc/lv_mem.c **** 
+ 271:..\lvgl\lv_misc/lv_mem.c **** /**
+ 272:..\lvgl\lv_misc/lv_mem.c ****  * Join the adjacent free memory blocks
+ 273:..\lvgl\lv_misc/lv_mem.c ****  */
+ 274:..\lvgl\lv_misc/lv_mem.c **** void lv_mem_defrag(void)
+ 275:..\lvgl\lv_misc/lv_mem.c **** {
+ 276:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 277:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * e_free;
+ 278:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * e_next;
+ 279:..\lvgl\lv_misc/lv_mem.c ****     e_free = ent_get_next(NULL);
+ 280:..\lvgl\lv_misc/lv_mem.c **** 
+ 281:..\lvgl\lv_misc/lv_mem.c ****     while(1) {
+ 282:..\lvgl\lv_misc/lv_mem.c ****         /*Search the next free entry*/
+ 283:..\lvgl\lv_misc/lv_mem.c ****         while(e_free != NULL) {
+ 284:..\lvgl\lv_misc/lv_mem.c ****             if(e_free->header.used != 0) {
+ 285:..\lvgl\lv_misc/lv_mem.c ****                 e_free = ent_get_next(e_free);
+ 286:..\lvgl\lv_misc/lv_mem.c ****             } else {
+ 287:..\lvgl\lv_misc/lv_mem.c ****                 break;
+ 288:..\lvgl\lv_misc/lv_mem.c ****             }
+ 289:..\lvgl\lv_misc/lv_mem.c ****         }
+ 290:..\lvgl\lv_misc/lv_mem.c **** 
+ 291:..\lvgl\lv_misc/lv_mem.c ****         if(e_free == NULL) return;
+ 292:..\lvgl\lv_misc/lv_mem.c **** 
+ 293:..\lvgl\lv_misc/lv_mem.c ****         /*Joint the following free entries to the free*/
+ 294:..\lvgl\lv_misc/lv_mem.c ****         e_next = ent_get_next(e_free);
+ 295:..\lvgl\lv_misc/lv_mem.c ****         while(e_next != NULL) {
+ 296:..\lvgl\lv_misc/lv_mem.c ****             if(e_next->header.used == 0) {
+ 297:..\lvgl\lv_misc/lv_mem.c ****                 e_free->header.d_size += e_next->header.d_size + sizeof(e_next->header);
+ 298:..\lvgl\lv_misc/lv_mem.c ****             } else {
+ 299:..\lvgl\lv_misc/lv_mem.c ****                 break;
+ 300:..\lvgl\lv_misc/lv_mem.c ****             }
+ 301:..\lvgl\lv_misc/lv_mem.c **** 
+ 302:..\lvgl\lv_misc/lv_mem.c ****             e_next = ent_get_next(e_next);
+ 303:..\lvgl\lv_misc/lv_mem.c ****         }
+ 304:..\lvgl\lv_misc/lv_mem.c **** 
+ 305:..\lvgl\lv_misc/lv_mem.c ****         if(e_next == NULL) return;
+ 306:..\lvgl\lv_misc/lv_mem.c **** 
+ 307:..\lvgl\lv_misc/lv_mem.c ****         /*Continue from the lastly checked entry*/
+ 308:..\lvgl\lv_misc/lv_mem.c ****         e_free = e_next;
+ 309:..\lvgl\lv_misc/lv_mem.c ****     }
+ 310:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 311:..\lvgl\lv_misc/lv_mem.c **** }
+ 312:..\lvgl\lv_misc/lv_mem.c **** 
+ 313:..\lvgl\lv_misc/lv_mem.c **** /**
+ 314:..\lvgl\lv_misc/lv_mem.c ****  * Give information about the work memory of dynamic allocation
+ 315:..\lvgl\lv_misc/lv_mem.c ****  * @param mon_p pointer to a dm_mon_p variable,
+ 316:..\lvgl\lv_misc/lv_mem.c ****  *              the result of the analysis will be stored here
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 7
+
+
+ 317:..\lvgl\lv_misc/lv_mem.c ****  */
+ 318:..\lvgl\lv_misc/lv_mem.c **** void lv_mem_monitor(lv_mem_monitor_t * mon_p)
+ 319:..\lvgl\lv_misc/lv_mem.c **** {
+ 320:..\lvgl\lv_misc/lv_mem.c ****     /*Init the data*/
+ 321:..\lvgl\lv_misc/lv_mem.c ****     memset(mon_p, 0, sizeof(lv_mem_monitor_t));
+ 322:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 323:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * e;
+ 324:..\lvgl\lv_misc/lv_mem.c ****     e = NULL;
+ 325:..\lvgl\lv_misc/lv_mem.c **** 
+ 326:..\lvgl\lv_misc/lv_mem.c ****     e = ent_get_next(e);
+ 327:..\lvgl\lv_misc/lv_mem.c **** 
+ 328:..\lvgl\lv_misc/lv_mem.c ****     while(e != NULL)  {
+ 329:..\lvgl\lv_misc/lv_mem.c ****         if(e->header.used == 0) {
+ 330:..\lvgl\lv_misc/lv_mem.c ****             mon_p->free_cnt++;
+ 331:..\lvgl\lv_misc/lv_mem.c ****             mon_p->free_size += e->header.d_size;
+ 332:..\lvgl\lv_misc/lv_mem.c ****             if(e->header.d_size > mon_p->free_biggest_size) {
+ 333:..\lvgl\lv_misc/lv_mem.c ****                 mon_p->free_biggest_size = e->header.d_size;
+ 334:..\lvgl\lv_misc/lv_mem.c ****             }
+ 335:..\lvgl\lv_misc/lv_mem.c ****         } else {
+ 336:..\lvgl\lv_misc/lv_mem.c ****             mon_p->used_cnt++;
+ 337:..\lvgl\lv_misc/lv_mem.c ****         }
+ 338:..\lvgl\lv_misc/lv_mem.c **** 
+ 339:..\lvgl\lv_misc/lv_mem.c ****         e = ent_get_next(e);
+ 340:..\lvgl\lv_misc/lv_mem.c ****     }
+ 341:..\lvgl\lv_misc/lv_mem.c ****     mon_p->total_size = LV_MEM_SIZE;
+ 342:..\lvgl\lv_misc/lv_mem.c ****     mon_p->used_pct = 100 - (100U * mon_p->free_size) / mon_p->total_size;
+ 343:..\lvgl\lv_misc/lv_mem.c ****     mon_p->frag_pct = (uint32_t)mon_p->free_biggest_size * 100U / mon_p->free_size;
+ 344:..\lvgl\lv_misc/lv_mem.c ****     mon_p->frag_pct = 100 - mon_p->frag_pct;
+ 345:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 346:..\lvgl\lv_misc/lv_mem.c **** }
+ 347:..\lvgl\lv_misc/lv_mem.c **** 
+ 348:..\lvgl\lv_misc/lv_mem.c **** /**
+ 349:..\lvgl\lv_misc/lv_mem.c ****  * Give the size of an allocated memory
+ 350:..\lvgl\lv_misc/lv_mem.c ****  * @param data pointer to an allocated memory
+ 351:..\lvgl\lv_misc/lv_mem.c ****  * @return the size of data memory in bytes
+ 352:..\lvgl\lv_misc/lv_mem.c ****  */
+ 353:..\lvgl\lv_misc/lv_mem.c **** 
+ 354:..\lvgl\lv_misc/lv_mem.c **** #if LV_ENABLE_GC==0
+ 355:..\lvgl\lv_misc/lv_mem.c **** 
+ 356:..\lvgl\lv_misc/lv_mem.c **** uint32_t lv_mem_get_size(const void * data)
+ 357:..\lvgl\lv_misc/lv_mem.c **** {
+ 358:..\lvgl\lv_misc/lv_mem.c ****     if(data == NULL) return 0;
+ 359:..\lvgl\lv_misc/lv_mem.c ****     if(data == &zero_mem) return 0;
+ 360:..\lvgl\lv_misc/lv_mem.c **** 
+ 361:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * e = (lv_mem_ent_t *)((uint8_t *) data - sizeof(lv_mem_header_t));
+ 362:..\lvgl\lv_misc/lv_mem.c **** 
+ 363:..\lvgl\lv_misc/lv_mem.c ****     return e->header.d_size;
+ 364:..\lvgl\lv_misc/lv_mem.c **** }
+ 365:..\lvgl\lv_misc/lv_mem.c **** 
+ 366:..\lvgl\lv_misc/lv_mem.c **** #else /* LV_ENABLE_GC */
+ 367:..\lvgl\lv_misc/lv_mem.c **** 
+ 368:..\lvgl\lv_misc/lv_mem.c **** uint32_t lv_mem_get_size(const void * data)
+ 369:..\lvgl\lv_misc/lv_mem.c **** {
+ 370:..\lvgl\lv_misc/lv_mem.c ****     return LV_MEM_CUSTOM_GET_SIZE(data);
+ 371:..\lvgl\lv_misc/lv_mem.c **** }
+ 372:..\lvgl\lv_misc/lv_mem.c **** 
+ 373:..\lvgl\lv_misc/lv_mem.c **** #endif /*LV_ENABLE_GC*/
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 8
+
+
+ 374:..\lvgl\lv_misc/lv_mem.c **** 
+ 375:..\lvgl\lv_misc/lv_mem.c **** /**********************
+ 376:..\lvgl\lv_misc/lv_mem.c ****  *   STATIC FUNCTIONS
+ 377:..\lvgl\lv_misc/lv_mem.c ****  **********************/
+ 378:..\lvgl\lv_misc/lv_mem.c **** 
+ 379:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 380:..\lvgl\lv_misc/lv_mem.c **** /**
+ 381:..\lvgl\lv_misc/lv_mem.c ****  * Give the next entry after 'act_e'
+ 382:..\lvgl\lv_misc/lv_mem.c ****  * @param act_e pointer to an entry
+ 383:..\lvgl\lv_misc/lv_mem.c ****  * @return pointer to an entry after 'act_e'
+ 384:..\lvgl\lv_misc/lv_mem.c ****  */
+ 385:..\lvgl\lv_misc/lv_mem.c **** static lv_mem_ent_t * ent_get_next(lv_mem_ent_t * act_e)
+ 386:..\lvgl\lv_misc/lv_mem.c **** {
+  27              		.loc 1 386 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+ 387:..\lvgl\lv_misc/lv_mem.c ****     lv_mem_ent_t * next_e = NULL;
+ 388:..\lvgl\lv_misc/lv_mem.c **** 
+ 389:..\lvgl\lv_misc/lv_mem.c ****     if(act_e == NULL) { /*NULL means: get the first entry*/
+  33              		.loc 1 389 0
+  34 0000 10B9     		cbnz	r0, .L2
+ 390:..\lvgl\lv_misc/lv_mem.c ****         next_e = (lv_mem_ent_t *) work_mem;
+  35              		.loc 1 390 0
+  36 0002 084B     		ldr	r3, .L5
+  37 0004 1868     		ldr	r0, [r3]
+  38              	.LVL1:
+  39 0006 7047     		bx	lr
+  40              	.LVL2:
+  41              	.L2:
+  42              	.LBB2:
+ 391:..\lvgl\lv_misc/lv_mem.c ****     } else { /*Get the next entry */
+ 392:..\lvgl\lv_misc/lv_mem.c ****         uint8_t * data = &act_e->first_data;
+  43              		.loc 1 392 0
+  44 0008 031D     		adds	r3, r0, #4
+  45              	.LVL3:
+ 393:..\lvgl\lv_misc/lv_mem.c ****         next_e = (lv_mem_ent_t *)&data[act_e->header.d_size];
+  46              		.loc 1 393 0
+  47 000a 0068     		ldr	r0, [r0]
+  48              	.LVL4:
+  49 000c 03EB5000 		add	r0, r3, r0, lsr #1
+  50              	.LVL5:
+ 394:..\lvgl\lv_misc/lv_mem.c **** 
+ 395:..\lvgl\lv_misc/lv_mem.c ****         if(&next_e->first_data >= &work_mem[LV_MEM_SIZE]) next_e = NULL;
+  51              		.loc 1 395 0
+  52 0010 021D     		adds	r2, r0, #4
+  53 0012 044B     		ldr	r3, .L5
+  54              	.LVL6:
+  55 0014 1B68     		ldr	r3, [r3]
+  56 0016 03F50043 		add	r3, r3, #32768
+  57 001a 9A42     		cmp	r2, r3
+  58 001c 00D3     		bcc	.L3
+  59 001e 0020     		movs	r0, #0
+  60              	.LVL7:
+  61              	.L3:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 9
+
+
+  62              	.LBE2:
+ 396:..\lvgl\lv_misc/lv_mem.c ****     }
+ 397:..\lvgl\lv_misc/lv_mem.c **** 
+ 398:..\lvgl\lv_misc/lv_mem.c ****     return next_e;
+ 399:..\lvgl\lv_misc/lv_mem.c **** }
+  63              		.loc 1 399 0
+  64 0020 7047     		bx	lr
+  65              	.L6:
+  66 0022 00BF     		.align	2
+  67              	.L5:
+  68 0024 00000000 		.word	.LANCHOR0
+  69              		.cfi_endproc
+  70              	.LFE7:
+  71              		.size	ent_get_next, .-ent_get_next
+  72              		.section	.text.ent_trunc,"ax",%progbits
+  73              		.align	2
+  74              		.thumb
+  75              		.thumb_func
+  76              		.type	ent_trunc, %function
+  77              	ent_trunc:
+  78              	.LFB9:
+ 400:..\lvgl\lv_misc/lv_mem.c **** 
+ 401:..\lvgl\lv_misc/lv_mem.c **** 
+ 402:..\lvgl\lv_misc/lv_mem.c **** /**
+ 403:..\lvgl\lv_misc/lv_mem.c ****  * Try to do the real allocation with a given size
+ 404:..\lvgl\lv_misc/lv_mem.c ****  * @param e try to allocate to this entry
+ 405:..\lvgl\lv_misc/lv_mem.c ****  * @param size size of the new memory in bytes
+ 406:..\lvgl\lv_misc/lv_mem.c ****  * @return pointer to the allocated memory or NULL if not enough memory in the entry
+ 407:..\lvgl\lv_misc/lv_mem.c ****  */
+ 408:..\lvgl\lv_misc/lv_mem.c **** static void * ent_alloc(lv_mem_ent_t * e, uint32_t size)
+ 409:..\lvgl\lv_misc/lv_mem.c **** {
+ 410:..\lvgl\lv_misc/lv_mem.c ****     void * alloc = NULL;
+ 411:..\lvgl\lv_misc/lv_mem.c **** 
+ 412:..\lvgl\lv_misc/lv_mem.c ****     /*If the memory is free and big enough then use it */
+ 413:..\lvgl\lv_misc/lv_mem.c ****     if(e->header.used == 0 && e->header.d_size >= size) {
+ 414:..\lvgl\lv_misc/lv_mem.c ****         /*Truncate the entry to the desired size */
+ 415:..\lvgl\lv_misc/lv_mem.c ****         ent_trunc(e, size),
+ 416:..\lvgl\lv_misc/lv_mem.c **** 
+ 417:..\lvgl\lv_misc/lv_mem.c ****                   e->header.used = 1;
+ 418:..\lvgl\lv_misc/lv_mem.c **** 
+ 419:..\lvgl\lv_misc/lv_mem.c ****         /*Save the allocated data*/
+ 420:..\lvgl\lv_misc/lv_mem.c ****         alloc = &e->first_data;
+ 421:..\lvgl\lv_misc/lv_mem.c ****     }
+ 422:..\lvgl\lv_misc/lv_mem.c **** 
+ 423:..\lvgl\lv_misc/lv_mem.c ****     return alloc;
+ 424:..\lvgl\lv_misc/lv_mem.c **** }
+ 425:..\lvgl\lv_misc/lv_mem.c **** 
+ 426:..\lvgl\lv_misc/lv_mem.c **** /**
+ 427:..\lvgl\lv_misc/lv_mem.c ****  * Truncate the data of entry to the given size
+ 428:..\lvgl\lv_misc/lv_mem.c ****  * @param e Pointer to an entry
+ 429:..\lvgl\lv_misc/lv_mem.c ****  * @param size new size in bytes
+ 430:..\lvgl\lv_misc/lv_mem.c ****  */
+ 431:..\lvgl\lv_misc/lv_mem.c **** static void ent_trunc(lv_mem_ent_t * e, uint32_t size)
+ 432:..\lvgl\lv_misc/lv_mem.c **** {
+  79              		.loc 1 432 0
+  80              		.cfi_startproc
+  81              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 10
+
+
+  82              		@ frame_needed = 0, uses_anonymous_args = 0
+  83              		@ link register save eliminated.
+  84              	.LVL8:
+ 433:..\lvgl\lv_misc/lv_mem.c **** #ifdef LV_MEM_ENV64
+ 434:..\lvgl\lv_misc/lv_mem.c ****     /*Round the size up to 8*/
+ 435:..\lvgl\lv_misc/lv_mem.c ****     if(size & 0x7) {
+ 436:..\lvgl\lv_misc/lv_mem.c ****         size = size & (~0x7);
+ 437:..\lvgl\lv_misc/lv_mem.c ****         size += 8;
+ 438:..\lvgl\lv_misc/lv_mem.c ****     }
+ 439:..\lvgl\lv_misc/lv_mem.c **** #else
+ 440:..\lvgl\lv_misc/lv_mem.c ****     /*Round the size up to 4*/
+ 441:..\lvgl\lv_misc/lv_mem.c ****     if(size & 0x3) {
+  85              		.loc 1 441 0
+  86 0000 11F0030F 		tst	r1, #3
+  87 0004 02D0     		beq	.L8
+ 442:..\lvgl\lv_misc/lv_mem.c ****         size = size & (~0x3);
+  88              		.loc 1 442 0
+  89 0006 21F00301 		bic	r1, r1, #3
+  90              	.LVL9:
+ 443:..\lvgl\lv_misc/lv_mem.c ****         size += 4;
+  91              		.loc 1 443 0
+  92 000a 0431     		adds	r1, r1, #4
+  93              	.LVL10:
+  94              	.L8:
+ 444:..\lvgl\lv_misc/lv_mem.c ****     }
+ 445:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 446:..\lvgl\lv_misc/lv_mem.c **** 
+ 447:..\lvgl\lv_misc/lv_mem.c ****     /*Don't let empty space only for a header without data*/
+ 448:..\lvgl\lv_misc/lv_mem.c ****     if(e->header.d_size == size + sizeof(lv_mem_header_t)) {
+  95              		.loc 1 448 0
+  96 000c 0368     		ldr	r3, [r0]
+  97 000e C3F35E03 		ubfx	r3, r3, #1, #31
+  98 0012 0A1D     		adds	r2, r1, #4
+  99 0014 9342     		cmp	r3, r2
+ 100 0016 00D1     		bne	.L9
+ 449:..\lvgl\lv_misc/lv_mem.c ****         size = e->header.d_size;
+ 101              		.loc 1 449 0
+ 102 0018 1946     		mov	r1, r3
+ 103              	.LVL11:
+ 104              	.L9:
+ 450:..\lvgl\lv_misc/lv_mem.c ****     }
+ 451:..\lvgl\lv_misc/lv_mem.c **** 
+ 452:..\lvgl\lv_misc/lv_mem.c ****     /* Create the new entry after the current if there is space for it */
+ 453:..\lvgl\lv_misc/lv_mem.c ****     if(e->header.d_size != size) {
+ 105              		.loc 1 453 0
+ 106 001a 9942     		cmp	r1, r3
+ 107 001c 13D0     		beq	.L13
+ 432:..\lvgl\lv_misc/lv_mem.c **** #ifdef LV_MEM_ENV64
+ 108              		.loc 1 432 0
+ 109 001e 10B4     		push	{r4}
+ 110              		.cfi_def_cfa_offset 4
+ 111              		.cfi_offset 4, -4
+ 112              	.LBB3:
+ 454:..\lvgl\lv_misc/lv_mem.c ****         uint8_t * e_data = &e->first_data;
+ 113              		.loc 1 454 0
+ 114 0020 021D     		adds	r2, r0, #4
+ 115              	.LVL12:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 11
+
+
+ 455:..\lvgl\lv_misc/lv_mem.c ****         lv_mem_ent_t * after_new_e = (lv_mem_ent_t *)&e_data[size];
+ 456:..\lvgl\lv_misc/lv_mem.c ****         after_new_e->header.used = 0;
+ 116              		.loc 1 456 0
+ 117 0022 535C     		ldrb	r3, [r2, r1]	@ zero_extendqisi2
+ 118 0024 6FF30003 		bfc	r3, #0, #1
+ 119 0028 5354     		strb	r3, [r2, r1]
+ 457:..\lvgl\lv_misc/lv_mem.c ****         after_new_e->header.d_size = e->header.d_size - size - sizeof(lv_mem_header_t);
+ 120              		.loc 1 457 0
+ 121 002a 0368     		ldr	r3, [r0]
+ 122 002c C1EB5303 		rsb	r3, r1, r3, lsr #1
+ 123 0030 043B     		subs	r3, r3, #4
+ 124 0032 5458     		ldr	r4, [r2, r1]
+ 125 0034 63F35F04 		bfi	r4, r3, #1, #31
+ 126 0038 5450     		str	r4, [r2, r1]
+ 127              	.LBE3:
+ 458:..\lvgl\lv_misc/lv_mem.c ****     }
+ 459:..\lvgl\lv_misc/lv_mem.c **** 
+ 460:..\lvgl\lv_misc/lv_mem.c ****     /* Set the new size for the original entry */
+ 461:..\lvgl\lv_misc/lv_mem.c ****     e->header.d_size = size;
+ 128              		.loc 1 461 0
+ 129 003a 0368     		ldr	r3, [r0]
+ 130 003c 61F35F03 		bfi	r3, r1, #1, #31
+ 131 0040 0360     		str	r3, [r0]
+ 462:..\lvgl\lv_misc/lv_mem.c **** }
+ 132              		.loc 1 462 0
+ 133 0042 10BC     		pop	{r4}
+ 134              		.cfi_restore 4
+ 135              		.cfi_def_cfa_offset 0
+ 136 0044 7047     		bx	lr
+ 137              	.LVL13:
+ 138              	.L13:
+ 461:..\lvgl\lv_misc/lv_mem.c **** }
+ 139              		.loc 1 461 0
+ 140 0046 0368     		ldr	r3, [r0]
+ 141 0048 61F35F03 		bfi	r3, r1, #1, #31
+ 142 004c 0360     		str	r3, [r0]
+ 143 004e 7047     		bx	lr
+ 144              		.cfi_endproc
+ 145              	.LFE9:
+ 146              		.size	ent_trunc, .-ent_trunc
+ 147              		.section	.text.ent_alloc,"ax",%progbits
+ 148              		.align	2
+ 149              		.thumb
+ 150              		.thumb_func
+ 151              		.type	ent_alloc, %function
+ 152              	ent_alloc:
+ 153              	.LFB8:
+ 409:..\lvgl\lv_misc/lv_mem.c ****     void * alloc = NULL;
+ 154              		.loc 1 409 0
+ 155              		.cfi_startproc
+ 156              		@ args = 0, pretend = 0, frame = 0
+ 157              		@ frame_needed = 0, uses_anonymous_args = 0
+ 158              	.LVL14:
+ 413:..\lvgl\lv_misc/lv_mem.c ****         /*Truncate the entry to the desired size */
+ 159              		.loc 1 413 0
+ 160 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 161 0002 13F0010F 		tst	r3, #1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 12
+
+
+ 162 0006 0FD1     		bne	.L16
+ 413:..\lvgl\lv_misc/lv_mem.c ****         /*Truncate the entry to the desired size */
+ 163              		.loc 1 413 0 is_stmt 0 discriminator 1
+ 164 0008 0368     		ldr	r3, [r0]
+ 165 000a C3F35E03 		ubfx	r3, r3, #1, #31
+ 166 000e 8B42     		cmp	r3, r1
+ 167 0010 0CD3     		bcc	.L17
+ 409:..\lvgl\lv_misc/lv_mem.c ****     void * alloc = NULL;
+ 168              		.loc 1 409 0 is_stmt 1
+ 169 0012 10B5     		push	{r4, lr}
+ 170              		.cfi_def_cfa_offset 8
+ 171              		.cfi_offset 4, -8
+ 172              		.cfi_offset 14, -4
+ 173 0014 0446     		mov	r4, r0
+ 415:..\lvgl\lv_misc/lv_mem.c **** 
+ 174              		.loc 1 415 0
+ 175 0016 FFF7FEFF 		bl	ent_trunc
+ 176              	.LVL15:
+ 417:..\lvgl\lv_misc/lv_mem.c **** 
+ 177              		.loc 1 417 0
+ 178 001a 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 179 001c 43F00103 		orr	r3, r3, #1
+ 180 0020 2046     		mov	r0, r4
+ 181 0022 00F8043B 		strb	r3, [r0], #4
+ 182              	.LVL16:
+ 183 0026 10BD     		pop	{r4, pc}
+ 184              	.LVL17:
+ 185              	.L16:
+ 186              		.cfi_def_cfa_offset 0
+ 187              		.cfi_restore 4
+ 188              		.cfi_restore 14
+ 410:..\lvgl\lv_misc/lv_mem.c **** 
+ 189              		.loc 1 410 0
+ 190 0028 0020     		movs	r0, #0
+ 191              	.LVL18:
+ 192 002a 7047     		bx	lr
+ 193              	.LVL19:
+ 194              	.L17:
+ 195 002c 0020     		movs	r0, #0
+ 196              	.LVL20:
+ 197 002e 7047     		bx	lr
+ 198              		.cfi_endproc
+ 199              	.LFE8:
+ 200              		.size	ent_alloc, .-ent_alloc
+ 201              		.section	.text.lv_mem_init,"ax",%progbits
+ 202              		.align	2
+ 203              		.global	lv_mem_init
+ 204              		.thumb
+ 205              		.thumb_func
+ 206              		.type	lv_mem_init, %function
+ 207              	lv_mem_init:
+ 208              	.LFB0:
+  83:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 209              		.loc 1 83 0
+ 210              		.cfi_startproc
+ 211              		@ args = 0, pretend = 0, frame = 0
+ 212              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 13
+
+
+ 213              		@ link register save eliminated.
+  89:..\lvgl\lv_misc/lv_mem.c **** #else
+ 214              		.loc 1 89 0
+ 215 0000 064B     		ldr	r3, .L21
+ 216 0002 1A1D     		adds	r2, r3, #4
+ 217 0004 1A60     		str	r2, [r3]
+ 218              	.LVL21:
+  95:..\lvgl\lv_misc/lv_mem.c ****     /*The total mem size id reduced by the first header and the close patterns */
+ 219              		.loc 1 95 0
+ 220 0006 1A79     		ldrb	r2, [r3, #4]	@ zero_extendqisi2
+ 221 0008 6FF30002 		bfc	r2, #0, #1
+ 222 000c 1A71     		strb	r2, [r3, #4]
+  97:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 223              		.loc 1 97 0
+ 224 000e 5A68     		ldr	r2, [r3, #4]
+ 225 0010 47F6FC71 		movw	r1, #32764
+ 226 0014 61F35F02 		bfi	r2, r1, #1, #31
+ 227 0018 5A60     		str	r2, [r3, #4]
+ 228 001a 7047     		bx	lr
+ 229              	.L22:
+ 230              		.align	2
+ 231              	.L21:
+ 232 001c 00000000 		.word	.LANCHOR0
+ 233              		.cfi_endproc
+ 234              	.LFE0:
+ 235              		.size	lv_mem_init, .-lv_mem_init
+ 236              		.section	.text.lv_mem_alloc,"ax",%progbits
+ 237              		.align	2
+ 238              		.global	lv_mem_alloc
+ 239              		.thumb
+ 240              		.thumb_func
+ 241              		.type	lv_mem_alloc, %function
+ 242              	lv_mem_alloc:
+ 243              	.LFB1:
+ 107:..\lvgl\lv_misc/lv_mem.c ****     if(size == 0) {
+ 244              		.loc 1 107 0
+ 245              		.cfi_startproc
+ 246              		@ args = 0, pretend = 0, frame = 0
+ 247              		@ frame_needed = 0, uses_anonymous_args = 0
+ 248              	.LVL22:
+ 108:..\lvgl\lv_misc/lv_mem.c ****         return &zero_mem;
+ 249              		.loc 1 108 0
+ 250 0000 F0B1     		cbz	r0, .L29
+ 107:..\lvgl\lv_misc/lv_mem.c ****     if(size == 0) {
+ 251              		.loc 1 107 0
+ 252 0002 70B5     		push	{r4, r5, r6, lr}
+ 253              		.cfi_def_cfa_offset 16
+ 254              		.cfi_offset 4, -16
+ 255              		.cfi_offset 5, -12
+ 256              		.cfi_offset 6, -8
+ 257              		.cfi_offset 14, -4
+ 258 0004 0646     		mov	r6, r0
+ 120:..\lvgl\lv_misc/lv_mem.c ****         size = size & (~0x3);
+ 259              		.loc 1 120 0
+ 260 0006 10F0030F 		tst	r0, #3
+ 261 000a 02D0     		beq	.L25
+ 121:..\lvgl\lv_misc/lv_mem.c ****         size += 4;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 14
+
+
+ 262              		.loc 1 121 0
+ 263 000c 20F00306 		bic	r6, r0, #3
+ 264              	.LVL23:
+ 122:..\lvgl\lv_misc/lv_mem.c ****     }
+ 265              		.loc 1 122 0
+ 266 0010 0436     		adds	r6, r6, #4
+ 267              	.LVL24:
+ 268              	.L25:
+ 128:..\lvgl\lv_misc/lv_mem.c **** 
+ 269              		.loc 1 128 0
+ 270 0012 0024     		movs	r4, #0
+ 125:..\lvgl\lv_misc/lv_mem.c **** 
+ 271              		.loc 1 125 0
+ 272 0014 2546     		mov	r5, r4
+ 273              	.LVL25:
+ 274              	.L28:
+ 133:..\lvgl\lv_misc/lv_mem.c **** 
+ 275              		.loc 1 133 0
+ 276 0016 2046     		mov	r0, r4
+ 277 0018 FFF7FEFF 		bl	ent_get_next
+ 278              	.LVL26:
+ 136:..\lvgl\lv_misc/lv_mem.c ****             alloc = ent_alloc(e, size);
+ 279              		.loc 1 136 0
+ 280 001c 0446     		mov	r4, r0
+ 281 001e 18B1     		cbz	r0, .L26
+ 137:..\lvgl\lv_misc/lv_mem.c ****         }
+ 282              		.loc 1 137 0
+ 283 0020 3146     		mov	r1, r6
+ 284 0022 FFF7FEFF 		bl	ent_alloc
+ 285              	.LVL27:
+ 286 0026 0546     		mov	r5, r0
+ 287              	.LVL28:
+ 288              	.L26:
+ 140:..\lvgl\lv_misc/lv_mem.c **** 
+ 289              		.loc 1 140 0
+ 290 0028 0CB1     		cbz	r4, .L27
+ 140:..\lvgl\lv_misc/lv_mem.c **** 
+ 291              		.loc 1 140 0 is_stmt 0 discriminator 1
+ 292 002a 002D     		cmp	r5, #0
+ 293 002c F3D0     		beq	.L28
+ 294              	.L27:
+ 161:..\lvgl\lv_misc/lv_mem.c **** 
+ 295              		.loc 1 161 0 is_stmt 1
+ 296 002e 4DB9     		cbnz	r5, .L30
+ 161:..\lvgl\lv_misc/lv_mem.c **** 
+ 297              		.loc 1 161 0 is_stmt 0 discriminator 1
+ 298 0030 054B     		ldr	r3, .L32
+ 299 0032 A122     		movs	r2, #161
+ 300 0034 0549     		ldr	r1, .L32+4
+ 301 0036 0220     		movs	r0, #2
+ 302 0038 FFF7FEFF 		bl	lv_log_add
+ 303              	.LVL29:
+ 163:..\lvgl\lv_misc/lv_mem.c **** }
+ 304              		.loc 1 163 0 is_stmt 1 discriminator 1
+ 305 003c 2846     		mov	r0, r5
+ 306 003e 70BD     		pop	{r4, r5, r6, pc}
+ 307              	.LVL30:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 15
+
+
+ 308              	.L29:
+ 309              		.cfi_def_cfa_offset 0
+ 310              		.cfi_restore 4
+ 311              		.cfi_restore 5
+ 312              		.cfi_restore 6
+ 313              		.cfi_restore 14
+ 109:..\lvgl\lv_misc/lv_mem.c ****     }
+ 314              		.loc 1 109 0
+ 315 0040 0348     		ldr	r0, .L32+8
+ 316              	.LVL31:
+ 164:..\lvgl\lv_misc/lv_mem.c **** 
+ 317              		.loc 1 164 0
+ 318 0042 7047     		bx	lr
+ 319              	.LVL32:
+ 320              	.L30:
+ 321              		.cfi_def_cfa_offset 16
+ 322              		.cfi_offset 4, -16
+ 323              		.cfi_offset 5, -12
+ 324              		.cfi_offset 6, -8
+ 325              		.cfi_offset 14, -4
+ 163:..\lvgl\lv_misc/lv_mem.c **** }
+ 326              		.loc 1 163 0
+ 327 0044 2846     		mov	r0, r5
+ 164:..\lvgl\lv_misc/lv_mem.c **** 
+ 328              		.loc 1 164 0
+ 329 0046 70BD     		pop	{r4, r5, r6, pc}
+ 330              	.LVL33:
+ 331              	.L33:
+ 332              		.align	2
+ 333              	.L32:
+ 334 0048 00000000 		.word	.LC0
+ 335 004c 1C000000 		.word	.LC1
+ 336 0050 04800000 		.word	.LANCHOR1+2364
+ 337              		.cfi_endproc
+ 338              	.LFE1:
+ 339              		.size	lv_mem_alloc, .-lv_mem_alloc
+ 340              		.section	.text.lv_mem_free,"ax",%progbits
+ 341              		.align	2
+ 342              		.global	lv_mem_free
+ 343              		.thumb
+ 344              		.thumb_func
+ 345              		.type	lv_mem_free, %function
+ 346              	lv_mem_free:
+ 347              	.LFB2:
+ 171:..\lvgl\lv_misc/lv_mem.c ****     if(data == &zero_mem) return;
+ 348              		.loc 1 171 0
+ 349              		.cfi_startproc
+ 350              		@ args = 0, pretend = 0, frame = 0
+ 351              		@ frame_needed = 0, uses_anonymous_args = 0
+ 352              	.LVL34:
+ 172:..\lvgl\lv_misc/lv_mem.c ****     if(data == NULL) return;
+ 353              		.loc 1 172 0
+ 354 0000 124B     		ldr	r3, .L40
+ 355 0002 9842     		cmp	r0, r3
+ 356 0004 21D0     		beq	.L39
+ 173:..\lvgl\lv_misc/lv_mem.c **** 
+ 357              		.loc 1 173 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 16
+
+
+ 358 0006 00B3     		cbz	r0, .L39
+ 171:..\lvgl\lv_misc/lv_mem.c ****     if(data == &zero_mem) return;
+ 359              		.loc 1 171 0
+ 360 0008 10B5     		push	{r4, lr}
+ 361              		.cfi_def_cfa_offset 8
+ 362              		.cfi_offset 4, -8
+ 363              		.cfi_offset 14, -4
+ 364 000a 0446     		mov	r4, r0
+ 365              	.LVL35:
+ 183:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 366              		.loc 1 183 0
+ 367 000c 10F8043C 		ldrb	r3, [r0, #-4]	@ zero_extendqisi2
+ 368 0010 6FF30003 		bfc	r3, #0, #1
+ 369 0014 00F8043C 		strb	r3, [r0, #-4]
+ 191:..\lvgl\lv_misc/lv_mem.c ****     while(e_next != NULL) {
+ 370              		.loc 1 191 0
+ 371 0018 0438     		subs	r0, r0, #4
+ 372              	.LVL36:
+ 373 001a FFF7FEFF 		bl	ent_get_next
+ 374              	.LVL37:
+ 192:..\lvgl\lv_misc/lv_mem.c ****         if(e_next->header.used == 0) {
+ 375              		.loc 1 192 0
+ 376 001e 11E0     		b	.L36
+ 377              	.L37:
+ 193:..\lvgl\lv_misc/lv_mem.c ****             e->header.d_size += e_next->header.d_size + sizeof(e->header);
+ 378              		.loc 1 193 0
+ 379 0020 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 380 0022 13F0010F 		tst	r3, #1
+ 381 0026 0FD1     		bne	.L34
+ 194:..\lvgl\lv_misc/lv_mem.c ****         } else {
+ 382              		.loc 1 194 0
+ 383 0028 0168     		ldr	r1, [r0]
+ 384 002a 54F8043C 		ldr	r3, [r4, #-4]
+ 385 002e C3F35E02 		ubfx	r2, r3, #1, #31
+ 386 0032 02EB5102 		add	r2, r2, r1, lsr #1
+ 387 0036 0432     		adds	r2, r2, #4
+ 388 0038 62F35F03 		bfi	r3, r2, #1, #31
+ 389 003c 44F8043C 		str	r3, [r4, #-4]
+ 198:..\lvgl\lv_misc/lv_mem.c ****     }
+ 390              		.loc 1 198 0
+ 391 0040 FFF7FEFF 		bl	ent_get_next
+ 392              	.LVL38:
+ 393              	.L36:
+ 192:..\lvgl\lv_misc/lv_mem.c ****         if(e_next->header.used == 0) {
+ 394              		.loc 1 192 0
+ 395 0044 0028     		cmp	r0, #0
+ 396 0046 EBD1     		bne	.L37
+ 397              	.L34:
+ 398 0048 10BD     		pop	{r4, pc}
+ 399              	.LVL39:
+ 400              	.L39:
+ 401              		.cfi_def_cfa_offset 0
+ 402              		.cfi_restore 4
+ 403              		.cfi_restore 14
+ 404 004a 7047     		bx	lr
+ 405              	.L41:
+ 406              		.align	2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 17
+
+
+ 407              	.L40:
+ 408 004c 04800000 		.word	.LANCHOR1+2364
+ 409              		.cfi_endproc
+ 410              	.LFE2:
+ 411              		.size	lv_mem_free, .-lv_mem_free
+ 412              		.section	.text.lv_mem_defrag,"ax",%progbits
+ 413              		.align	2
+ 414              		.global	lv_mem_defrag
+ 415              		.thumb
+ 416              		.thumb_func
+ 417              		.type	lv_mem_defrag, %function
+ 418              	lv_mem_defrag:
+ 419              	.LFB4:
+ 275:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 420              		.loc 1 275 0
+ 421              		.cfi_startproc
+ 422              		@ args = 0, pretend = 0, frame = 0
+ 423              		@ frame_needed = 0, uses_anonymous_args = 0
+ 424 0000 10B5     		push	{r4, lr}
+ 425              		.cfi_def_cfa_offset 8
+ 426              		.cfi_offset 4, -8
+ 427              		.cfi_offset 14, -4
+ 279:..\lvgl\lv_misc/lv_mem.c **** 
+ 428              		.loc 1 279 0
+ 429 0002 0020     		movs	r0, #0
+ 430 0004 FFF7FEFF 		bl	ent_get_next
+ 431              	.LVL40:
+ 432 0008 0446     		mov	r4, r0
+ 433              	.LVL41:
+ 434 000a 07E0     		b	.L43
+ 435              	.LVL42:
+ 436              	.L45:
+ 284:..\lvgl\lv_misc/lv_mem.c ****                 e_free = ent_get_next(e_free);
+ 437              		.loc 1 284 0
+ 438 000c 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 439 000e 13F0010F 		tst	r3, #1
+ 440 0012 05D0     		beq	.L44
+ 285:..\lvgl\lv_misc/lv_mem.c ****             } else {
+ 441              		.loc 1 285 0
+ 442 0014 2046     		mov	r0, r4
+ 443 0016 FFF7FEFF 		bl	ent_get_next
+ 444              	.LVL43:
+ 445              	.L50:
+ 275:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 446              		.loc 1 275 0
+ 447 001a 0446     		mov	r4, r0
+ 448              	.L43:
+ 449              	.LVL44:
+ 283:..\lvgl\lv_misc/lv_mem.c ****             if(e_free->header.used != 0) {
+ 450              		.loc 1 283 0
+ 451 001c 002C     		cmp	r4, #0
+ 452 001e F5D1     		bne	.L45
+ 453              	.L44:
+ 291:..\lvgl\lv_misc/lv_mem.c **** 
+ 454              		.loc 1 291 0
+ 455 0020 BCB1     		cbz	r4, .L42
+ 294:..\lvgl\lv_misc/lv_mem.c ****         while(e_next != NULL) {
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 18
+
+
+ 456              		.loc 1 294 0
+ 457 0022 2046     		mov	r0, r4
+ 458 0024 FFF7FEFF 		bl	ent_get_next
+ 459              	.LVL45:
+ 295:..\lvgl\lv_misc/lv_mem.c ****             if(e_next->header.used == 0) {
+ 460              		.loc 1 295 0
+ 461 0028 0FE0     		b	.L47
+ 462              	.L49:
+ 296:..\lvgl\lv_misc/lv_mem.c ****                 e_free->header.d_size += e_next->header.d_size + sizeof(e_next->header);
+ 463              		.loc 1 296 0
+ 464 002a 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 465 002c 13F0010F 		tst	r3, #1
+ 466 0030 0DD1     		bne	.L48
+ 297:..\lvgl\lv_misc/lv_mem.c ****             } else {
+ 467              		.loc 1 297 0
+ 468 0032 0168     		ldr	r1, [r0]
+ 469 0034 2368     		ldr	r3, [r4]
+ 470 0036 C3F35E02 		ubfx	r2, r3, #1, #31
+ 471 003a 02EB5102 		add	r2, r2, r1, lsr #1
+ 472 003e 0432     		adds	r2, r2, #4
+ 473 0040 62F35F03 		bfi	r3, r2, #1, #31
+ 474 0044 2360     		str	r3, [r4]
+ 302:..\lvgl\lv_misc/lv_mem.c ****         }
+ 475              		.loc 1 302 0
+ 476 0046 FFF7FEFF 		bl	ent_get_next
+ 477              	.LVL46:
+ 478              	.L47:
+ 295:..\lvgl\lv_misc/lv_mem.c ****             if(e_next->header.used == 0) {
+ 479              		.loc 1 295 0
+ 480 004a 0028     		cmp	r0, #0
+ 481 004c EDD1     		bne	.L49
+ 482              	.L48:
+ 305:..\lvgl\lv_misc/lv_mem.c **** 
+ 483              		.loc 1 305 0
+ 484 004e 0028     		cmp	r0, #0
+ 485 0050 E3D1     		bne	.L50
+ 486              	.LVL47:
+ 487              	.L42:
+ 488 0052 10BD     		pop	{r4, pc}
+ 489              		.cfi_endproc
+ 490              	.LFE4:
+ 491              		.size	lv_mem_defrag, .-lv_mem_defrag
+ 492              		.section	.text.lv_mem_monitor,"ax",%progbits
+ 493              		.align	2
+ 494              		.global	lv_mem_monitor
+ 495              		.thumb
+ 496              		.thumb_func
+ 497              		.type	lv_mem_monitor, %function
+ 498              	lv_mem_monitor:
+ 499              	.LFB5:
+ 319:..\lvgl\lv_misc/lv_mem.c ****     /*Init the data*/
+ 500              		.loc 1 319 0
+ 501              		.cfi_startproc
+ 502              		@ args = 0, pretend = 0, frame = 0
+ 503              		@ frame_needed = 0, uses_anonymous_args = 0
+ 504              	.LVL48:
+ 505 0000 10B5     		push	{r4, lr}
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 19
+
+
+ 506              		.cfi_def_cfa_offset 8
+ 507              		.cfi_offset 4, -8
+ 508              		.cfi_offset 14, -4
+ 509 0002 0446     		mov	r4, r0
+ 321:..\lvgl\lv_misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 510              		.loc 1 321 0
+ 511 0004 0020     		movs	r0, #0
+ 512              	.LVL49:
+ 513 0006 2060     		str	r0, [r4]	@ unaligned
+ 514 0008 6060     		str	r0, [r4, #4]	@ unaligned
+ 515 000a A060     		str	r0, [r4, #8]	@ unaligned
+ 516 000c E060     		str	r0, [r4, #12]	@ unaligned
+ 517 000e 2061     		str	r0, [r4, #16]	@ unaligned
+ 518 0010 6061     		str	r0, [r4, #20]	@ unaligned
+ 519              	.LVL50:
+ 326:..\lvgl\lv_misc/lv_mem.c **** 
+ 520              		.loc 1 326 0
+ 521 0012 FFF7FEFF 		bl	ent_get_next
+ 522              	.LVL51:
+ 328:..\lvgl\lv_misc/lv_mem.c ****         if(e->header.used == 0) {
+ 523              		.loc 1 328 0
+ 524 0016 18E0     		b	.L53
+ 525              	.L56:
+ 329:..\lvgl\lv_misc/lv_mem.c ****             mon_p->free_cnt++;
+ 526              		.loc 1 329 0
+ 527 0018 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 528 001a 13F0010F 		tst	r3, #1
+ 529 001e 0FD1     		bne	.L54
+ 330:..\lvgl\lv_misc/lv_mem.c ****             mon_p->free_size += e->header.d_size;
+ 530              		.loc 1 330 0
+ 531 0020 6368     		ldr	r3, [r4, #4]
+ 532 0022 0133     		adds	r3, r3, #1
+ 533 0024 6360     		str	r3, [r4, #4]
+ 331:..\lvgl\lv_misc/lv_mem.c ****             if(e->header.d_size > mon_p->free_biggest_size) {
+ 534              		.loc 1 331 0
+ 535 0026 0268     		ldr	r2, [r0]
+ 536 0028 A368     		ldr	r3, [r4, #8]
+ 537 002a 03EB5203 		add	r3, r3, r2, lsr #1
+ 538 002e A360     		str	r3, [r4, #8]
+ 332:..\lvgl\lv_misc/lv_mem.c ****                 mon_p->free_biggest_size = e->header.d_size;
+ 539              		.loc 1 332 0
+ 540 0030 0368     		ldr	r3, [r0]
+ 541 0032 C3F35E03 		ubfx	r3, r3, #1, #31
+ 542 0036 E268     		ldr	r2, [r4, #12]
+ 543 0038 9342     		cmp	r3, r2
+ 544 003a 04D9     		bls	.L55
+ 333:..\lvgl\lv_misc/lv_mem.c ****             }
+ 545              		.loc 1 333 0
+ 546 003c E360     		str	r3, [r4, #12]
+ 547 003e 02E0     		b	.L55
+ 548              	.L54:
+ 336:..\lvgl\lv_misc/lv_mem.c ****         }
+ 549              		.loc 1 336 0
+ 550 0040 2369     		ldr	r3, [r4, #16]
+ 551 0042 0133     		adds	r3, r3, #1
+ 552 0044 2361     		str	r3, [r4, #16]
+ 553              	.L55:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 20
+
+
+ 339:..\lvgl\lv_misc/lv_mem.c ****     }
+ 554              		.loc 1 339 0
+ 555 0046 FFF7FEFF 		bl	ent_get_next
+ 556              	.LVL52:
+ 557              	.L53:
+ 328:..\lvgl\lv_misc/lv_mem.c ****         if(e->header.used == 0) {
+ 558              		.loc 1 328 0
+ 559 004a 0028     		cmp	r0, #0
+ 560 004c E4D1     		bne	.L56
+ 341:..\lvgl\lv_misc/lv_mem.c ****     mon_p->used_pct = 100 - (100U * mon_p->free_size) / mon_p->total_size;
+ 561              		.loc 1 341 0
+ 562 004e 4FF40043 		mov	r3, #32768
+ 563 0052 2360     		str	r3, [r4]
+ 342:..\lvgl\lv_misc/lv_mem.c ****     mon_p->frag_pct = (uint32_t)mon_p->free_biggest_size * 100U / mon_p->free_size;
+ 564              		.loc 1 342 0
+ 565 0054 A168     		ldr	r1, [r4, #8]
+ 566 0056 6423     		movs	r3, #100
+ 567 0058 03FB01F2 		mul	r2, r3, r1
+ 568 005c D20B     		lsrs	r2, r2, #15
+ 569 005e 9A1A     		subs	r2, r3, r2
+ 570 0060 2275     		strb	r2, [r4, #20]
+ 343:..\lvgl\lv_misc/lv_mem.c ****     mon_p->frag_pct = 100 - mon_p->frag_pct;
+ 571              		.loc 1 343 0
+ 572 0062 E268     		ldr	r2, [r4, #12]
+ 573 0064 03FB02F3 		mul	r3, r3, r2
+ 574 0068 B3FBF1F3 		udiv	r3, r3, r1
+ 575 006c DBB2     		uxtb	r3, r3
+ 344:..\lvgl\lv_misc/lv_mem.c **** #endif
+ 576              		.loc 1 344 0
+ 577 006e C3F16403 		rsb	r3, r3, #100
+ 578 0072 6375     		strb	r3, [r4, #21]
+ 579 0074 10BD     		pop	{r4, pc}
+ 580              		.cfi_endproc
+ 581              	.LFE5:
+ 582              		.size	lv_mem_monitor, .-lv_mem_monitor
+ 583 0076 00BF     		.section	.text.lv_mem_get_size,"ax",%progbits
+ 584              		.align	2
+ 585              		.global	lv_mem_get_size
+ 586              		.thumb
+ 587              		.thumb_func
+ 588              		.type	lv_mem_get_size, %function
+ 589              	lv_mem_get_size:
+ 590              	.LFB6:
+ 357:..\lvgl\lv_misc/lv_mem.c ****     if(data == NULL) return 0;
+ 591              		.loc 1 357 0
+ 592              		.cfi_startproc
+ 593              		@ args = 0, pretend = 0, frame = 0
+ 594              		@ frame_needed = 0, uses_anonymous_args = 0
+ 595              		@ link register save eliminated.
+ 596              	.LVL53:
+ 358:..\lvgl\lv_misc/lv_mem.c ****     if(data == &zero_mem) return 0;
+ 597              		.loc 1 358 0
+ 598 0000 38B1     		cbz	r0, .L60
+ 359:..\lvgl\lv_misc/lv_mem.c **** 
+ 599              		.loc 1 359 0
+ 600 0002 064A     		ldr	r2, .L62
+ 601 0004 9042     		cmp	r0, r2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 21
+
+
+ 602 0006 06D0     		beq	.L61
+ 603              	.LVL54:
+ 363:..\lvgl\lv_misc/lv_mem.c **** }
+ 604              		.loc 1 363 0
+ 605 0008 50F8040C 		ldr	r0, [r0, #-4]
+ 606              	.LVL55:
+ 607 000c C0F35E00 		ubfx	r0, r0, #1, #31
+ 608 0010 7047     		bx	lr
+ 609              	.LVL56:
+ 610              	.L60:
+ 358:..\lvgl\lv_misc/lv_mem.c ****     if(data == &zero_mem) return 0;
+ 611              		.loc 1 358 0
+ 612 0012 0020     		movs	r0, #0
+ 613              	.LVL57:
+ 614 0014 7047     		bx	lr
+ 615              	.LVL58:
+ 616              	.L61:
+ 359:..\lvgl\lv_misc/lv_mem.c **** 
+ 617              		.loc 1 359 0
+ 618 0016 0020     		movs	r0, #0
+ 619              	.LVL59:
+ 364:..\lvgl\lv_misc/lv_mem.c **** 
+ 620              		.loc 1 364 0
+ 621 0018 7047     		bx	lr
+ 622              	.L63:
+ 623 001a 00BF     		.align	2
+ 624              	.L62:
+ 625 001c 04800000 		.word	.LANCHOR1+2364
+ 626              		.cfi_endproc
+ 627              	.LFE6:
+ 628              		.size	lv_mem_get_size, .-lv_mem_get_size
+ 629              		.section	.text.lv_mem_realloc,"ax",%progbits
+ 630              		.align	2
+ 631              		.global	lv_mem_realloc
+ 632              		.thumb
+ 633              		.thumb_func
+ 634              		.type	lv_mem_realloc, %function
+ 635              	lv_mem_realloc:
+ 636              	.LFB3:
+ 221:..\lvgl\lv_misc/lv_mem.c ****     /*data_p could be previously freed pointer (in this case it is invalid)*/
+ 637              		.loc 1 221 0
+ 638              		.cfi_startproc
+ 639              		@ args = 0, pretend = 0, frame = 0
+ 640              		@ frame_needed = 0, uses_anonymous_args = 0
+ 641              	.LVL60:
+ 642 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 643              		.cfi_def_cfa_offset 24
+ 644              		.cfi_offset 3, -24
+ 645              		.cfi_offset 4, -20
+ 646              		.cfi_offset 5, -16
+ 647              		.cfi_offset 6, -12
+ 648              		.cfi_offset 7, -8
+ 649              		.cfi_offset 14, -4
+ 650 0002 0D46     		mov	r5, r1
+ 223:..\lvgl\lv_misc/lv_mem.c ****         lv_mem_ent_t * e = (lv_mem_ent_t *)((uint8_t *) data_p - sizeof(lv_mem_header_t));
+ 651              		.loc 1 223 0
+ 652 0004 0446     		mov	r4, r0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 22
+
+
+ 653 0006 28B1     		cbz	r0, .L65
+ 654              	.LVL61:
+ 655              	.LBB4:
+ 225:..\lvgl\lv_misc/lv_mem.c ****             data_p = NULL;
+ 656              		.loc 1 225 0
+ 657 0008 10F8043C 		ldrb	r3, [r0, #-4]	@ zero_extendqisi2
+ 658 000c 13F0010F 		tst	r3, #1
+ 659 0010 00D1     		bne	.L65
+ 226:..\lvgl\lv_misc/lv_mem.c ****         }
+ 660              		.loc 1 226 0
+ 661 0012 0024     		movs	r4, #0
+ 662              	.LVL62:
+ 663              	.L65:
+ 664              	.LBE4:
+ 230:..\lvgl\lv_misc/lv_mem.c ****     if(old_size == new_size) return data_p;     /*Also avoid reallocating the same memory*/
+ 665              		.loc 1 230 0
+ 666 0014 2046     		mov	r0, r4
+ 667 0016 FFF7FEFF 		bl	lv_mem_get_size
+ 668              	.LVL63:
+ 669 001a 0746     		mov	r7, r0
+ 670              	.LVL64:
+ 231:..\lvgl\lv_misc/lv_mem.c **** 
+ 671              		.loc 1 231 0
+ 672 001c A842     		cmp	r0, r5
+ 673 001e 20D0     		beq	.L70
+ 236:..\lvgl\lv_misc/lv_mem.c ****         lv_mem_ent_t * e = (lv_mem_ent_t *)((uint8_t *) data_p - sizeof(lv_mem_header_t));
+ 674              		.loc 1 236 0
+ 675 0020 05D9     		bls	.L67
+ 676              	.LVL65:
+ 677              	.LBB5:
+ 238:..\lvgl\lv_misc/lv_mem.c ****         return &e->first_data;
+ 678              		.loc 1 238 0
+ 679 0022 2946     		mov	r1, r5
+ 680 0024 201F     		subs	r0, r4, #4
+ 681              	.LVL66:
+ 682 0026 FFF7FEFF 		bl	ent_trunc
+ 683              	.LVL67:
+ 239:..\lvgl\lv_misc/lv_mem.c ****     }
+ 684              		.loc 1 239 0
+ 685 002a 2046     		mov	r0, r4
+ 686 002c F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 687              	.LVL68:
+ 688              	.L67:
+ 689              	.LBE5:
+ 244:..\lvgl\lv_misc/lv_mem.c **** 
+ 690              		.loc 1 244 0
+ 691 002e 2846     		mov	r0, r5
+ 692              	.LVL69:
+ 693 0030 FFF7FEFF 		bl	lv_mem_alloc
+ 694              	.LVL70:
+ 246:..\lvgl\lv_misc/lv_mem.c ****         /*Copy the old data to the new. Use the smaller size*/
+ 695              		.loc 1 246 0
+ 696 0034 0646     		mov	r6, r0
+ 697 0036 58B1     		cbz	r0, .L68
+ 246:..\lvgl\lv_misc/lv_mem.c ****         /*Copy the old data to the new. Use the smaller size*/
+ 698              		.loc 1 246 0 is_stmt 0 discriminator 1
+ 699 0038 54B1     		cbz	r4, .L68
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 23
+
+
+ 248:..\lvgl\lv_misc/lv_mem.c ****             memcpy(new_p, data_p, LV_MATH_MIN(new_size, old_size));
+ 700              		.loc 1 248 0 is_stmt 1
+ 701 003a 4FB1     		cbz	r7, .L68
+ 249:..\lvgl\lv_misc/lv_mem.c ****             lv_mem_free(data_p);
+ 702              		.loc 1 249 0
+ 703 003c 3A46     		mov	r2, r7
+ 704 003e AF42     		cmp	r7, r5
+ 705 0040 28BF     		it	cs
+ 706 0042 2A46     		movcs	r2, r5
+ 707 0044 2146     		mov	r1, r4
+ 708 0046 FFF7FEFF 		bl	memcpy
+ 709              	.LVL71:
+ 250:..\lvgl\lv_misc/lv_mem.c ****         }
+ 710              		.loc 1 250 0
+ 711 004a 2046     		mov	r0, r4
+ 712 004c FFF7FEFF 		bl	lv_mem_free
+ 713              	.LVL72:
+ 714              	.L68:
+ 255:..\lvgl\lv_misc/lv_mem.c **** 
+ 715              		.loc 1 255 0
+ 716 0050 4EB9     		cbnz	r6, .L71
+ 255:..\lvgl\lv_misc/lv_mem.c **** 
+ 717              		.loc 1 255 0 is_stmt 0 discriminator 1
+ 718 0052 064B     		ldr	r3, .L73
+ 719 0054 FF22     		movs	r2, #255
+ 720 0056 0649     		ldr	r1, .L73+4
+ 721 0058 0220     		movs	r0, #2
+ 722 005a FFF7FEFF 		bl	lv_log_add
+ 723              	.LVL73:
+ 257:..\lvgl\lv_misc/lv_mem.c **** }
+ 724              		.loc 1 257 0 is_stmt 1 discriminator 1
+ 725 005e 3046     		mov	r0, r6
+ 726 0060 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 727              	.LVL74:
+ 728              	.L70:
+ 231:..\lvgl\lv_misc/lv_mem.c **** 
+ 729              		.loc 1 231 0
+ 730 0062 2046     		mov	r0, r4
+ 731              	.LVL75:
+ 732 0064 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 733              	.LVL76:
+ 734              	.L71:
+ 257:..\lvgl\lv_misc/lv_mem.c **** }
+ 735              		.loc 1 257 0
+ 736 0066 3046     		mov	r0, r6
+ 258:..\lvgl\lv_misc/lv_mem.c **** 
+ 737              		.loc 1 258 0
+ 738 0068 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 739              	.LVL77:
+ 740              	.L74:
+ 741 006a 00BF     		.align	2
+ 742              	.L73:
+ 743 006c 00000000 		.word	.LC0
+ 744 0070 1C000000 		.word	.LC1
+ 745              		.cfi_endproc
+ 746              	.LFE3:
+ 747              		.size	lv_mem_realloc, .-lv_mem_realloc
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 24
+
+
+ 748              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 749              		.align	2
+ 750              	.LC0:
+ 751 0000 436F756C 		.ascii	"Couldn't allocate memory\000"
+ 751      646E2774 
+ 751      20616C6C 
+ 751      6F636174 
+ 751      65206D65 
+ 752 0019 000000   		.space	3
+ 753              	.LC1:
+ 754 001c 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_mem.c\000"
+ 754      76676C5C 
+ 754      6C765F6D 
+ 754      6973635C 
+ 754      6C765F6D 
+ 755              		.bss
+ 756              		.align	2
+ 757              		.set	.LANCHOR0,. + 0
+ 758              		.set	.LANCHOR1,. + 30408
+ 759              		.type	work_mem, %object
+ 760              		.size	work_mem, 4
+ 761              	work_mem:
+ 762 0000 00000000 		.space	4
+ 763              		.type	work_mem_int.4632, %object
+ 764              		.size	work_mem_int.4632, 32768
+ 765              	work_mem_int.4632:
+ 766 0004 00000000 		.space	32768
+ 766      00000000 
+ 766      00000000 
+ 766      00000000 
+ 766      00000000 
+ 767              		.type	zero_mem, %object
+ 768              		.size	zero_mem, 4
+ 769              	zero_mem:
+ 770 8004 00000000 		.space	4
+ 771              		.text
+ 772              	.Letext0:
+ 773              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 774              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 775              		.file 4 "..\\lvgl\\lv_misc\\lv_mem.h"
+ 776              		.file 5 "..\\lvgl\\lv_misc\\lv_log.h"
+ 777              		.section	.debug_info,"",%progbits
+ 778              	.Ldebug_info0:
+ 779 0000 6B060000 		.4byte	0x66b
+ 780 0004 0400     		.2byte	0x4
+ 781 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 782 000a 04       		.byte	0x4
+ 783 000b 01       		.uleb128 0x1
+ 784 000c 4B020000 		.4byte	.LASF57
+ 785 0010 0C       		.byte	0xc
+ 786 0011 F9010000 		.4byte	.LASF58
+ 787 0015 24010000 		.4byte	.LASF59
+ 788 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 789 001d 00000000 		.4byte	0
+ 790 0021 00000000 		.4byte	.Ldebug_line0
+ 791 0025 02       		.uleb128 0x2
+ 792 0026 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 25
+
+
+ 793 0027 06       		.byte	0x6
+ 794 0028 8E000000 		.4byte	.LASF0
+ 795 002c 03       		.uleb128 0x3
+ 796 002d 2E000000 		.4byte	.LASF5
+ 797 0031 02       		.byte	0x2
+ 798 0032 1D       		.byte	0x1d
+ 799 0033 37000000 		.4byte	0x37
+ 800 0037 02       		.uleb128 0x2
+ 801 0038 01       		.byte	0x1
+ 802 0039 08       		.byte	0x8
+ 803 003a 26020000 		.4byte	.LASF1
+ 804 003e 02       		.uleb128 0x2
+ 805 003f 02       		.byte	0x2
+ 806 0040 05       		.byte	0x5
+ 807 0041 34020000 		.4byte	.LASF2
+ 808 0045 02       		.uleb128 0x2
+ 809 0046 02       		.byte	0x2
+ 810 0047 07       		.byte	0x7
+ 811 0048 A5010000 		.4byte	.LASF3
+ 812 004c 02       		.uleb128 0x2
+ 813 004d 04       		.byte	0x4
+ 814 004e 05       		.byte	0x5
+ 815 004f A6000000 		.4byte	.LASF4
+ 816 0053 03       		.uleb128 0x3
+ 817 0054 E7000000 		.4byte	.LASF6
+ 818 0058 02       		.byte	0x2
+ 819 0059 41       		.byte	0x41
+ 820 005a 5E000000 		.4byte	0x5e
+ 821 005e 02       		.uleb128 0x2
+ 822 005f 04       		.byte	0x4
+ 823 0060 07       		.byte	0x7
+ 824 0061 6A010000 		.4byte	.LASF7
+ 825 0065 02       		.uleb128 0x2
+ 826 0066 08       		.byte	0x8
+ 827 0067 05       		.byte	0x5
+ 828 0068 80000000 		.4byte	.LASF8
+ 829 006c 02       		.uleb128 0x2
+ 830 006d 08       		.byte	0x8
+ 831 006e 07       		.byte	0x7
+ 832 006f 48000000 		.4byte	.LASF9
+ 833 0073 04       		.uleb128 0x4
+ 834 0074 04       		.byte	0x4
+ 835 0075 05       		.byte	0x5
+ 836 0076 696E7400 		.ascii	"int\000"
+ 837 007a 02       		.uleb128 0x2
+ 838 007b 04       		.byte	0x4
+ 839 007c 07       		.byte	0x7
+ 840 007d 17010000 		.4byte	.LASF10
+ 841 0081 03       		.uleb128 0x3
+ 842 0082 26030000 		.4byte	.LASF11
+ 843 0086 03       		.byte	0x3
+ 844 0087 18       		.byte	0x18
+ 845 0088 2C000000 		.4byte	0x2c
+ 846 008c 03       		.uleb128 0x3
+ 847 008d DE020000 		.4byte	.LASF12
+ 848 0091 03       		.byte	0x3
+ 849 0092 30       		.byte	0x30
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 26
+
+
+ 850 0093 53000000 		.4byte	0x53
+ 851 0097 02       		.uleb128 0x2
+ 852 0098 08       		.byte	0x8
+ 853 0099 04       		.byte	0x4
+ 854 009a D1010000 		.4byte	.LASF13
+ 855 009e 05       		.uleb128 0x5
+ 856 009f 18       		.byte	0x18
+ 857 00a0 04       		.byte	0x4
+ 858 00a1 2E       		.byte	0x2e
+ 859 00a2 FB000000 		.4byte	0xfb
+ 860 00a6 06       		.uleb128 0x6
+ 861 00a7 68000000 		.4byte	.LASF14
+ 862 00ab 04       		.byte	0x4
+ 863 00ac 30       		.byte	0x30
+ 864 00ad 8C000000 		.4byte	0x8c
+ 865 00b1 00       		.byte	0
+ 866 00b2 06       		.uleb128 0x6
+ 867 00b3 1D030000 		.4byte	.LASF15
+ 868 00b7 04       		.byte	0x4
+ 869 00b8 31       		.byte	0x31
+ 870 00b9 8C000000 		.4byte	0x8c
+ 871 00bd 04       		.byte	0x4
+ 872 00be 06       		.uleb128 0x6
+ 873 00bf 52030000 		.4byte	.LASF16
+ 874 00c3 04       		.byte	0x4
+ 875 00c4 32       		.byte	0x32
+ 876 00c5 8C000000 		.4byte	0x8c
+ 877 00c9 08       		.byte	0x8
+ 878 00ca 06       		.uleb128 0x6
+ 879 00cb BF010000 		.4byte	.LASF17
+ 880 00cf 04       		.byte	0x4
+ 881 00d0 33       		.byte	0x33
+ 882 00d1 8C000000 		.4byte	0x8c
+ 883 00d5 0C       		.byte	0xc
+ 884 00d6 06       		.uleb128 0x6
+ 885 00d7 5F000000 		.4byte	.LASF18
+ 886 00db 04       		.byte	0x4
+ 887 00dc 34       		.byte	0x34
+ 888 00dd 8C000000 		.4byte	0x8c
+ 889 00e1 10       		.byte	0x10
+ 890 00e2 06       		.uleb128 0x6
+ 891 00e3 0E010000 		.4byte	.LASF19
+ 892 00e7 04       		.byte	0x4
+ 893 00e8 35       		.byte	0x35
+ 894 00e9 81000000 		.4byte	0x81
+ 895 00ed 14       		.byte	0x14
+ 896 00ee 06       		.uleb128 0x6
+ 897 00ef 09030000 		.4byte	.LASF20
+ 898 00f3 04       		.byte	0x4
+ 899 00f4 36       		.byte	0x36
+ 900 00f5 81000000 		.4byte	0x81
+ 901 00f9 15       		.byte	0x15
+ 902 00fa 00       		.byte	0
+ 903 00fb 03       		.uleb128 0x3
+ 904 00fc 00000000 		.4byte	.LASF21
+ 905 0100 04       		.byte	0x4
+ 906 0101 37       		.byte	0x37
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 27
+
+
+ 907 0102 9E000000 		.4byte	0x9e
+ 908 0106 02       		.uleb128 0x2
+ 909 0107 04       		.byte	0x4
+ 910 0108 07       		.byte	0x7
+ 911 0109 2E030000 		.4byte	.LASF22
+ 912 010d 07       		.uleb128 0x7
+ 913 010e 04       		.byte	0x4
+ 914 010f 02       		.uleb128 0x2
+ 915 0110 01       		.byte	0x1
+ 916 0111 08       		.byte	0x8
+ 917 0112 F1020000 		.4byte	.LASF23
+ 918 0116 05       		.uleb128 0x5
+ 919 0117 04       		.byte	0x4
+ 920 0118 01       		.byte	0x1
+ 921 0119 27       		.byte	0x27
+ 922 011a 3D010000 		.4byte	0x13d
+ 923 011e 08       		.uleb128 0x8
+ 924 011f 18020000 		.4byte	.LASF24
+ 925 0123 01       		.byte	0x1
+ 926 0124 28       		.byte	0x28
+ 927 0125 8C000000 		.4byte	0x8c
+ 928 0129 04       		.byte	0x4
+ 929 012a 01       		.byte	0x1
+ 930 012b 1F       		.byte	0x1f
+ 931 012c 00       		.byte	0
+ 932 012d 08       		.uleb128 0x8
+ 933 012e 07010000 		.4byte	.LASF25
+ 934 0132 01       		.byte	0x1
+ 935 0133 29       		.byte	0x29
+ 936 0134 8C000000 		.4byte	0x8c
+ 937 0138 04       		.byte	0x4
+ 938 0139 1F       		.byte	0x1f
+ 939 013a 00       		.byte	0
+ 940 013b 00       		.byte	0
+ 941 013c 00       		.byte	0
+ 942 013d 09       		.uleb128 0x9
+ 943 013e 04       		.byte	0x4
+ 944 013f 01       		.byte	0x1
+ 945 0140 26       		.byte	0x26
+ 946 0141 56010000 		.4byte	0x156
+ 947 0145 0A       		.uleb128 0xa
+ 948 0146 16010000 		.4byte	0x116
+ 949 014a 0B       		.uleb128 0xb
+ 950 014b 5C030000 		.4byte	.LASF27
+ 951 014f 01       		.byte	0x1
+ 952 0150 2B       		.byte	0x2b
+ 953 0151 8C000000 		.4byte	0x8c
+ 954 0155 00       		.byte	0
+ 955 0156 03       		.uleb128 0x3
+ 956 0157 AF000000 		.4byte	.LASF26
+ 957 015b 01       		.byte	0x1
+ 958 015c 2C       		.byte	0x2c
+ 959 015d 3D010000 		.4byte	0x13d
+ 960 0161 05       		.uleb128 0x5
+ 961 0162 08       		.byte	0x8
+ 962 0163 01       		.byte	0x1
+ 963 0164 2E       		.byte	0x2e
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 28
+
+
+ 964 0165 82010000 		.4byte	0x182
+ 965 0169 06       		.uleb128 0x6
+ 966 016a 5C030000 		.4byte	.LASF27
+ 967 016e 01       		.byte	0x1
+ 968 016f 2F       		.byte	0x2f
+ 969 0170 56010000 		.4byte	0x156
+ 970 0174 00       		.byte	0
+ 971 0175 06       		.uleb128 0x6
+ 972 0176 12030000 		.4byte	.LASF28
+ 973 017a 01       		.byte	0x1
+ 974 017b 30       		.byte	0x30
+ 975 017c 81000000 		.4byte	0x81
+ 976 0180 04       		.byte	0x4
+ 977 0181 00       		.byte	0
+ 978 0182 03       		.uleb128 0x3
+ 979 0183 F6020000 		.4byte	.LASF29
+ 980 0187 01       		.byte	0x1
+ 981 0188 31       		.byte	0x31
+ 982 0189 61010000 		.4byte	0x161
+ 983 018d 0C       		.uleb128 0xc
+ 984 018e 37030000 		.4byte	.LASF36
+ 985 0192 01       		.byte	0x1
+ 986 0193 8101     		.2byte	0x181
+ 987 0195 E2010000 		.4byte	0x1e2
+ 988 0199 00000000 		.4byte	.LFB7
+ 989 019d 28000000 		.4byte	.LFE7-.LFB7
+ 990 01a1 01       		.uleb128 0x1
+ 991 01a2 9C       		.byte	0x9c
+ 992 01a3 E2010000 		.4byte	0x1e2
+ 993 01a7 0D       		.uleb128 0xd
+ 994 01a8 E1000000 		.4byte	.LASF32
+ 995 01ac 01       		.byte	0x1
+ 996 01ad 8101     		.2byte	0x181
+ 997 01af E2010000 		.4byte	0x1e2
+ 998 01b3 00000000 		.4byte	.LLST0
+ 999 01b7 0E       		.uleb128 0xe
+ 1000 01b8 41000000 		.4byte	.LASF30
+ 1001 01bc 01       		.byte	0x1
+ 1002 01bd 8301     		.2byte	0x183
+ 1003 01bf E2010000 		.4byte	0x1e2
+ 1004 01c3 47000000 		.4byte	.LLST1
+ 1005 01c7 0F       		.uleb128 0xf
+ 1006 01c8 08000000 		.4byte	.LBB2
+ 1007 01cc 18000000 		.4byte	.LBE2-.LBB2
+ 1008 01d0 0E       		.uleb128 0xe
+ 1009 01d1 9B010000 		.4byte	.LASF31
+ 1010 01d5 01       		.byte	0x1
+ 1011 01d6 8801     		.2byte	0x188
+ 1012 01d8 E8010000 		.4byte	0x1e8
+ 1013 01dc 7D000000 		.4byte	.LLST2
+ 1014 01e0 00       		.byte	0
+ 1015 01e1 00       		.byte	0
+ 1016 01e2 10       		.uleb128 0x10
+ 1017 01e3 04       		.byte	0x4
+ 1018 01e4 82010000 		.4byte	0x182
+ 1019 01e8 10       		.uleb128 0x10
+ 1020 01e9 04       		.byte	0x4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 29
+
+
+ 1021 01ea 81000000 		.4byte	0x81
+ 1022 01ee 11       		.uleb128 0x11
+ 1023 01ef F2000000 		.4byte	.LASF60
+ 1024 01f3 01       		.byte	0x1
+ 1025 01f4 AF01     		.2byte	0x1af
+ 1026 01f6 00000000 		.4byte	.LFB9
+ 1027 01fa 50000000 		.4byte	.LFE9-.LFB9
+ 1028 01fe 01       		.uleb128 0x1
+ 1029 01ff 9C       		.byte	0x9c
+ 1030 0200 4B020000 		.4byte	0x24b
+ 1031 0204 12       		.uleb128 0x12
+ 1032 0205 6500     		.ascii	"e\000"
+ 1033 0207 01       		.byte	0x1
+ 1034 0208 AF01     		.2byte	0x1af
+ 1035 020a E2010000 		.4byte	0x1e2
+ 1036 020e 01       		.uleb128 0x1
+ 1037 020f 50       		.byte	0x50
+ 1038 0210 0D       		.uleb128 0xd
+ 1039 0211 A0010000 		.4byte	.LASF33
+ 1040 0215 01       		.byte	0x1
+ 1041 0216 AF01     		.2byte	0x1af
+ 1042 0218 8C000000 		.4byte	0x8c
+ 1043 021c A0000000 		.4byte	.LLST3
+ 1044 0220 0F       		.uleb128 0xf
+ 1045 0221 20000000 		.4byte	.LBB3
+ 1046 0225 1A000000 		.4byte	.LBE3-.LBB3
+ 1047 0229 0E       		.uleb128 0xe
+ 1048 022a 44020000 		.4byte	.LASF34
+ 1049 022e 01       		.byte	0x1
+ 1050 022f C601     		.2byte	0x1c6
+ 1051 0231 E8010000 		.4byte	0x1e8
+ 1052 0235 BE000000 		.4byte	.LLST4
+ 1053 0239 0E       		.uleb128 0xe
+ 1054 023a DD010000 		.4byte	.LASF35
+ 1055 023e 01       		.byte	0x1
+ 1056 023f C701     		.2byte	0x1c7
+ 1057 0241 E2010000 		.4byte	0x1e2
+ 1058 0245 D1000000 		.4byte	.LLST5
+ 1059 0249 00       		.byte	0
+ 1060 024a 00       		.byte	0
+ 1061 024b 0C       		.uleb128 0xc
+ 1062 024c E7020000 		.4byte	.LASF37
+ 1063 0250 01       		.byte	0x1
+ 1064 0251 9801     		.2byte	0x198
+ 1065 0253 0D010000 		.4byte	0x10d
+ 1066 0257 00000000 		.4byte	.LFB8
+ 1067 025b 30000000 		.4byte	.LFE8-.LFB8
+ 1068 025f 01       		.uleb128 0x1
+ 1069 0260 9C       		.byte	0x9c
+ 1070 0261 AB020000 		.4byte	0x2ab
+ 1071 0265 13       		.uleb128 0x13
+ 1072 0266 6500     		.ascii	"e\000"
+ 1073 0268 01       		.byte	0x1
+ 1074 0269 9801     		.2byte	0x198
+ 1075 026b E2010000 		.4byte	0x1e2
+ 1076 026f E9000000 		.4byte	.LLST6
+ 1077 0273 0D       		.uleb128 0xd
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 30
+
+
+ 1078 0274 A0010000 		.4byte	.LASF33
+ 1079 0278 01       		.byte	0x1
+ 1080 0279 9801     		.2byte	0x198
+ 1081 027b 8C000000 		.4byte	0x8c
+ 1082 027f 39010000 		.4byte	.LLST7
+ 1083 0283 0E       		.uleb128 0xe
+ 1084 0284 03030000 		.4byte	.LASF38
+ 1085 0288 01       		.byte	0x1
+ 1086 0289 9A01     		.2byte	0x19a
+ 1087 028b 0D010000 		.4byte	0x10d
+ 1088 028f 65010000 		.4byte	.LLST8
+ 1089 0293 14       		.uleb128 0x14
+ 1090 0294 1A000000 		.4byte	.LVL15
+ 1091 0298 EE010000 		.4byte	0x1ee
+ 1092 029c 15       		.uleb128 0x15
+ 1093 029d 01       		.uleb128 0x1
+ 1094 029e 50       		.byte	0x50
+ 1095 029f 02       		.uleb128 0x2
+ 1096 02a0 74       		.byte	0x74
+ 1097 02a1 00       		.sleb128 0
+ 1098 02a2 15       		.uleb128 0x15
+ 1099 02a3 01       		.uleb128 0x1
+ 1100 02a4 51       		.byte	0x51
+ 1101 02a5 03       		.uleb128 0x3
+ 1102 02a6 F3       		.byte	0xf3
+ 1103 02a7 01       		.uleb128 0x1
+ 1104 02a8 51       		.byte	0x51
+ 1105 02a9 00       		.byte	0
+ 1106 02aa 00       		.byte	0
+ 1107 02ab 16       		.uleb128 0x16
+ 1108 02ac 9A000000 		.4byte	.LASF41
+ 1109 02b0 01       		.byte	0x1
+ 1110 02b1 52       		.byte	0x52
+ 1111 02b2 00000000 		.4byte	.LFB0
+ 1112 02b6 20000000 		.4byte	.LFE0-.LFB0
+ 1113 02ba 01       		.uleb128 0x1
+ 1114 02bb 9C       		.byte	0x9c
+ 1115 02bc E4020000 		.4byte	0x2e4
+ 1116 02c0 17       		.uleb128 0x17
+ 1117 02c1 73000000 		.4byte	.LASF39
+ 1118 02c5 01       		.byte	0x1
+ 1119 02c6 58       		.byte	0x58
+ 1120 02c7 E4020000 		.4byte	0x2e4
+ 1121 02cb 05       		.uleb128 0x5
+ 1122 02cc 03       		.byte	0x3
+ 1123 02cd 04000000 		.4byte	work_mem_int.4632
+ 1124 02d1 17       		.uleb128 0x17
+ 1125 02d2 D9020000 		.4byte	.LASF40
+ 1126 02d6 01       		.byte	0x1
+ 1127 02d7 5E       		.byte	0x5e
+ 1128 02d8 E2010000 		.4byte	0x1e2
+ 1129 02dc 06       		.uleb128 0x6
+ 1130 02dd 03       		.byte	0x3
+ 1131 02de 04000000 		.4byte	work_mem_int.4632
+ 1132 02e2 9F       		.byte	0x9f
+ 1133 02e3 00       		.byte	0
+ 1134 02e4 18       		.uleb128 0x18
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 31
+
+
+ 1135 02e5 8C000000 		.4byte	0x8c
+ 1136 02e9 F5020000 		.4byte	0x2f5
+ 1137 02ed 19       		.uleb128 0x19
+ 1138 02ee 06010000 		.4byte	0x106
+ 1139 02f2 FF1F     		.2byte	0x1fff
+ 1140 02f4 00       		.byte	0
+ 1141 02f5 1A       		.uleb128 0x1a
+ 1142 02f6 1A000000 		.4byte	.LASF48
+ 1143 02fa 01       		.byte	0x1
+ 1144 02fb 6A       		.byte	0x6a
+ 1145 02fc 0D010000 		.4byte	0x10d
+ 1146 0300 00000000 		.4byte	.LFB1
+ 1147 0304 54000000 		.4byte	.LFE1-.LFB1
+ 1148 0308 01       		.uleb128 0x1
+ 1149 0309 9C       		.byte	0x9c
+ 1150 030a 8F030000 		.4byte	0x38f
+ 1151 030e 1B       		.uleb128 0x1b
+ 1152 030f A0010000 		.4byte	.LASF33
+ 1153 0313 01       		.byte	0x1
+ 1154 0314 6A       		.byte	0x6a
+ 1155 0315 8C000000 		.4byte	0x8c
+ 1156 0319 90010000 		.4byte	.LLST9
+ 1157 031d 1C       		.uleb128 0x1c
+ 1158 031e 03030000 		.4byte	.LASF38
+ 1159 0322 01       		.byte	0x1
+ 1160 0323 7D       		.byte	0x7d
+ 1161 0324 0D010000 		.4byte	0x10d
+ 1162 0328 D2010000 		.4byte	.LLST10
+ 1163 032c 1D       		.uleb128 0x1d
+ 1164 032d 6500     		.ascii	"e\000"
+ 1165 032f 01       		.byte	0x1
+ 1166 0330 80       		.byte	0x80
+ 1167 0331 E2010000 		.4byte	0x1e2
+ 1168 0335 07020000 		.4byte	.LLST11
+ 1169 0339 1E       		.uleb128 0x1e
+ 1170 033a 1C000000 		.4byte	.LVL26
+ 1171 033e 8D010000 		.4byte	0x18d
+ 1172 0342 4D030000 		.4byte	0x34d
+ 1173 0346 15       		.uleb128 0x15
+ 1174 0347 01       		.uleb128 0x1
+ 1175 0348 50       		.byte	0x50
+ 1176 0349 02       		.uleb128 0x2
+ 1177 034a 74       		.byte	0x74
+ 1178 034b 00       		.sleb128 0
+ 1179 034c 00       		.byte	0
+ 1180 034d 1E       		.uleb128 0x1e
+ 1181 034e 26000000 		.4byte	.LVL27
+ 1182 0352 4B020000 		.4byte	0x24b
+ 1183 0356 67030000 		.4byte	0x367
+ 1184 035a 15       		.uleb128 0x15
+ 1185 035b 01       		.uleb128 0x1
+ 1186 035c 50       		.byte	0x50
+ 1187 035d 02       		.uleb128 0x2
+ 1188 035e 74       		.byte	0x74
+ 1189 035f 00       		.sleb128 0
+ 1190 0360 15       		.uleb128 0x15
+ 1191 0361 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 32
+
+
+ 1192 0362 51       		.byte	0x51
+ 1193 0363 02       		.uleb128 0x2
+ 1194 0364 76       		.byte	0x76
+ 1195 0365 00       		.sleb128 0
+ 1196 0366 00       		.byte	0
+ 1197 0367 14       		.uleb128 0x14
+ 1198 0368 3C000000 		.4byte	.LVL29
+ 1199 036c 5A060000 		.4byte	0x65a
+ 1200 0370 15       		.uleb128 0x15
+ 1201 0371 01       		.uleb128 0x1
+ 1202 0372 50       		.byte	0x50
+ 1203 0373 01       		.uleb128 0x1
+ 1204 0374 32       		.byte	0x32
+ 1205 0375 15       		.uleb128 0x15
+ 1206 0376 01       		.uleb128 0x1
+ 1207 0377 51       		.byte	0x51
+ 1208 0378 05       		.uleb128 0x5
+ 1209 0379 03       		.byte	0x3
+ 1210 037a 1C000000 		.4byte	.LC1
+ 1211 037e 15       		.uleb128 0x15
+ 1212 037f 01       		.uleb128 0x1
+ 1213 0380 52       		.byte	0x52
+ 1214 0381 02       		.uleb128 0x2
+ 1215 0382 08       		.byte	0x8
+ 1216 0383 A1       		.byte	0xa1
+ 1217 0384 15       		.uleb128 0x15
+ 1218 0385 01       		.uleb128 0x1
+ 1219 0386 53       		.byte	0x53
+ 1220 0387 05       		.uleb128 0x5
+ 1221 0388 03       		.byte	0x3
+ 1222 0389 00000000 		.4byte	.LC0
+ 1223 038d 00       		.byte	0
+ 1224 038e 00       		.byte	0
+ 1225 038f 16       		.uleb128 0x16
+ 1226 0390 D5000000 		.4byte	.LASF42
+ 1227 0394 01       		.byte	0x1
+ 1228 0395 AA       		.byte	0xaa
+ 1229 0396 00000000 		.4byte	.LFB2
+ 1230 039a 50000000 		.4byte	.LFE2-.LFB2
+ 1231 039e 01       		.uleb128 0x1
+ 1232 039f 9C       		.byte	0x9c
+ 1233 03a0 ED030000 		.4byte	0x3ed
+ 1234 03a4 1B       		.uleb128 0x1b
+ 1235 03a5 9B010000 		.4byte	.LASF31
+ 1236 03a9 01       		.byte	0x1
+ 1237 03aa AA       		.byte	0xaa
+ 1238 03ab ED030000 		.4byte	0x3ed
+ 1239 03af 47020000 		.4byte	.LLST12
+ 1240 03b3 1D       		.uleb128 0x1d
+ 1241 03b4 6500     		.ascii	"e\000"
+ 1242 03b6 01       		.byte	0x1
+ 1243 03b7 B6       		.byte	0xb6
+ 1244 03b8 E2010000 		.4byte	0x1e2
+ 1245 03bc 70020000 		.4byte	.LLST13
+ 1246 03c0 1C       		.uleb128 0x1c
+ 1247 03c1 B8010000 		.4byte	.LASF43
+ 1248 03c5 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 33
+
+
+ 1249 03c6 BE       		.byte	0xbe
+ 1250 03c7 E2010000 		.4byte	0x1e2
+ 1251 03cb 9D020000 		.4byte	.LLST14
+ 1252 03cf 1E       		.uleb128 0x1e
+ 1253 03d0 1E000000 		.4byte	.LVL37
+ 1254 03d4 8D010000 		.4byte	0x18d
+ 1255 03d8 E3030000 		.4byte	0x3e3
+ 1256 03dc 15       		.uleb128 0x15
+ 1257 03dd 01       		.uleb128 0x1
+ 1258 03de 50       		.byte	0x50
+ 1259 03df 02       		.uleb128 0x2
+ 1260 03e0 74       		.byte	0x74
+ 1261 03e1 7C       		.sleb128 -4
+ 1262 03e2 00       		.byte	0
+ 1263 03e3 1F       		.uleb128 0x1f
+ 1264 03e4 44000000 		.4byte	.LVL38
+ 1265 03e8 8D010000 		.4byte	0x18d
+ 1266 03ec 00       		.byte	0
+ 1267 03ed 10       		.uleb128 0x10
+ 1268 03ee 04       		.byte	0x4
+ 1269 03ef F3030000 		.4byte	0x3f3
+ 1270 03f3 20       		.uleb128 0x20
+ 1271 03f4 21       		.uleb128 0x21
+ 1272 03f5 44030000 		.4byte	.LASF44
+ 1273 03f9 01       		.byte	0x1
+ 1274 03fa 1201     		.2byte	0x112
+ 1275 03fc 00000000 		.4byte	.LFB4
+ 1276 0400 54000000 		.4byte	.LFE4-.LFB4
+ 1277 0404 01       		.uleb128 0x1
+ 1278 0405 9C       		.byte	0x9c
+ 1279 0406 6F040000 		.4byte	0x46f
+ 1280 040a 0E       		.uleb128 0xe
+ 1281 040b F2010000 		.4byte	.LASF45
+ 1282 040f 01       		.byte	0x1
+ 1283 0410 1501     		.2byte	0x115
+ 1284 0412 E2010000 		.4byte	0x1e2
+ 1285 0416 BB020000 		.4byte	.LLST15
+ 1286 041a 0E       		.uleb128 0xe
+ 1287 041b B8010000 		.4byte	.LASF43
+ 1288 041f 01       		.byte	0x1
+ 1289 0420 1601     		.2byte	0x116
+ 1290 0422 E2010000 		.4byte	0x1e2
+ 1291 0426 E4020000 		.4byte	.LLST16
+ 1292 042a 1E       		.uleb128 0x1e
+ 1293 042b 08000000 		.4byte	.LVL40
+ 1294 042f 8D010000 		.4byte	0x18d
+ 1295 0433 3D040000 		.4byte	0x43d
+ 1296 0437 15       		.uleb128 0x15
+ 1297 0438 01       		.uleb128 0x1
+ 1298 0439 50       		.byte	0x50
+ 1299 043a 01       		.uleb128 0x1
+ 1300 043b 30       		.byte	0x30
+ 1301 043c 00       		.byte	0
+ 1302 043d 1E       		.uleb128 0x1e
+ 1303 043e 1A000000 		.4byte	.LVL43
+ 1304 0442 8D010000 		.4byte	0x18d
+ 1305 0446 51040000 		.4byte	0x451
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 34
+
+
+ 1306 044a 15       		.uleb128 0x15
+ 1307 044b 01       		.uleb128 0x1
+ 1308 044c 50       		.byte	0x50
+ 1309 044d 02       		.uleb128 0x2
+ 1310 044e 74       		.byte	0x74
+ 1311 044f 00       		.sleb128 0
+ 1312 0450 00       		.byte	0
+ 1313 0451 1E       		.uleb128 0x1e
+ 1314 0452 28000000 		.4byte	.LVL45
+ 1315 0456 8D010000 		.4byte	0x18d
+ 1316 045a 65040000 		.4byte	0x465
+ 1317 045e 15       		.uleb128 0x15
+ 1318 045f 01       		.uleb128 0x1
+ 1319 0460 50       		.byte	0x50
+ 1320 0461 02       		.uleb128 0x2
+ 1321 0462 74       		.byte	0x74
+ 1322 0463 00       		.sleb128 0
+ 1323 0464 00       		.byte	0
+ 1324 0465 1F       		.uleb128 0x1f
+ 1325 0466 4A000000 		.4byte	.LVL46
+ 1326 046a 8D010000 		.4byte	0x18d
+ 1327 046e 00       		.byte	0
+ 1328 046f 21       		.uleb128 0x21
+ 1329 0470 C6000000 		.4byte	.LASF46
+ 1330 0474 01       		.byte	0x1
+ 1331 0475 3E01     		.2byte	0x13e
+ 1332 0477 00000000 		.4byte	.LFB5
+ 1333 047b 76000000 		.4byte	.LFE5-.LFB5
+ 1334 047f 01       		.uleb128 0x1
+ 1335 0480 9C       		.byte	0x9c
+ 1336 0481 C0040000 		.4byte	0x4c0
+ 1337 0485 0D       		.uleb128 0xd
+ 1338 0486 12020000 		.4byte	.LASF47
+ 1339 048a 01       		.byte	0x1
+ 1340 048b 3E01     		.2byte	0x13e
+ 1341 048d C0040000 		.4byte	0x4c0
+ 1342 0491 02030000 		.4byte	.LLST17
+ 1343 0495 22       		.uleb128 0x22
+ 1344 0496 6500     		.ascii	"e\000"
+ 1345 0498 01       		.byte	0x1
+ 1346 0499 4301     		.2byte	0x143
+ 1347 049b E2010000 		.4byte	0x1e2
+ 1348 049f 20030000 		.4byte	.LLST18
+ 1349 04a3 1E       		.uleb128 0x1e
+ 1350 04a4 16000000 		.4byte	.LVL51
+ 1351 04a8 8D010000 		.4byte	0x18d
+ 1352 04ac B6040000 		.4byte	0x4b6
+ 1353 04b0 15       		.uleb128 0x15
+ 1354 04b1 01       		.uleb128 0x1
+ 1355 04b2 50       		.byte	0x50
+ 1356 04b3 01       		.uleb128 0x1
+ 1357 04b4 30       		.byte	0x30
+ 1358 04b5 00       		.byte	0
+ 1359 04b6 1F       		.uleb128 0x1f
+ 1360 04b7 4A000000 		.4byte	.LVL52
+ 1361 04bb 8D010000 		.4byte	0x18d
+ 1362 04bf 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 35
+
+
+ 1363 04c0 10       		.uleb128 0x10
+ 1364 04c1 04       		.byte	0x4
+ 1365 04c2 FB000000 		.4byte	0xfb
+ 1366 04c6 23       		.uleb128 0x23
+ 1367 04c7 8B010000 		.4byte	.LASF49
+ 1368 04cb 01       		.byte	0x1
+ 1369 04cc 6401     		.2byte	0x164
+ 1370 04ce 8C000000 		.4byte	0x8c
+ 1371 04d2 00000000 		.4byte	.LFB6
+ 1372 04d6 20000000 		.4byte	.LFE6-.LFB6
+ 1373 04da 01       		.uleb128 0x1
+ 1374 04db 9C       		.byte	0x9c
+ 1375 04dc FF040000 		.4byte	0x4ff
+ 1376 04e0 0D       		.uleb128 0xd
+ 1377 04e1 9B010000 		.4byte	.LASF31
+ 1378 04e5 01       		.byte	0x1
+ 1379 04e6 6401     		.2byte	0x164
+ 1380 04e8 ED030000 		.4byte	0x3ed
+ 1381 04ec 4A030000 		.4byte	.LLST19
+ 1382 04f0 22       		.uleb128 0x22
+ 1383 04f1 6500     		.ascii	"e\000"
+ 1384 04f3 01       		.byte	0x1
+ 1385 04f4 6901     		.2byte	0x169
+ 1386 04f6 E2010000 		.4byte	0x1e2
+ 1387 04fa 9D030000 		.4byte	.LLST20
+ 1388 04fe 00       		.byte	0
+ 1389 04ff 1A       		.uleb128 0x1a
+ 1390 0500 7C010000 		.4byte	.LASF50
+ 1391 0504 01       		.byte	0x1
+ 1392 0505 DC       		.byte	0xdc
+ 1393 0506 0D010000 		.4byte	0x10d
+ 1394 050a 00000000 		.4byte	.LFB3
+ 1395 050e 74000000 		.4byte	.LFE3-.LFB3
+ 1396 0512 01       		.uleb128 0x1
+ 1397 0513 9C       		.byte	0x9c
+ 1398 0514 38060000 		.4byte	0x638
+ 1399 0518 1B       		.uleb128 0x1b
+ 1400 0519 27000000 		.4byte	.LASF51
+ 1401 051d 01       		.byte	0x1
+ 1402 051e DC       		.byte	0xdc
+ 1403 051f 0D010000 		.4byte	0x10d
+ 1404 0523 C2030000 		.4byte	.LLST21
+ 1405 0527 1B       		.uleb128 0x1b
+ 1406 0528 E9010000 		.4byte	.LASF52
+ 1407 052c 01       		.byte	0x1
+ 1408 052d DC       		.byte	0xdc
+ 1409 052e 8C000000 		.4byte	0x8c
+ 1410 0532 E0030000 		.4byte	.LLST22
+ 1411 0536 1C       		.uleb128 0x1c
+ 1412 0537 11000000 		.4byte	.LASF53
+ 1413 053b 01       		.byte	0x1
+ 1414 053c E6       		.byte	0xe6
+ 1415 053d 8C000000 		.4byte	0x8c
+ 1416 0541 0C040000 		.4byte	.LLST23
+ 1417 0545 1C       		.uleb128 0x1c
+ 1418 0546 3E020000 		.4byte	.LASF54
+ 1419 054a 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 36
+
+
+ 1420 054b F3       		.byte	0xf3
+ 1421 054c 0D010000 		.4byte	0x10d
+ 1422 0550 56040000 		.4byte	.LLST24
+ 1423 0554 24       		.uleb128 0x24
+ 1424 0555 08000000 		.4byte	.LBB4
+ 1425 0559 0C000000 		.4byte	.LBE4-.LBB4
+ 1426 055d 6F050000 		.4byte	0x56f
+ 1427 0561 1D       		.uleb128 0x1d
+ 1428 0562 6500     		.ascii	"e\000"
+ 1429 0564 01       		.byte	0x1
+ 1430 0565 E0       		.byte	0xe0
+ 1431 0566 E2010000 		.4byte	0x1e2
+ 1432 056a 8A040000 		.4byte	.LLST25
+ 1433 056e 00       		.byte	0
+ 1434 056f 24       		.uleb128 0x24
+ 1435 0570 22000000 		.4byte	.LBB5
+ 1436 0574 0C000000 		.4byte	.LBE5-.LBB5
+ 1437 0578 A0050000 		.4byte	0x5a0
+ 1438 057c 1D       		.uleb128 0x1d
+ 1439 057d 6500     		.ascii	"e\000"
+ 1440 057f 01       		.byte	0x1
+ 1441 0580 ED       		.byte	0xed
+ 1442 0581 E2010000 		.4byte	0x1e2
+ 1443 0585 9F040000 		.4byte	.LLST26
+ 1444 0589 14       		.uleb128 0x14
+ 1445 058a 2A000000 		.4byte	.LVL67
+ 1446 058e EE010000 		.4byte	0x1ee
+ 1447 0592 15       		.uleb128 0x15
+ 1448 0593 01       		.uleb128 0x1
+ 1449 0594 50       		.byte	0x50
+ 1450 0595 02       		.uleb128 0x2
+ 1451 0596 74       		.byte	0x74
+ 1452 0597 7C       		.sleb128 -4
+ 1453 0598 15       		.uleb128 0x15
+ 1454 0599 01       		.uleb128 0x1
+ 1455 059a 51       		.byte	0x51
+ 1456 059b 02       		.uleb128 0x2
+ 1457 059c 75       		.byte	0x75
+ 1458 059d 00       		.sleb128 0
+ 1459 059e 00       		.byte	0
+ 1460 059f 00       		.byte	0
+ 1461 05a0 1E       		.uleb128 0x1e
+ 1462 05a1 1A000000 		.4byte	.LVL63
+ 1463 05a5 C6040000 		.4byte	0x4c6
+ 1464 05a9 B4050000 		.4byte	0x5b4
+ 1465 05ad 15       		.uleb128 0x15
+ 1466 05ae 01       		.uleb128 0x1
+ 1467 05af 50       		.byte	0x50
+ 1468 05b0 02       		.uleb128 0x2
+ 1469 05b1 74       		.byte	0x74
+ 1470 05b2 00       		.sleb128 0
+ 1471 05b3 00       		.byte	0
+ 1472 05b4 1E       		.uleb128 0x1e
+ 1473 05b5 34000000 		.4byte	.LVL70
+ 1474 05b9 F5020000 		.4byte	0x2f5
+ 1475 05bd C8050000 		.4byte	0x5c8
+ 1476 05c1 15       		.uleb128 0x15
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 37
+
+
+ 1477 05c2 01       		.uleb128 0x1
+ 1478 05c3 50       		.byte	0x50
+ 1479 05c4 02       		.uleb128 0x2
+ 1480 05c5 75       		.byte	0x75
+ 1481 05c6 00       		.sleb128 0
+ 1482 05c7 00       		.byte	0
+ 1483 05c8 1E       		.uleb128 0x1e
+ 1484 05c9 4A000000 		.4byte	.LVL71
+ 1485 05cd 65060000 		.4byte	0x665
+ 1486 05d1 FC050000 		.4byte	0x5fc
+ 1487 05d5 15       		.uleb128 0x15
+ 1488 05d6 01       		.uleb128 0x1
+ 1489 05d7 50       		.byte	0x50
+ 1490 05d8 02       		.uleb128 0x2
+ 1491 05d9 76       		.byte	0x76
+ 1492 05da 00       		.sleb128 0
+ 1493 05db 15       		.uleb128 0x15
+ 1494 05dc 01       		.uleb128 0x1
+ 1495 05dd 51       		.byte	0x51
+ 1496 05de 02       		.uleb128 0x2
+ 1497 05df 74       		.byte	0x74
+ 1498 05e0 00       		.sleb128 0
+ 1499 05e1 15       		.uleb128 0x15
+ 1500 05e2 01       		.uleb128 0x1
+ 1501 05e3 52       		.byte	0x52
+ 1502 05e4 16       		.uleb128 0x16
+ 1503 05e5 75       		.byte	0x75
+ 1504 05e6 00       		.sleb128 0
+ 1505 05e7 77       		.byte	0x77
+ 1506 05e8 00       		.sleb128 0
+ 1507 05e9 77       		.byte	0x77
+ 1508 05ea 00       		.sleb128 0
+ 1509 05eb 40       		.byte	0x40
+ 1510 05ec 4B       		.byte	0x4b
+ 1511 05ed 24       		.byte	0x24
+ 1512 05ee 22       		.byte	0x22
+ 1513 05ef 75       		.byte	0x75
+ 1514 05f0 00       		.sleb128 0
+ 1515 05f1 40       		.byte	0x40
+ 1516 05f2 4B       		.byte	0x4b
+ 1517 05f3 24       		.byte	0x24
+ 1518 05f4 22       		.byte	0x22
+ 1519 05f5 2A       		.byte	0x2a
+ 1520 05f6 28       		.byte	0x28
+ 1521 05f7 0100     		.2byte	0x1
+ 1522 05f9 16       		.byte	0x16
+ 1523 05fa 13       		.byte	0x13
+ 1524 05fb 00       		.byte	0
+ 1525 05fc 1E       		.uleb128 0x1e
+ 1526 05fd 50000000 		.4byte	.LVL72
+ 1527 0601 8F030000 		.4byte	0x38f
+ 1528 0605 10060000 		.4byte	0x610
+ 1529 0609 15       		.uleb128 0x15
+ 1530 060a 01       		.uleb128 0x1
+ 1531 060b 50       		.byte	0x50
+ 1532 060c 02       		.uleb128 0x2
+ 1533 060d 74       		.byte	0x74
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 38
+
+
+ 1534 060e 00       		.sleb128 0
+ 1535 060f 00       		.byte	0
+ 1536 0610 14       		.uleb128 0x14
+ 1537 0611 5E000000 		.4byte	.LVL73
+ 1538 0615 5A060000 		.4byte	0x65a
+ 1539 0619 15       		.uleb128 0x15
+ 1540 061a 01       		.uleb128 0x1
+ 1541 061b 50       		.byte	0x50
+ 1542 061c 01       		.uleb128 0x1
+ 1543 061d 32       		.byte	0x32
+ 1544 061e 15       		.uleb128 0x15
+ 1545 061f 01       		.uleb128 0x1
+ 1546 0620 51       		.byte	0x51
+ 1547 0621 05       		.uleb128 0x5
+ 1548 0622 03       		.byte	0x3
+ 1549 0623 1C000000 		.4byte	.LC1
+ 1550 0627 15       		.uleb128 0x15
+ 1551 0628 01       		.uleb128 0x1
+ 1552 0629 52       		.byte	0x52
+ 1553 062a 02       		.uleb128 0x2
+ 1554 062b 08       		.byte	0x8
+ 1555 062c FF       		.byte	0xff
+ 1556 062d 15       		.uleb128 0x15
+ 1557 062e 01       		.uleb128 0x1
+ 1558 062f 53       		.byte	0x53
+ 1559 0630 05       		.uleb128 0x5
+ 1560 0631 03       		.byte	0x3
+ 1561 0632 00000000 		.4byte	.LC0
+ 1562 0636 00       		.byte	0
+ 1563 0637 00       		.byte	0
+ 1564 0638 17       		.uleb128 0x17
+ 1565 0639 1D020000 		.4byte	.LASF55
+ 1566 063d 01       		.byte	0x1
+ 1567 063e 42       		.byte	0x42
+ 1568 063f E8010000 		.4byte	0x1e8
+ 1569 0643 05       		.uleb128 0x5
+ 1570 0644 03       		.byte	0x3
+ 1571 0645 00000000 		.4byte	work_mem
+ 1572 0649 17       		.uleb128 0x17
+ 1573 064a 38000000 		.4byte	.LASF56
+ 1574 064e 01       		.byte	0x1
+ 1575 064f 45       		.byte	0x45
+ 1576 0650 8C000000 		.4byte	0x8c
+ 1577 0654 05       		.uleb128 0x5
+ 1578 0655 03       		.byte	0x3
+ 1579 0656 04800000 		.4byte	zero_mem
+ 1580 065a 25       		.uleb128 0x25
+ 1581 065b FC000000 		.4byte	.LASF61
+ 1582 065f FC000000 		.4byte	.LASF61
+ 1583 0663 05       		.byte	0x5
+ 1584 0664 3D       		.byte	0x3d
+ 1585 0665 26       		.uleb128 0x26
+ 1586 0666 BF000000 		.4byte	.LASF62
+ 1587 066a BF000000 		.4byte	.LASF62
+ 1588 066e 00       		.byte	0
+ 1589              		.section	.debug_abbrev,"",%progbits
+ 1590              	.Ldebug_abbrev0:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 39
+
+
+ 1591 0000 01       		.uleb128 0x1
+ 1592 0001 11       		.uleb128 0x11
+ 1593 0002 01       		.byte	0x1
+ 1594 0003 25       		.uleb128 0x25
+ 1595 0004 0E       		.uleb128 0xe
+ 1596 0005 13       		.uleb128 0x13
+ 1597 0006 0B       		.uleb128 0xb
+ 1598 0007 03       		.uleb128 0x3
+ 1599 0008 0E       		.uleb128 0xe
+ 1600 0009 1B       		.uleb128 0x1b
+ 1601 000a 0E       		.uleb128 0xe
+ 1602 000b 55       		.uleb128 0x55
+ 1603 000c 17       		.uleb128 0x17
+ 1604 000d 11       		.uleb128 0x11
+ 1605 000e 01       		.uleb128 0x1
+ 1606 000f 10       		.uleb128 0x10
+ 1607 0010 17       		.uleb128 0x17
+ 1608 0011 00       		.byte	0
+ 1609 0012 00       		.byte	0
+ 1610 0013 02       		.uleb128 0x2
+ 1611 0014 24       		.uleb128 0x24
+ 1612 0015 00       		.byte	0
+ 1613 0016 0B       		.uleb128 0xb
+ 1614 0017 0B       		.uleb128 0xb
+ 1615 0018 3E       		.uleb128 0x3e
+ 1616 0019 0B       		.uleb128 0xb
+ 1617 001a 03       		.uleb128 0x3
+ 1618 001b 0E       		.uleb128 0xe
+ 1619 001c 00       		.byte	0
+ 1620 001d 00       		.byte	0
+ 1621 001e 03       		.uleb128 0x3
+ 1622 001f 16       		.uleb128 0x16
+ 1623 0020 00       		.byte	0
+ 1624 0021 03       		.uleb128 0x3
+ 1625 0022 0E       		.uleb128 0xe
+ 1626 0023 3A       		.uleb128 0x3a
+ 1627 0024 0B       		.uleb128 0xb
+ 1628 0025 3B       		.uleb128 0x3b
+ 1629 0026 0B       		.uleb128 0xb
+ 1630 0027 49       		.uleb128 0x49
+ 1631 0028 13       		.uleb128 0x13
+ 1632 0029 00       		.byte	0
+ 1633 002a 00       		.byte	0
+ 1634 002b 04       		.uleb128 0x4
+ 1635 002c 24       		.uleb128 0x24
+ 1636 002d 00       		.byte	0
+ 1637 002e 0B       		.uleb128 0xb
+ 1638 002f 0B       		.uleb128 0xb
+ 1639 0030 3E       		.uleb128 0x3e
+ 1640 0031 0B       		.uleb128 0xb
+ 1641 0032 03       		.uleb128 0x3
+ 1642 0033 08       		.uleb128 0x8
+ 1643 0034 00       		.byte	0
+ 1644 0035 00       		.byte	0
+ 1645 0036 05       		.uleb128 0x5
+ 1646 0037 13       		.uleb128 0x13
+ 1647 0038 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 40
+
+
+ 1648 0039 0B       		.uleb128 0xb
+ 1649 003a 0B       		.uleb128 0xb
+ 1650 003b 3A       		.uleb128 0x3a
+ 1651 003c 0B       		.uleb128 0xb
+ 1652 003d 3B       		.uleb128 0x3b
+ 1653 003e 0B       		.uleb128 0xb
+ 1654 003f 01       		.uleb128 0x1
+ 1655 0040 13       		.uleb128 0x13
+ 1656 0041 00       		.byte	0
+ 1657 0042 00       		.byte	0
+ 1658 0043 06       		.uleb128 0x6
+ 1659 0044 0D       		.uleb128 0xd
+ 1660 0045 00       		.byte	0
+ 1661 0046 03       		.uleb128 0x3
+ 1662 0047 0E       		.uleb128 0xe
+ 1663 0048 3A       		.uleb128 0x3a
+ 1664 0049 0B       		.uleb128 0xb
+ 1665 004a 3B       		.uleb128 0x3b
+ 1666 004b 0B       		.uleb128 0xb
+ 1667 004c 49       		.uleb128 0x49
+ 1668 004d 13       		.uleb128 0x13
+ 1669 004e 38       		.uleb128 0x38
+ 1670 004f 0B       		.uleb128 0xb
+ 1671 0050 00       		.byte	0
+ 1672 0051 00       		.byte	0
+ 1673 0052 07       		.uleb128 0x7
+ 1674 0053 0F       		.uleb128 0xf
+ 1675 0054 00       		.byte	0
+ 1676 0055 0B       		.uleb128 0xb
+ 1677 0056 0B       		.uleb128 0xb
+ 1678 0057 00       		.byte	0
+ 1679 0058 00       		.byte	0
+ 1680 0059 08       		.uleb128 0x8
+ 1681 005a 0D       		.uleb128 0xd
+ 1682 005b 00       		.byte	0
+ 1683 005c 03       		.uleb128 0x3
+ 1684 005d 0E       		.uleb128 0xe
+ 1685 005e 3A       		.uleb128 0x3a
+ 1686 005f 0B       		.uleb128 0xb
+ 1687 0060 3B       		.uleb128 0x3b
+ 1688 0061 0B       		.uleb128 0xb
+ 1689 0062 49       		.uleb128 0x49
+ 1690 0063 13       		.uleb128 0x13
+ 1691 0064 0B       		.uleb128 0xb
+ 1692 0065 0B       		.uleb128 0xb
+ 1693 0066 0D       		.uleb128 0xd
+ 1694 0067 0B       		.uleb128 0xb
+ 1695 0068 0C       		.uleb128 0xc
+ 1696 0069 0B       		.uleb128 0xb
+ 1697 006a 38       		.uleb128 0x38
+ 1698 006b 0B       		.uleb128 0xb
+ 1699 006c 00       		.byte	0
+ 1700 006d 00       		.byte	0
+ 1701 006e 09       		.uleb128 0x9
+ 1702 006f 17       		.uleb128 0x17
+ 1703 0070 01       		.byte	0x1
+ 1704 0071 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 41
+
+
+ 1705 0072 0B       		.uleb128 0xb
+ 1706 0073 3A       		.uleb128 0x3a
+ 1707 0074 0B       		.uleb128 0xb
+ 1708 0075 3B       		.uleb128 0x3b
+ 1709 0076 0B       		.uleb128 0xb
+ 1710 0077 01       		.uleb128 0x1
+ 1711 0078 13       		.uleb128 0x13
+ 1712 0079 00       		.byte	0
+ 1713 007a 00       		.byte	0
+ 1714 007b 0A       		.uleb128 0xa
+ 1715 007c 0D       		.uleb128 0xd
+ 1716 007d 00       		.byte	0
+ 1717 007e 49       		.uleb128 0x49
+ 1718 007f 13       		.uleb128 0x13
+ 1719 0080 00       		.byte	0
+ 1720 0081 00       		.byte	0
+ 1721 0082 0B       		.uleb128 0xb
+ 1722 0083 0D       		.uleb128 0xd
+ 1723 0084 00       		.byte	0
+ 1724 0085 03       		.uleb128 0x3
+ 1725 0086 0E       		.uleb128 0xe
+ 1726 0087 3A       		.uleb128 0x3a
+ 1727 0088 0B       		.uleb128 0xb
+ 1728 0089 3B       		.uleb128 0x3b
+ 1729 008a 0B       		.uleb128 0xb
+ 1730 008b 49       		.uleb128 0x49
+ 1731 008c 13       		.uleb128 0x13
+ 1732 008d 00       		.byte	0
+ 1733 008e 00       		.byte	0
+ 1734 008f 0C       		.uleb128 0xc
+ 1735 0090 2E       		.uleb128 0x2e
+ 1736 0091 01       		.byte	0x1
+ 1737 0092 03       		.uleb128 0x3
+ 1738 0093 0E       		.uleb128 0xe
+ 1739 0094 3A       		.uleb128 0x3a
+ 1740 0095 0B       		.uleb128 0xb
+ 1741 0096 3B       		.uleb128 0x3b
+ 1742 0097 05       		.uleb128 0x5
+ 1743 0098 27       		.uleb128 0x27
+ 1744 0099 19       		.uleb128 0x19
+ 1745 009a 49       		.uleb128 0x49
+ 1746 009b 13       		.uleb128 0x13
+ 1747 009c 11       		.uleb128 0x11
+ 1748 009d 01       		.uleb128 0x1
+ 1749 009e 12       		.uleb128 0x12
+ 1750 009f 06       		.uleb128 0x6
+ 1751 00a0 40       		.uleb128 0x40
+ 1752 00a1 18       		.uleb128 0x18
+ 1753 00a2 9742     		.uleb128 0x2117
+ 1754 00a4 19       		.uleb128 0x19
+ 1755 00a5 01       		.uleb128 0x1
+ 1756 00a6 13       		.uleb128 0x13
+ 1757 00a7 00       		.byte	0
+ 1758 00a8 00       		.byte	0
+ 1759 00a9 0D       		.uleb128 0xd
+ 1760 00aa 05       		.uleb128 0x5
+ 1761 00ab 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 42
+
+
+ 1762 00ac 03       		.uleb128 0x3
+ 1763 00ad 0E       		.uleb128 0xe
+ 1764 00ae 3A       		.uleb128 0x3a
+ 1765 00af 0B       		.uleb128 0xb
+ 1766 00b0 3B       		.uleb128 0x3b
+ 1767 00b1 05       		.uleb128 0x5
+ 1768 00b2 49       		.uleb128 0x49
+ 1769 00b3 13       		.uleb128 0x13
+ 1770 00b4 02       		.uleb128 0x2
+ 1771 00b5 17       		.uleb128 0x17
+ 1772 00b6 00       		.byte	0
+ 1773 00b7 00       		.byte	0
+ 1774 00b8 0E       		.uleb128 0xe
+ 1775 00b9 34       		.uleb128 0x34
+ 1776 00ba 00       		.byte	0
+ 1777 00bb 03       		.uleb128 0x3
+ 1778 00bc 0E       		.uleb128 0xe
+ 1779 00bd 3A       		.uleb128 0x3a
+ 1780 00be 0B       		.uleb128 0xb
+ 1781 00bf 3B       		.uleb128 0x3b
+ 1782 00c0 05       		.uleb128 0x5
+ 1783 00c1 49       		.uleb128 0x49
+ 1784 00c2 13       		.uleb128 0x13
+ 1785 00c3 02       		.uleb128 0x2
+ 1786 00c4 17       		.uleb128 0x17
+ 1787 00c5 00       		.byte	0
+ 1788 00c6 00       		.byte	0
+ 1789 00c7 0F       		.uleb128 0xf
+ 1790 00c8 0B       		.uleb128 0xb
+ 1791 00c9 01       		.byte	0x1
+ 1792 00ca 11       		.uleb128 0x11
+ 1793 00cb 01       		.uleb128 0x1
+ 1794 00cc 12       		.uleb128 0x12
+ 1795 00cd 06       		.uleb128 0x6
+ 1796 00ce 00       		.byte	0
+ 1797 00cf 00       		.byte	0
+ 1798 00d0 10       		.uleb128 0x10
+ 1799 00d1 0F       		.uleb128 0xf
+ 1800 00d2 00       		.byte	0
+ 1801 00d3 0B       		.uleb128 0xb
+ 1802 00d4 0B       		.uleb128 0xb
+ 1803 00d5 49       		.uleb128 0x49
+ 1804 00d6 13       		.uleb128 0x13
+ 1805 00d7 00       		.byte	0
+ 1806 00d8 00       		.byte	0
+ 1807 00d9 11       		.uleb128 0x11
+ 1808 00da 2E       		.uleb128 0x2e
+ 1809 00db 01       		.byte	0x1
+ 1810 00dc 03       		.uleb128 0x3
+ 1811 00dd 0E       		.uleb128 0xe
+ 1812 00de 3A       		.uleb128 0x3a
+ 1813 00df 0B       		.uleb128 0xb
+ 1814 00e0 3B       		.uleb128 0x3b
+ 1815 00e1 05       		.uleb128 0x5
+ 1816 00e2 27       		.uleb128 0x27
+ 1817 00e3 19       		.uleb128 0x19
+ 1818 00e4 11       		.uleb128 0x11
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 43
+
+
+ 1819 00e5 01       		.uleb128 0x1
+ 1820 00e6 12       		.uleb128 0x12
+ 1821 00e7 06       		.uleb128 0x6
+ 1822 00e8 40       		.uleb128 0x40
+ 1823 00e9 18       		.uleb128 0x18
+ 1824 00ea 9742     		.uleb128 0x2117
+ 1825 00ec 19       		.uleb128 0x19
+ 1826 00ed 01       		.uleb128 0x1
+ 1827 00ee 13       		.uleb128 0x13
+ 1828 00ef 00       		.byte	0
+ 1829 00f0 00       		.byte	0
+ 1830 00f1 12       		.uleb128 0x12
+ 1831 00f2 05       		.uleb128 0x5
+ 1832 00f3 00       		.byte	0
+ 1833 00f4 03       		.uleb128 0x3
+ 1834 00f5 08       		.uleb128 0x8
+ 1835 00f6 3A       		.uleb128 0x3a
+ 1836 00f7 0B       		.uleb128 0xb
+ 1837 00f8 3B       		.uleb128 0x3b
+ 1838 00f9 05       		.uleb128 0x5
+ 1839 00fa 49       		.uleb128 0x49
+ 1840 00fb 13       		.uleb128 0x13
+ 1841 00fc 02       		.uleb128 0x2
+ 1842 00fd 18       		.uleb128 0x18
+ 1843 00fe 00       		.byte	0
+ 1844 00ff 00       		.byte	0
+ 1845 0100 13       		.uleb128 0x13
+ 1846 0101 05       		.uleb128 0x5
+ 1847 0102 00       		.byte	0
+ 1848 0103 03       		.uleb128 0x3
+ 1849 0104 08       		.uleb128 0x8
+ 1850 0105 3A       		.uleb128 0x3a
+ 1851 0106 0B       		.uleb128 0xb
+ 1852 0107 3B       		.uleb128 0x3b
+ 1853 0108 05       		.uleb128 0x5
+ 1854 0109 49       		.uleb128 0x49
+ 1855 010a 13       		.uleb128 0x13
+ 1856 010b 02       		.uleb128 0x2
+ 1857 010c 17       		.uleb128 0x17
+ 1858 010d 00       		.byte	0
+ 1859 010e 00       		.byte	0
+ 1860 010f 14       		.uleb128 0x14
+ 1861 0110 898201   		.uleb128 0x4109
+ 1862 0113 01       		.byte	0x1
+ 1863 0114 11       		.uleb128 0x11
+ 1864 0115 01       		.uleb128 0x1
+ 1865 0116 31       		.uleb128 0x31
+ 1866 0117 13       		.uleb128 0x13
+ 1867 0118 00       		.byte	0
+ 1868 0119 00       		.byte	0
+ 1869 011a 15       		.uleb128 0x15
+ 1870 011b 8A8201   		.uleb128 0x410a
+ 1871 011e 00       		.byte	0
+ 1872 011f 02       		.uleb128 0x2
+ 1873 0120 18       		.uleb128 0x18
+ 1874 0121 9142     		.uleb128 0x2111
+ 1875 0123 18       		.uleb128 0x18
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 44
+
+
+ 1876 0124 00       		.byte	0
+ 1877 0125 00       		.byte	0
+ 1878 0126 16       		.uleb128 0x16
+ 1879 0127 2E       		.uleb128 0x2e
+ 1880 0128 01       		.byte	0x1
+ 1881 0129 3F       		.uleb128 0x3f
+ 1882 012a 19       		.uleb128 0x19
+ 1883 012b 03       		.uleb128 0x3
+ 1884 012c 0E       		.uleb128 0xe
+ 1885 012d 3A       		.uleb128 0x3a
+ 1886 012e 0B       		.uleb128 0xb
+ 1887 012f 3B       		.uleb128 0x3b
+ 1888 0130 0B       		.uleb128 0xb
+ 1889 0131 27       		.uleb128 0x27
+ 1890 0132 19       		.uleb128 0x19
+ 1891 0133 11       		.uleb128 0x11
+ 1892 0134 01       		.uleb128 0x1
+ 1893 0135 12       		.uleb128 0x12
+ 1894 0136 06       		.uleb128 0x6
+ 1895 0137 40       		.uleb128 0x40
+ 1896 0138 18       		.uleb128 0x18
+ 1897 0139 9742     		.uleb128 0x2117
+ 1898 013b 19       		.uleb128 0x19
+ 1899 013c 01       		.uleb128 0x1
+ 1900 013d 13       		.uleb128 0x13
+ 1901 013e 00       		.byte	0
+ 1902 013f 00       		.byte	0
+ 1903 0140 17       		.uleb128 0x17
+ 1904 0141 34       		.uleb128 0x34
+ 1905 0142 00       		.byte	0
+ 1906 0143 03       		.uleb128 0x3
+ 1907 0144 0E       		.uleb128 0xe
+ 1908 0145 3A       		.uleb128 0x3a
+ 1909 0146 0B       		.uleb128 0xb
+ 1910 0147 3B       		.uleb128 0x3b
+ 1911 0148 0B       		.uleb128 0xb
+ 1912 0149 49       		.uleb128 0x49
+ 1913 014a 13       		.uleb128 0x13
+ 1914 014b 02       		.uleb128 0x2
+ 1915 014c 18       		.uleb128 0x18
+ 1916 014d 00       		.byte	0
+ 1917 014e 00       		.byte	0
+ 1918 014f 18       		.uleb128 0x18
+ 1919 0150 01       		.uleb128 0x1
+ 1920 0151 01       		.byte	0x1
+ 1921 0152 49       		.uleb128 0x49
+ 1922 0153 13       		.uleb128 0x13
+ 1923 0154 01       		.uleb128 0x1
+ 1924 0155 13       		.uleb128 0x13
+ 1925 0156 00       		.byte	0
+ 1926 0157 00       		.byte	0
+ 1927 0158 19       		.uleb128 0x19
+ 1928 0159 21       		.uleb128 0x21
+ 1929 015a 00       		.byte	0
+ 1930 015b 49       		.uleb128 0x49
+ 1931 015c 13       		.uleb128 0x13
+ 1932 015d 2F       		.uleb128 0x2f
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 45
+
+
+ 1933 015e 05       		.uleb128 0x5
+ 1934 015f 00       		.byte	0
+ 1935 0160 00       		.byte	0
+ 1936 0161 1A       		.uleb128 0x1a
+ 1937 0162 2E       		.uleb128 0x2e
+ 1938 0163 01       		.byte	0x1
+ 1939 0164 3F       		.uleb128 0x3f
+ 1940 0165 19       		.uleb128 0x19
+ 1941 0166 03       		.uleb128 0x3
+ 1942 0167 0E       		.uleb128 0xe
+ 1943 0168 3A       		.uleb128 0x3a
+ 1944 0169 0B       		.uleb128 0xb
+ 1945 016a 3B       		.uleb128 0x3b
+ 1946 016b 0B       		.uleb128 0xb
+ 1947 016c 27       		.uleb128 0x27
+ 1948 016d 19       		.uleb128 0x19
+ 1949 016e 49       		.uleb128 0x49
+ 1950 016f 13       		.uleb128 0x13
+ 1951 0170 11       		.uleb128 0x11
+ 1952 0171 01       		.uleb128 0x1
+ 1953 0172 12       		.uleb128 0x12
+ 1954 0173 06       		.uleb128 0x6
+ 1955 0174 40       		.uleb128 0x40
+ 1956 0175 18       		.uleb128 0x18
+ 1957 0176 9742     		.uleb128 0x2117
+ 1958 0178 19       		.uleb128 0x19
+ 1959 0179 01       		.uleb128 0x1
+ 1960 017a 13       		.uleb128 0x13
+ 1961 017b 00       		.byte	0
+ 1962 017c 00       		.byte	0
+ 1963 017d 1B       		.uleb128 0x1b
+ 1964 017e 05       		.uleb128 0x5
+ 1965 017f 00       		.byte	0
+ 1966 0180 03       		.uleb128 0x3
+ 1967 0181 0E       		.uleb128 0xe
+ 1968 0182 3A       		.uleb128 0x3a
+ 1969 0183 0B       		.uleb128 0xb
+ 1970 0184 3B       		.uleb128 0x3b
+ 1971 0185 0B       		.uleb128 0xb
+ 1972 0186 49       		.uleb128 0x49
+ 1973 0187 13       		.uleb128 0x13
+ 1974 0188 02       		.uleb128 0x2
+ 1975 0189 17       		.uleb128 0x17
+ 1976 018a 00       		.byte	0
+ 1977 018b 00       		.byte	0
+ 1978 018c 1C       		.uleb128 0x1c
+ 1979 018d 34       		.uleb128 0x34
+ 1980 018e 00       		.byte	0
+ 1981 018f 03       		.uleb128 0x3
+ 1982 0190 0E       		.uleb128 0xe
+ 1983 0191 3A       		.uleb128 0x3a
+ 1984 0192 0B       		.uleb128 0xb
+ 1985 0193 3B       		.uleb128 0x3b
+ 1986 0194 0B       		.uleb128 0xb
+ 1987 0195 49       		.uleb128 0x49
+ 1988 0196 13       		.uleb128 0x13
+ 1989 0197 02       		.uleb128 0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 46
+
+
+ 1990 0198 17       		.uleb128 0x17
+ 1991 0199 00       		.byte	0
+ 1992 019a 00       		.byte	0
+ 1993 019b 1D       		.uleb128 0x1d
+ 1994 019c 34       		.uleb128 0x34
+ 1995 019d 00       		.byte	0
+ 1996 019e 03       		.uleb128 0x3
+ 1997 019f 08       		.uleb128 0x8
+ 1998 01a0 3A       		.uleb128 0x3a
+ 1999 01a1 0B       		.uleb128 0xb
+ 2000 01a2 3B       		.uleb128 0x3b
+ 2001 01a3 0B       		.uleb128 0xb
+ 2002 01a4 49       		.uleb128 0x49
+ 2003 01a5 13       		.uleb128 0x13
+ 2004 01a6 02       		.uleb128 0x2
+ 2005 01a7 17       		.uleb128 0x17
+ 2006 01a8 00       		.byte	0
+ 2007 01a9 00       		.byte	0
+ 2008 01aa 1E       		.uleb128 0x1e
+ 2009 01ab 898201   		.uleb128 0x4109
+ 2010 01ae 01       		.byte	0x1
+ 2011 01af 11       		.uleb128 0x11
+ 2012 01b0 01       		.uleb128 0x1
+ 2013 01b1 31       		.uleb128 0x31
+ 2014 01b2 13       		.uleb128 0x13
+ 2015 01b3 01       		.uleb128 0x1
+ 2016 01b4 13       		.uleb128 0x13
+ 2017 01b5 00       		.byte	0
+ 2018 01b6 00       		.byte	0
+ 2019 01b7 1F       		.uleb128 0x1f
+ 2020 01b8 898201   		.uleb128 0x4109
+ 2021 01bb 00       		.byte	0
+ 2022 01bc 11       		.uleb128 0x11
+ 2023 01bd 01       		.uleb128 0x1
+ 2024 01be 31       		.uleb128 0x31
+ 2025 01bf 13       		.uleb128 0x13
+ 2026 01c0 00       		.byte	0
+ 2027 01c1 00       		.byte	0
+ 2028 01c2 20       		.uleb128 0x20
+ 2029 01c3 26       		.uleb128 0x26
+ 2030 01c4 00       		.byte	0
+ 2031 01c5 00       		.byte	0
+ 2032 01c6 00       		.byte	0
+ 2033 01c7 21       		.uleb128 0x21
+ 2034 01c8 2E       		.uleb128 0x2e
+ 2035 01c9 01       		.byte	0x1
+ 2036 01ca 3F       		.uleb128 0x3f
+ 2037 01cb 19       		.uleb128 0x19
+ 2038 01cc 03       		.uleb128 0x3
+ 2039 01cd 0E       		.uleb128 0xe
+ 2040 01ce 3A       		.uleb128 0x3a
+ 2041 01cf 0B       		.uleb128 0xb
+ 2042 01d0 3B       		.uleb128 0x3b
+ 2043 01d1 05       		.uleb128 0x5
+ 2044 01d2 27       		.uleb128 0x27
+ 2045 01d3 19       		.uleb128 0x19
+ 2046 01d4 11       		.uleb128 0x11
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 47
+
+
+ 2047 01d5 01       		.uleb128 0x1
+ 2048 01d6 12       		.uleb128 0x12
+ 2049 01d7 06       		.uleb128 0x6
+ 2050 01d8 40       		.uleb128 0x40
+ 2051 01d9 18       		.uleb128 0x18
+ 2052 01da 9742     		.uleb128 0x2117
+ 2053 01dc 19       		.uleb128 0x19
+ 2054 01dd 01       		.uleb128 0x1
+ 2055 01de 13       		.uleb128 0x13
+ 2056 01df 00       		.byte	0
+ 2057 01e0 00       		.byte	0
+ 2058 01e1 22       		.uleb128 0x22
+ 2059 01e2 34       		.uleb128 0x34
+ 2060 01e3 00       		.byte	0
+ 2061 01e4 03       		.uleb128 0x3
+ 2062 01e5 08       		.uleb128 0x8
+ 2063 01e6 3A       		.uleb128 0x3a
+ 2064 01e7 0B       		.uleb128 0xb
+ 2065 01e8 3B       		.uleb128 0x3b
+ 2066 01e9 05       		.uleb128 0x5
+ 2067 01ea 49       		.uleb128 0x49
+ 2068 01eb 13       		.uleb128 0x13
+ 2069 01ec 02       		.uleb128 0x2
+ 2070 01ed 17       		.uleb128 0x17
+ 2071 01ee 00       		.byte	0
+ 2072 01ef 00       		.byte	0
+ 2073 01f0 23       		.uleb128 0x23
+ 2074 01f1 2E       		.uleb128 0x2e
+ 2075 01f2 01       		.byte	0x1
+ 2076 01f3 3F       		.uleb128 0x3f
+ 2077 01f4 19       		.uleb128 0x19
+ 2078 01f5 03       		.uleb128 0x3
+ 2079 01f6 0E       		.uleb128 0xe
+ 2080 01f7 3A       		.uleb128 0x3a
+ 2081 01f8 0B       		.uleb128 0xb
+ 2082 01f9 3B       		.uleb128 0x3b
+ 2083 01fa 05       		.uleb128 0x5
+ 2084 01fb 27       		.uleb128 0x27
+ 2085 01fc 19       		.uleb128 0x19
+ 2086 01fd 49       		.uleb128 0x49
+ 2087 01fe 13       		.uleb128 0x13
+ 2088 01ff 11       		.uleb128 0x11
+ 2089 0200 01       		.uleb128 0x1
+ 2090 0201 12       		.uleb128 0x12
+ 2091 0202 06       		.uleb128 0x6
+ 2092 0203 40       		.uleb128 0x40
+ 2093 0204 18       		.uleb128 0x18
+ 2094 0205 9742     		.uleb128 0x2117
+ 2095 0207 19       		.uleb128 0x19
+ 2096 0208 01       		.uleb128 0x1
+ 2097 0209 13       		.uleb128 0x13
+ 2098 020a 00       		.byte	0
+ 2099 020b 00       		.byte	0
+ 2100 020c 24       		.uleb128 0x24
+ 2101 020d 0B       		.uleb128 0xb
+ 2102 020e 01       		.byte	0x1
+ 2103 020f 11       		.uleb128 0x11
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 48
+
+
+ 2104 0210 01       		.uleb128 0x1
+ 2105 0211 12       		.uleb128 0x12
+ 2106 0212 06       		.uleb128 0x6
+ 2107 0213 01       		.uleb128 0x1
+ 2108 0214 13       		.uleb128 0x13
+ 2109 0215 00       		.byte	0
+ 2110 0216 00       		.byte	0
+ 2111 0217 25       		.uleb128 0x25
+ 2112 0218 2E       		.uleb128 0x2e
+ 2113 0219 00       		.byte	0
+ 2114 021a 3F       		.uleb128 0x3f
+ 2115 021b 19       		.uleb128 0x19
+ 2116 021c 3C       		.uleb128 0x3c
+ 2117 021d 19       		.uleb128 0x19
+ 2118 021e 6E       		.uleb128 0x6e
+ 2119 021f 0E       		.uleb128 0xe
+ 2120 0220 03       		.uleb128 0x3
+ 2121 0221 0E       		.uleb128 0xe
+ 2122 0222 3A       		.uleb128 0x3a
+ 2123 0223 0B       		.uleb128 0xb
+ 2124 0224 3B       		.uleb128 0x3b
+ 2125 0225 0B       		.uleb128 0xb
+ 2126 0226 00       		.byte	0
+ 2127 0227 00       		.byte	0
+ 2128 0228 26       		.uleb128 0x26
+ 2129 0229 2E       		.uleb128 0x2e
+ 2130 022a 00       		.byte	0
+ 2131 022b 3F       		.uleb128 0x3f
+ 2132 022c 19       		.uleb128 0x19
+ 2133 022d 3C       		.uleb128 0x3c
+ 2134 022e 19       		.uleb128 0x19
+ 2135 022f 6E       		.uleb128 0x6e
+ 2136 0230 0E       		.uleb128 0xe
+ 2137 0231 03       		.uleb128 0x3
+ 2138 0232 0E       		.uleb128 0xe
+ 2139 0233 00       		.byte	0
+ 2140 0234 00       		.byte	0
+ 2141 0235 00       		.byte	0
+ 2142              		.section	.debug_loc,"",%progbits
+ 2143              	.Ldebug_loc0:
+ 2144              	.LLST0:
+ 2145 0000 00000000 		.4byte	.LVL0
+ 2146 0004 06000000 		.4byte	.LVL1
+ 2147 0008 0100     		.2byte	0x1
+ 2148 000a 50       		.byte	0x50
+ 2149 000b 06000000 		.4byte	.LVL1
+ 2150 000f 08000000 		.4byte	.LVL2
+ 2151 0013 0400     		.2byte	0x4
+ 2152 0015 F3       		.byte	0xf3
+ 2153 0016 01       		.uleb128 0x1
+ 2154 0017 50       		.byte	0x50
+ 2155 0018 9F       		.byte	0x9f
+ 2156 0019 08000000 		.4byte	.LVL2
+ 2157 001d 0C000000 		.4byte	.LVL4
+ 2158 0021 0100     		.2byte	0x1
+ 2159 0023 50       		.byte	0x50
+ 2160 0024 0C000000 		.4byte	.LVL4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 49
+
+
+ 2161 0028 14000000 		.4byte	.LVL6
+ 2162 002c 0300     		.2byte	0x3
+ 2163 002e 73       		.byte	0x73
+ 2164 002f 7C       		.sleb128 -4
+ 2165 0030 9F       		.byte	0x9f
+ 2166 0031 14000000 		.4byte	.LVL6
+ 2167 0035 28000000 		.4byte	.LFE7
+ 2168 0039 0400     		.2byte	0x4
+ 2169 003b F3       		.byte	0xf3
+ 2170 003c 01       		.uleb128 0x1
+ 2171 003d 50       		.byte	0x50
+ 2172 003e 9F       		.byte	0x9f
+ 2173 003f 00000000 		.4byte	0
+ 2174 0043 00000000 		.4byte	0
+ 2175              	.LLST1:
+ 2176 0047 00000000 		.4byte	.LVL0
+ 2177 004b 06000000 		.4byte	.LVL1
+ 2178 004f 0200     		.2byte	0x2
+ 2179 0051 30       		.byte	0x30
+ 2180 0052 9F       		.byte	0x9f
+ 2181 0053 06000000 		.4byte	.LVL1
+ 2182 0057 08000000 		.4byte	.LVL2
+ 2183 005b 0100     		.2byte	0x1
+ 2184 005d 50       		.byte	0x50
+ 2185 005e 08000000 		.4byte	.LVL2
+ 2186 0062 10000000 		.4byte	.LVL5
+ 2187 0066 0200     		.2byte	0x2
+ 2188 0068 30       		.byte	0x30
+ 2189 0069 9F       		.byte	0x9f
+ 2190 006a 10000000 		.4byte	.LVL5
+ 2191 006e 28000000 		.4byte	.LFE7
+ 2192 0072 0100     		.2byte	0x1
+ 2193 0074 50       		.byte	0x50
+ 2194 0075 00000000 		.4byte	0
+ 2195 0079 00000000 		.4byte	0
+ 2196              	.LLST2:
+ 2197 007d 0A000000 		.4byte	.LVL3
+ 2198 0081 14000000 		.4byte	.LVL6
+ 2199 0085 0100     		.2byte	0x1
+ 2200 0087 53       		.byte	0x53
+ 2201 0088 14000000 		.4byte	.LVL6
+ 2202 008c 28000000 		.4byte	.LFE7
+ 2203 0090 0600     		.2byte	0x6
+ 2204 0092 F3       		.byte	0xf3
+ 2205 0093 01       		.uleb128 0x1
+ 2206 0094 50       		.byte	0x50
+ 2207 0095 23       		.byte	0x23
+ 2208 0096 04       		.uleb128 0x4
+ 2209 0097 9F       		.byte	0x9f
+ 2210 0098 00000000 		.4byte	0
+ 2211 009c 00000000 		.4byte	0
+ 2212              	.LLST3:
+ 2213 00a0 00000000 		.4byte	.LVL8
+ 2214 00a4 0A000000 		.4byte	.LVL9
+ 2215 00a8 0100     		.2byte	0x1
+ 2216 00aa 51       		.byte	0x51
+ 2217 00ab 0A000000 		.4byte	.LVL9
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 50
+
+
+ 2218 00af 50000000 		.4byte	.LFE9
+ 2219 00b3 0100     		.2byte	0x1
+ 2220 00b5 51       		.byte	0x51
+ 2221 00b6 00000000 		.4byte	0
+ 2222 00ba 00000000 		.4byte	0
+ 2223              	.LLST4:
+ 2224 00be 22000000 		.4byte	.LVL12
+ 2225 00c2 46000000 		.4byte	.LVL13
+ 2226 00c6 0100     		.2byte	0x1
+ 2227 00c8 52       		.byte	0x52
+ 2228 00c9 00000000 		.4byte	0
+ 2229 00cd 00000000 		.4byte	0
+ 2230              	.LLST5:
+ 2231 00d1 22000000 		.4byte	.LVL12
+ 2232 00d5 46000000 		.4byte	.LVL13
+ 2233 00d9 0600     		.2byte	0x6
+ 2234 00db 72       		.byte	0x72
+ 2235 00dc 00       		.sleb128 0
+ 2236 00dd 71       		.byte	0x71
+ 2237 00de 00       		.sleb128 0
+ 2238 00df 22       		.byte	0x22
+ 2239 00e0 9F       		.byte	0x9f
+ 2240 00e1 00000000 		.4byte	0
+ 2241 00e5 00000000 		.4byte	0
+ 2242              	.LLST6:
+ 2243 00e9 00000000 		.4byte	.LVL14
+ 2244 00ed 19000000 		.4byte	.LVL15-1
+ 2245 00f1 0100     		.2byte	0x1
+ 2246 00f3 50       		.byte	0x50
+ 2247 00f4 19000000 		.4byte	.LVL15-1
+ 2248 00f8 28000000 		.4byte	.LVL17
+ 2249 00fc 0100     		.2byte	0x1
+ 2250 00fe 54       		.byte	0x54
+ 2251 00ff 28000000 		.4byte	.LVL17
+ 2252 0103 2A000000 		.4byte	.LVL18
+ 2253 0107 0100     		.2byte	0x1
+ 2254 0109 50       		.byte	0x50
+ 2255 010a 2A000000 		.4byte	.LVL18
+ 2256 010e 2C000000 		.4byte	.LVL19
+ 2257 0112 0400     		.2byte	0x4
+ 2258 0114 F3       		.byte	0xf3
+ 2259 0115 01       		.uleb128 0x1
+ 2260 0116 50       		.byte	0x50
+ 2261 0117 9F       		.byte	0x9f
+ 2262 0118 2C000000 		.4byte	.LVL19
+ 2263 011c 2E000000 		.4byte	.LVL20
+ 2264 0120 0100     		.2byte	0x1
+ 2265 0122 50       		.byte	0x50
+ 2266 0123 2E000000 		.4byte	.LVL20
+ 2267 0127 30000000 		.4byte	.LFE8
+ 2268 012b 0400     		.2byte	0x4
+ 2269 012d F3       		.byte	0xf3
+ 2270 012e 01       		.uleb128 0x1
+ 2271 012f 50       		.byte	0x50
+ 2272 0130 9F       		.byte	0x9f
+ 2273 0131 00000000 		.4byte	0
+ 2274 0135 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 51
+
+
+ 2275              	.LLST7:
+ 2276 0139 00000000 		.4byte	.LVL14
+ 2277 013d 19000000 		.4byte	.LVL15-1
+ 2278 0141 0100     		.2byte	0x1
+ 2279 0143 51       		.byte	0x51
+ 2280 0144 19000000 		.4byte	.LVL15-1
+ 2281 0148 28000000 		.4byte	.LVL17
+ 2282 014c 0400     		.2byte	0x4
+ 2283 014e F3       		.byte	0xf3
+ 2284 014f 01       		.uleb128 0x1
+ 2285 0150 51       		.byte	0x51
+ 2286 0151 9F       		.byte	0x9f
+ 2287 0152 28000000 		.4byte	.LVL17
+ 2288 0156 30000000 		.4byte	.LFE8
+ 2289 015a 0100     		.2byte	0x1
+ 2290 015c 51       		.byte	0x51
+ 2291 015d 00000000 		.4byte	0
+ 2292 0161 00000000 		.4byte	0
+ 2293              	.LLST8:
+ 2294 0165 00000000 		.4byte	.LVL14
+ 2295 0169 26000000 		.4byte	.LVL16
+ 2296 016d 0200     		.2byte	0x2
+ 2297 016f 30       		.byte	0x30
+ 2298 0170 9F       		.byte	0x9f
+ 2299 0171 26000000 		.4byte	.LVL16
+ 2300 0175 28000000 		.4byte	.LVL17
+ 2301 0179 0100     		.2byte	0x1
+ 2302 017b 50       		.byte	0x50
+ 2303 017c 28000000 		.4byte	.LVL17
+ 2304 0180 30000000 		.4byte	.LFE8
+ 2305 0184 0200     		.2byte	0x2
+ 2306 0186 30       		.byte	0x30
+ 2307 0187 9F       		.byte	0x9f
+ 2308 0188 00000000 		.4byte	0
+ 2309 018c 00000000 		.4byte	0
+ 2310              	.LLST9:
+ 2311 0190 00000000 		.4byte	.LVL22
+ 2312 0194 10000000 		.4byte	.LVL23
+ 2313 0198 0100     		.2byte	0x1
+ 2314 019a 50       		.byte	0x50
+ 2315 019b 10000000 		.4byte	.LVL23
+ 2316 019f 40000000 		.4byte	.LVL30
+ 2317 01a3 0100     		.2byte	0x1
+ 2318 01a5 56       		.byte	0x56
+ 2319 01a6 40000000 		.4byte	.LVL30
+ 2320 01aa 42000000 		.4byte	.LVL31
+ 2321 01ae 0100     		.2byte	0x1
+ 2322 01b0 50       		.byte	0x50
+ 2323 01b1 42000000 		.4byte	.LVL31
+ 2324 01b5 44000000 		.4byte	.LVL32
+ 2325 01b9 0400     		.2byte	0x4
+ 2326 01bb F3       		.byte	0xf3
+ 2327 01bc 01       		.uleb128 0x1
+ 2328 01bd 50       		.byte	0x50
+ 2329 01be 9F       		.byte	0x9f
+ 2330 01bf 44000000 		.4byte	.LVL32
+ 2331 01c3 48000000 		.4byte	.LVL33
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 52
+
+
+ 2332 01c7 0100     		.2byte	0x1
+ 2333 01c9 56       		.byte	0x56
+ 2334 01ca 00000000 		.4byte	0
+ 2335 01ce 00000000 		.4byte	0
+ 2336              	.LLST10:
+ 2337 01d2 12000000 		.4byte	.LVL24
+ 2338 01d6 16000000 		.4byte	.LVL25
+ 2339 01da 0200     		.2byte	0x2
+ 2340 01dc 30       		.byte	0x30
+ 2341 01dd 9F       		.byte	0x9f
+ 2342 01de 16000000 		.4byte	.LVL25
+ 2343 01e2 40000000 		.4byte	.LVL30
+ 2344 01e6 0100     		.2byte	0x1
+ 2345 01e8 55       		.byte	0x55
+ 2346 01e9 44000000 		.4byte	.LVL32
+ 2347 01ed 48000000 		.4byte	.LVL33
+ 2348 01f1 0100     		.2byte	0x1
+ 2349 01f3 55       		.byte	0x55
+ 2350 01f4 48000000 		.4byte	.LVL33
+ 2351 01f8 54000000 		.4byte	.LFE1
+ 2352 01fc 0100     		.2byte	0x1
+ 2353 01fe 50       		.byte	0x50
+ 2354 01ff 00000000 		.4byte	0
+ 2355 0203 00000000 		.4byte	0
+ 2356              	.LLST11:
+ 2357 0207 12000000 		.4byte	.LVL24
+ 2358 020b 16000000 		.4byte	.LVL25
+ 2359 020f 0200     		.2byte	0x2
+ 2360 0211 30       		.byte	0x30
+ 2361 0212 9F       		.byte	0x9f
+ 2362 0213 16000000 		.4byte	.LVL25
+ 2363 0217 1C000000 		.4byte	.LVL26
+ 2364 021b 0100     		.2byte	0x1
+ 2365 021d 54       		.byte	0x54
+ 2366 021e 1C000000 		.4byte	.LVL26
+ 2367 0222 25000000 		.4byte	.LVL27-1
+ 2368 0226 0100     		.2byte	0x1
+ 2369 0228 50       		.byte	0x50
+ 2370 0229 25000000 		.4byte	.LVL27-1
+ 2371 022d 40000000 		.4byte	.LVL30
+ 2372 0231 0100     		.2byte	0x1
+ 2373 0233 54       		.byte	0x54
+ 2374 0234 44000000 		.4byte	.LVL32
+ 2375 0238 48000000 		.4byte	.LVL33
+ 2376 023c 0100     		.2byte	0x1
+ 2377 023e 54       		.byte	0x54
+ 2378 023f 00000000 		.4byte	0
+ 2379 0243 00000000 		.4byte	0
+ 2380              	.LLST12:
+ 2381 0247 00000000 		.4byte	.LVL34
+ 2382 024b 1A000000 		.4byte	.LVL36
+ 2383 024f 0100     		.2byte	0x1
+ 2384 0251 50       		.byte	0x50
+ 2385 0252 1A000000 		.4byte	.LVL36
+ 2386 0256 4A000000 		.4byte	.LVL39
+ 2387 025a 0100     		.2byte	0x1
+ 2388 025c 54       		.byte	0x54
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 53
+
+
+ 2389 025d 4A000000 		.4byte	.LVL39
+ 2390 0261 50000000 		.4byte	.LFE2
+ 2391 0265 0100     		.2byte	0x1
+ 2392 0267 50       		.byte	0x50
+ 2393 0268 00000000 		.4byte	0
+ 2394 026c 00000000 		.4byte	0
+ 2395              	.LLST13:
+ 2396 0270 0C000000 		.4byte	.LVL35
+ 2397 0274 1A000000 		.4byte	.LVL36
+ 2398 0278 0300     		.2byte	0x3
+ 2399 027a 70       		.byte	0x70
+ 2400 027b 7C       		.sleb128 -4
+ 2401 027c 9F       		.byte	0x9f
+ 2402 027d 1A000000 		.4byte	.LVL36
+ 2403 0281 1D000000 		.4byte	.LVL37-1
+ 2404 0285 0100     		.2byte	0x1
+ 2405 0287 50       		.byte	0x50
+ 2406 0288 1D000000 		.4byte	.LVL37-1
+ 2407 028c 4A000000 		.4byte	.LVL39
+ 2408 0290 0300     		.2byte	0x3
+ 2409 0292 74       		.byte	0x74
+ 2410 0293 7C       		.sleb128 -4
+ 2411 0294 9F       		.byte	0x9f
+ 2412 0295 00000000 		.4byte	0
+ 2413 0299 00000000 		.4byte	0
+ 2414              	.LLST14:
+ 2415 029d 1E000000 		.4byte	.LVL37
+ 2416 02a1 43000000 		.4byte	.LVL38-1
+ 2417 02a5 0100     		.2byte	0x1
+ 2418 02a7 50       		.byte	0x50
+ 2419 02a8 44000000 		.4byte	.LVL38
+ 2420 02ac 4A000000 		.4byte	.LVL39
+ 2421 02b0 0100     		.2byte	0x1
+ 2422 02b2 50       		.byte	0x50
+ 2423 02b3 00000000 		.4byte	0
+ 2424 02b7 00000000 		.4byte	0
+ 2425              	.LLST15:
+ 2426 02bb 0A000000 		.4byte	.LVL41
+ 2427 02bf 0C000000 		.4byte	.LVL42
+ 2428 02c3 0100     		.2byte	0x1
+ 2429 02c5 50       		.byte	0x50
+ 2430 02c6 0C000000 		.4byte	.LVL42
+ 2431 02ca 1A000000 		.4byte	.LVL43
+ 2432 02ce 0100     		.2byte	0x1
+ 2433 02d0 54       		.byte	0x54
+ 2434 02d1 1C000000 		.4byte	.LVL44
+ 2435 02d5 54000000 		.4byte	.LFE4
+ 2436 02d9 0100     		.2byte	0x1
+ 2437 02db 54       		.byte	0x54
+ 2438 02dc 00000000 		.4byte	0
+ 2439 02e0 00000000 		.4byte	0
+ 2440              	.LLST16:
+ 2441 02e4 28000000 		.4byte	.LVL45
+ 2442 02e8 49000000 		.4byte	.LVL46-1
+ 2443 02ec 0100     		.2byte	0x1
+ 2444 02ee 50       		.byte	0x50
+ 2445 02ef 4A000000 		.4byte	.LVL46
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 54
+
+
+ 2446 02f3 52000000 		.4byte	.LVL47
+ 2447 02f7 0100     		.2byte	0x1
+ 2448 02f9 50       		.byte	0x50
+ 2449 02fa 00000000 		.4byte	0
+ 2450 02fe 00000000 		.4byte	0
+ 2451              	.LLST17:
+ 2452 0302 00000000 		.4byte	.LVL48
+ 2453 0306 06000000 		.4byte	.LVL49
+ 2454 030a 0100     		.2byte	0x1
+ 2455 030c 50       		.byte	0x50
+ 2456 030d 06000000 		.4byte	.LVL49
+ 2457 0311 76000000 		.4byte	.LFE5
+ 2458 0315 0100     		.2byte	0x1
+ 2459 0317 54       		.byte	0x54
+ 2460 0318 00000000 		.4byte	0
+ 2461 031c 00000000 		.4byte	0
+ 2462              	.LLST18:
+ 2463 0320 12000000 		.4byte	.LVL50
+ 2464 0324 16000000 		.4byte	.LVL51
+ 2465 0328 0200     		.2byte	0x2
+ 2466 032a 30       		.byte	0x30
+ 2467 032b 9F       		.byte	0x9f
+ 2468 032c 16000000 		.4byte	.LVL51
+ 2469 0330 49000000 		.4byte	.LVL52-1
+ 2470 0334 0100     		.2byte	0x1
+ 2471 0336 50       		.byte	0x50
+ 2472 0337 4A000000 		.4byte	.LVL52
+ 2473 033b 76000000 		.4byte	.LFE5
+ 2474 033f 0100     		.2byte	0x1
+ 2475 0341 50       		.byte	0x50
+ 2476 0342 00000000 		.4byte	0
+ 2477 0346 00000000 		.4byte	0
+ 2478              	.LLST19:
+ 2479 034a 00000000 		.4byte	.LVL53
+ 2480 034e 0C000000 		.4byte	.LVL55
+ 2481 0352 0100     		.2byte	0x1
+ 2482 0354 50       		.byte	0x50
+ 2483 0355 0C000000 		.4byte	.LVL55
+ 2484 0359 12000000 		.4byte	.LVL56
+ 2485 035d 0400     		.2byte	0x4
+ 2486 035f F3       		.byte	0xf3
+ 2487 0360 01       		.uleb128 0x1
+ 2488 0361 50       		.byte	0x50
+ 2489 0362 9F       		.byte	0x9f
+ 2490 0363 12000000 		.4byte	.LVL56
+ 2491 0367 14000000 		.4byte	.LVL57
+ 2492 036b 0100     		.2byte	0x1
+ 2493 036d 50       		.byte	0x50
+ 2494 036e 14000000 		.4byte	.LVL57
+ 2495 0372 16000000 		.4byte	.LVL58
+ 2496 0376 0400     		.2byte	0x4
+ 2497 0378 F3       		.byte	0xf3
+ 2498 0379 01       		.uleb128 0x1
+ 2499 037a 50       		.byte	0x50
+ 2500 037b 9F       		.byte	0x9f
+ 2501 037c 16000000 		.4byte	.LVL58
+ 2502 0380 18000000 		.4byte	.LVL59
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 55
+
+
+ 2503 0384 0100     		.2byte	0x1
+ 2504 0386 50       		.byte	0x50
+ 2505 0387 18000000 		.4byte	.LVL59
+ 2506 038b 20000000 		.4byte	.LFE6
+ 2507 038f 0400     		.2byte	0x4
+ 2508 0391 F3       		.byte	0xf3
+ 2509 0392 01       		.uleb128 0x1
+ 2510 0393 50       		.byte	0x50
+ 2511 0394 9F       		.byte	0x9f
+ 2512 0395 00000000 		.4byte	0
+ 2513 0399 00000000 		.4byte	0
+ 2514              	.LLST20:
+ 2515 039d 08000000 		.4byte	.LVL54
+ 2516 03a1 0C000000 		.4byte	.LVL55
+ 2517 03a5 0300     		.2byte	0x3
+ 2518 03a7 70       		.byte	0x70
+ 2519 03a8 7C       		.sleb128 -4
+ 2520 03a9 9F       		.byte	0x9f
+ 2521 03aa 0C000000 		.4byte	.LVL55
+ 2522 03ae 12000000 		.4byte	.LVL56
+ 2523 03b2 0600     		.2byte	0x6
+ 2524 03b4 F3       		.byte	0xf3
+ 2525 03b5 01       		.uleb128 0x1
+ 2526 03b6 50       		.byte	0x50
+ 2527 03b7 34       		.byte	0x34
+ 2528 03b8 1C       		.byte	0x1c
+ 2529 03b9 9F       		.byte	0x9f
+ 2530 03ba 00000000 		.4byte	0
+ 2531 03be 00000000 		.4byte	0
+ 2532              	.LLST21:
+ 2533 03c2 00000000 		.4byte	.LVL60
+ 2534 03c6 14000000 		.4byte	.LVL62
+ 2535 03ca 0100     		.2byte	0x1
+ 2536 03cc 50       		.byte	0x50
+ 2537 03cd 14000000 		.4byte	.LVL62
+ 2538 03d1 6A000000 		.4byte	.LVL77
+ 2539 03d5 0100     		.2byte	0x1
+ 2540 03d7 54       		.byte	0x54
+ 2541 03d8 00000000 		.4byte	0
+ 2542 03dc 00000000 		.4byte	0
+ 2543              	.LLST22:
+ 2544 03e0 00000000 		.4byte	.LVL60
+ 2545 03e4 19000000 		.4byte	.LVL63-1
+ 2546 03e8 0100     		.2byte	0x1
+ 2547 03ea 51       		.byte	0x51
+ 2548 03eb 19000000 		.4byte	.LVL63-1
+ 2549 03ef 6A000000 		.4byte	.LVL77
+ 2550 03f3 0100     		.2byte	0x1
+ 2551 03f5 55       		.byte	0x55
+ 2552 03f6 6A000000 		.4byte	.LVL77
+ 2553 03fa 74000000 		.4byte	.LFE3
+ 2554 03fe 0400     		.2byte	0x4
+ 2555 0400 F3       		.byte	0xf3
+ 2556 0401 01       		.uleb128 0x1
+ 2557 0402 51       		.byte	0x51
+ 2558 0403 9F       		.byte	0x9f
+ 2559 0404 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 56
+
+
+ 2560 0408 00000000 		.4byte	0
+ 2561              	.LLST23:
+ 2562 040c 1C000000 		.4byte	.LVL64
+ 2563 0410 26000000 		.4byte	.LVL66
+ 2564 0414 0100     		.2byte	0x1
+ 2565 0416 50       		.byte	0x50
+ 2566 0417 26000000 		.4byte	.LVL66
+ 2567 041b 2E000000 		.4byte	.LVL68
+ 2568 041f 0100     		.2byte	0x1
+ 2569 0421 57       		.byte	0x57
+ 2570 0422 2E000000 		.4byte	.LVL68
+ 2571 0426 30000000 		.4byte	.LVL69
+ 2572 042a 0100     		.2byte	0x1
+ 2573 042c 50       		.byte	0x50
+ 2574 042d 30000000 		.4byte	.LVL69
+ 2575 0431 62000000 		.4byte	.LVL74
+ 2576 0435 0100     		.2byte	0x1
+ 2577 0437 57       		.byte	0x57
+ 2578 0438 62000000 		.4byte	.LVL74
+ 2579 043c 64000000 		.4byte	.LVL75
+ 2580 0440 0100     		.2byte	0x1
+ 2581 0442 50       		.byte	0x50
+ 2582 0443 64000000 		.4byte	.LVL75
+ 2583 0447 6A000000 		.4byte	.LVL77
+ 2584 044b 0100     		.2byte	0x1
+ 2585 044d 57       		.byte	0x57
+ 2586 044e 00000000 		.4byte	0
+ 2587 0452 00000000 		.4byte	0
+ 2588              	.LLST24:
+ 2589 0456 34000000 		.4byte	.LVL70
+ 2590 045a 49000000 		.4byte	.LVL71-1
+ 2591 045e 0100     		.2byte	0x1
+ 2592 0460 50       		.byte	0x50
+ 2593 0461 49000000 		.4byte	.LVL71-1
+ 2594 0465 62000000 		.4byte	.LVL74
+ 2595 0469 0100     		.2byte	0x1
+ 2596 046b 56       		.byte	0x56
+ 2597 046c 66000000 		.4byte	.LVL76
+ 2598 0470 6A000000 		.4byte	.LVL77
+ 2599 0474 0100     		.2byte	0x1
+ 2600 0476 56       		.byte	0x56
+ 2601 0477 6A000000 		.4byte	.LVL77
+ 2602 047b 74000000 		.4byte	.LFE3
+ 2603 047f 0100     		.2byte	0x1
+ 2604 0481 50       		.byte	0x50
+ 2605 0482 00000000 		.4byte	0
+ 2606 0486 00000000 		.4byte	0
+ 2607              	.LLST25:
+ 2608 048a 08000000 		.4byte	.LVL61
+ 2609 048e 14000000 		.4byte	.LVL62
+ 2610 0492 0300     		.2byte	0x3
+ 2611 0494 70       		.byte	0x70
+ 2612 0495 7C       		.sleb128 -4
+ 2613 0496 9F       		.byte	0x9f
+ 2614 0497 00000000 		.4byte	0
+ 2615 049b 00000000 		.4byte	0
+ 2616              	.LLST26:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 57
+
+
+ 2617 049f 22000000 		.4byte	.LVL65
+ 2618 04a3 26000000 		.4byte	.LVL66
+ 2619 04a7 0300     		.2byte	0x3
+ 2620 04a9 74       		.byte	0x74
+ 2621 04aa 7C       		.sleb128 -4
+ 2622 04ab 9F       		.byte	0x9f
+ 2623 04ac 26000000 		.4byte	.LVL66
+ 2624 04b0 29000000 		.4byte	.LVL67-1
+ 2625 04b4 0100     		.2byte	0x1
+ 2626 04b6 50       		.byte	0x50
+ 2627 04b7 29000000 		.4byte	.LVL67-1
+ 2628 04bb 2E000000 		.4byte	.LVL68
+ 2629 04bf 0300     		.2byte	0x3
+ 2630 04c1 74       		.byte	0x74
+ 2631 04c2 7C       		.sleb128 -4
+ 2632 04c3 9F       		.byte	0x9f
+ 2633 04c4 00000000 		.4byte	0
+ 2634 04c8 00000000 		.4byte	0
+ 2635              		.section	.debug_aranges,"",%progbits
+ 2636 0000 64000000 		.4byte	0x64
+ 2637 0004 0200     		.2byte	0x2
+ 2638 0006 00000000 		.4byte	.Ldebug_info0
+ 2639 000a 04       		.byte	0x4
+ 2640 000b 00       		.byte	0
+ 2641 000c 0000     		.2byte	0
+ 2642 000e 0000     		.2byte	0
+ 2643 0010 00000000 		.4byte	.LFB7
+ 2644 0014 28000000 		.4byte	.LFE7-.LFB7
+ 2645 0018 00000000 		.4byte	.LFB9
+ 2646 001c 50000000 		.4byte	.LFE9-.LFB9
+ 2647 0020 00000000 		.4byte	.LFB8
+ 2648 0024 30000000 		.4byte	.LFE8-.LFB8
+ 2649 0028 00000000 		.4byte	.LFB0
+ 2650 002c 20000000 		.4byte	.LFE0-.LFB0
+ 2651 0030 00000000 		.4byte	.LFB1
+ 2652 0034 54000000 		.4byte	.LFE1-.LFB1
+ 2653 0038 00000000 		.4byte	.LFB2
+ 2654 003c 50000000 		.4byte	.LFE2-.LFB2
+ 2655 0040 00000000 		.4byte	.LFB4
+ 2656 0044 54000000 		.4byte	.LFE4-.LFB4
+ 2657 0048 00000000 		.4byte	.LFB5
+ 2658 004c 76000000 		.4byte	.LFE5-.LFB5
+ 2659 0050 00000000 		.4byte	.LFB6
+ 2660 0054 20000000 		.4byte	.LFE6-.LFB6
+ 2661 0058 00000000 		.4byte	.LFB3
+ 2662 005c 74000000 		.4byte	.LFE3-.LFB3
+ 2663 0060 00000000 		.4byte	0
+ 2664 0064 00000000 		.4byte	0
+ 2665              		.section	.debug_ranges,"",%progbits
+ 2666              	.Ldebug_ranges0:
+ 2667 0000 00000000 		.4byte	.LFB7
+ 2668 0004 28000000 		.4byte	.LFE7
+ 2669 0008 00000000 		.4byte	.LFB9
+ 2670 000c 50000000 		.4byte	.LFE9
+ 2671 0010 00000000 		.4byte	.LFB8
+ 2672 0014 30000000 		.4byte	.LFE8
+ 2673 0018 00000000 		.4byte	.LFB0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 58
+
+
+ 2674 001c 20000000 		.4byte	.LFE0
+ 2675 0020 00000000 		.4byte	.LFB1
+ 2676 0024 54000000 		.4byte	.LFE1
+ 2677 0028 00000000 		.4byte	.LFB2
+ 2678 002c 50000000 		.4byte	.LFE2
+ 2679 0030 00000000 		.4byte	.LFB4
+ 2680 0034 54000000 		.4byte	.LFE4
+ 2681 0038 00000000 		.4byte	.LFB5
+ 2682 003c 76000000 		.4byte	.LFE5
+ 2683 0040 00000000 		.4byte	.LFB6
+ 2684 0044 20000000 		.4byte	.LFE6
+ 2685 0048 00000000 		.4byte	.LFB3
+ 2686 004c 74000000 		.4byte	.LFE3
+ 2687 0050 00000000 		.4byte	0
+ 2688 0054 00000000 		.4byte	0
+ 2689              		.section	.debug_line,"",%progbits
+ 2690              	.Ldebug_line0:
+ 2691 0000 A1020000 		.section	.debug_str,"MS",%progbits,1
+ 2691      02004401 
+ 2691      00000201 
+ 2691      FB0E0D00 
+ 2691      01010101 
+ 2692              	.LASF21:
+ 2693 0000 6C765F6D 		.ascii	"lv_mem_monitor_t\000"
+ 2693      656D5F6D 
+ 2693      6F6E6974 
+ 2693      6F725F74 
+ 2693      00
+ 2694              	.LASF53:
+ 2695 0011 6F6C645F 		.ascii	"old_size\000"
+ 2695      73697A65 
+ 2695      00
+ 2696              	.LASF48:
+ 2697 001a 6C765F6D 		.ascii	"lv_mem_alloc\000"
+ 2697      656D5F61 
+ 2697      6C6C6F63 
+ 2697      00
+ 2698              	.LASF51:
+ 2699 0027 64617461 		.ascii	"data_p\000"
+ 2699      5F7000
+ 2700              	.LASF5:
+ 2701 002e 5F5F7569 		.ascii	"__uint8_t\000"
+ 2701      6E74385F 
+ 2701      7400
+ 2702              	.LASF56:
+ 2703 0038 7A65726F 		.ascii	"zero_mem\000"
+ 2703      5F6D656D 
+ 2703      00
+ 2704              	.LASF30:
+ 2705 0041 6E657874 		.ascii	"next_e\000"
+ 2705      5F6500
+ 2706              	.LASF9:
+ 2707 0048 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 2707      206C6F6E 
+ 2707      6720756E 
+ 2707      7369676E 
+ 2707      65642069 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 59
+
+
+ 2708              	.LASF18:
+ 2709 005f 75736564 		.ascii	"used_cnt\000"
+ 2709      5F636E74 
+ 2709      00
+ 2710              	.LASF14:
+ 2711 0068 746F7461 		.ascii	"total_size\000"
+ 2711      6C5F7369 
+ 2711      7A6500
+ 2712              	.LASF39:
+ 2713 0073 776F726B 		.ascii	"work_mem_int\000"
+ 2713      5F6D656D 
+ 2713      5F696E74 
+ 2713      00
+ 2714              	.LASF8:
+ 2715 0080 6C6F6E67 		.ascii	"long long int\000"
+ 2715      206C6F6E 
+ 2715      6720696E 
+ 2715      7400
+ 2716              	.LASF0:
+ 2717 008e 7369676E 		.ascii	"signed char\000"
+ 2717      65642063 
+ 2717      68617200 
+ 2718              	.LASF41:
+ 2719 009a 6C765F6D 		.ascii	"lv_mem_init\000"
+ 2719      656D5F69 
+ 2719      6E697400 
+ 2720              	.LASF4:
+ 2721 00a6 6C6F6E67 		.ascii	"long int\000"
+ 2721      20696E74 
+ 2721      00
+ 2722              	.LASF26:
+ 2723 00af 6C765F6D 		.ascii	"lv_mem_header_t\000"
+ 2723      656D5F68 
+ 2723      65616465 
+ 2723      725F7400 
+ 2724              	.LASF62:
+ 2725 00bf 6D656D63 		.ascii	"memcpy\000"
+ 2725      707900
+ 2726              	.LASF46:
+ 2727 00c6 6C765F6D 		.ascii	"lv_mem_monitor\000"
+ 2727      656D5F6D 
+ 2727      6F6E6974 
+ 2727      6F7200
+ 2728              	.LASF42:
+ 2729 00d5 6C765F6D 		.ascii	"lv_mem_free\000"
+ 2729      656D5F66 
+ 2729      72656500 
+ 2730              	.LASF32:
+ 2731 00e1 6163745F 		.ascii	"act_e\000"
+ 2731      6500
+ 2732              	.LASF6:
+ 2733 00e7 5F5F7569 		.ascii	"__uint32_t\000"
+ 2733      6E743332 
+ 2733      5F7400
+ 2734              	.LASF60:
+ 2735 00f2 656E745F 		.ascii	"ent_trunc\000"
+ 2735      7472756E 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 60
+
+
+ 2735      6300
+ 2736              	.LASF61:
+ 2737 00fc 6C765F6C 		.ascii	"lv_log_add\000"
+ 2737      6F675F61 
+ 2737      646400
+ 2738              	.LASF25:
+ 2739 0107 645F7369 		.ascii	"d_size\000"
+ 2739      7A6500
+ 2740              	.LASF19:
+ 2741 010e 75736564 		.ascii	"used_pct\000"
+ 2741      5F706374 
+ 2741      00
+ 2742              	.LASF10:
+ 2743 0117 756E7369 		.ascii	"unsigned int\000"
+ 2743      676E6564 
+ 2743      20696E74 
+ 2743      00
+ 2744              	.LASF59:
+ 2745 0124 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 2745      73657273 
+ 2745      5C643362 
+ 2745      75675C44 
+ 2745      6F63756D 
+ 2746 0152 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 2746      6F5F776F 
+ 2746      726C645F 
+ 2746      6C616265 
+ 2746      6C2E6379 
+ 2747              	.LASF7:
+ 2748 016a 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2748      20756E73 
+ 2748      69676E65 
+ 2748      6420696E 
+ 2748      7400
+ 2749              	.LASF50:
+ 2750 017c 6C765F6D 		.ascii	"lv_mem_realloc\000"
+ 2750      656D5F72 
+ 2750      65616C6C 
+ 2750      6F6300
+ 2751              	.LASF49:
+ 2752 018b 6C765F6D 		.ascii	"lv_mem_get_size\000"
+ 2752      656D5F67 
+ 2752      65745F73 
+ 2752      697A6500 
+ 2753              	.LASF31:
+ 2754 019b 64617461 		.ascii	"data\000"
+ 2754      00
+ 2755              	.LASF33:
+ 2756 01a0 73697A65 		.ascii	"size\000"
+ 2756      00
+ 2757              	.LASF3:
+ 2758 01a5 73686F72 		.ascii	"short unsigned int\000"
+ 2758      7420756E 
+ 2758      7369676E 
+ 2758      65642069 
+ 2758      6E7400
+ 2759              	.LASF43:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 61
+
+
+ 2760 01b8 655F6E65 		.ascii	"e_next\000"
+ 2760      787400
+ 2761              	.LASF17:
+ 2762 01bf 66726565 		.ascii	"free_biggest_size\000"
+ 2762      5F626967 
+ 2762      67657374 
+ 2762      5F73697A 
+ 2762      6500
+ 2763              	.LASF13:
+ 2764 01d1 6C6F6E67 		.ascii	"long double\000"
+ 2764      20646F75 
+ 2764      626C6500 
+ 2765              	.LASF35:
+ 2766 01dd 61667465 		.ascii	"after_new_e\000"
+ 2766      725F6E65 
+ 2766      775F6500 
+ 2767              	.LASF52:
+ 2768 01e9 6E65775F 		.ascii	"new_size\000"
+ 2768      73697A65 
+ 2768      00
+ 2769              	.LASF45:
+ 2770 01f2 655F6672 		.ascii	"e_free\000"
+ 2770      656500
+ 2771              	.LASF58:
+ 2772 01f9 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_mem.c\000"
+ 2772      76676C5C 
+ 2772      6C765F6D 
+ 2772      6973635C 
+ 2772      6C765F6D 
+ 2773              	.LASF47:
+ 2774 0212 6D6F6E5F 		.ascii	"mon_p\000"
+ 2774      7000
+ 2775              	.LASF24:
+ 2776 0218 75736564 		.ascii	"used\000"
+ 2776      00
+ 2777              	.LASF55:
+ 2778 021d 776F726B 		.ascii	"work_mem\000"
+ 2778      5F6D656D 
+ 2778      00
+ 2779              	.LASF1:
+ 2780 0226 756E7369 		.ascii	"unsigned char\000"
+ 2780      676E6564 
+ 2780      20636861 
+ 2780      7200
+ 2781              	.LASF2:
+ 2782 0234 73686F72 		.ascii	"short int\000"
+ 2782      7420696E 
+ 2782      7400
+ 2783              	.LASF54:
+ 2784 023e 6E65775F 		.ascii	"new_p\000"
+ 2784      7000
+ 2785              	.LASF34:
+ 2786 0244 655F6461 		.ascii	"e_data\000"
+ 2786      746100
+ 2787              	.LASF57:
+ 2788 024b 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 2788      43313120 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 62
+
+
+ 2788      352E342E 
+ 2788      31203230 
+ 2788      31363036 
+ 2789 027e 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 2789      20726576 
+ 2789      6973696F 
+ 2789      6E203233 
+ 2789      37373135 
+ 2790 02b1 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 2790      66756E63 
+ 2790      74696F6E 
+ 2790      2D736563 
+ 2790      74696F6E 
+ 2791              	.LASF40:
+ 2792 02d9 66756C6C 		.ascii	"full\000"
+ 2792      00
+ 2793              	.LASF12:
+ 2794 02de 75696E74 		.ascii	"uint32_t\000"
+ 2794      33325F74 
+ 2794      00
+ 2795              	.LASF37:
+ 2796 02e7 656E745F 		.ascii	"ent_alloc\000"
+ 2796      616C6C6F 
+ 2796      6300
+ 2797              	.LASF23:
+ 2798 02f1 63686172 		.ascii	"char\000"
+ 2798      00
+ 2799              	.LASF29:
+ 2800 02f6 6C765F6D 		.ascii	"lv_mem_ent_t\000"
+ 2800      656D5F65 
+ 2800      6E745F74 
+ 2800      00
+ 2801              	.LASF38:
+ 2802 0303 616C6C6F 		.ascii	"alloc\000"
+ 2802      6300
+ 2803              	.LASF20:
+ 2804 0309 66726167 		.ascii	"frag_pct\000"
+ 2804      5F706374 
+ 2804      00
+ 2805              	.LASF28:
+ 2806 0312 66697273 		.ascii	"first_data\000"
+ 2806      745F6461 
+ 2806      746100
+ 2807              	.LASF15:
+ 2808 031d 66726565 		.ascii	"free_cnt\000"
+ 2808      5F636E74 
+ 2808      00
+ 2809              	.LASF11:
+ 2810 0326 75696E74 		.ascii	"uint8_t\000"
+ 2810      385F7400 
+ 2811              	.LASF22:
+ 2812 032e 73697A65 		.ascii	"sizetype\000"
+ 2812      74797065 
+ 2812      00
+ 2813              	.LASF36:
+ 2814 0337 656E745F 		.ascii	"ent_get_next\000"
+ 2814      6765745F 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc2ZLKFo.s 			page 63
+
+
+ 2814      6E657874 
+ 2814      00
+ 2815              	.LASF44:
+ 2816 0344 6C765F6D 		.ascii	"lv_mem_defrag\000"
+ 2816      656D5F64 
+ 2816      65667261 
+ 2816      6700
+ 2817              	.LASF16:
+ 2818 0352 66726565 		.ascii	"free_size\000"
+ 2818      5F73697A 
+ 2818      6500
+ 2819              	.LASF27:
+ 2820 035c 68656164 		.ascii	"header\000"
+ 2820      657200
+ 2821              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

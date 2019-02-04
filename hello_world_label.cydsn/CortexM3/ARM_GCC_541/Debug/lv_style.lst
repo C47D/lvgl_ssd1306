@@ -1,0 +1,4063 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_style.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_style_init,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_style_init
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_style_init, %function
+  25              	lv_style_init:
+  26              	.LFB12:
+  27              		.file 1 "..\\lvgl\\lv_core\\lv_style.c"
+   1:..\lvgl\lv_core/lv_style.c **** /**
+   2:..\lvgl\lv_core/lv_style.c ****  * @file lv_style.c
+   3:..\lvgl\lv_core/lv_style.c ****  *
+   4:..\lvgl\lv_core/lv_style.c ****  */
+   5:..\lvgl\lv_core/lv_style.c **** 
+   6:..\lvgl\lv_core/lv_style.c **** /*********************
+   7:..\lvgl\lv_core/lv_style.c ****  *      INCLUDES
+   8:..\lvgl\lv_core/lv_style.c ****  *********************/
+   9:..\lvgl\lv_core/lv_style.c **** #include "lv_obj.h"
+  10:..\lvgl\lv_core/lv_style.c **** #include "../lv_misc/lv_mem.h"
+  11:..\lvgl\lv_core/lv_style.c **** 
+  12:..\lvgl\lv_core/lv_style.c **** /*********************
+  13:..\lvgl\lv_core/lv_style.c ****  *      DEFINES
+  14:..\lvgl\lv_core/lv_style.c ****  *********************/
+  15:..\lvgl\lv_core/lv_style.c **** #define STYLE_MIX_MAX       256
+  16:..\lvgl\lv_core/lv_style.c **** #define STYLE_MIX_SHIFT     8      /*log2(STYLE_MIX_MAX)*/
+  17:..\lvgl\lv_core/lv_style.c **** 
+  18:..\lvgl\lv_core/lv_style.c **** #define VAL_PROP(v1, v2, r)   v1 + (((v2-v1) * r) >> STYLE_MIX_SHIFT)
+  19:..\lvgl\lv_core/lv_style.c **** #define STYLE_ATTR_MIX(attr, r)   if(start->attr != end->attr) {res->attr = VAL_PROP(start->attr, e
+  20:..\lvgl\lv_core/lv_style.c **** 
+  21:..\lvgl\lv_core/lv_style.c **** 
+  22:..\lvgl\lv_core/lv_style.c **** /**********************
+  23:..\lvgl\lv_core/lv_style.c ****  *      TYPEDEFS
+  24:..\lvgl\lv_core/lv_style.c ****  **********************/
+  25:..\lvgl\lv_core/lv_style.c **** #if USE_LV_ANIMATION
+  26:..\lvgl\lv_core/lv_style.c **** typedef struct {
+  27:..\lvgl\lv_core/lv_style.c ****     lv_style_t style_start;   /*Save not only pointers because can be same as 'style_anim' then it 
+  28:..\lvgl\lv_core/lv_style.c ****     lv_style_t style_end;
+  29:..\lvgl\lv_core/lv_style.c ****     lv_style_t * style_anim;
+  30:..\lvgl\lv_core/lv_style.c ****     void (*end_cb)(void *);
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 2
+
+
+  31:..\lvgl\lv_core/lv_style.c **** } lv_style_anim_dsc_t;
+  32:..\lvgl\lv_core/lv_style.c **** #endif
+  33:..\lvgl\lv_core/lv_style.c **** 
+  34:..\lvgl\lv_core/lv_style.c **** /**********************
+  35:..\lvgl\lv_core/lv_style.c ****  *  STATIC PROTOTYPES
+  36:..\lvgl\lv_core/lv_style.c ****  **********************/
+  37:..\lvgl\lv_core/lv_style.c **** #if USE_LV_ANIMATION
+  38:..\lvgl\lv_core/lv_style.c **** static void style_animator(lv_style_anim_dsc_t * dsc, int32_t val);
+  39:..\lvgl\lv_core/lv_style.c **** static void style_animation_common_end_cb(void * ptr);
+  40:..\lvgl\lv_core/lv_style.c **** #endif
+  41:..\lvgl\lv_core/lv_style.c **** 
+  42:..\lvgl\lv_core/lv_style.c **** /**********************
+  43:..\lvgl\lv_core/lv_style.c ****  *  STATIC VARIABLES
+  44:..\lvgl\lv_core/lv_style.c ****  **********************/
+  45:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_scr;
+  46:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_transp;
+  47:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_transp_fit;
+  48:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_transp_tight;
+  49:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_plain;
+  50:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_plain_color;
+  51:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_pretty;
+  52:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_pretty_color;
+  53:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_btn_rel;
+  54:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_btn_pr;
+  55:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_btn_tgl_rel;
+  56:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_btn_tgl_pr;
+  57:..\lvgl\lv_core/lv_style.c **** lv_style_t lv_style_btn_ina;
+  58:..\lvgl\lv_core/lv_style.c **** 
+  59:..\lvgl\lv_core/lv_style.c **** /**********************
+  60:..\lvgl\lv_core/lv_style.c ****  *      MACROS
+  61:..\lvgl\lv_core/lv_style.c ****  **********************/
+  62:..\lvgl\lv_core/lv_style.c **** 
+  63:..\lvgl\lv_core/lv_style.c **** /**********************
+  64:..\lvgl\lv_core/lv_style.c ****  *   GLOBAL FUNCTIONS
+  65:..\lvgl\lv_core/lv_style.c ****  **********************/
+  66:..\lvgl\lv_core/lv_style.c **** 
+  67:..\lvgl\lv_core/lv_style.c **** /**
+  68:..\lvgl\lv_core/lv_style.c ****  *  Init the basic styles
+  69:..\lvgl\lv_core/lv_style.c ****  */
+  70:..\lvgl\lv_core/lv_style.c **** void lv_style_init(void)
+  71:..\lvgl\lv_core/lv_style.c **** {
+  28              		.loc 1 71 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  33              		.cfi_def_cfa_offset 36
+  34              		.cfi_offset 4, -36
+  35              		.cfi_offset 5, -32
+  36              		.cfi_offset 6, -28
+  37              		.cfi_offset 7, -24
+  38              		.cfi_offset 8, -20
+  39              		.cfi_offset 9, -16
+  40              		.cfi_offset 10, -12
+  41              		.cfi_offset 11, -8
+  42              		.cfi_offset 14, -4
+  72:..\lvgl\lv_core/lv_style.c ****     /* Not White/Black/Gray colors are created by HSV model with
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 3
+
+
+  73:..\lvgl\lv_core/lv_style.c ****      * HUE = 210*/
+  74:..\lvgl\lv_core/lv_style.c **** 
+  75:..\lvgl\lv_core/lv_style.c ****     /*Screen style*/
+  76:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.glass = 0;
+  43              		.loc 1 76 0
+  44 0004 DB4B     		ldr	r3, .L3
+  45 0006 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+  46 0008 6FF30002 		bfc	r2, #0, #1
+  47 000c 1A70     		strb	r2, [r3]
+  77:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.opa = LV_OPA_COVER;
+  48              		.loc 1 77 0
+  49 000e FF22     		movs	r2, #255
+  50 0010 9A71     		strb	r2, [r3, #6]
+  78:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.main_color = LV_COLOR_WHITE;
+  51              		.loc 1 78 0
+  52 0012 9978     		ldrb	r1, [r3, #2]	@ zero_extendqisi2
+  53 0014 41F00101 		orr	r1, r1, #1
+  54 0018 9970     		strb	r1, [r3, #2]
+  79:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.grad_color = LV_COLOR_WHITE;
+  55              		.loc 1 79 0
+  56 001a D978     		ldrb	r1, [r3, #3]	@ zero_extendqisi2
+  57 001c 41F00101 		orr	r1, r1, #1
+  58 0020 D970     		strb	r1, [r3, #3]
+  80:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.radius = 0;
+  59              		.loc 1 80 0
+  60 0022 0026     		movs	r6, #0
+  61 0024 9E80     		strh	r6, [r3, #4]	@ movhi
+  81:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.padding.ver = LV_DPI / 12;
+  62              		.loc 1 81 0
+  63 0026 0821     		movs	r1, #8
+  64 0028 9982     		strh	r1, [r3, #20]	@ movhi
+  82:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.padding.hor = LV_DPI / 12;
+  65              		.loc 1 82 0
+  66 002a D982     		strh	r1, [r3, #22]	@ movhi
+  83:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.padding.inner = LV_DPI / 12;
+  67              		.loc 1 83 0
+  68 002c 1983     		strh	r1, [r3, #24]	@ movhi
+  84:..\lvgl\lv_core/lv_style.c **** 
+  85:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.border.color = LV_COLOR_BLACK;
+  69              		.loc 1 85 0
+  70 002e 197A     		ldrb	r1, [r3, #8]	@ zero_extendqisi2
+  71 0030 66F30001 		bfi	r1, r6, #0, #1
+  72 0034 1972     		strb	r1, [r3, #8]
+  86:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.border.opa = LV_OPA_COVER;
+  73              		.loc 1 86 0
+  74 0036 5A73     		strb	r2, [r3, #13]
+  87:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.border.width = 0;
+  75              		.loc 1 87 0
+  76 0038 5E81     		strh	r6, [r3, #10]	@ movhi
+  88:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.border.part = LV_BORDER_FULL;
+  77              		.loc 1 88 0
+  78 003a 0F21     		movs	r1, #15
+  79 003c 1973     		strb	r1, [r3, #12]
+  89:..\lvgl\lv_core/lv_style.c **** 
+  90:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.shadow.color = LV_COLOR_GRAY;
+  80              		.loc 1 90 0
+  81 003e 997B     		ldrb	r1, [r3, #14]	@ zero_extendqisi2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 4
+
+
+  82 0040 41F00101 		orr	r1, r1, #1
+  83 0044 9973     		strb	r1, [r3, #14]
+  91:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.shadow.type = LV_SHADOW_FULL;
+  84              		.loc 1 91 0
+  85 0046 0121     		movs	r1, #1
+  86 0048 9974     		strb	r1, [r3, #18]
+  92:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.body.shadow.width = 0;
+  87              		.loc 1 92 0
+  88 004a 1E82     		strh	r6, [r3, #16]	@ movhi
+  93:..\lvgl\lv_core/lv_style.c **** 
+  94:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.text.opa = LV_OPA_COVER;
+  89              		.loc 1 94 0
+  90 004c 83F82820 		strb	r2, [r3, #40]
+  95:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.text.color = LV_COLOR_MAKE(0x30, 0x30, 0x30);
+  91              		.loc 1 95 0
+  92 0050 197F     		ldrb	r1, [r3, #28]	@ zero_extendqisi2
+  93 0052 66F30001 		bfi	r1, r6, #0, #1
+  94 0056 1977     		strb	r1, [r3, #28]
+  96:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.text.font = LV_FONT_DEFAULT;
+  95              		.loc 1 96 0
+  96 0058 C749     		ldr	r1, .L3+4
+  97 005a 1962     		str	r1, [r3, #32]
+  97:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.text.letter_space = 2;
+  98              		.loc 1 97 0
+  99 005c 4FF0020E 		mov	lr, #2
+ 100 0060 A3F824E0 		strh	lr, [r3, #36]	@ movhi
+  98:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.text.line_space = 2;
+ 101              		.loc 1 98 0
+ 102 0064 A3F826E0 		strh	lr, [r3, #38]	@ movhi
+  99:..\lvgl\lv_core/lv_style.c **** 
+ 100:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.image.opa = LV_OPA_COVER;
+ 103              		.loc 1 100 0
+ 104 0068 83F82E20 		strb	r2, [r3, #46]
+ 101:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.image.color = LV_COLOR_MAKE(0x20, 0x20, 0x20);
+ 105              		.loc 1 101 0
+ 106 006c 93F82C10 		ldrb	r1, [r3, #44]	@ zero_extendqisi2
+ 107 0070 66F30001 		bfi	r1, r6, #0, #1
+ 108 0074 83F82C10 		strb	r1, [r3, #44]
+ 102:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.image.intense = LV_OPA_TRANSP;
+ 109              		.loc 1 102 0
+ 110 0078 83F82D60 		strb	r6, [r3, #45]
+ 103:..\lvgl\lv_core/lv_style.c **** 
+ 104:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.line.opa = LV_OPA_COVER;
+ 111              		.loc 1 104 0
+ 112 007c 83F83420 		strb	r2, [r3, #52]
+ 105:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.line.color = LV_COLOR_MAKE(0x20, 0x20, 0x20);
+ 113              		.loc 1 105 0
+ 114 0080 93F83020 		ldrb	r2, [r3, #48]	@ zero_extendqisi2
+ 115 0084 66F30002 		bfi	r2, r6, #0, #1
+ 116 0088 83F83020 		strb	r2, [r3, #48]
+ 106:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.line.width = 2;
+ 117              		.loc 1 106 0
+ 118 008c A3F832E0 		strh	lr, [r3, #50]	@ movhi
+ 107:..\lvgl\lv_core/lv_style.c ****     lv_style_scr.line.rounded = 0;
+ 119              		.loc 1 107 0
+ 120 0090 93F83520 		ldrb	r2, [r3, #53]	@ zero_extendqisi2
+ 121 0094 66F30002 		bfi	r2, r6, #0, #1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 5
+
+
+ 122 0098 83F83520 		strb	r2, [r3, #53]
+ 108:..\lvgl\lv_core/lv_style.c **** 
+ 109:..\lvgl\lv_core/lv_style.c ****     /*Plain style (by default near the same as the screen style)*/
+ 110:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_plain, &lv_style_scr, sizeof(lv_style_t));
+ 123              		.loc 1 110 0
+ 124 009c B74F     		ldr	r7, .L3+8
+ 125 009e 3D46     		mov	r5, r7
+ 126 00a0 1C46     		mov	r4, r3
+ 127 00a2 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 128 00a4 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 129 00a6 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 130 00a8 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 131 00aa 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 132 00ac 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 133 00ae 94E80300 		ldmia	r4, {r0, r1}
+ 134 00b2 85E80300 		stmia	r5, {r0, r1}
+ 111:..\lvgl\lv_core/lv_style.c **** 
+ 112:..\lvgl\lv_core/lv_style.c ****     /*Plain color style*/
+ 113:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_plain_color, &lv_style_plain, sizeof(lv_style_t));
+ 135              		.loc 1 113 0
+ 136 00b6 DFF8D882 		ldr	r8, .L3+28
+ 137 00ba 4446     		mov	r4, r8
+ 138 00bc BC46     		mov	ip, r7
+ 139 00be BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 140 00c2 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 141 00c4 BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 142 00c8 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 143 00ca BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 144 00ce 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 145 00d0 95E80300 		ldmia	r5, {r0, r1}
+ 146 00d4 84E80300 		stmia	r4, {r0, r1}
+ 114:..\lvgl\lv_core/lv_style.c ****     lv_style_plain_color.text.color = LV_COLOR_MAKE(0xf0, 0xf0, 0xf0);
+ 147              		.loc 1 114 0
+ 148 00d8 98F81C30 		ldrb	r3, [r8, #28]	@ zero_extendqisi2
+ 149 00dc 43F00103 		orr	r3, r3, #1
+ 150 00e0 88F81C30 		strb	r3, [r8, #28]
+ 115:..\lvgl\lv_core/lv_style.c ****     lv_style_plain_color.image.color = LV_COLOR_MAKE(0xf0, 0xf0, 0xf0);
+ 151              		.loc 1 115 0
+ 152 00e4 98F82C30 		ldrb	r3, [r8, #44]	@ zero_extendqisi2
+ 153 00e8 43F00103 		orr	r3, r3, #1
+ 154 00ec 88F82C30 		strb	r3, [r8, #44]
+ 116:..\lvgl\lv_core/lv_style.c ****     lv_style_plain_color.line.color = LV_COLOR_MAKE(0xf0, 0xf0, 0xf0);
+ 155              		.loc 1 116 0
+ 156 00f0 98F83030 		ldrb	r3, [r8, #48]	@ zero_extendqisi2
+ 157 00f4 43F00103 		orr	r3, r3, #1
+ 158 00f8 88F83030 		strb	r3, [r8, #48]
+ 117:..\lvgl\lv_core/lv_style.c ****     lv_style_plain_color.body.main_color = LV_COLOR_MAKE(0x55, 0x96, 0xd8);
+ 159              		.loc 1 117 0
+ 160 00fc 98F80230 		ldrb	r3, [r8, #2]	@ zero_extendqisi2
+ 161 0100 43F00103 		orr	r3, r3, #1
+ 162 0104 88F80230 		strb	r3, [r8, #2]
+ 118:..\lvgl\lv_core/lv_style.c ****     lv_style_plain_color.body.grad_color = lv_style_plain_color.body.main_color;
+ 163              		.loc 1 118 0
+ 164 0108 88F80330 		strb	r3, [r8, #3]
+ 119:..\lvgl\lv_core/lv_style.c **** 
+ 120:..\lvgl\lv_core/lv_style.c ****     /*Pretty style */
+ 121:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_pretty, &lv_style_plain, sizeof(lv_style_t));
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 6
+
+
+ 165              		.loc 1 121 0
+ 166 010c 9C4C     		ldr	r4, .L3+12
+ 167 010e A046     		mov	r8, r4
+ 168 0110 BC46     		mov	ip, r7
+ 169 0112 BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 170 0116 A8E80F00 		stmia	r8!, {r0, r1, r2, r3}
+ 171 011a BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 172 011e A8E80F00 		stmia	r8!, {r0, r1, r2, r3}
+ 173 0122 BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 174 0126 A8E80F00 		stmia	r8!, {r0, r1, r2, r3}
+ 175 012a 95E80300 		ldmia	r5, {r0, r1}
+ 176 012e 88E80300 		stmia	r8, {r0, r1}
+ 122:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.text.color = LV_COLOR_MAKE(0x20, 0x20, 0x20);
+ 177              		.loc 1 122 0
+ 178 0132 237F     		ldrb	r3, [r4, #28]	@ zero_extendqisi2
+ 179 0134 66F30003 		bfi	r3, r6, #0, #1
+ 180 0138 2377     		strb	r3, [r4, #28]
+ 123:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.image.color = LV_COLOR_MAKE(0x20, 0x20, 0x20);
+ 181              		.loc 1 123 0
+ 182 013a 94F82C30 		ldrb	r3, [r4, #44]	@ zero_extendqisi2
+ 183 013e 66F30003 		bfi	r3, r6, #0, #1
+ 184 0142 84F82C30 		strb	r3, [r4, #44]
+ 124:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.line.color = LV_COLOR_MAKE(0x20, 0x20, 0x20);
+ 185              		.loc 1 124 0
+ 186 0146 94F83030 		ldrb	r3, [r4, #48]	@ zero_extendqisi2
+ 187 014a 66F30003 		bfi	r3, r6, #0, #1
+ 188 014e 84F83030 		strb	r3, [r4, #48]
+ 125:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.body.main_color = LV_COLOR_WHITE;
+ 189              		.loc 1 125 0
+ 190 0152 A378     		ldrb	r3, [r4, #2]	@ zero_extendqisi2
+ 191 0154 43F00103 		orr	r3, r3, #1
+ 192 0158 A370     		strb	r3, [r4, #2]
+ 126:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.body.grad_color = LV_COLOR_SILVER;
+ 193              		.loc 1 126 0
+ 194 015a E378     		ldrb	r3, [r4, #3]	@ zero_extendqisi2
+ 195 015c 43F00103 		orr	r3, r3, #1
+ 196 0160 E370     		strb	r3, [r4, #3]
+ 127:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.body.radius = LV_DPI / 15;
+ 197              		.loc 1 127 0
+ 198 0162 4FF0060C 		mov	ip, #6
+ 199 0166 A4F804C0 		strh	ip, [r4, #4]	@ movhi
+ 128:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.body.border.color = LV_COLOR_MAKE(0x40, 0x40, 0x40);
+ 200              		.loc 1 128 0
+ 201 016a 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 202 016c 66F30003 		bfi	r3, r6, #0, #1
+ 203 0170 2372     		strb	r3, [r4, #8]
+ 129:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.body.border.width = LV_DPI / 50 >= 1 ? LV_DPI / 50  : 1;
+ 204              		.loc 1 129 0
+ 205 0172 A4F80AE0 		strh	lr, [r4, #10]	@ movhi
+ 130:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty.body.border.opa = LV_OPA_30;
+ 206              		.loc 1 130 0
+ 207 0176 4C23     		movs	r3, #76
+ 208 0178 6373     		strb	r3, [r4, #13]
+ 131:..\lvgl\lv_core/lv_style.c **** 
+ 132:..\lvgl\lv_core/lv_style.c ****     /*Pretty color style*/
+ 133:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_pretty_color, &lv_style_pretty, sizeof(lv_style_t));
+ 209              		.loc 1 133 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 7
+
+
+ 210 017a DFF818A2 		ldr	r10, .L3+32
+ 211 017e D146     		mov	r9, r10
+ 212 0180 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 213 0182 A9E80F00 		stmia	r9!, {r0, r1, r2, r3}
+ 214 0186 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 215 0188 A9E80F00 		stmia	r9!, {r0, r1, r2, r3}
+ 216 018c 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 217 018e A9E80F00 		stmia	r9!, {r0, r1, r2, r3}
+ 218 0192 98E80300 		ldmia	r8, {r0, r1}
+ 219 0196 89E80300 		stmia	r9, {r0, r1}
+ 134:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty_color.text.color = LV_COLOR_MAKE(0xe0, 0xe0, 0xe0);
+ 220              		.loc 1 134 0
+ 221 019a 9AF81C30 		ldrb	r3, [r10, #28]	@ zero_extendqisi2
+ 222 019e 43F00103 		orr	r3, r3, #1
+ 223 01a2 8AF81C30 		strb	r3, [r10, #28]
+ 135:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty_color.image.color = LV_COLOR_MAKE(0xe0, 0xe0, 0xe0);
+ 224              		.loc 1 135 0
+ 225 01a6 9AF82C30 		ldrb	r3, [r10, #44]	@ zero_extendqisi2
+ 226 01aa 43F00103 		orr	r3, r3, #1
+ 227 01ae 8AF82C30 		strb	r3, [r10, #44]
+ 136:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty_color.line.color = LV_COLOR_MAKE(0xc0, 0xc0, 0xc0);
+ 228              		.loc 1 136 0
+ 229 01b2 9AF83030 		ldrb	r3, [r10, #48]	@ zero_extendqisi2
+ 230 01b6 43F00103 		orr	r3, r3, #1
+ 231 01ba 8AF83030 		strb	r3, [r10, #48]
+ 137:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty_color.body.main_color = LV_COLOR_MAKE(0x6b, 0x9a, 0xc7);
+ 232              		.loc 1 137 0
+ 233 01be 9AF80230 		ldrb	r3, [r10, #2]	@ zero_extendqisi2
+ 234 01c2 43F00103 		orr	r3, r3, #1
+ 235 01c6 8AF80230 		strb	r3, [r10, #2]
+ 138:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty_color.body.grad_color = LV_COLOR_MAKE(0x2b, 0x59, 0x8b);
+ 236              		.loc 1 138 0
+ 237 01ca 9AF80330 		ldrb	r3, [r10, #3]	@ zero_extendqisi2
+ 238 01ce 43F00103 		orr	r3, r3, #1
+ 239 01d2 8AF80330 		strb	r3, [r10, #3]
+ 139:..\lvgl\lv_core/lv_style.c ****     lv_style_pretty_color.body.border.color = LV_COLOR_MAKE(0x15, 0x2c, 0x42);
+ 240              		.loc 1 139 0
+ 241 01d6 9AF80830 		ldrb	r3, [r10, #8]	@ zero_extendqisi2
+ 242 01da 66F30003 		bfi	r3, r6, #0, #1
+ 243 01de 8AF80830 		strb	r3, [r10, #8]
+ 140:..\lvgl\lv_core/lv_style.c **** 
+ 141:..\lvgl\lv_core/lv_style.c ****     /*Transparent style*/
+ 142:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_transp, &lv_style_plain, sizeof(lv_style_t));
+ 244              		.loc 1 142 0
+ 245 01e2 684C     		ldr	r4, .L3+16
+ 246 01e4 A246     		mov	r10, r4
+ 247 01e6 B846     		mov	r8, r7
+ 248 01e8 B8E80F00 		ldmia	r8!, {r0, r1, r2, r3}
+ 249 01ec AAE80F00 		stmia	r10!, {r0, r1, r2, r3}
+ 250 01f0 B8E80F00 		ldmia	r8!, {r0, r1, r2, r3}
+ 251 01f4 AAE80F00 		stmia	r10!, {r0, r1, r2, r3}
+ 252 01f8 B8E80F00 		ldmia	r8!, {r0, r1, r2, r3}
+ 253 01fc AAE80F00 		stmia	r10!, {r0, r1, r2, r3}
+ 254 0200 95E80300 		ldmia	r5, {r0, r1}
+ 255 0204 8AE80300 		stmia	r10, {r0, r1}
+ 143:..\lvgl\lv_core/lv_style.c ****     lv_style_transp.body.empty = 1;
+ 256              		.loc 1 143 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 8
+
+
+ 257 0208 A37E     		ldrb	r3, [r4, #26]	@ zero_extendqisi2
+ 258 020a 43F00103 		orr	r3, r3, #1
+ 259 020e A376     		strb	r3, [r4, #26]
+ 144:..\lvgl\lv_core/lv_style.c ****     lv_style_transp.glass = 1;
+ 260              		.loc 1 144 0
+ 261 0210 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 262 0212 43F00103 		orr	r3, r3, #1
+ 263 0216 2370     		strb	r3, [r4]
+ 145:..\lvgl\lv_core/lv_style.c ****     lv_style_transp.body.border.width = 0;
+ 264              		.loc 1 145 0
+ 265 0218 6681     		strh	r6, [r4, #10]	@ movhi
+ 146:..\lvgl\lv_core/lv_style.c **** 
+ 147:..\lvgl\lv_core/lv_style.c ****     /*Transparent fitting size*/
+ 148:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_transp_fit, &lv_style_transp, sizeof(lv_style_t));
+ 266              		.loc 1 148 0
+ 267 021a DFF87C81 		ldr	r8, .L3+36
+ 268 021e C146     		mov	r9, r8
+ 269 0220 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 270 0222 A9E80F00 		stmia	r9!, {r0, r1, r2, r3}
+ 271 0226 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 272 0228 A9E80F00 		stmia	r9!, {r0, r1, r2, r3}
+ 273 022c 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 274 022e A9E80F00 		stmia	r9!, {r0, r1, r2, r3}
+ 275 0232 9AE80300 		ldmia	r10, {r0, r1}
+ 276 0236 89E80300 		stmia	r9, {r0, r1}
+ 149:..\lvgl\lv_core/lv_style.c ****     lv_style_transp_fit.body.padding.hor = 0;
+ 277              		.loc 1 149 0
+ 278 023a A8F81660 		strh	r6, [r8, #22]	@ movhi
+ 150:..\lvgl\lv_core/lv_style.c ****     lv_style_transp_fit.body.padding.ver = 0;
+ 279              		.loc 1 150 0
+ 280 023e A8F81460 		strh	r6, [r8, #20]	@ movhi
+ 151:..\lvgl\lv_core/lv_style.c **** 
+ 152:..\lvgl\lv_core/lv_style.c ****     /*Transparent tight style*/
+ 153:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_transp_tight, &lv_style_transp_fit, sizeof(lv_style_t));
+ 281              		.loc 1 153 0
+ 282 0242 DFF858B1 		ldr	fp, .L3+40
+ 283 0246 DA46     		mov	r10, fp
+ 284 0248 4446     		mov	r4, r8
+ 285 024a 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 286 024c AAE80F00 		stmia	r10!, {r0, r1, r2, r3}
+ 287 0250 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 288 0252 AAE80F00 		stmia	r10!, {r0, r1, r2, r3}
+ 289 0256 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 290 0258 AAE80F00 		stmia	r10!, {r0, r1, r2, r3}
+ 291 025c 99E80300 		ldmia	r9, {r0, r1}
+ 292 0260 8AE80300 		stmia	r10, {r0, r1}
+ 154:..\lvgl\lv_core/lv_style.c ****     lv_style_transp_tight.body.padding.inner = 0;
+ 293              		.loc 1 154 0
+ 294 0264 ABF81860 		strh	r6, [fp, #24]	@ movhi
+ 155:..\lvgl\lv_core/lv_style.c **** 
+ 156:..\lvgl\lv_core/lv_style.c ****     /*Button released style*/
+ 157:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_btn_rel, &lv_style_plain, sizeof(lv_style_t));
+ 295              		.loc 1 157 0
+ 296 0268 474C     		ldr	r4, .L3+20
+ 297 026a A046     		mov	r8, r4
+ 298 026c 0FCF     		ldmia	r7!, {r0, r1, r2, r3}
+ 299 026e A8E80F00 		stmia	r8!, {r0, r1, r2, r3}
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 9
+
+
+ 300 0272 0FCF     		ldmia	r7!, {r0, r1, r2, r3}
+ 301 0274 A8E80F00 		stmia	r8!, {r0, r1, r2, r3}
+ 302 0278 0FCF     		ldmia	r7!, {r0, r1, r2, r3}
+ 303 027a A8E80F00 		stmia	r8!, {r0, r1, r2, r3}
+ 304 027e 95E80300 		ldmia	r5, {r0, r1}
+ 305 0282 88E80300 		stmia	r8, {r0, r1}
+ 158:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.main_color = LV_COLOR_MAKE(0x76, 0xa2, 0xd0);
+ 306              		.loc 1 158 0
+ 307 0286 A378     		ldrb	r3, [r4, #2]	@ zero_extendqisi2
+ 308 0288 43F00103 		orr	r3, r3, #1
+ 309 028c A370     		strb	r3, [r4, #2]
+ 159:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.grad_color = LV_COLOR_MAKE(0x19, 0x3a, 0x5d);
+ 310              		.loc 1 159 0
+ 311 028e E378     		ldrb	r3, [r4, #3]	@ zero_extendqisi2
+ 312 0290 66F30003 		bfi	r3, r6, #0, #1
+ 313 0294 E370     		strb	r3, [r4, #3]
+ 160:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.radius = LV_DPI / 15;
+ 314              		.loc 1 160 0
+ 315 0296 A4F804C0 		strh	ip, [r4, #4]	@ movhi
+ 161:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.padding.hor = LV_DPI / 4;
+ 316              		.loc 1 161 0
+ 317 029a 1923     		movs	r3, #25
+ 318 029c E382     		strh	r3, [r4, #22]	@ movhi
+ 162:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.padding.ver = LV_DPI / 6;
+ 319              		.loc 1 162 0
+ 320 029e 1023     		movs	r3, #16
+ 321 02a0 A382     		strh	r3, [r4, #20]	@ movhi
+ 163:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.padding.inner = LV_DPI / 10;
+ 322              		.loc 1 163 0
+ 323 02a2 0A23     		movs	r3, #10
+ 324 02a4 2383     		strh	r3, [r4, #24]	@ movhi
+ 164:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.border.color = LV_COLOR_MAKE(0x0b, 0x19, 0x28);
+ 325              		.loc 1 164 0
+ 326 02a6 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 327 02a8 66F30003 		bfi	r3, r6, #0, #1
+ 328 02ac 2372     		strb	r3, [r4, #8]
+ 165:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.border.width = LV_DPI / 50 >= 1 ? LV_DPI / 50  : 1;
+ 329              		.loc 1 165 0
+ 330 02ae A4F80AE0 		strh	lr, [r4, #10]	@ movhi
+ 166:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.border.opa = LV_OPA_70;
+ 331              		.loc 1 166 0
+ 332 02b2 B223     		movs	r3, #178
+ 333 02b4 6373     		strb	r3, [r4, #13]
+ 167:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.shadow.color = LV_COLOR_GRAY;
+ 334              		.loc 1 167 0
+ 335 02b6 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 336 02b8 43F00103 		orr	r3, r3, #1
+ 337 02bc A373     		strb	r3, [r4, #14]
+ 168:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.body.shadow.width = 0;
+ 338              		.loc 1 168 0
+ 339 02be 2682     		strh	r6, [r4, #16]	@ movhi
+ 169:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.text.color = LV_COLOR_MAKE(0xff, 0xff, 0xff);
+ 340              		.loc 1 169 0
+ 341 02c0 237F     		ldrb	r3, [r4, #28]	@ zero_extendqisi2
+ 342 02c2 43F00103 		orr	r3, r3, #1
+ 343 02c6 2377     		strb	r3, [r4, #28]
+ 170:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_rel.image.color = LV_COLOR_MAKE(0xff, 0xff, 0xff);
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 10
+
+
+ 344              		.loc 1 170 0
+ 345 02c8 94F82C30 		ldrb	r3, [r4, #44]	@ zero_extendqisi2
+ 346 02cc 43F00103 		orr	r3, r3, #1
+ 347 02d0 84F82C30 		strb	r3, [r4, #44]
+ 171:..\lvgl\lv_core/lv_style.c **** 
+ 172:..\lvgl\lv_core/lv_style.c ****     /*Button pressed style*/
+ 173:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_btn_pr, &lv_style_btn_rel, sizeof(lv_style_t));
+ 348              		.loc 1 173 0
+ 349 02d4 DFF8C8E0 		ldr	lr, .L3+44
+ 350 02d8 7546     		mov	r5, lr
+ 351 02da 2746     		mov	r7, r4
+ 352 02dc 0FCF     		ldmia	r7!, {r0, r1, r2, r3}
+ 353 02de 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 354 02e0 0FCF     		ldmia	r7!, {r0, r1, r2, r3}
+ 355 02e2 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 356 02e4 0FCF     		ldmia	r7!, {r0, r1, r2, r3}
+ 357 02e6 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 358 02e8 97E80300 		ldmia	r7, {r0, r1}
+ 359 02ec 85E80300 		stmia	r5, {r0, r1}
+ 174:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_pr.body.main_color = LV_COLOR_MAKE(0x33, 0x62, 0x94);
+ 360              		.loc 1 174 0
+ 361 02f0 9EF80230 		ldrb	r3, [lr, #2]	@ zero_extendqisi2
+ 362 02f4 43F00103 		orr	r3, r3, #1
+ 363 02f8 8EF80230 		strb	r3, [lr, #2]
+ 175:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_pr.body.grad_color = LV_COLOR_MAKE(0x10, 0x26, 0x3c);
+ 364              		.loc 1 175 0
+ 365 02fc 9EF80330 		ldrb	r3, [lr, #3]	@ zero_extendqisi2
+ 366 0300 66F30003 		bfi	r3, r6, #0, #1
+ 367 0304 8EF80330 		strb	r3, [lr, #3]
+ 176:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_pr.text.color = LV_COLOR_MAKE(0xa4, 0xb5, 0xc6);
+ 368              		.loc 1 176 0
+ 369 0308 9EF81C30 		ldrb	r3, [lr, #28]	@ zero_extendqisi2
+ 370 030c 43F00103 		orr	r3, r3, #1
+ 371 0310 8EF81C30 		strb	r3, [lr, #28]
+ 177:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_pr.image.color = LV_COLOR_MAKE(0xa4, 0xb5, 0xc6);
+ 372              		.loc 1 177 0
+ 373 0314 9EF82C30 		ldrb	r3, [lr, #44]	@ zero_extendqisi2
+ 374 0318 43F00103 		orr	r3, r3, #1
+ 375 031c 8EF82C30 		strb	r3, [lr, #44]
+ 178:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_pr.line.color = LV_COLOR_MAKE(0xa4, 0xb5, 0xc6);
+ 376              		.loc 1 178 0
+ 377 0320 9EF83030 		ldrb	r3, [lr, #48]	@ zero_extendqisi2
+ 378 0324 43F00103 		orr	r3, r3, #1
+ 379 0328 8EF83030 		strb	r3, [lr, #48]
+ 179:..\lvgl\lv_core/lv_style.c **** 
+ 180:..\lvgl\lv_core/lv_style.c ****     /*Button toggle released style*/
+ 181:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_btn_tgl_rel, &lv_style_btn_rel, sizeof(lv_style_t));
+ 380              		.loc 1 181 0
+ 381 032c 174D     		ldr	r5, .L3+24
+ 382 032e 2F46     		mov	r7, r5
+ 383 0330 A646     		mov	lr, r4
+ 384 0332 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 385 0336 0FC7     		stmia	r7!, {r0, r1, r2, r3}
+ 386 0338 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 387 033c 0FC7     		stmia	r7!, {r0, r1, r2, r3}
+ 388 033e BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+ 389 0342 0FC7     		stmia	r7!, {r0, r1, r2, r3}
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 11
+
+
+ 390 0344 9EE80300 		ldmia	lr, {r0, r1}
+ 391 0348 87E80300 		stmia	r7, {r0, r1}
+ 182:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_rel.body.main_color = LV_COLOR_MAKE(0x0a, 0x11, 0x22);
+ 392              		.loc 1 182 0
+ 393 034c AB78     		ldrb	r3, [r5, #2]	@ zero_extendqisi2
+ 394 034e 66F30003 		bfi	r3, r6, #0, #1
+ 395 0352 AB70     		strb	r3, [r5, #2]
+ 183:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_rel.body.grad_color = LV_COLOR_MAKE(0x37, 0x62, 0x90);
+ 396              		.loc 1 183 0
+ 397 0354 EB78     		ldrb	r3, [r5, #3]	@ zero_extendqisi2
+ 398 0356 43F00103 		orr	r3, r3, #1
+ 399 035a EB70     		strb	r3, [r5, #3]
+ 184:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_rel.body.border.color = LV_COLOR_MAKE(0x01, 0x07, 0x0d);
+ 400              		.loc 1 184 0
+ 401 035c 2B7A     		ldrb	r3, [r5, #8]	@ zero_extendqisi2
+ 402 035e 66F30003 		bfi	r3, r6, #0, #1
+ 403 0362 2B72     		strb	r3, [r5, #8]
+ 185:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_rel.text.color = LV_COLOR_MAKE(0xc8, 0xdd, 0xf4);
+ 404              		.loc 1 185 0
+ 405 0364 2B7F     		ldrb	r3, [r5, #28]	@ zero_extendqisi2
+ 406 0366 43F00103 		orr	r3, r3, #1
+ 407 036a 2B77     		strb	r3, [r5, #28]
+ 186:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_rel.image.color = LV_COLOR_MAKE(0xc8, 0xdd, 0xf4);
+ 408              		.loc 1 186 0
+ 409 036c 95F82C30 		ldrb	r3, [r5, #44]	@ zero_extendqisi2
+ 410 0370 18E0     		b	.L4
+ 411              	.L5:
+ 412 0372 00BF     		.align	2
+ 413              	.L3:
+ 414 0374 00000000 		.word	lv_style_scr
+ 415 0378 00000000 		.word	lv_font_monospace_8
+ 416 037c 00000000 		.word	lv_style_plain
+ 417 0380 00000000 		.word	lv_style_pretty
+ 418 0384 00000000 		.word	lv_style_transp
+ 419 0388 00000000 		.word	lv_style_btn_rel
+ 420 038c 00000000 		.word	lv_style_btn_tgl_rel
+ 421 0390 00000000 		.word	lv_style_plain_color
+ 422 0394 00000000 		.word	lv_style_pretty_color
+ 423 0398 00000000 		.word	lv_style_transp_fit
+ 424 039c 00000000 		.word	lv_style_transp_tight
+ 425 03a0 00000000 		.word	lv_style_btn_pr
+ 426              	.L4:
+ 427 03a4 43F00103 		orr	r3, r3, #1
+ 428 03a8 85F82C30 		strb	r3, [r5, #44]
+ 187:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_rel.line.color = LV_COLOR_MAKE(0xc8, 0xdd, 0xf4);
+ 429              		.loc 1 187 0
+ 430 03ac 95F83030 		ldrb	r3, [r5, #48]	@ zero_extendqisi2
+ 431 03b0 43F00103 		orr	r3, r3, #1
+ 432 03b4 85F83030 		strb	r3, [r5, #48]
+ 188:..\lvgl\lv_core/lv_style.c **** 
+ 189:..\lvgl\lv_core/lv_style.c ****     /*Button toggle pressed style*/
+ 190:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_btn_tgl_pr, &lv_style_btn_tgl_rel, sizeof(lv_style_t));
+ 433              		.loc 1 190 0
+ 434 03b8 DFF8B0C0 		ldr	ip, .L6+4
+ 435 03bc E646     		mov	lr, ip
+ 436 03be 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 437 03c0 AEE80F00 		stmia	lr!, {r0, r1, r2, r3}
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 12
+
+
+ 438 03c4 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 439 03c6 AEE80F00 		stmia	lr!, {r0, r1, r2, r3}
+ 440 03ca 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 441 03cc AEE80F00 		stmia	lr!, {r0, r1, r2, r3}
+ 442 03d0 97E80300 		ldmia	r7, {r0, r1}
+ 443 03d4 8EE80300 		stmia	lr, {r0, r1}
+ 191:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_pr.body.main_color = LV_COLOR_MAKE(0x02, 0x14, 0x27);
+ 444              		.loc 1 191 0
+ 445 03d8 9CF80230 		ldrb	r3, [ip, #2]	@ zero_extendqisi2
+ 446 03dc 66F30003 		bfi	r3, r6, #0, #1
+ 447 03e0 8CF80230 		strb	r3, [ip, #2]
+ 192:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_pr.body.grad_color = LV_COLOR_MAKE(0x2b, 0x4c, 0x70);
+ 448              		.loc 1 192 0
+ 449 03e4 9CF80330 		ldrb	r3, [ip, #3]	@ zero_extendqisi2
+ 450 03e8 66F30003 		bfi	r3, r6, #0, #1
+ 451 03ec 8CF80330 		strb	r3, [ip, #3]
+ 193:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_pr.text.color = LV_COLOR_MAKE(0xa4, 0xb5, 0xc6);
+ 452              		.loc 1 193 0
+ 453 03f0 9CF81C30 		ldrb	r3, [ip, #28]	@ zero_extendqisi2
+ 454 03f4 43F00103 		orr	r3, r3, #1
+ 455 03f8 8CF81C30 		strb	r3, [ip, #28]
+ 194:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_pr.image.color = LV_COLOR_MAKE(0xa4, 0xb5, 0xc6);
+ 456              		.loc 1 194 0
+ 457 03fc 9CF82C30 		ldrb	r3, [ip, #44]	@ zero_extendqisi2
+ 458 0400 43F00103 		orr	r3, r3, #1
+ 459 0404 8CF82C30 		strb	r3, [ip, #44]
+ 195:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_tgl_pr.line.color = LV_COLOR_MAKE(0xa4, 0xb5, 0xc6);
+ 460              		.loc 1 195 0
+ 461 0408 9CF83030 		ldrb	r3, [ip, #48]	@ zero_extendqisi2
+ 462 040c 43F00103 		orr	r3, r3, #1
+ 463 0410 8CF83030 		strb	r3, [ip, #48]
+ 196:..\lvgl\lv_core/lv_style.c **** 
+ 197:..\lvgl\lv_core/lv_style.c ****     /*Button inactive style*/
+ 198:..\lvgl\lv_core/lv_style.c ****     memcpy(&lv_style_btn_ina, &lv_style_btn_rel, sizeof(lv_style_t));
+ 464              		.loc 1 198 0
+ 465 0414 144F     		ldr	r7, .L6
+ 466 0416 3D46     		mov	r5, r7
+ 467 0418 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 468 041a 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 469 041c 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 470 041e 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 471 0420 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 472 0422 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 473 0424 94E80300 		ldmia	r4, {r0, r1}
+ 474 0428 85E80300 		stmia	r5, {r0, r1}
+ 199:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_ina.body.main_color = LV_COLOR_MAKE(0xd8, 0xd8, 0xd8);
+ 475              		.loc 1 199 0
+ 476 042c BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 477 042e 43F00103 		orr	r3, r3, #1
+ 478 0432 BB70     		strb	r3, [r7, #2]
+ 200:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_ina.body.grad_color = LV_COLOR_MAKE(0xd8, 0xd8, 0xd8);
+ 479              		.loc 1 200 0
+ 480 0434 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 481 0436 43F00103 		orr	r3, r3, #1
+ 482 043a FB70     		strb	r3, [r7, #3]
+ 201:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_ina.body.border.color = LV_COLOR_MAKE(0x90, 0x90, 0x90);
+ 483              		.loc 1 201 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 13
+
+
+ 484 043c 3B7A     		ldrb	r3, [r7, #8]	@ zero_extendqisi2
+ 485 043e 43F00103 		orr	r3, r3, #1
+ 486 0442 3B72     		strb	r3, [r7, #8]
+ 202:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_ina.text.color = LV_COLOR_MAKE(0x70, 0x70, 0x70);
+ 487              		.loc 1 202 0
+ 488 0444 3B7F     		ldrb	r3, [r7, #28]	@ zero_extendqisi2
+ 489 0446 66F30003 		bfi	r3, r6, #0, #1
+ 490 044a 3B77     		strb	r3, [r7, #28]
+ 203:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_ina.image.color = LV_COLOR_MAKE(0x70, 0x70, 0x70);
+ 491              		.loc 1 203 0
+ 492 044c 97F82C30 		ldrb	r3, [r7, #44]	@ zero_extendqisi2
+ 493 0450 66F30003 		bfi	r3, r6, #0, #1
+ 494 0454 87F82C30 		strb	r3, [r7, #44]
+ 204:..\lvgl\lv_core/lv_style.c ****     lv_style_btn_ina.line.color = LV_COLOR_MAKE(0x70, 0x70, 0x70);
+ 495              		.loc 1 204 0
+ 496 0458 97F83030 		ldrb	r3, [r7, #48]	@ zero_extendqisi2
+ 497 045c 66F30003 		bfi	r3, r6, #0, #1
+ 498 0460 87F83030 		strb	r3, [r7, #48]
+ 499 0464 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 500              	.L7:
+ 501              		.align	2
+ 502              	.L6:
+ 503 0468 00000000 		.word	lv_style_btn_ina
+ 504 046c 00000000 		.word	lv_style_btn_tgl_pr
+ 505              		.cfi_endproc
+ 506              	.LFE12:
+ 507              		.size	lv_style_init, .-lv_style_init
+ 508              		.section	.text.lv_style_copy,"ax",%progbits
+ 509              		.align	2
+ 510              		.global	lv_style_copy
+ 511              		.thumb
+ 512              		.thumb_func
+ 513              		.type	lv_style_copy, %function
+ 514              	lv_style_copy:
+ 515              	.LFB13:
+ 205:..\lvgl\lv_core/lv_style.c **** }
+ 206:..\lvgl\lv_core/lv_style.c **** 
+ 207:..\lvgl\lv_core/lv_style.c **** 
+ 208:..\lvgl\lv_core/lv_style.c **** /**
+ 209:..\lvgl\lv_core/lv_style.c ****  * Copy a style to an other
+ 210:..\lvgl\lv_core/lv_style.c ****  * @param dest pointer to the destination style
+ 211:..\lvgl\lv_core/lv_style.c ****  * @param src pointer to the source style
+ 212:..\lvgl\lv_core/lv_style.c ****  */
+ 213:..\lvgl\lv_core/lv_style.c **** void lv_style_copy(lv_style_t * dest, const lv_style_t * src)
+ 214:..\lvgl\lv_core/lv_style.c **** {
+ 516              		.loc 1 214 0
+ 517              		.cfi_startproc
+ 518              		@ args = 0, pretend = 0, frame = 0
+ 519              		@ frame_needed = 0, uses_anonymous_args = 0
+ 520              		@ link register save eliminated.
+ 521              	.LVL0:
+ 522 0000 70B4     		push	{r4, r5, r6}
+ 523              		.cfi_def_cfa_offset 12
+ 524              		.cfi_offset 4, -12
+ 525              		.cfi_offset 5, -8
+ 526              		.cfi_offset 6, -4
+ 215:..\lvgl\lv_core/lv_style.c ****     memcpy(dest, src, sizeof(lv_style_t));
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 14
+
+
+ 527              		.loc 1 215 0
+ 528 0002 01F13003 		add	r3, r1, #48
+ 529              	.LVL1:
+ 530              	.L9:
+ 531 0006 0E68     		ldr	r6, [r1]	@ unaligned
+ 532 0008 4D68     		ldr	r5, [r1, #4]	@ unaligned
+ 533 000a 8C68     		ldr	r4, [r1, #8]	@ unaligned
+ 534 000c CA68     		ldr	r2, [r1, #12]	@ unaligned
+ 535 000e 0660     		str	r6, [r0]	@ unaligned
+ 536 0010 4560     		str	r5, [r0, #4]	@ unaligned
+ 537 0012 8460     		str	r4, [r0, #8]	@ unaligned
+ 538 0014 C260     		str	r2, [r0, #12]	@ unaligned
+ 539 0016 1031     		adds	r1, r1, #16
+ 540 0018 1030     		adds	r0, r0, #16
+ 541 001a 9942     		cmp	r1, r3
+ 542 001c F3D1     		bne	.L9
+ 543 001e 0A68     		ldr	r2, [r1]	@ unaligned
+ 544 0020 4B68     		ldr	r3, [r1, #4]	@ unaligned
+ 545              	.LVL2:
+ 546 0022 0260     		str	r2, [r0]	@ unaligned
+ 547 0024 4360     		str	r3, [r0, #4]	@ unaligned
+ 216:..\lvgl\lv_core/lv_style.c **** }
+ 548              		.loc 1 216 0
+ 549 0026 70BC     		pop	{r4, r5, r6}
+ 550              		.cfi_restore 6
+ 551              		.cfi_restore 5
+ 552              		.cfi_restore 4
+ 553              		.cfi_def_cfa_offset 0
+ 554 0028 7047     		bx	lr
+ 555              		.cfi_endproc
+ 556              	.LFE13:
+ 557              		.size	lv_style_copy, .-lv_style_copy
+ 558 002a 00BF     		.section	.text.lv_style_mix,"ax",%progbits
+ 559              		.align	2
+ 560              		.global	lv_style_mix
+ 561              		.thumb
+ 562              		.thumb_func
+ 563              		.type	lv_style_mix, %function
+ 564              	lv_style_mix:
+ 565              	.LFB14:
+ 217:..\lvgl\lv_core/lv_style.c **** 
+ 218:..\lvgl\lv_core/lv_style.c **** 
+ 219:..\lvgl\lv_core/lv_style.c **** /**
+ 220:..\lvgl\lv_core/lv_style.c ****  * Mix two styles according to a given ratio
+ 221:..\lvgl\lv_core/lv_style.c ****  * @param start start style
+ 222:..\lvgl\lv_core/lv_style.c ****  * @param end end style
+ 223:..\lvgl\lv_core/lv_style.c ****  * @param res store the result style here
+ 224:..\lvgl\lv_core/lv_style.c ****  * @param ratio the ratio of mix [0..256]; 0: `start` style; 256: `end` style
+ 225:..\lvgl\lv_core/lv_style.c ****  */
+ 226:..\lvgl\lv_core/lv_style.c **** void lv_style_mix(const lv_style_t * start, const lv_style_t * end, lv_style_t * res, uint16_t rati
+ 227:..\lvgl\lv_core/lv_style.c **** {
+ 566              		.loc 1 227 0
+ 567              		.cfi_startproc
+ 568              		@ args = 0, pretend = 0, frame = 0
+ 569              		@ frame_needed = 0, uses_anonymous_args = 0
+ 570              		@ link register save eliminated.
+ 571              	.LVL3:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 15
+
+
+ 572 0000 70B4     		push	{r4, r5, r6}
+ 573              		.cfi_def_cfa_offset 12
+ 574              		.cfi_offset 4, -12
+ 575              		.cfi_offset 5, -8
+ 576              		.cfi_offset 6, -4
+ 228:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(body.opa, ratio);
+ 577              		.loc 1 228 0
+ 578 0002 8579     		ldrb	r5, [r0, #6]	@ zero_extendqisi2
+ 579 0004 8C79     		ldrb	r4, [r1, #6]	@ zero_extendqisi2
+ 580 0006 A542     		cmp	r5, r4
+ 581 0008 06D0     		beq	.L12
+ 582              		.loc 1 228 0 is_stmt 0 discriminator 1
+ 583 000a 641B     		subs	r4, r4, r5
+ 584 000c 04FB03F4 		mul	r4, r4, r3
+ 585 0010 05EB2424 		add	r4, r5, r4, asr #8
+ 586 0014 9471     		strb	r4, [r2, #6]
+ 587 0016 00E0     		b	.L13
+ 588              	.L12:
+ 589              		.loc 1 228 0 discriminator 2
+ 590 0018 9571     		strb	r5, [r2, #6]
+ 591              	.L13:
+ 229:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(body.radius, ratio);
+ 592              		.loc 1 229 0 is_stmt 1
+ 593 001a B0F90450 		ldrsh	r5, [r0, #4]
+ 594 001e B1F90440 		ldrsh	r4, [r1, #4]
+ 595 0022 A542     		cmp	r5, r4
+ 596 0024 06D0     		beq	.L14
+ 597              		.loc 1 229 0 is_stmt 0 discriminator 1
+ 598 0026 641B     		subs	r4, r4, r5
+ 599 0028 04FB03F4 		mul	r4, r4, r3
+ 600 002c 05EB2424 		add	r4, r5, r4, asr #8
+ 601 0030 9480     		strh	r4, [r2, #4]	@ movhi
+ 602 0032 00E0     		b	.L15
+ 603              	.L14:
+ 604              		.loc 1 229 0 discriminator 2
+ 605 0034 9580     		strh	r5, [r2, #4]	@ movhi
+ 606              	.L15:
+ 230:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(body.border.width, ratio);
+ 607              		.loc 1 230 0 is_stmt 1
+ 608 0036 B0F90A50 		ldrsh	r5, [r0, #10]
+ 609 003a B1F90A40 		ldrsh	r4, [r1, #10]
+ 610 003e A542     		cmp	r5, r4
+ 611 0040 06D0     		beq	.L16
+ 612              		.loc 1 230 0 is_stmt 0 discriminator 1
+ 613 0042 641B     		subs	r4, r4, r5
+ 614 0044 04FB03F4 		mul	r4, r4, r3
+ 615 0048 05EB2424 		add	r4, r5, r4, asr #8
+ 616 004c 5481     		strh	r4, [r2, #10]	@ movhi
+ 617 004e 00E0     		b	.L17
+ 618              	.L16:
+ 619              		.loc 1 230 0 discriminator 2
+ 620 0050 5581     		strh	r5, [r2, #10]	@ movhi
+ 621              	.L17:
+ 231:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(body.border.opa, ratio);
+ 622              		.loc 1 231 0 is_stmt 1
+ 623 0052 457B     		ldrb	r5, [r0, #13]	@ zero_extendqisi2
+ 624 0054 4C7B     		ldrb	r4, [r1, #13]	@ zero_extendqisi2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 16
+
+
+ 625 0056 A542     		cmp	r5, r4
+ 626 0058 06D0     		beq	.L18
+ 627              		.loc 1 231 0 is_stmt 0 discriminator 1
+ 628 005a 641B     		subs	r4, r4, r5
+ 629 005c 04FB03F4 		mul	r4, r4, r3
+ 630 0060 05EB2424 		add	r4, r5, r4, asr #8
+ 631 0064 5473     		strb	r4, [r2, #13]
+ 632 0066 00E0     		b	.L19
+ 633              	.L18:
+ 634              		.loc 1 231 0 discriminator 2
+ 635 0068 5573     		strb	r5, [r2, #13]
+ 636              	.L19:
+ 232:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(body.shadow.width, ratio);
+ 637              		.loc 1 232 0 is_stmt 1
+ 638 006a B0F91050 		ldrsh	r5, [r0, #16]
+ 639 006e B1F91040 		ldrsh	r4, [r1, #16]
+ 640 0072 A542     		cmp	r5, r4
+ 641 0074 06D0     		beq	.L20
+ 642              		.loc 1 232 0 is_stmt 0 discriminator 1
+ 643 0076 641B     		subs	r4, r4, r5
+ 644 0078 04FB03F4 		mul	r4, r4, r3
+ 645 007c 05EB2424 		add	r4, r5, r4, asr #8
+ 646 0080 1482     		strh	r4, [r2, #16]	@ movhi
+ 647 0082 00E0     		b	.L21
+ 648              	.L20:
+ 649              		.loc 1 232 0 discriminator 2
+ 650 0084 1582     		strh	r5, [r2, #16]	@ movhi
+ 651              	.L21:
+ 233:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(body.padding.hor, ratio);
+ 652              		.loc 1 233 0 is_stmt 1
+ 653 0086 B0F91650 		ldrsh	r5, [r0, #22]
+ 654 008a B1F91640 		ldrsh	r4, [r1, #22]
+ 655 008e A542     		cmp	r5, r4
+ 656 0090 06D0     		beq	.L22
+ 657              		.loc 1 233 0 is_stmt 0 discriminator 1
+ 658 0092 641B     		subs	r4, r4, r5
+ 659 0094 04FB03F4 		mul	r4, r4, r3
+ 660 0098 05EB2424 		add	r4, r5, r4, asr #8
+ 661 009c D482     		strh	r4, [r2, #22]	@ movhi
+ 662 009e 00E0     		b	.L23
+ 663              	.L22:
+ 664              		.loc 1 233 0 discriminator 2
+ 665 00a0 D582     		strh	r5, [r2, #22]	@ movhi
+ 666              	.L23:
+ 234:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(body.padding.ver, ratio);
+ 667              		.loc 1 234 0 is_stmt 1
+ 668 00a2 B0F91450 		ldrsh	r5, [r0, #20]
+ 669 00a6 B1F91440 		ldrsh	r4, [r1, #20]
+ 670 00aa A542     		cmp	r5, r4
+ 671 00ac 06D0     		beq	.L24
+ 672              		.loc 1 234 0 is_stmt 0 discriminator 1
+ 673 00ae 641B     		subs	r4, r4, r5
+ 674 00b0 04FB03F4 		mul	r4, r4, r3
+ 675 00b4 05EB2424 		add	r4, r5, r4, asr #8
+ 676 00b8 9482     		strh	r4, [r2, #20]	@ movhi
+ 677 00ba 00E0     		b	.L25
+ 678              	.L24:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 17
+
+
+ 679              		.loc 1 234 0 discriminator 2
+ 680 00bc 9582     		strh	r5, [r2, #20]	@ movhi
+ 681              	.L25:
+ 235:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(body.padding.inner, ratio);
+ 682              		.loc 1 235 0 is_stmt 1
+ 683 00be B0F91850 		ldrsh	r5, [r0, #24]
+ 684 00c2 B1F91840 		ldrsh	r4, [r1, #24]
+ 685 00c6 A542     		cmp	r5, r4
+ 686 00c8 06D0     		beq	.L26
+ 687              		.loc 1 235 0 is_stmt 0 discriminator 1
+ 688 00ca 641B     		subs	r4, r4, r5
+ 689 00cc 04FB03F4 		mul	r4, r4, r3
+ 690 00d0 05EB2424 		add	r4, r5, r4, asr #8
+ 691 00d4 1483     		strh	r4, [r2, #24]	@ movhi
+ 692 00d6 00E0     		b	.L27
+ 693              	.L26:
+ 694              		.loc 1 235 0 discriminator 2
+ 695 00d8 1583     		strh	r5, [r2, #24]	@ movhi
+ 696              	.L27:
+ 236:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(text.line_space, ratio);
+ 697              		.loc 1 236 0 is_stmt 1
+ 698 00da B0F92650 		ldrsh	r5, [r0, #38]
+ 699 00de B1F92640 		ldrsh	r4, [r1, #38]
+ 700 00e2 A542     		cmp	r5, r4
+ 701 00e4 06D0     		beq	.L28
+ 702              		.loc 1 236 0 is_stmt 0 discriminator 1
+ 703 00e6 641B     		subs	r4, r4, r5
+ 704 00e8 04FB03F4 		mul	r4, r4, r3
+ 705 00ec 05EB2424 		add	r4, r5, r4, asr #8
+ 706 00f0 D484     		strh	r4, [r2, #38]	@ movhi
+ 707 00f2 00E0     		b	.L29
+ 708              	.L28:
+ 709              		.loc 1 236 0 discriminator 2
+ 710 00f4 D584     		strh	r5, [r2, #38]	@ movhi
+ 711              	.L29:
+ 237:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(text.letter_space, ratio);
+ 712              		.loc 1 237 0 is_stmt 1
+ 713 00f6 B0F92450 		ldrsh	r5, [r0, #36]
+ 714 00fa B1F92440 		ldrsh	r4, [r1, #36]
+ 715 00fe A542     		cmp	r5, r4
+ 716 0100 06D0     		beq	.L30
+ 717              		.loc 1 237 0 is_stmt 0 discriminator 1
+ 718 0102 641B     		subs	r4, r4, r5
+ 719 0104 04FB03F4 		mul	r4, r4, r3
+ 720 0108 05EB2424 		add	r4, r5, r4, asr #8
+ 721 010c 9484     		strh	r4, [r2, #36]	@ movhi
+ 722 010e 00E0     		b	.L31
+ 723              	.L30:
+ 724              		.loc 1 237 0 discriminator 2
+ 725 0110 9584     		strh	r5, [r2, #36]	@ movhi
+ 726              	.L31:
+ 238:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(text.opa, ratio);
+ 727              		.loc 1 238 0 is_stmt 1
+ 728 0112 90F82850 		ldrb	r5, [r0, #40]	@ zero_extendqisi2
+ 729 0116 91F82840 		ldrb	r4, [r1, #40]	@ zero_extendqisi2
+ 730 011a A542     		cmp	r5, r4
+ 731 011c 07D0     		beq	.L32
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 18
+
+
+ 732              		.loc 1 238 0 is_stmt 0 discriminator 1
+ 733 011e 641B     		subs	r4, r4, r5
+ 734 0120 04FB03F4 		mul	r4, r4, r3
+ 735 0124 05EB2424 		add	r4, r5, r4, asr #8
+ 736 0128 82F82840 		strb	r4, [r2, #40]
+ 737 012c 01E0     		b	.L33
+ 738              	.L32:
+ 739              		.loc 1 238 0 discriminator 2
+ 740 012e 82F82850 		strb	r5, [r2, #40]
+ 741              	.L33:
+ 239:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(line.width, ratio);
+ 742              		.loc 1 239 0 is_stmt 1
+ 743 0132 B0F93250 		ldrsh	r5, [r0, #50]
+ 744 0136 B1F93240 		ldrsh	r4, [r1, #50]
+ 745 013a A542     		cmp	r5, r4
+ 746 013c 06D0     		beq	.L34
+ 747              		.loc 1 239 0 is_stmt 0 discriminator 1
+ 748 013e 641B     		subs	r4, r4, r5
+ 749 0140 04FB03F4 		mul	r4, r4, r3
+ 750 0144 05EB2424 		add	r4, r5, r4, asr #8
+ 751 0148 5486     		strh	r4, [r2, #50]	@ movhi
+ 752 014a 00E0     		b	.L35
+ 753              	.L34:
+ 754              		.loc 1 239 0 discriminator 2
+ 755 014c 5586     		strh	r5, [r2, #50]	@ movhi
+ 756              	.L35:
+ 240:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(line.opa, ratio);
+ 757              		.loc 1 240 0 is_stmt 1
+ 758 014e 90F83450 		ldrb	r5, [r0, #52]	@ zero_extendqisi2
+ 759 0152 91F83440 		ldrb	r4, [r1, #52]	@ zero_extendqisi2
+ 760 0156 A542     		cmp	r5, r4
+ 761 0158 07D0     		beq	.L36
+ 762              		.loc 1 240 0 is_stmt 0 discriminator 1
+ 763 015a 641B     		subs	r4, r4, r5
+ 764 015c 04FB03F4 		mul	r4, r4, r3
+ 765 0160 05EB2424 		add	r4, r5, r4, asr #8
+ 766 0164 82F83440 		strb	r4, [r2, #52]
+ 767 0168 01E0     		b	.L37
+ 768              	.L36:
+ 769              		.loc 1 240 0 discriminator 2
+ 770 016a 82F83450 		strb	r5, [r2, #52]
+ 771              	.L37:
+ 241:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(image.intense, ratio);
+ 772              		.loc 1 241 0 is_stmt 1
+ 773 016e 90F82D50 		ldrb	r5, [r0, #45]	@ zero_extendqisi2
+ 774 0172 91F82D40 		ldrb	r4, [r1, #45]	@ zero_extendqisi2
+ 775 0176 A542     		cmp	r5, r4
+ 776 0178 07D0     		beq	.L38
+ 777              		.loc 1 241 0 is_stmt 0 discriminator 1
+ 778 017a 641B     		subs	r4, r4, r5
+ 779 017c 04FB03F4 		mul	r4, r4, r3
+ 780 0180 05EB2424 		add	r4, r5, r4, asr #8
+ 781 0184 82F82D40 		strb	r4, [r2, #45]
+ 782 0188 01E0     		b	.L39
+ 783              	.L38:
+ 784              		.loc 1 241 0 discriminator 2
+ 785 018a 82F82D50 		strb	r5, [r2, #45]
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 19
+
+
+ 786              	.L39:
+ 242:..\lvgl\lv_core/lv_style.c ****     STYLE_ATTR_MIX(image.opa, ratio);
+ 787              		.loc 1 242 0 is_stmt 1
+ 788 018e 90F82E50 		ldrb	r5, [r0, #46]	@ zero_extendqisi2
+ 789 0192 91F82E40 		ldrb	r4, [r1, #46]	@ zero_extendqisi2
+ 790 0196 A542     		cmp	r5, r4
+ 791 0198 07D0     		beq	.L40
+ 792              		.loc 1 242 0 is_stmt 0 discriminator 1
+ 793 019a 641B     		subs	r4, r4, r5
+ 794 019c 04FB03F4 		mul	r4, r4, r3
+ 795 01a0 05EB2424 		add	r4, r5, r4, asr #8
+ 796 01a4 82F82E40 		strb	r4, [r2, #46]
+ 797 01a8 01E0     		b	.L41
+ 798              	.L40:
+ 799              		.loc 1 242 0 discriminator 2
+ 800 01aa 82F82E50 		strb	r5, [r2, #46]
+ 801              	.L41:
+ 243:..\lvgl\lv_core/lv_style.c **** 
+ 244:..\lvgl\lv_core/lv_style.c ****     lv_opa_t opa = ratio == STYLE_MIX_MAX ? LV_OPA_COVER : ratio;
+ 802              		.loc 1 244 0 is_stmt 1
+ 803 01ae B3F5807F 		cmp	r3, #256
+ 804 01b2 01D0     		beq	.L59
+ 805              		.loc 1 244 0 is_stmt 0 discriminator 1
+ 806 01b4 DCB2     		uxtb	r4, r3
+ 807 01b6 00E0     		b	.L42
+ 808              	.L59:
+ 809              		.loc 1 244 0
+ 810 01b8 FF24     		movs	r4, #255
+ 811              	.L42:
+ 812              	.LVL4:
+ 813 01ba 8E78     		ldrb	r6, [r1, #2]	@ zero_extendqisi2
+ 814 01bc 8578     		ldrb	r5, [r0, #2]	@ zero_extendqisi2
+ 815              	.LVL5:
+ 816              	.LBB16:
+ 817              	.LBB17:
+ 818              		.file 2 "..\\lvgl\\lv_core\\../lv_misc/lv_color.h"
+   1:..\lvgl\lv_core\../lv_misc/lv_color.h **** /**
+   2:..\lvgl\lv_core\../lv_misc/lv_color.h ****  * @file lv_color.h
+   3:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *
+   4:..\lvgl\lv_core\../lv_misc/lv_color.h ****  */
+   5:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+   6:..\lvgl\lv_core\../lv_misc/lv_color.h **** #ifndef LV_COLOR_H
+   7:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_H
+   8:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+   9:..\lvgl\lv_core\../lv_misc/lv_color.h **** #ifdef __cplusplus
+  10:..\lvgl\lv_core\../lv_misc/lv_color.h **** extern "C" {
+  11:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+  12:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  13:..\lvgl\lv_core\../lv_misc/lv_color.h **** /*********************
+  14:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *      INCLUDES
+  15:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *********************/
+  16:..\lvgl\lv_core\../lv_misc/lv_color.h **** #ifdef LV_CONF_INCLUDE_SIMPLE
+  17:..\lvgl\lv_core\../lv_misc/lv_color.h **** #include "lv_conf.h"
+  18:..\lvgl\lv_core\../lv_misc/lv_color.h **** #else
+  19:..\lvgl\lv_core\../lv_misc/lv_color.h **** #include "../../lv_conf.h"
+  20:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+  21:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 20
+
+
+  22:..\lvgl\lv_core\../lv_misc/lv_color.h **** /*Error checking*/
+  23:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH == 24
+  24:..\lvgl\lv_core\../lv_misc/lv_color.h **** #error "LV_COLOR_DEPTH  24 is deprecated. Use LV_COLOR_DEPTH  32 instead (lv_conf.h)"
+  25:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+  26:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  27:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH != 32 && LV_COLOR_SCREEN_TRANSP != 0
+  28:..\lvgl\lv_core\../lv_misc/lv_color.h **** #error "LV_COLOR_SCREEN_TRANSP requires LV_COLOR_DEPTH == 32. Set it in lv_conf.h"
+  29:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+  30:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  31:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH != 16 && LV_COLOR_16_SWAP != 0
+  32:..\lvgl\lv_core\../lv_misc/lv_color.h **** #error "LV_COLOR_16_SWAP requires LV_COLOR_DEPTH == 16. Set it in lv_conf.h"
+  33:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+  34:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  35:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  36:..\lvgl\lv_core\../lv_misc/lv_color.h **** #include <stdint.h>
+  37:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  38:..\lvgl\lv_core\../lv_misc/lv_color.h **** /*********************
+  39:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *      DEFINES
+  40:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *********************/
+  41:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_WHITE   LV_COLOR_MAKE(0xFF,0xFF,0xFF)
+  42:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_SILVER  LV_COLOR_MAKE(0xC0,0xC0,0xC0)
+  43:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_GRAY    LV_COLOR_MAKE(0x80,0x80,0x80)
+  44:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_BLACK   LV_COLOR_MAKE(0x00,0x00,0x00)
+  45:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_RED     LV_COLOR_MAKE(0xFF,0x00,0x00)
+  46:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_MAROON  LV_COLOR_MAKE(0x80,0x00,0x00)
+  47:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_YELLOW  LV_COLOR_MAKE(0xFF,0xFF,0x00)
+  48:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_OLIVE   LV_COLOR_MAKE(0x80,0x80,0x00)
+  49:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_LIME    LV_COLOR_MAKE(0x00,0xFF,0x00)
+  50:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_GREEN   LV_COLOR_MAKE(0x00,0x80,0x00)
+  51:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_CYAN    LV_COLOR_MAKE(0x00,0xFF,0xFF)
+  52:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_AQUA    LV_COLOR_CYAN
+  53:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_TEAL    LV_COLOR_MAKE(0x00,0x80,0x80)
+  54:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_BLUE    LV_COLOR_MAKE(0x00,0x00,0xFF)
+  55:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_NAVY    LV_COLOR_MAKE(0x00,0x00,0x80)
+  56:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_MAGENTA LV_COLOR_MAKE(0xFF,0x00,0xFF)
+  57:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_PURPLE  LV_COLOR_MAKE(0x80,0x00,0x80)
+  58:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_ORANGE  LV_COLOR_MAKE(0xFF,0xA5,0x00)
+  59:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  60:..\lvgl\lv_core\../lv_misc/lv_color.h **** enum {
+  61:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_TRANSP =  0,
+  62:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_0      =  0,
+  63:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_10     =  25,
+  64:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_20     =  51,
+  65:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_30     =  76,
+  66:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_40     =  102,
+  67:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_50     =  127,
+  68:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_60     =  153,
+  69:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_70     =  178,
+  70:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_80     =  204,
+  71:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_90     =  229,
+  72:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_100    =  255,
+  73:..\lvgl\lv_core\../lv_misc/lv_color.h ****     LV_OPA_COVER  =  255,
+  74:..\lvgl\lv_core\../lv_misc/lv_color.h **** };
+  75:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  76:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_OPA_MIN      16      /*Opacities below this will be transparent*/
+  77:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_OPA_MAX      251     /*Opacities above this will fully cover*/
+  78:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 21
+
+
+  79:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+  80:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_SIZE           8
+  81:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+  82:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_SIZE           8
+  83:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+  84:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_SIZE           16
+  85:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+  86:..\lvgl\lv_core\../lv_misc/lv_color.h **** #define LV_COLOR_SIZE           32
+  87:..\lvgl\lv_core\../lv_misc/lv_color.h **** #else
+  88:..\lvgl\lv_core\../lv_misc/lv_color.h **** #error "Invalid LV_COLOR_DEPTH in lv_conf.h! Set it to 1, 8, 16 or 32!"
+  89:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+  90:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  91:..\lvgl\lv_core\../lv_misc/lv_color.h **** /**********************
+  92:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *      TYPEDEFS
+  93:..\lvgl\lv_core\../lv_misc/lv_color.h ****  **********************/
+  94:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+  95:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef union
+  96:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+  97:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint8_t blue  :1;
+  98:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint8_t green :1;
+  99:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint8_t red   :1;
+ 100:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint8_t full  :1;
+ 101:..\lvgl\lv_core\../lv_misc/lv_color.h **** } lv_color1_t;
+ 102:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 103:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef union
+ 104:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 105:..\lvgl\lv_core\../lv_misc/lv_color.h ****     struct
+ 106:..\lvgl\lv_core\../lv_misc/lv_color.h ****     {
+ 107:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint8_t blue  :2;
+ 108:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint8_t green :3;
+ 109:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint8_t red   :3;
+ 110:..\lvgl\lv_core\../lv_misc/lv_color.h ****     };
+ 111:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint8_t full;
+ 112:..\lvgl\lv_core\../lv_misc/lv_color.h **** } lv_color8_t;
+ 113:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 114:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef union
+ 115:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 116:..\lvgl\lv_core\../lv_misc/lv_color.h ****     struct
+ 117:..\lvgl\lv_core\../lv_misc/lv_color.h ****     {
+ 118:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 119:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint16_t blue  :5;
+ 120:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint16_t green :6;
+ 121:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint16_t red   :5;
+ 122:..\lvgl\lv_core\../lv_misc/lv_color.h **** #else
+ 123:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint16_t green_h :3;
+ 124:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint16_t red   :5;
+ 125:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint16_t blue  :5;
+ 126:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint16_t green_l :3;
+ 127:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+ 128:..\lvgl\lv_core\../lv_misc/lv_color.h ****     };
+ 129:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint16_t full;
+ 130:..\lvgl\lv_core\../lv_misc/lv_color.h **** } lv_color16_t;
+ 131:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 132:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef union
+ 133:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 134:..\lvgl\lv_core\../lv_misc/lv_color.h ****     struct
+ 135:..\lvgl\lv_core\../lv_misc/lv_color.h ****     {
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 22
+
+
+ 136:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint8_t blue;
+ 137:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint8_t green;
+ 138:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint8_t red;
+ 139:..\lvgl\lv_core\../lv_misc/lv_color.h ****         uint8_t alpha;
+ 140:..\lvgl\lv_core\../lv_misc/lv_color.h ****     };
+ 141:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint32_t full;
+ 142:..\lvgl\lv_core\../lv_misc/lv_color.h **** } lv_color32_t;
+ 143:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 144:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 145:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef uint8_t lv_color_int_t;
+ 146:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef lv_color1_t lv_color_t;
+ 147:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 148:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef uint8_t lv_color_int_t;
+ 149:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef lv_color8_t lv_color_t;
+ 150:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 151:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef uint16_t lv_color_int_t;
+ 152:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef lv_color16_t lv_color_t;
+ 153:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 154:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef uint32_t lv_color_int_t;
+ 155:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef lv_color32_t lv_color_t;
+ 156:..\lvgl\lv_core\../lv_misc/lv_color.h **** #else
+ 157:..\lvgl\lv_core\../lv_misc/lv_color.h **** #error "Invalid LV_COLOR_DEPTH in lv_conf.h! Set it to 1, 8, 16 or 32!"
+ 158:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+ 159:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 160:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef uint8_t lv_opa_t;
+ 161:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 162:..\lvgl\lv_core\../lv_misc/lv_color.h **** typedef struct
+ 163:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 164:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint16_t h;
+ 165:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint8_t s;
+ 166:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint8_t v;
+ 167:..\lvgl\lv_core\../lv_misc/lv_color.h **** } lv_color_hsv_t;
+ 168:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 169:..\lvgl\lv_core\../lv_misc/lv_color.h **** /**********************
+ 170:..\lvgl\lv_core\../lv_misc/lv_color.h ****  * GLOBAL PROTOTYPES
+ 171:..\lvgl\lv_core\../lv_misc/lv_color.h ****  **********************/
+ 172:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 173:..\lvgl\lv_core\../lv_misc/lv_color.h **** /*In color conversations:
+ 174:..\lvgl\lv_core\../lv_misc/lv_color.h ****  * - When converting to bigger color type the LSB weight of 1 LSB is calculated
+ 175:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *   E.g. 16 bit Red has 5 bits
+ 176:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *         8 bit Red has 2 bits
+ 177:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *        ----------------------
+ 178:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *        8 bit red LSB = (2^5 - 1) / (2^2 - 1) = 31 / 3 = 10
+ 179:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *
+ 180:..\lvgl\lv_core\../lv_misc/lv_color.h ****  * - When calculating to smaller color type simply shift out the LSBs
+ 181:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *   E.g.  8 bit Red has 2 bits
+ 182:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *        16 bit Red has 5 bits
+ 183:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *        ----------------------
+ 184:..\lvgl\lv_core\../lv_misc/lv_color.h ****  *         Shift right with 5 - 3 = 2
+ 185:..\lvgl\lv_core\../lv_misc/lv_color.h ****  */
+ 186:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 187:..\lvgl\lv_core\../lv_misc/lv_color.h **** static inline uint8_t lv_color_to1(lv_color_t color)
+ 188:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 189:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 190:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return color.full;
+ 191:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 192:..\lvgl\lv_core\../lv_misc/lv_color.h ****     if((color.red   & 0x4) ||
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 23
+
+
+ 193:..\lvgl\lv_core\../lv_misc/lv_color.h ****             (color.green & 0x4) ||
+ 194:..\lvgl\lv_core\../lv_misc/lv_color.h ****             (color.blue  & 0x2)) {
+ 195:..\lvgl\lv_core\../lv_misc/lv_color.h ****         return 1;
+ 196:..\lvgl\lv_core\../lv_misc/lv_color.h ****     } else {
+ 197:..\lvgl\lv_core\../lv_misc/lv_color.h ****         return 0;
+ 198:..\lvgl\lv_core\../lv_misc/lv_color.h ****     }
+ 199:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 200:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  if LV_COLOR_16_SWAP == 0
+ 201:..\lvgl\lv_core\../lv_misc/lv_color.h ****     if((color.red   & 0x10) ||
+ 202:..\lvgl\lv_core\../lv_misc/lv_color.h ****             (color.green & 0x20) ||
+ 203:..\lvgl\lv_core\../lv_misc/lv_color.h ****             (color.blue  & 0x10)) {
+ 204:..\lvgl\lv_core\../lv_misc/lv_color.h ****         return 1;
+ 205:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  else
+ 206:..\lvgl\lv_core\../lv_misc/lv_color.h ****     if((color.red   & 0x10) ||
+ 207:..\lvgl\lv_core\../lv_misc/lv_color.h ****             (color.green_h & 0x20) ||
+ 208:..\lvgl\lv_core\../lv_misc/lv_color.h ****             (color.blue  & 0x10)) {
+ 209:..\lvgl\lv_core\../lv_misc/lv_color.h ****         return 1;
+ 210:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  endif
+ 211:..\lvgl\lv_core\../lv_misc/lv_color.h ****     } else {
+ 212:..\lvgl\lv_core\../lv_misc/lv_color.h ****         return 0;
+ 213:..\lvgl\lv_core\../lv_misc/lv_color.h ****     }
+ 214:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 215:..\lvgl\lv_core\../lv_misc/lv_color.h ****     if((color.red   & 0x80) ||
+ 216:..\lvgl\lv_core\../lv_misc/lv_color.h ****             (color.green & 0x80) ||
+ 217:..\lvgl\lv_core\../lv_misc/lv_color.h ****             (color.blue  & 0x80)) {
+ 218:..\lvgl\lv_core\../lv_misc/lv_color.h ****         return 1;
+ 219:..\lvgl\lv_core\../lv_misc/lv_color.h ****     } else {
+ 220:..\lvgl\lv_core\../lv_misc/lv_color.h ****         return 0;
+ 221:..\lvgl\lv_core\../lv_misc/lv_color.h ****     }
+ 222:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+ 223:..\lvgl\lv_core\../lv_misc/lv_color.h **** }
+ 224:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 225:..\lvgl\lv_core\../lv_misc/lv_color.h **** static inline uint8_t lv_color_to8(lv_color_t color)
+ 226:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 227:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 228:..\lvgl\lv_core\../lv_misc/lv_color.h ****     if(color.full == 0) return 0;
+ 229:..\lvgl\lv_core\../lv_misc/lv_color.h ****     else return 0xFF;
+ 230:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 231:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return color.full;
+ 232:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 233:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 234:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  if LV_COLOR_16_SWAP == 0
+ 235:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color8_t ret;
+ 236:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red >> 2;       /* 5 - 3  = 2*/
+ 237:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = color.green >> 3;   /* 6 - 3  = 3*/
+ 238:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue >> 3;     /* 5 - 2  = 3*/
+ 239:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return ret.full;
+ 240:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  else
+ 241:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color8_t ret;
+ 242:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red >> 2;       /* 5 - 3  = 2*/
+ 243:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = color.green_h;      /* 6 - 3  = 3*/
+ 244:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue >> 3;     /* 5 - 2  = 3*/
+ 245:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return ret.full;
+ 246:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  endif
+ 247:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 248:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color8_t ret;
+ 249:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red >> 5;       /* 8 - 3  = 5*/
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 24
+
+
+ 250:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = color.green >> 5;   /* 8 - 3  = 5*/
+ 251:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue >> 6;     /* 8 - 2  = 6*/
+ 252:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return ret.full;
+ 253:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+ 254:..\lvgl\lv_core\../lv_misc/lv_color.h **** }
+ 255:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 256:..\lvgl\lv_core\../lv_misc/lv_color.h **** static inline uint16_t lv_color_to16(lv_color_t color)
+ 257:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 258:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 259:..\lvgl\lv_core\../lv_misc/lv_color.h ****     if(color.full == 0) return 0;
+ 260:..\lvgl\lv_core\../lv_misc/lv_color.h ****     else return 0xFFFF;
+ 261:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 262:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color16_t ret;
+ 263:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  if LV_COLOR_16_SWAP == 0
+ 264:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red * 4;       /*(2^5 - 1)/(2^3 - 1) = 31/7 = 4*/
+ 265:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = color.green * 9;   /*(2^6 - 1)/(2^3 - 1) = 63/7 = 9*/
+ 266:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue * 10;    /*(2^5 - 1)/(2^2 - 1) = 31/3 = 10*/
+ 267:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  else
+ 268:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red * 4;
+ 269:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint8_t g_tmp = color.green * 9;
+ 270:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green_h = (g_tmp & 0x1F) >> 3;
+ 271:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green_l = g_tmp & 0x07;
+ 272:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue * 10;
+ 273:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  endif
+ 274:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return ret.full;
+ 275:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 276:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return color.full;
+ 277:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 278:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color16_t ret;
+ 279:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  if LV_COLOR_16_SWAP == 0
+ 280:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red >> 3;       /* 8 - 5  = 3*/
+ 281:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = color.green >> 2;   /* 8 - 6  = 2*/
+ 282:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue >> 3;     /* 8 - 5  = 3*/
+ 283:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  else
+ 284:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red >> 3;
+ 285:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green_h = (color.green & 0xE0) >> 5;
+ 286:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green_l = (color.green & 0x1C) >> 2;
+ 287:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue >> 3;
+ 288:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  endif
+ 289:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return ret.full;
+ 290:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+ 291:..\lvgl\lv_core\../lv_misc/lv_color.h **** }
+ 292:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 293:..\lvgl\lv_core\../lv_misc/lv_color.h **** static inline uint32_t lv_color_to32(lv_color_t color)
+ 294:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 295:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 296:..\lvgl\lv_core\../lv_misc/lv_color.h ****     if(color.full == 0) return 0;
+ 297:..\lvgl\lv_core\../lv_misc/lv_color.h ****     else return 0xFFFFFFFF;
+ 298:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 299:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color32_t ret;
+ 300:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red * 36;        /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+ 301:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = color.green * 36;    /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+ 302:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue * 85;      /*(2^8 - 1)/(2^2 - 1) = 255/3 = 85*/
+ 303:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.alpha = 0xFF;
+ 304:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return ret.full;
+ 305:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 306:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  if LV_COLOR_16_SWAP == 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 25
+
+
+ 307:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color32_t ret;
+ 308:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red * 8;       /*(2^8 - 1)/(2^5 - 1) = 255/31 = 8*/
+ 309:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = color.green * 4;   /*(2^8 - 1)/(2^6 - 1) = 255/63 = 4*/
+ 310:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue * 8;     /*(2^8 - 1)/(2^5 - 1) = 255/31 = 8*/
+ 311:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.alpha = 0xFF;
+ 312:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return ret.full;
+ 313:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  else
+ 314:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color32_t ret;
+ 315:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red = color.red * 8;                                    /*(2^8 - 1)/(2^5 - 1) = 255/31 = 8*
+ 316:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = ((color.green_h << 3) + color.green_l) * 4;     /*(2^8 - 1)/(2^6 - 1) = 255/63 = 4*
+ 317:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue = color.blue * 8;                                   /*(2^8 - 1)/(2^5 - 1) = 255/31 = 8
+ 318:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.alpha = 0xFF;
+ 319:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return ret.full;
+ 320:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  endif
+ 321:..\lvgl\lv_core\../lv_misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 322:..\lvgl\lv_core\../lv_misc/lv_color.h ****     return color.full;
+ 323:..\lvgl\lv_core\../lv_misc/lv_color.h **** #endif
+ 324:..\lvgl\lv_core\../lv_misc/lv_color.h **** }
+ 325:..\lvgl\lv_core\../lv_misc/lv_color.h **** 
+ 326:..\lvgl\lv_core\../lv_misc/lv_color.h **** static inline lv_color_t lv_color_mix(lv_color_t c1, lv_color_t c2, uint8_t mix)
+ 327:..\lvgl\lv_core\../lv_misc/lv_color.h **** {
+ 328:..\lvgl\lv_core\../lv_misc/lv_color.h ****     lv_color_t ret;
+ 329:..\lvgl\lv_core\../lv_misc/lv_color.h **** #if LV_COLOR_DEPTH != 1
+ 330:..\lvgl\lv_core\../lv_misc/lv_color.h ****     /*LV_COLOR_DEPTH == 8, 16 or 32*/
+ 331:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.red =   (uint16_t)((uint16_t) c1.red * mix + (c2.red * (255 - mix))) >> 8;
+ 332:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  if LV_COLOR_DEPTH == 16 && LV_COLOR_16_SWAP
+ 333:..\lvgl\lv_core\../lv_misc/lv_color.h ****     /*If swapped Green is in 2 parts*/
+ 334:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint16_t g_1 = (c1.green_h << 3) + c1.green_l;
+ 335:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint16_t g_2 = (c2.green_h << 3) + c2.green_l;
+ 336:..\lvgl\lv_core\../lv_misc/lv_color.h ****     uint16_t g_out = (uint16_t)((uint16_t) g_1 * mix + (g_2 * (255 - mix))) >> 8;
+ 337:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green_h = g_out >> 3;
+ 338:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green_l = g_out & 0x7;
+ 339:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  else
+ 340:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.green = (uint16_t)((uint16_t) c1.green * mix + (c2.green * (255 - mix))) >> 8;
+ 341:..\lvgl\lv_core\../lv_misc/lv_color.h **** #  endif
+ 342:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.blue =  (uint16_t)((uint16_t) c1.blue * mix + (c2.blue * (255 - mix))) >> 8;
+ 343:..\lvgl\lv_core\../lv_misc/lv_color.h **** # if LV_COLOR_DEPTH == 32
+ 344:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.alpha = 0xFF;
+ 345:..\lvgl\lv_core\../lv_misc/lv_color.h **** # endif
+ 346:..\lvgl\lv_core\../lv_misc/lv_color.h **** #else
+ 347:..\lvgl\lv_core\../lv_misc/lv_color.h ****     /*LV_COLOR_DEPTH == 1*/
+ 348:..\lvgl\lv_core\../lv_misc/lv_color.h ****     ret.full = mix > LV_OPA_50 ? c1.full : c2.full;
+ 819              		.loc 2 348 0 is_stmt 1 discriminator 4
+ 820 01be 64B2     		sxtb	r4, r4
+ 821 01c0 002C     		cmp	r4, #0
+ 822 01c2 02DA     		bge	.L43
+ 823              		.loc 2 348 0 is_stmt 0
+ 824 01c4 06F00105 		and	r5, r6, #1
+ 825 01c8 01E0     		b	.L44
+ 826              	.L43:
+ 827 01ca 05F00105 		and	r5, r5, #1
+ 828              	.L44:
+ 829              	.LBE17:
+ 830              	.LBE16:
+ 245:..\lvgl\lv_core/lv_style.c **** 
+ 246:..\lvgl\lv_core/lv_style.c ****     res->body.main_color = lv_color_mix(end->body.main_color, start->body.main_color, opa);
+ 831              		.loc 1 246 0 is_stmt 1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 26
+
+
+ 832 01ce 9570     		strb	r5, [r2, #2]
+ 833 01d0 CE78     		ldrb	r6, [r1, #3]	@ zero_extendqisi2
+ 834 01d2 C578     		ldrb	r5, [r0, #3]	@ zero_extendqisi2
+ 835              	.LVL6:
+ 836              	.LBB18:
+ 837              	.LBB19:
+ 838              		.loc 2 348 0
+ 839 01d4 002C     		cmp	r4, #0
+ 840 01d6 02DA     		bge	.L45
+ 841 01d8 06F00105 		and	r5, r6, #1
+ 842 01dc 01E0     		b	.L46
+ 843              	.L45:
+ 844 01de 05F00105 		and	r5, r5, #1
+ 845              	.L46:
+ 846              	.LBE19:
+ 847              	.LBE18:
+ 247:..\lvgl\lv_core/lv_style.c ****     res->body.grad_color = lv_color_mix(end->body.grad_color, start->body.grad_color, opa);
+ 848              		.loc 1 247 0
+ 849 01e2 D570     		strb	r5, [r2, #3]
+ 850 01e4 0E7A     		ldrb	r6, [r1, #8]	@ zero_extendqisi2
+ 851 01e6 057A     		ldrb	r5, [r0, #8]	@ zero_extendqisi2
+ 852              	.LVL7:
+ 853              	.LBB20:
+ 854              	.LBB21:
+ 855              		.loc 2 348 0
+ 856 01e8 002C     		cmp	r4, #0
+ 857 01ea 02DA     		bge	.L47
+ 858 01ec 06F00105 		and	r5, r6, #1
+ 859 01f0 01E0     		b	.L48
+ 860              	.L47:
+ 861 01f2 05F00105 		and	r5, r5, #1
+ 862              	.L48:
+ 863              	.LBE21:
+ 864              	.LBE20:
+ 248:..\lvgl\lv_core/lv_style.c ****     res->body.border.color = lv_color_mix(end->body.border.color, start->body.border.color, opa);
+ 865              		.loc 1 248 0
+ 866 01f6 1572     		strb	r5, [r2, #8]
+ 867 01f8 8E7B     		ldrb	r6, [r1, #14]	@ zero_extendqisi2
+ 868 01fa 857B     		ldrb	r5, [r0, #14]	@ zero_extendqisi2
+ 869              	.LVL8:
+ 870              	.LBB22:
+ 871              	.LBB23:
+ 872              		.loc 2 348 0
+ 873 01fc 002C     		cmp	r4, #0
+ 874 01fe 02DA     		bge	.L49
+ 875 0200 06F00105 		and	r5, r6, #1
+ 876 0204 01E0     		b	.L50
+ 877              	.L49:
+ 878 0206 05F00105 		and	r5, r5, #1
+ 879              	.L50:
+ 880              	.LBE23:
+ 881              	.LBE22:
+ 249:..\lvgl\lv_core/lv_style.c ****     res->body.shadow.color = lv_color_mix(end->body.shadow.color, start->body.shadow.color, opa);
+ 882              		.loc 1 249 0
+ 883 020a 9573     		strb	r5, [r2, #14]
+ 884 020c 0E7F     		ldrb	r6, [r1, #28]	@ zero_extendqisi2
+ 885 020e 057F     		ldrb	r5, [r0, #28]	@ zero_extendqisi2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 27
+
+
+ 886              	.LVL9:
+ 887              	.LBB24:
+ 888              	.LBB25:
+ 889              		.loc 2 348 0
+ 890 0210 002C     		cmp	r4, #0
+ 891 0212 02DA     		bge	.L51
+ 892 0214 06F00105 		and	r5, r6, #1
+ 893 0218 01E0     		b	.L52
+ 894              	.L51:
+ 895 021a 05F00105 		and	r5, r5, #1
+ 896              	.L52:
+ 897              	.LBE25:
+ 898              	.LBE24:
+ 250:..\lvgl\lv_core/lv_style.c ****     res->text.color = lv_color_mix(end->text.color, start->text.color, opa);
+ 899              		.loc 1 250 0
+ 900 021e 1577     		strb	r5, [r2, #28]
+ 901 0220 91F82C60 		ldrb	r6, [r1, #44]	@ zero_extendqisi2
+ 902 0224 90F82C50 		ldrb	r5, [r0, #44]	@ zero_extendqisi2
+ 903              	.LVL10:
+ 904              	.LBB26:
+ 905              	.LBB27:
+ 906              		.loc 2 348 0
+ 907 0228 002C     		cmp	r4, #0
+ 908 022a 02DA     		bge	.L53
+ 909 022c 06F00105 		and	r5, r6, #1
+ 910 0230 01E0     		b	.L54
+ 911              	.L53:
+ 912 0232 05F00105 		and	r5, r5, #1
+ 913              	.L54:
+ 914              	.LBE27:
+ 915              	.LBE26:
+ 251:..\lvgl\lv_core/lv_style.c ****     res->image.color = lv_color_mix(end->image.color, start->image.color, opa);
+ 916              		.loc 1 251 0
+ 917 0236 82F82C50 		strb	r5, [r2, #44]
+ 918 023a 91F83060 		ldrb	r6, [r1, #48]	@ zero_extendqisi2
+ 919 023e 90F83050 		ldrb	r5, [r0, #48]	@ zero_extendqisi2
+ 920              	.LVL11:
+ 921              	.LBB28:
+ 922              	.LBB29:
+ 923              		.loc 2 348 0
+ 924 0242 002C     		cmp	r4, #0
+ 925 0244 02DA     		bge	.L55
+ 926 0246 06F00104 		and	r4, r6, #1
+ 927 024a 01E0     		b	.L56
+ 928              	.L55:
+ 929 024c 05F00104 		and	r4, r5, #1
+ 930              	.L56:
+ 931              	.LBE29:
+ 932              	.LBE28:
+ 252:..\lvgl\lv_core/lv_style.c ****     res->line.color = lv_color_mix(end->line.color, start->line.color, opa);
+ 933              		.loc 1 252 0
+ 934 0250 82F83040 		strb	r4, [r2, #48]
+ 253:..\lvgl\lv_core/lv_style.c **** 
+ 254:..\lvgl\lv_core/lv_style.c ****     if(ratio < (STYLE_MIX_MAX >> 1)) {
+ 935              		.loc 1 254 0
+ 936 0254 7F2B     		cmp	r3, #127
+ 937 0256 18D8     		bhi	.L57
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 28
+
+
+ 255:..\lvgl\lv_core/lv_style.c ****         res->body.empty = start->body.empty;
+ 938              		.loc 1 255 0
+ 939 0258 817E     		ldrb	r1, [r0, #26]	@ zero_extendqisi2
+ 940              	.LVL12:
+ 941 025a 937E     		ldrb	r3, [r2, #26]	@ zero_extendqisi2
+ 942              	.LVL13:
+ 943 025c 61F30003 		bfi	r3, r1, #0, #1
+ 944 0260 9376     		strb	r3, [r2, #26]
+ 256:..\lvgl\lv_core/lv_style.c ****         res->body.border.part = start->body.border.part;
+ 945              		.loc 1 256 0
+ 946 0262 037B     		ldrb	r3, [r0, #12]	@ zero_extendqisi2
+ 947 0264 1373     		strb	r3, [r2, #12]
+ 257:..\lvgl\lv_core/lv_style.c ****         res->glass = start->glass;
+ 948              		.loc 1 257 0
+ 949 0266 0178     		ldrb	r1, [r0]	@ zero_extendqisi2
+ 950 0268 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 951 026a 61F30003 		bfi	r3, r1, #0, #1
+ 952 026e 1370     		strb	r3, [r2]
+ 258:..\lvgl\lv_core/lv_style.c ****         res->text.font = start->text.font;
+ 953              		.loc 1 258 0
+ 954 0270 036A     		ldr	r3, [r0, #32]
+ 955 0272 1362     		str	r3, [r2, #32]
+ 259:..\lvgl\lv_core/lv_style.c ****         res->body.shadow.type = start->body.shadow.type;
+ 956              		.loc 1 259 0
+ 957 0274 837C     		ldrb	r3, [r0, #18]	@ zero_extendqisi2
+ 958 0276 9374     		strb	r3, [r2, #18]
+ 260:..\lvgl\lv_core/lv_style.c ****         res->line.rounded = start->line.rounded;
+ 959              		.loc 1 260 0
+ 960 0278 90F83510 		ldrb	r1, [r0, #53]	@ zero_extendqisi2
+ 961 027c 92F83530 		ldrb	r3, [r2, #53]	@ zero_extendqisi2
+ 962 0280 61F30003 		bfi	r3, r1, #0, #1
+ 963 0284 82F83530 		strb	r3, [r2, #53]
+ 964 0288 17E0     		b	.L11
+ 965              	.LVL14:
+ 966              	.L57:
+ 261:..\lvgl\lv_core/lv_style.c ****     } else {
+ 262:..\lvgl\lv_core/lv_style.c ****         res->body.empty = end->body.empty;
+ 967              		.loc 1 262 0
+ 968 028a 887E     		ldrb	r0, [r1, #26]	@ zero_extendqisi2
+ 969              	.LVL15:
+ 970 028c 937E     		ldrb	r3, [r2, #26]	@ zero_extendqisi2
+ 971              	.LVL16:
+ 972 028e 60F30003 		bfi	r3, r0, #0, #1
+ 973 0292 9376     		strb	r3, [r2, #26]
+ 263:..\lvgl\lv_core/lv_style.c ****         res->body.border.part = end->body.border.part;
+ 974              		.loc 1 263 0
+ 975 0294 0B7B     		ldrb	r3, [r1, #12]	@ zero_extendqisi2
+ 976 0296 1373     		strb	r3, [r2, #12]
+ 264:..\lvgl\lv_core/lv_style.c ****         res->glass = end->glass;
+ 977              		.loc 1 264 0
+ 978 0298 0878     		ldrb	r0, [r1]	@ zero_extendqisi2
+ 979 029a 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 980 029c 60F30003 		bfi	r3, r0, #0, #1
+ 981 02a0 1370     		strb	r3, [r2]
+ 265:..\lvgl\lv_core/lv_style.c ****         res->text.font = end->text.font;
+ 982              		.loc 1 265 0
+ 983 02a2 0B6A     		ldr	r3, [r1, #32]
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 29
+
+
+ 984 02a4 1362     		str	r3, [r2, #32]
+ 266:..\lvgl\lv_core/lv_style.c ****         res->body.shadow.type = end->body.shadow.type;
+ 985              		.loc 1 266 0
+ 986 02a6 8B7C     		ldrb	r3, [r1, #18]	@ zero_extendqisi2
+ 987 02a8 9374     		strb	r3, [r2, #18]
+ 267:..\lvgl\lv_core/lv_style.c ****         res->line.rounded = end->line.rounded;
+ 988              		.loc 1 267 0
+ 989 02aa 91F83510 		ldrb	r1, [r1, #53]	@ zero_extendqisi2
+ 990              	.LVL17:
+ 991 02ae 92F83530 		ldrb	r3, [r2, #53]	@ zero_extendqisi2
+ 992 02b2 61F30003 		bfi	r3, r1, #0, #1
+ 993 02b6 82F83530 		strb	r3, [r2, #53]
+ 994              	.L11:
+ 268:..\lvgl\lv_core/lv_style.c ****     }
+ 269:..\lvgl\lv_core/lv_style.c **** }
+ 995              		.loc 1 269 0
+ 996 02ba 70BC     		pop	{r4, r5, r6}
+ 997              		.cfi_restore 6
+ 998              		.cfi_restore 5
+ 999              		.cfi_restore 4
+ 1000              		.cfi_def_cfa_offset 0
+ 1001 02bc 7047     		bx	lr
+ 1002              		.cfi_endproc
+ 1003              	.LFE14:
+ 1004              		.size	lv_style_mix, .-lv_style_mix
+ 1005              		.comm	lv_style_btn_ina,56,4
+ 1006              		.comm	lv_style_btn_tgl_pr,56,4
+ 1007              		.comm	lv_style_btn_tgl_rel,56,4
+ 1008              		.comm	lv_style_btn_pr,56,4
+ 1009              		.comm	lv_style_btn_rel,56,4
+ 1010              		.comm	lv_style_pretty_color,56,4
+ 1011              		.comm	lv_style_pretty,56,4
+ 1012              		.comm	lv_style_plain_color,56,4
+ 1013              		.comm	lv_style_plain,56,4
+ 1014              		.comm	lv_style_transp_tight,56,4
+ 1015              		.comm	lv_style_transp_fit,56,4
+ 1016              		.comm	lv_style_transp,56,4
+ 1017              		.comm	lv_style_scr,56,4
+ 1018 02be 00BF     		.text
+ 1019              	.Letext0:
+ 1020              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 1021              		.file 4 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 1022              		.file 5 "..\\lvgl\\lv_core\\../lv_misc/lv_area.h"
+ 1023              		.file 6 "..\\lvgl\\lv_core\\../lv_misc/lv_font.h"
+ 1024              		.file 7 "..\\lvgl\\lv_core\\lv_style.h"
+ 1025              		.file 8 "..\\lvgl\\lv_core\\../lv_misc/../lv_fonts/lv_font_builtin.h"
+ 1026              		.section	.debug_info,"",%progbits
+ 1027              	.Ldebug_info0:
+ 1028 0000 91080000 		.4byte	0x891
+ 1029 0004 0400     		.2byte	0x4
+ 1030 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 1031 000a 04       		.byte	0x4
+ 1032 000b 01       		.uleb128 0x1
+ 1033 000c 7D010000 		.4byte	.LASF109
+ 1034 0010 0C       		.byte	0xc
+ 1035 0011 54000000 		.4byte	.LASF110
+ 1036 0015 63020000 		.4byte	.LASF111
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 30
+
+
+ 1037 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 1038 001d 00000000 		.4byte	0
+ 1039 0021 00000000 		.4byte	.Ldebug_line0
+ 1040 0025 02       		.uleb128 0x2
+ 1041 0026 04       		.byte	0x4
+ 1042 0027 05       		.byte	0x5
+ 1043 0028 696E7400 		.ascii	"int\000"
+ 1044 002c 03       		.uleb128 0x3
+ 1045 002d 04       		.byte	0x4
+ 1046 002e 07       		.byte	0x7
+ 1047 002f 47000000 		.4byte	.LASF0
+ 1048 0033 03       		.uleb128 0x3
+ 1049 0034 08       		.byte	0x8
+ 1050 0035 05       		.byte	0x5
+ 1051 0036 F1020000 		.4byte	.LASF1
+ 1052 003a 03       		.uleb128 0x3
+ 1053 003b 08       		.byte	0x8
+ 1054 003c 04       		.byte	0x4
+ 1055 003d B6030000 		.4byte	.LASF2
+ 1056 0041 03       		.uleb128 0x3
+ 1057 0042 01       		.byte	0x1
+ 1058 0043 06       		.byte	0x6
+ 1059 0044 62050000 		.4byte	.LASF3
+ 1060 0048 04       		.uleb128 0x4
+ 1061 0049 62040000 		.4byte	.LASF5
+ 1062 004d 03       		.byte	0x3
+ 1063 004e 1D       		.byte	0x1d
+ 1064 004f 53000000 		.4byte	0x53
+ 1065 0053 03       		.uleb128 0x3
+ 1066 0054 01       		.byte	0x1
+ 1067 0055 08       		.byte	0x8
+ 1068 0056 EF040000 		.4byte	.LASF4
+ 1069 005a 04       		.uleb128 0x4
+ 1070 005b 31030000 		.4byte	.LASF6
+ 1071 005f 03       		.byte	0x3
+ 1072 0060 29       		.byte	0x29
+ 1073 0061 65000000 		.4byte	0x65
+ 1074 0065 03       		.uleb128 0x3
+ 1075 0066 02       		.byte	0x2
+ 1076 0067 05       		.byte	0x5
+ 1077 0068 07040000 		.4byte	.LASF7
+ 1078 006c 04       		.uleb128 0x4
+ 1079 006d 34010000 		.4byte	.LASF8
+ 1080 0071 03       		.byte	0x3
+ 1081 0072 2B       		.byte	0x2b
+ 1082 0073 77000000 		.4byte	0x77
+ 1083 0077 03       		.uleb128 0x3
+ 1084 0078 02       		.byte	0x2
+ 1085 0079 07       		.byte	0x7
+ 1086 007a 6E050000 		.4byte	.LASF9
+ 1087 007e 03       		.uleb128 0x3
+ 1088 007f 04       		.byte	0x4
+ 1089 0080 05       		.byte	0x5
+ 1090 0081 2F040000 		.4byte	.LASF10
+ 1091 0085 04       		.uleb128 0x4
+ 1092 0086 FD040000 		.4byte	.LASF11
+ 1093 008a 03       		.byte	0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 31
+
+
+ 1094 008b 41       		.byte	0x41
+ 1095 008c 90000000 		.4byte	0x90
+ 1096 0090 03       		.uleb128 0x3
+ 1097 0091 04       		.byte	0x4
+ 1098 0092 07       		.byte	0x7
+ 1099 0093 9E040000 		.4byte	.LASF12
+ 1100 0097 03       		.uleb128 0x3
+ 1101 0098 08       		.byte	0x8
+ 1102 0099 07       		.byte	0x7
+ 1103 009a 0A010000 		.4byte	.LASF13
+ 1104 009e 04       		.uleb128 0x4
+ 1105 009f CE020000 		.4byte	.LASF14
+ 1106 00a3 04       		.byte	0x4
+ 1107 00a4 18       		.byte	0x18
+ 1108 00a5 48000000 		.4byte	0x48
+ 1109 00a9 04       		.uleb128 0x4
+ 1110 00aa E3000000 		.4byte	.LASF15
+ 1111 00ae 04       		.byte	0x4
+ 1112 00af 20       		.byte	0x20
+ 1113 00b0 5A000000 		.4byte	0x5a
+ 1114 00b4 04       		.uleb128 0x4
+ 1115 00b5 C2030000 		.4byte	.LASF16
+ 1116 00b9 04       		.byte	0x4
+ 1117 00ba 24       		.byte	0x24
+ 1118 00bb 6C000000 		.4byte	0x6c
+ 1119 00bf 04       		.uleb128 0x4
+ 1120 00c0 DA000000 		.4byte	.LASF17
+ 1121 00c4 04       		.byte	0x4
+ 1122 00c5 30       		.byte	0x30
+ 1123 00c6 85000000 		.4byte	0x85
+ 1124 00ca 05       		.uleb128 0x5
+ 1125 00cb 01       		.byte	0x1
+ 1126 00cc 53000000 		.4byte	0x53
+ 1127 00d0 02       		.byte	0x2
+ 1128 00d1 3C       		.byte	0x3c
+ 1129 00d2 25010000 		.4byte	0x125
+ 1130 00d6 06       		.uleb128 0x6
+ 1131 00d7 26010000 		.4byte	.LASF18
+ 1132 00db 00       		.byte	0
+ 1133 00dc 06       		.uleb128 0x6
+ 1134 00dd 3E000000 		.4byte	.LASF19
+ 1135 00e1 00       		.byte	0
+ 1136 00e2 06       		.uleb128 0x6
+ 1137 00e3 E7020000 		.4byte	.LASF20
+ 1138 00e7 19       		.byte	0x19
+ 1139 00e8 06       		.uleb128 0x6
+ 1140 00e9 4B030000 		.4byte	.LASF21
+ 1141 00ed 33       		.byte	0x33
+ 1142 00ee 06       		.uleb128 0x6
+ 1143 00ef AC030000 		.4byte	.LASF22
+ 1144 00f3 4C       		.byte	0x4c
+ 1145 00f4 06       		.uleb128 0x6
+ 1146 00f5 38040000 		.4byte	.LASF23
+ 1147 00f9 66       		.byte	0x66
+ 1148 00fa 06       		.uleb128 0x6
+ 1149 00fb 6C040000 		.4byte	.LASF24
+ 1150 00ff 7F       		.byte	0x7f
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 32
+
+
+ 1151 0100 06       		.uleb128 0x6
+ 1152 0101 E0040000 		.4byte	.LASF25
+ 1153 0105 99       		.byte	0x99
+ 1154 0106 06       		.uleb128 0x6
+ 1155 0107 47050000 		.4byte	.LASF26
+ 1156 010b B2       		.byte	0xb2
+ 1157 010c 06       		.uleb128 0x6
+ 1158 010d 98050000 		.4byte	.LASF27
+ 1159 0111 CC       		.byte	0xcc
+ 1160 0112 06       		.uleb128 0x6
+ 1161 0113 12000000 		.4byte	.LASF28
+ 1162 0117 E5       		.byte	0xe5
+ 1163 0118 06       		.uleb128 0x6
+ 1164 0119 57040000 		.4byte	.LASF29
+ 1165 011d FF       		.byte	0xff
+ 1166 011e 06       		.uleb128 0x6
+ 1167 011f 00000000 		.4byte	.LASF30
+ 1168 0123 FF       		.byte	0xff
+ 1169 0124 00       		.byte	0
+ 1170 0125 07       		.uleb128 0x7
+ 1171 0126 01       		.byte	0x1
+ 1172 0127 02       		.byte	0x2
+ 1173 0128 5F       		.byte	0x5f
+ 1174 0129 66010000 		.4byte	0x166
+ 1175 012d 08       		.uleb128 0x8
+ 1176 012e 47040000 		.4byte	.LASF31
+ 1177 0132 02       		.byte	0x2
+ 1178 0133 61       		.byte	0x61
+ 1179 0134 9E000000 		.4byte	0x9e
+ 1180 0138 01       		.byte	0x1
+ 1181 0139 01       		.byte	0x1
+ 1182 013a 07       		.byte	0x7
+ 1183 013b 08       		.uleb128 0x8
+ 1184 013c 92030000 		.4byte	.LASF32
+ 1185 0140 02       		.byte	0x2
+ 1186 0141 62       		.byte	0x62
+ 1187 0142 9E000000 		.4byte	0x9e
+ 1188 0146 01       		.byte	0x1
+ 1189 0147 01       		.byte	0x1
+ 1190 0148 07       		.byte	0x7
+ 1191 0149 09       		.uleb128 0x9
+ 1192 014a 72656400 		.ascii	"red\000"
+ 1193 014e 02       		.byte	0x2
+ 1194 014f 63       		.byte	0x63
+ 1195 0150 9E000000 		.4byte	0x9e
+ 1196 0154 01       		.byte	0x1
+ 1197 0155 01       		.byte	0x1
+ 1198 0156 07       		.byte	0x7
+ 1199 0157 08       		.uleb128 0x8
+ 1200 0158 0D000000 		.4byte	.LASF33
+ 1201 015c 02       		.byte	0x2
+ 1202 015d 64       		.byte	0x64
+ 1203 015e 9E000000 		.4byte	0x9e
+ 1204 0162 01       		.byte	0x1
+ 1205 0163 01       		.byte	0x1
+ 1206 0164 07       		.byte	0x7
+ 1207 0165 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 33
+
+
+ 1208 0166 04       		.uleb128 0x4
+ 1209 0167 C2020000 		.4byte	.LASF34
+ 1210 016b 02       		.byte	0x2
+ 1211 016c 65       		.byte	0x65
+ 1212 016d 25010000 		.4byte	0x125
+ 1213 0171 04       		.uleb128 0x4
+ 1214 0172 87030000 		.4byte	.LASF35
+ 1215 0176 02       		.byte	0x2
+ 1216 0177 92       		.byte	0x92
+ 1217 0178 66010000 		.4byte	0x166
+ 1218 017c 04       		.uleb128 0x4
+ 1219 017d 17040000 		.4byte	.LASF36
+ 1220 0181 02       		.byte	0x2
+ 1221 0182 A0       		.byte	0xa0
+ 1222 0183 9E000000 		.4byte	0x9e
+ 1223 0187 03       		.uleb128 0x3
+ 1224 0188 04       		.byte	0x4
+ 1225 0189 07       		.byte	0x7
+ 1226 018a 95040000 		.4byte	.LASF37
+ 1227 018e 03       		.uleb128 0x3
+ 1228 018f 01       		.byte	0x1
+ 1229 0190 08       		.byte	0x8
+ 1230 0191 5E020000 		.4byte	.LASF38
+ 1231 0195 04       		.uleb128 0x4
+ 1232 0196 4C040000 		.4byte	.LASF39
+ 1233 019a 05       		.byte	0x5
+ 1234 019b 1E       		.byte	0x1e
+ 1235 019c A9000000 		.4byte	0xa9
+ 1236 01a0 0A       		.uleb128 0xa
+ 1237 01a1 04       		.byte	0x4
+ 1238 01a2 06       		.byte	0x6
+ 1239 01a3 25       		.byte	0x25
+ 1240 01a4 C7010000 		.4byte	0x1c7
+ 1241 01a8 0B       		.uleb128 0xb
+ 1242 01a9 08050000 		.4byte	.LASF40
+ 1243 01ad 06       		.byte	0x6
+ 1244 01ae 27       		.byte	0x27
+ 1245 01af BF000000 		.4byte	0xbf
+ 1246 01b3 04       		.byte	0x4
+ 1247 01b4 08       		.byte	0x8
+ 1248 01b5 18       		.byte	0x18
+ 1249 01b6 00       		.byte	0
+ 1250 01b7 0B       		.uleb128 0xb
+ 1251 01b8 C8040000 		.4byte	.LASF41
+ 1252 01bc 06       		.byte	0x6
+ 1253 01bd 28       		.byte	0x28
+ 1254 01be BF000000 		.4byte	0xbf
+ 1255 01c2 04       		.byte	0x4
+ 1256 01c3 18       		.byte	0x18
+ 1257 01c4 00       		.byte	0
+ 1258 01c5 00       		.byte	0
+ 1259 01c6 00       		.byte	0
+ 1260 01c7 04       		.uleb128 0x4
+ 1261 01c8 AE020000 		.4byte	.LASF42
+ 1262 01cc 06       		.byte	0x6
+ 1263 01cd 29       		.byte	0x29
+ 1264 01ce A0010000 		.4byte	0x1a0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 34
+
+
+ 1265 01d2 0C       		.uleb128 0xc
+ 1266 01d3 43020000 		.4byte	.LASF112
+ 1267 01d7 28       		.byte	0x28
+ 1268 01d8 06       		.byte	0x6
+ 1269 01d9 31       		.byte	0x31
+ 1270 01da 78020000 		.4byte	0x278
+ 1271 01de 0D       		.uleb128 0xd
+ 1272 01df AF050000 		.4byte	.LASF43
+ 1273 01e3 06       		.byte	0x6
+ 1274 01e4 33       		.byte	0x33
+ 1275 01e5 BF000000 		.4byte	0xbf
+ 1276 01e9 00       		.byte	0
+ 1277 01ea 0D       		.uleb128 0xd
+ 1278 01eb CE050000 		.4byte	.LASF44
+ 1279 01ef 06       		.byte	0x6
+ 1280 01f0 34       		.byte	0x34
+ 1281 01f1 BF000000 		.4byte	0xbf
+ 1282 01f5 04       		.byte	0x4
+ 1283 01f6 0D       		.uleb128 0xd
+ 1284 01f7 55030000 		.4byte	.LASF45
+ 1285 01fb 06       		.byte	0x6
+ 1286 01fc 35       		.byte	0x35
+ 1287 01fd 78020000 		.4byte	0x278
+ 1288 0201 08       		.byte	0x8
+ 1289 0202 0D       		.uleb128 0xd
+ 1290 0203 8E050000 		.4byte	.LASF46
+ 1291 0207 06       		.byte	0x6
+ 1292 0208 36       		.byte	0x36
+ 1293 0209 83020000 		.4byte	0x283
+ 1294 020d 0C       		.byte	0xc
+ 1295 020e 0D       		.uleb128 0xd
+ 1296 020f 9B000000 		.4byte	.LASF47
+ 1297 0213 06       		.byte	0x6
+ 1298 0214 37       		.byte	0x37
+ 1299 0215 8E020000 		.4byte	0x28e
+ 1300 0219 10       		.byte	0x10
+ 1301 021a 0D       		.uleb128 0xd
+ 1302 021b 6F000000 		.4byte	.LASF48
+ 1303 021f 06       		.byte	0x6
+ 1304 0220 38       		.byte	0x38
+ 1305 0221 B8020000 		.4byte	0x2b8
+ 1306 0225 14       		.byte	0x14
+ 1307 0226 0D       		.uleb128 0xd
+ 1308 0227 51050000 		.4byte	.LASF49
+ 1309 022b 06       		.byte	0x6
+ 1310 022c 39       		.byte	0x39
+ 1311 022d D2020000 		.4byte	0x2d2
+ 1312 0231 18       		.byte	0x18
+ 1313 0232 0D       		.uleb128 0xd
+ 1314 0233 59010000 		.4byte	.LASF50
+ 1315 0237 06       		.byte	0x6
+ 1316 0238 3A       		.byte	0x3a
+ 1317 0239 D8020000 		.4byte	0x2d8
+ 1318 023d 1C       		.byte	0x1c
+ 1319 023e 0B       		.uleb128 0xb
+ 1320 023f 42040000 		.4byte	.LASF51
+ 1321 0243 06       		.byte	0x6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 35
+
+
+ 1322 0244 3B       		.byte	0x3b
+ 1323 0245 BF000000 		.4byte	0xbf
+ 1324 0249 04       		.byte	0x4
+ 1325 024a 08       		.byte	0x8
+ 1326 024b 18       		.byte	0x18
+ 1327 024c 20       		.byte	0x20
+ 1328 024d 0E       		.uleb128 0xe
+ 1329 024e 62707000 		.ascii	"bpp\000"
+ 1330 0252 06       		.byte	0x6
+ 1331 0253 3C       		.byte	0x3c
+ 1332 0254 BF000000 		.4byte	0xbf
+ 1333 0258 04       		.byte	0x4
+ 1334 0259 04       		.byte	0x4
+ 1335 025a 14       		.byte	0x14
+ 1336 025b 20       		.byte	0x20
+ 1337 025c 0B       		.uleb128 0xb
+ 1338 025d BE040000 		.4byte	.LASF52
+ 1339 0261 06       		.byte	0x6
+ 1340 0262 3D       		.byte	0x3d
+ 1341 0263 BF000000 		.4byte	0xbf
+ 1342 0267 04       		.byte	0x4
+ 1343 0268 08       		.byte	0x8
+ 1344 0269 0C       		.byte	0xc
+ 1345 026a 20       		.byte	0x20
+ 1346 026b 0D       		.uleb128 0xd
+ 1347 026c 00010000 		.4byte	.LASF53
+ 1348 0270 06       		.byte	0x6
+ 1349 0271 3E       		.byte	0x3e
+ 1350 0272 B4000000 		.4byte	0xb4
+ 1351 0276 24       		.byte	0x24
+ 1352 0277 00       		.byte	0
+ 1353 0278 0F       		.uleb128 0xf
+ 1354 0279 04       		.byte	0x4
+ 1355 027a 7E020000 		.4byte	0x27e
+ 1356 027e 10       		.uleb128 0x10
+ 1357 027f 9E000000 		.4byte	0x9e
+ 1358 0283 0F       		.uleb128 0xf
+ 1359 0284 04       		.byte	0x4
+ 1360 0285 89020000 		.4byte	0x289
+ 1361 0289 10       		.uleb128 0x10
+ 1362 028a C7010000 		.4byte	0x1c7
+ 1363 028e 0F       		.uleb128 0xf
+ 1364 028f 04       		.byte	0x4
+ 1365 0290 94020000 		.4byte	0x294
+ 1366 0294 10       		.uleb128 0x10
+ 1367 0295 BF000000 		.4byte	0xbf
+ 1368 0299 11       		.uleb128 0x11
+ 1369 029a 78020000 		.4byte	0x278
+ 1370 029e AD020000 		.4byte	0x2ad
+ 1371 02a2 12       		.uleb128 0x12
+ 1372 02a3 AD020000 		.4byte	0x2ad
+ 1373 02a7 12       		.uleb128 0x12
+ 1374 02a8 BF000000 		.4byte	0xbf
+ 1375 02ac 00       		.byte	0
+ 1376 02ad 0F       		.uleb128 0xf
+ 1377 02ae 04       		.byte	0x4
+ 1378 02af B3020000 		.4byte	0x2b3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 36
+
+
+ 1379 02b3 10       		.uleb128 0x10
+ 1380 02b4 D2010000 		.4byte	0x1d2
+ 1381 02b8 0F       		.uleb128 0xf
+ 1382 02b9 04       		.byte	0x4
+ 1383 02ba 99020000 		.4byte	0x299
+ 1384 02be 11       		.uleb128 0x11
+ 1385 02bf A9000000 		.4byte	0xa9
+ 1386 02c3 D2020000 		.4byte	0x2d2
+ 1387 02c7 12       		.uleb128 0x12
+ 1388 02c8 AD020000 		.4byte	0x2ad
+ 1389 02cc 12       		.uleb128 0x12
+ 1390 02cd BF000000 		.4byte	0xbf
+ 1391 02d1 00       		.byte	0
+ 1392 02d2 0F       		.uleb128 0xf
+ 1393 02d3 04       		.byte	0x4
+ 1394 02d4 BE020000 		.4byte	0x2be
+ 1395 02d8 0F       		.uleb128 0xf
+ 1396 02d9 04       		.byte	0x4
+ 1397 02da D2010000 		.4byte	0x1d2
+ 1398 02de 04       		.uleb128 0x4
+ 1399 02df E5030000 		.4byte	.LASF54
+ 1400 02e3 06       		.byte	0x6
+ 1401 02e4 3F       		.byte	0x3f
+ 1402 02e5 D2010000 		.4byte	0x1d2
+ 1403 02e9 05       		.uleb128 0x5
+ 1404 02ea 01       		.byte	0x1
+ 1405 02eb 53000000 		.4byte	0x53
+ 1406 02ef 07       		.byte	0x7
+ 1407 02f0 21       		.byte	0x21
+ 1408 02f1 20030000 		.4byte	0x320
+ 1409 02f5 06       		.uleb128 0x6
+ 1410 02f6 38050000 		.4byte	.LASF55
+ 1411 02fa 00       		.byte	0
+ 1412 02fb 06       		.uleb128 0x6
+ 1413 02fc 68030000 		.4byte	.LASF56
+ 1414 0300 01       		.byte	0x1
+ 1415 0301 06       		.uleb128 0x6
+ 1416 0302 19020000 		.4byte	.LASF57
+ 1417 0306 02       		.byte	0x2
+ 1418 0307 06       		.uleb128 0x6
+ 1419 0308 20040000 		.4byte	.LASF58
+ 1420 030c 04       		.byte	0x4
+ 1421 030d 06       		.uleb128 0x6
+ 1422 030e 8B000000 		.4byte	.LASF59
+ 1423 0312 08       		.byte	0x8
+ 1424 0313 06       		.uleb128 0x6
+ 1425 0314 0D030000 		.4byte	.LASF60
+ 1426 0318 0F       		.byte	0xf
+ 1427 0319 06       		.uleb128 0x6
+ 1428 031a 46010000 		.4byte	.LASF61
+ 1429 031e 10       		.byte	0x10
+ 1430 031f 00       		.byte	0
+ 1431 0320 04       		.uleb128 0x4
+ 1432 0321 BD050000 		.4byte	.LASF62
+ 1433 0325 07       		.byte	0x7
+ 1434 0326 2A       		.byte	0x2a
+ 1435 0327 9E000000 		.4byte	0x9e
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 37
+
+
+ 1436 032b 05       		.uleb128 0x5
+ 1437 032c 01       		.byte	0x1
+ 1438 032d 53000000 		.4byte	0x53
+ 1439 0331 07       		.byte	0x7
+ 1440 0332 2E       		.byte	0x2e
+ 1441 0333 44030000 		.4byte	0x344
+ 1442 0337 06       		.uleb128 0x6
+ 1443 0338 7A000000 		.4byte	.LASF63
+ 1444 033c 00       		.byte	0
+ 1445 033d 06       		.uleb128 0x6
+ 1446 033e CB030000 		.4byte	.LASF64
+ 1447 0342 01       		.byte	0x1
+ 1448 0343 00       		.byte	0
+ 1449 0344 04       		.uleb128 0x4
+ 1450 0345 D6020000 		.4byte	.LASF65
+ 1451 0349 07       		.byte	0x7
+ 1452 034a 32       		.byte	0x32
+ 1453 034b 9E000000 		.4byte	0x9e
+ 1454 034f 0A       		.uleb128 0xa
+ 1455 0350 06       		.byte	0x6
+ 1456 0351 07       		.byte	0x7
+ 1457 0352 3E       		.byte	0x3e
+ 1458 0353 88030000 		.4byte	0x388
+ 1459 0357 0D       		.uleb128 0xd
+ 1460 0358 77010000 		.4byte	.LASF66
+ 1461 035c 07       		.byte	0x7
+ 1462 035d 3F       		.byte	0x3f
+ 1463 035e 71010000 		.4byte	0x171
+ 1464 0362 00       		.byte	0
+ 1465 0363 0D       		.uleb128 0xd
+ 1466 0364 13020000 		.4byte	.LASF67
+ 1467 0368 07       		.byte	0x7
+ 1468 0369 40       		.byte	0x40
+ 1469 036a 95010000 		.4byte	0x195
+ 1470 036e 02       		.byte	0x2
+ 1471 036f 0D       		.uleb128 0xd
+ 1472 0370 21010000 		.4byte	.LASF68
+ 1473 0374 07       		.byte	0x7
+ 1474 0375 41       		.byte	0x41
+ 1475 0376 20030000 		.4byte	0x320
+ 1476 037a 04       		.byte	0x4
+ 1477 037b 13       		.uleb128 0x13
+ 1478 037c 6F706100 		.ascii	"opa\000"
+ 1479 0380 07       		.byte	0x7
+ 1480 0381 42       		.byte	0x42
+ 1481 0382 7C010000 		.4byte	0x17c
+ 1482 0386 05       		.byte	0x5
+ 1483 0387 00       		.byte	0
+ 1484 0388 0A       		.uleb128 0xa
+ 1485 0389 06       		.byte	0x6
+ 1486 038a 07       		.byte	0x7
+ 1487 038b 45       		.byte	0x45
+ 1488 038c B5030000 		.4byte	0x3b5
+ 1489 0390 0D       		.uleb128 0xd
+ 1490 0391 77010000 		.4byte	.LASF66
+ 1491 0395 07       		.byte	0x7
+ 1492 0396 46       		.byte	0x46
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 38
+
+
+ 1493 0397 71010000 		.4byte	0x171
+ 1494 039b 00       		.byte	0
+ 1495 039c 0D       		.uleb128 0xd
+ 1496 039d 13020000 		.4byte	.LASF67
+ 1497 03a1 07       		.byte	0x7
+ 1498 03a2 47       		.byte	0x47
+ 1499 03a3 95010000 		.4byte	0x195
+ 1500 03a7 02       		.byte	0x2
+ 1501 03a8 0D       		.uleb128 0xd
+ 1502 03a9 EA040000 		.4byte	.LASF69
+ 1503 03ad 07       		.byte	0x7
+ 1504 03ae 48       		.byte	0x48
+ 1505 03af 44030000 		.4byte	0x344
+ 1506 03b3 04       		.byte	0x4
+ 1507 03b4 00       		.byte	0
+ 1508 03b5 0A       		.uleb128 0xa
+ 1509 03b6 06       		.byte	0x6
+ 1510 03b7 07       		.byte	0x7
+ 1511 03b8 4B       		.byte	0x4b
+ 1512 03b9 E2030000 		.4byte	0x3e2
+ 1513 03bd 13       		.uleb128 0x13
+ 1514 03be 76657200 		.ascii	"ver\000"
+ 1515 03c2 07       		.byte	0x7
+ 1516 03c3 4C       		.byte	0x4c
+ 1517 03c4 95010000 		.4byte	0x195
+ 1518 03c8 00       		.byte	0
+ 1519 03c9 13       		.uleb128 0x13
+ 1520 03ca 686F7200 		.ascii	"hor\000"
+ 1521 03ce 07       		.byte	0x7
+ 1522 03cf 4D       		.byte	0x4d
+ 1523 03d0 95010000 		.4byte	0x195
+ 1524 03d4 02       		.byte	0x2
+ 1525 03d5 0D       		.uleb128 0xd
+ 1526 03d6 D4000000 		.4byte	.LASF70
+ 1527 03da 07       		.byte	0x7
+ 1528 03db 4E       		.byte	0x4e
+ 1529 03dc 95010000 		.4byte	0x195
+ 1530 03e0 04       		.byte	0x4
+ 1531 03e1 00       		.byte	0
+ 1532 03e2 0A       		.uleb128 0xa
+ 1533 03e3 1A       		.byte	0x1a
+ 1534 03e4 07       		.byte	0x7
+ 1535 03e5 38       		.byte	0x38
+ 1536 03e6 4E040000 		.4byte	0x44e
+ 1537 03ea 0D       		.uleb128 0xd
+ 1538 03eb FC030000 		.4byte	.LASF71
+ 1539 03ef 07       		.byte	0x7
+ 1540 03f0 39       		.byte	0x39
+ 1541 03f1 71010000 		.4byte	0x171
+ 1542 03f5 00       		.byte	0
+ 1543 03f6 0D       		.uleb128 0xd
+ 1544 03f7 DA030000 		.4byte	.LASF72
+ 1545 03fb 07       		.byte	0x7
+ 1546 03fc 3A       		.byte	0x3a
+ 1547 03fd 71010000 		.4byte	0x171
+ 1548 0401 01       		.byte	0x1
+ 1549 0402 0D       		.uleb128 0xd
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 39
+
+
+ 1550 0403 D4040000 		.4byte	.LASF73
+ 1551 0407 07       		.byte	0x7
+ 1552 0408 3B       		.byte	0x3b
+ 1553 0409 95010000 		.4byte	0x195
+ 1554 040d 02       		.byte	0x2
+ 1555 040e 13       		.uleb128 0x13
+ 1556 040f 6F706100 		.ascii	"opa\000"
+ 1557 0413 07       		.byte	0x7
+ 1558 0414 3C       		.byte	0x3c
+ 1559 0415 7C010000 		.4byte	0x17c
+ 1560 0419 04       		.byte	0x4
+ 1561 041a 0D       		.uleb128 0xd
+ 1562 041b 3F010000 		.4byte	.LASF74
+ 1563 041f 07       		.byte	0x7
+ 1564 0420 43       		.byte	0x43
+ 1565 0421 4F030000 		.4byte	0x34f
+ 1566 0425 06       		.byte	0x6
+ 1567 0426 0D       		.uleb128 0xd
+ 1568 0427 5B050000 		.4byte	.LASF75
+ 1569 042b 07       		.byte	0x7
+ 1570 042c 49       		.byte	0x49
+ 1571 042d 88030000 		.4byte	0x388
+ 1572 0431 0C       		.byte	0xc
+ 1573 0432 0D       		.uleb128 0xd
+ 1574 0433 05030000 		.4byte	.LASF76
+ 1575 0437 07       		.byte	0x7
+ 1576 0438 4F       		.byte	0x4f
+ 1577 0439 B5030000 		.4byte	0x3b5
+ 1578 043d 12       		.byte	0x12
+ 1579 043e 0B       		.uleb128 0xb
+ 1580 043f B0040000 		.4byte	.LASF77
+ 1581 0443 07       		.byte	0x7
+ 1582 0444 51       		.byte	0x51
+ 1583 0445 9E000000 		.4byte	0x9e
+ 1584 0449 01       		.byte	0x1
+ 1585 044a 01       		.byte	0x1
+ 1586 044b 07       		.byte	0x7
+ 1587 044c 18       		.byte	0x18
+ 1588 044d 00       		.byte	0
+ 1589 044e 0A       		.uleb128 0xa
+ 1590 044f 10       		.byte	0x10
+ 1591 0450 07       		.byte	0x7
+ 1592 0451 55       		.byte	0x55
+ 1593 0452 93040000 		.4byte	0x493
+ 1594 0456 0D       		.uleb128 0xd
+ 1595 0457 77010000 		.4byte	.LASF66
+ 1596 045b 07       		.byte	0x7
+ 1597 045c 56       		.byte	0x56
+ 1598 045d 71010000 		.4byte	0x171
+ 1599 0461 00       		.byte	0
+ 1600 0462 0D       		.uleb128 0xd
+ 1601 0463 90040000 		.4byte	.LASF78
+ 1602 0467 07       		.byte	0x7
+ 1603 0468 57       		.byte	0x57
+ 1604 0469 93040000 		.4byte	0x493
+ 1605 046d 04       		.byte	0x4
+ 1606 046e 0D       		.uleb128 0xd
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 40
+
+
+ 1607 046f EF030000 		.4byte	.LASF79
+ 1608 0473 07       		.byte	0x7
+ 1609 0474 58       		.byte	0x58
+ 1610 0475 95010000 		.4byte	0x195
+ 1611 0479 08       		.byte	0x8
+ 1612 047a 0D       		.uleb128 0xd
+ 1613 047b 53020000 		.4byte	.LASF80
+ 1614 047f 07       		.byte	0x7
+ 1615 0480 59       		.byte	0x59
+ 1616 0481 95010000 		.4byte	0x195
+ 1617 0485 0A       		.byte	0xa
+ 1618 0486 13       		.uleb128 0x13
+ 1619 0487 6F706100 		.ascii	"opa\000"
+ 1620 048b 07       		.byte	0x7
+ 1621 048c 5A       		.byte	0x5a
+ 1622 048d 7C010000 		.4byte	0x17c
+ 1623 0491 0C       		.byte	0xc
+ 1624 0492 00       		.byte	0
+ 1625 0493 0F       		.uleb128 0xf
+ 1626 0494 04       		.byte	0x4
+ 1627 0495 99040000 		.4byte	0x499
+ 1628 0499 10       		.uleb128 0x10
+ 1629 049a DE020000 		.4byte	0x2de
+ 1630 049e 0A       		.uleb128 0xa
+ 1631 049f 03       		.byte	0x3
+ 1632 04a0 07       		.byte	0x7
+ 1633 04a1 5D       		.byte	0x5d
+ 1634 04a2 CB040000 		.4byte	0x4cb
+ 1635 04a6 0D       		.uleb128 0xd
+ 1636 04a7 77010000 		.4byte	.LASF66
+ 1637 04ab 07       		.byte	0x7
+ 1638 04ac 5E       		.byte	0x5e
+ 1639 04ad 71010000 		.4byte	0x171
+ 1640 04b1 00       		.byte	0
+ 1641 04b2 0D       		.uleb128 0xd
+ 1642 04b3 B6040000 		.4byte	.LASF81
+ 1643 04b7 07       		.byte	0x7
+ 1644 04b8 5F       		.byte	0x5f
+ 1645 04b9 7C010000 		.4byte	0x17c
+ 1646 04bd 01       		.byte	0x1
+ 1647 04be 13       		.uleb128 0x13
+ 1648 04bf 6F706100 		.ascii	"opa\000"
+ 1649 04c3 07       		.byte	0x7
+ 1650 04c4 60       		.byte	0x60
+ 1651 04c5 7C010000 		.4byte	0x17c
+ 1652 04c9 02       		.byte	0x2
+ 1653 04ca 00       		.byte	0
+ 1654 04cb 0A       		.uleb128 0xa
+ 1655 04cc 06       		.byte	0x6
+ 1656 04cd 07       		.byte	0x7
+ 1657 04ce 63       		.byte	0x63
+ 1658 04cf 07050000 		.4byte	0x507
+ 1659 04d3 0D       		.uleb128 0xd
+ 1660 04d4 77010000 		.4byte	.LASF66
+ 1661 04d8 07       		.byte	0x7
+ 1662 04d9 64       		.byte	0x64
+ 1663 04da 71010000 		.4byte	0x171
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 41
+
+
+ 1664 04de 00       		.byte	0
+ 1665 04df 0D       		.uleb128 0xd
+ 1666 04e0 13020000 		.4byte	.LASF67
+ 1667 04e4 07       		.byte	0x7
+ 1668 04e5 65       		.byte	0x65
+ 1669 04e6 95010000 		.4byte	0x195
+ 1670 04ea 02       		.byte	0x2
+ 1671 04eb 13       		.uleb128 0x13
+ 1672 04ec 6F706100 		.ascii	"opa\000"
+ 1673 04f0 07       		.byte	0x7
+ 1674 04f1 66       		.byte	0x66
+ 1675 04f2 7C010000 		.4byte	0x17c
+ 1676 04f6 04       		.byte	0x4
+ 1677 04f7 0B       		.uleb128 0xb
+ 1678 04f8 0B020000 		.4byte	.LASF82
+ 1679 04fc 07       		.byte	0x7
+ 1680 04fd 67       		.byte	0x67
+ 1681 04fe 9E000000 		.4byte	0x9e
+ 1682 0502 01       		.byte	0x1
+ 1683 0503 01       		.byte	0x1
+ 1684 0504 07       		.byte	0x7
+ 1685 0505 05       		.byte	0x5
+ 1686 0506 00       		.byte	0
+ 1687 0507 0A       		.uleb128 0xa
+ 1688 0508 38       		.byte	0x38
+ 1689 0509 07       		.byte	0x7
+ 1690 050a 34       		.byte	0x34
+ 1691 050b 4F050000 		.4byte	0x54f
+ 1692 050f 0B       		.uleb128 0xb
+ 1693 0510 FF020000 		.4byte	.LASF83
+ 1694 0514 07       		.byte	0x7
+ 1695 0515 36       		.byte	0x36
+ 1696 0516 9E000000 		.4byte	0x9e
+ 1697 051a 01       		.byte	0x1
+ 1698 051b 01       		.byte	0x1
+ 1699 051c 07       		.byte	0x7
+ 1700 051d 00       		.byte	0
+ 1701 051e 0D       		.uleb128 0xd
+ 1702 051f DB040000 		.4byte	.LASF84
+ 1703 0523 07       		.byte	0x7
+ 1704 0524 52       		.byte	0x52
+ 1705 0525 E2030000 		.4byte	0x3e2
+ 1706 0529 02       		.byte	0x2
+ 1707 052a 0D       		.uleb128 0xd
+ 1708 052b A9020000 		.4byte	.LASF85
+ 1709 052f 07       		.byte	0x7
+ 1710 0530 5B       		.byte	0x5b
+ 1711 0531 4E040000 		.4byte	0x44e
+ 1712 0535 1C       		.byte	0x1c
+ 1713 0536 0D       		.uleb128 0xd
+ 1714 0537 62030000 		.4byte	.LASF86
+ 1715 053b 07       		.byte	0x7
+ 1716 053c 61       		.byte	0x61
+ 1717 053d 9E040000 		.4byte	0x49e
+ 1718 0541 2C       		.byte	0x2c
+ 1719 0542 0D       		.uleb128 0xd
+ 1720 0543 0D050000 		.4byte	.LASF87
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 42
+
+
+ 1721 0547 07       		.byte	0x7
+ 1722 0548 68       		.byte	0x68
+ 1723 0549 CB040000 		.4byte	0x4cb
+ 1724 054d 30       		.byte	0x30
+ 1725 054e 00       		.byte	0
+ 1726 054f 04       		.uleb128 0x4
+ 1727 0550 DB050000 		.4byte	.LASF88
+ 1728 0554 07       		.byte	0x7
+ 1729 0555 69       		.byte	0x69
+ 1730 0556 07050000 		.4byte	0x507
+ 1731 055a 03       		.uleb128 0x3
+ 1732 055b 01       		.byte	0x1
+ 1733 055c 02       		.byte	0x2
+ 1734 055d 27020000 		.4byte	.LASF89
+ 1735 0561 0F       		.uleb128 0xf
+ 1736 0562 04       		.byte	0x4
+ 1737 0563 4F050000 		.4byte	0x54f
+ 1738 0567 14       		.uleb128 0x14
+ 1739 0568 C7000000 		.4byte	.LASF113
+ 1740 056c 02       		.byte	0x2
+ 1741 056d 4601     		.2byte	0x146
+ 1742 056f 71010000 		.4byte	0x171
+ 1743 0573 03       		.byte	0x3
+ 1744 0574 A7050000 		.4byte	0x5a7
+ 1745 0578 15       		.uleb128 0x15
+ 1746 0579 633100   		.ascii	"c1\000"
+ 1747 057c 02       		.byte	0x2
+ 1748 057d 4601     		.2byte	0x146
+ 1749 057f 71010000 		.4byte	0x171
+ 1750 0583 15       		.uleb128 0x15
+ 1751 0584 633200   		.ascii	"c2\000"
+ 1752 0587 02       		.byte	0x2
+ 1753 0588 4601     		.2byte	0x146
+ 1754 058a 71010000 		.4byte	0x171
+ 1755 058e 15       		.uleb128 0x15
+ 1756 058f 6D697800 		.ascii	"mix\000"
+ 1757 0593 02       		.byte	0x2
+ 1758 0594 4601     		.2byte	0x146
+ 1759 0596 9E000000 		.4byte	0x9e
+ 1760 059a 16       		.uleb128 0x16
+ 1761 059b 72657400 		.ascii	"ret\000"
+ 1762 059f 02       		.byte	0x2
+ 1763 05a0 4801     		.2byte	0x148
+ 1764 05a2 71010000 		.4byte	0x171
+ 1765 05a6 00       		.byte	0
+ 1766 05a7 17       		.uleb128 0x17
+ 1767 05a8 79030000 		.4byte	.LASF114
+ 1768 05ac 01       		.byte	0x1
+ 1769 05ad 46       		.byte	0x46
+ 1770 05ae 00000000 		.4byte	.LFB12
+ 1771 05b2 70040000 		.4byte	.LFE12-.LFB12
+ 1772 05b6 01       		.uleb128 0x1
+ 1773 05b7 9C       		.byte	0x9c
+ 1774 05b8 18       		.uleb128 0x18
+ 1775 05b9 EB050000 		.4byte	.LASF91
+ 1776 05bd 01       		.byte	0x1
+ 1777 05be D5       		.byte	0xd5
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 43
+
+
+ 1778 05bf 00000000 		.4byte	.LFB13
+ 1779 05c3 2A000000 		.4byte	.LFE13-.LFB13
+ 1780 05c7 01       		.uleb128 0x1
+ 1781 05c8 9C       		.byte	0x9c
+ 1782 05c9 EC050000 		.4byte	0x5ec
+ 1783 05cd 19       		.uleb128 0x19
+ 1784 05ce E6050000 		.4byte	.LASF90
+ 1785 05d2 01       		.byte	0x1
+ 1786 05d3 D5       		.byte	0xd5
+ 1787 05d4 61050000 		.4byte	0x561
+ 1788 05d8 00000000 		.4byte	.LLST0
+ 1789 05dc 1A       		.uleb128 0x1a
+ 1790 05dd 73726300 		.ascii	"src\000"
+ 1791 05e1 01       		.byte	0x1
+ 1792 05e2 D5       		.byte	0xd5
+ 1793 05e3 EC050000 		.4byte	0x5ec
+ 1794 05e7 21000000 		.4byte	.LLST1
+ 1795 05eb 00       		.byte	0
+ 1796 05ec 0F       		.uleb128 0xf
+ 1797 05ed 04       		.byte	0x4
+ 1798 05ee F2050000 		.4byte	0x5f2
+ 1799 05f2 10       		.uleb128 0x10
+ 1800 05f3 4F050000 		.4byte	0x54f
+ 1801 05f7 18       		.uleb128 0x18
+ 1802 05f8 A2050000 		.4byte	.LASF92
+ 1803 05fc 01       		.byte	0x1
+ 1804 05fd E2       		.byte	0xe2
+ 1805 05fe 00000000 		.4byte	.LFB14
+ 1806 0602 BE020000 		.4byte	.LFE14-.LFB14
+ 1807 0606 01       		.uleb128 0x1
+ 1808 0607 9C       		.byte	0x9c
+ 1809 0608 AC070000 		.4byte	0x7ac
+ 1810 060c 19       		.uleb128 0x19
+ 1811 060d 76040000 		.4byte	.LASF93
+ 1812 0611 01       		.byte	0x1
+ 1813 0612 E2       		.byte	0xe2
+ 1814 0613 EC050000 		.4byte	0x5ec
+ 1815 0617 4F000000 		.4byte	.LLST2
+ 1816 061b 1A       		.uleb128 0x1a
+ 1817 061c 656E6400 		.ascii	"end\000"
+ 1818 0620 01       		.byte	0x1
+ 1819 0621 E2       		.byte	0xe2
+ 1820 0622 EC050000 		.4byte	0x5ec
+ 1821 0626 70000000 		.4byte	.LLST3
+ 1822 062a 1B       		.uleb128 0x1b
+ 1823 062b 72657300 		.ascii	"res\000"
+ 1824 062f 01       		.byte	0x1
+ 1825 0630 E2       		.byte	0xe2
+ 1826 0631 61050000 		.4byte	0x561
+ 1827 0635 01       		.uleb128 0x1
+ 1828 0636 52       		.byte	0x52
+ 1829 0637 19       		.uleb128 0x19
+ 1830 0638 11040000 		.4byte	.LASF94
+ 1831 063c 01       		.byte	0x1
+ 1832 063d E2       		.byte	0xe2
+ 1833 063e B4000000 		.4byte	0xb4
+ 1834 0642 AA000000 		.4byte	.LLST4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 44
+
+
+ 1835 0646 1C       		.uleb128 0x1c
+ 1836 0647 6F706100 		.ascii	"opa\000"
+ 1837 064b 01       		.byte	0x1
+ 1838 064c F4       		.byte	0xf4
+ 1839 064d 7C010000 		.4byte	0x17c
+ 1840 0651 1D       		.uleb128 0x1d
+ 1841 0652 67050000 		.4byte	0x567
+ 1842 0656 BE010000 		.4byte	.LBB16
+ 1843 065a 10000000 		.4byte	.LBE16-.LBB16
+ 1844 065e 01       		.byte	0x1
+ 1845 065f F6       		.byte	0xf6
+ 1846 0660 83060000 		.4byte	0x683
+ 1847 0664 1E       		.uleb128 0x1e
+ 1848 0665 8E050000 		.4byte	0x58e
+ 1849 0669 1E       		.uleb128 0x1e
+ 1850 066a 83050000 		.4byte	0x583
+ 1851 066e 1E       		.uleb128 0x1e
+ 1852 066f 78050000 		.4byte	0x578
+ 1853 0673 1F       		.uleb128 0x1f
+ 1854 0674 BE010000 		.4byte	.LBB17
+ 1855 0678 10000000 		.4byte	.LBE17-.LBB17
+ 1856 067c 20       		.uleb128 0x20
+ 1857 067d 9A050000 		.4byte	0x59a
+ 1858 0681 00       		.byte	0
+ 1859 0682 00       		.byte	0
+ 1860 0683 1D       		.uleb128 0x1d
+ 1861 0684 67050000 		.4byte	0x567
+ 1862 0688 D4010000 		.4byte	.LBB18
+ 1863 068c 0E000000 		.4byte	.LBE18-.LBB18
+ 1864 0690 01       		.byte	0x1
+ 1865 0691 F7       		.byte	0xf7
+ 1866 0692 B5060000 		.4byte	0x6b5
+ 1867 0696 1E       		.uleb128 0x1e
+ 1868 0697 8E050000 		.4byte	0x58e
+ 1869 069b 1E       		.uleb128 0x1e
+ 1870 069c 83050000 		.4byte	0x583
+ 1871 06a0 1E       		.uleb128 0x1e
+ 1872 06a1 78050000 		.4byte	0x578
+ 1873 06a5 1F       		.uleb128 0x1f
+ 1874 06a6 D4010000 		.4byte	.LBB19
+ 1875 06aa 0E000000 		.4byte	.LBE19-.LBB19
+ 1876 06ae 20       		.uleb128 0x20
+ 1877 06af 9A050000 		.4byte	0x59a
+ 1878 06b3 00       		.byte	0
+ 1879 06b4 00       		.byte	0
+ 1880 06b5 1D       		.uleb128 0x1d
+ 1881 06b6 67050000 		.4byte	0x567
+ 1882 06ba E8010000 		.4byte	.LBB20
+ 1883 06be 0E000000 		.4byte	.LBE20-.LBB20
+ 1884 06c2 01       		.byte	0x1
+ 1885 06c3 F8       		.byte	0xf8
+ 1886 06c4 E7060000 		.4byte	0x6e7
+ 1887 06c8 1E       		.uleb128 0x1e
+ 1888 06c9 8E050000 		.4byte	0x58e
+ 1889 06cd 1E       		.uleb128 0x1e
+ 1890 06ce 83050000 		.4byte	0x583
+ 1891 06d2 1E       		.uleb128 0x1e
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 45
+
+
+ 1892 06d3 78050000 		.4byte	0x578
+ 1893 06d7 1F       		.uleb128 0x1f
+ 1894 06d8 E8010000 		.4byte	.LBB21
+ 1895 06dc 0E000000 		.4byte	.LBE21-.LBB21
+ 1896 06e0 20       		.uleb128 0x20
+ 1897 06e1 9A050000 		.4byte	0x59a
+ 1898 06e5 00       		.byte	0
+ 1899 06e6 00       		.byte	0
+ 1900 06e7 1D       		.uleb128 0x1d
+ 1901 06e8 67050000 		.4byte	0x567
+ 1902 06ec FC010000 		.4byte	.LBB22
+ 1903 06f0 0E000000 		.4byte	.LBE22-.LBB22
+ 1904 06f4 01       		.byte	0x1
+ 1905 06f5 F9       		.byte	0xf9
+ 1906 06f6 19070000 		.4byte	0x719
+ 1907 06fa 1E       		.uleb128 0x1e
+ 1908 06fb 8E050000 		.4byte	0x58e
+ 1909 06ff 1E       		.uleb128 0x1e
+ 1910 0700 83050000 		.4byte	0x583
+ 1911 0704 1E       		.uleb128 0x1e
+ 1912 0705 78050000 		.4byte	0x578
+ 1913 0709 1F       		.uleb128 0x1f
+ 1914 070a FC010000 		.4byte	.LBB23
+ 1915 070e 0E000000 		.4byte	.LBE23-.LBB23
+ 1916 0712 20       		.uleb128 0x20
+ 1917 0713 9A050000 		.4byte	0x59a
+ 1918 0717 00       		.byte	0
+ 1919 0718 00       		.byte	0
+ 1920 0719 1D       		.uleb128 0x1d
+ 1921 071a 67050000 		.4byte	0x567
+ 1922 071e 10020000 		.4byte	.LBB24
+ 1923 0722 0E000000 		.4byte	.LBE24-.LBB24
+ 1924 0726 01       		.byte	0x1
+ 1925 0727 FA       		.byte	0xfa
+ 1926 0728 4B070000 		.4byte	0x74b
+ 1927 072c 1E       		.uleb128 0x1e
+ 1928 072d 8E050000 		.4byte	0x58e
+ 1929 0731 1E       		.uleb128 0x1e
+ 1930 0732 83050000 		.4byte	0x583
+ 1931 0736 1E       		.uleb128 0x1e
+ 1932 0737 78050000 		.4byte	0x578
+ 1933 073b 1F       		.uleb128 0x1f
+ 1934 073c 10020000 		.4byte	.LBB25
+ 1935 0740 0E000000 		.4byte	.LBE25-.LBB25
+ 1936 0744 20       		.uleb128 0x20
+ 1937 0745 9A050000 		.4byte	0x59a
+ 1938 0749 00       		.byte	0
+ 1939 074a 00       		.byte	0
+ 1940 074b 1D       		.uleb128 0x1d
+ 1941 074c 67050000 		.4byte	0x567
+ 1942 0750 28020000 		.4byte	.LBB26
+ 1943 0754 0E000000 		.4byte	.LBE26-.LBB26
+ 1944 0758 01       		.byte	0x1
+ 1945 0759 FB       		.byte	0xfb
+ 1946 075a 7D070000 		.4byte	0x77d
+ 1947 075e 1E       		.uleb128 0x1e
+ 1948 075f 8E050000 		.4byte	0x58e
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 46
+
+
+ 1949 0763 1E       		.uleb128 0x1e
+ 1950 0764 83050000 		.4byte	0x583
+ 1951 0768 1E       		.uleb128 0x1e
+ 1952 0769 78050000 		.4byte	0x578
+ 1953 076d 1F       		.uleb128 0x1f
+ 1954 076e 28020000 		.4byte	.LBB27
+ 1955 0772 0E000000 		.4byte	.LBE27-.LBB27
+ 1956 0776 20       		.uleb128 0x20
+ 1957 0777 9A050000 		.4byte	0x59a
+ 1958 077b 00       		.byte	0
+ 1959 077c 00       		.byte	0
+ 1960 077d 21       		.uleb128 0x21
+ 1961 077e 67050000 		.4byte	0x567
+ 1962 0782 42020000 		.4byte	.LBB28
+ 1963 0786 0E000000 		.4byte	.LBE28-.LBB28
+ 1964 078a 01       		.byte	0x1
+ 1965 078b FC       		.byte	0xfc
+ 1966 078c 1E       		.uleb128 0x1e
+ 1967 078d 8E050000 		.4byte	0x58e
+ 1968 0791 1E       		.uleb128 0x1e
+ 1969 0792 83050000 		.4byte	0x583
+ 1970 0796 1E       		.uleb128 0x1e
+ 1971 0797 78050000 		.4byte	0x578
+ 1972 079b 1F       		.uleb128 0x1f
+ 1973 079c 42020000 		.4byte	.LBB29
+ 1974 07a0 0E000000 		.4byte	.LBE29-.LBB29
+ 1975 07a4 20       		.uleb128 0x20
+ 1976 07a5 9A050000 		.4byte	0x59a
+ 1977 07a9 00       		.byte	0
+ 1978 07aa 00       		.byte	0
+ 1979 07ab 00       		.byte	0
+ 1980 07ac 22       		.uleb128 0x22
+ 1981 07ad 98030000 		.4byte	.LASF95
+ 1982 07b1 08       		.byte	0x8
+ 1983 07b2 76       		.byte	0x76
+ 1984 07b3 DE020000 		.4byte	0x2de
+ 1985 07b7 23       		.uleb128 0x23
+ 1986 07b8 81050000 		.4byte	.LASF96
+ 1987 07bc 01       		.byte	0x1
+ 1988 07bd 2D       		.byte	0x2d
+ 1989 07be 4F050000 		.4byte	0x54f
+ 1990 07c2 05       		.uleb128 0x5
+ 1991 07c3 03       		.byte	0x3
+ 1992 07c4 00000000 		.4byte	lv_style_scr
+ 1993 07c8 23       		.uleb128 0x23
+ 1994 07c9 28050000 		.4byte	.LASF97
+ 1995 07cd 01       		.byte	0x1
+ 1996 07ce 2E       		.byte	0x2e
+ 1997 07cf 4F050000 		.4byte	0x54f
+ 1998 07d3 05       		.uleb128 0x5
+ 1999 07d4 03       		.byte	0x3
+ 2000 07d5 00000000 		.4byte	lv_style_transp
+ 2001 07d9 23       		.uleb128 0x23
+ 2002 07da 7C040000 		.4byte	.LASF98
+ 2003 07de 01       		.byte	0x1
+ 2004 07df 2F       		.byte	0x2f
+ 2005 07e0 4F050000 		.4byte	0x54f
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 47
+
+
+ 2006 07e4 05       		.uleb128 0x5
+ 2007 07e5 03       		.byte	0x3
+ 2008 07e6 00000000 		.4byte	lv_style_transp_fit
+ 2009 07ea 23       		.uleb128 0x23
+ 2010 07eb 2D020000 		.4byte	.LASF99
+ 2011 07ef 01       		.byte	0x1
+ 2012 07f0 30       		.byte	0x30
+ 2013 07f1 4F050000 		.4byte	0x54f
+ 2014 07f5 05       		.uleb128 0x5
+ 2015 07f6 03       		.byte	0x3
+ 2016 07f7 00000000 		.4byte	lv_style_transp_tight
+ 2017 07fb 23       		.uleb128 0x23
+ 2018 07fc B8000000 		.4byte	.LASF100
+ 2019 0800 01       		.byte	0x1
+ 2020 0801 31       		.byte	0x31
+ 2021 0802 4F050000 		.4byte	0x54f
+ 2022 0806 05       		.uleb128 0x5
+ 2023 0807 03       		.byte	0x3
+ 2024 0808 00000000 		.4byte	lv_style_plain
+ 2025 080c 23       		.uleb128 0x23
+ 2026 080d 1C030000 		.4byte	.LASF101
+ 2027 0811 01       		.byte	0x1
+ 2028 0812 32       		.byte	0x32
+ 2029 0813 4F050000 		.4byte	0x54f
+ 2030 0817 05       		.uleb128 0x5
+ 2031 0818 03       		.byte	0x3
+ 2032 0819 00000000 		.4byte	lv_style_plain_color
+ 2033 081d 23       		.uleb128 0x23
+ 2034 081e A8000000 		.4byte	.LASF102
+ 2035 0822 01       		.byte	0x1
+ 2036 0823 33       		.byte	0x33
+ 2037 0824 4F050000 		.4byte	0x54f
+ 2038 0828 05       		.uleb128 0x5
+ 2039 0829 03       		.byte	0x3
+ 2040 082a 00000000 		.4byte	lv_style_pretty
+ 2041 082e 23       		.uleb128 0x23
+ 2042 082f 12050000 		.4byte	.LASF103
+ 2043 0833 01       		.byte	0x1
+ 2044 0834 34       		.byte	0x34
+ 2045 0835 4F050000 		.4byte	0x54f
+ 2046 0839 05       		.uleb128 0x5
+ 2047 083a 03       		.byte	0x3
+ 2048 083b 00000000 		.4byte	lv_style_pretty_color
+ 2049 083f 23       		.uleb128 0x23
+ 2050 0840 1C000000 		.4byte	.LASF104
+ 2051 0844 01       		.byte	0x1
+ 2052 0845 35       		.byte	0x35
+ 2053 0846 4F050000 		.4byte	0x54f
+ 2054 084a 05       		.uleb128 0x5
+ 2055 084b 03       		.byte	0x3
+ 2056 084c 00000000 		.4byte	lv_style_btn_rel
+ 2057 0850 23       		.uleb128 0x23
+ 2058 0851 3B030000 		.4byte	.LASF105
+ 2059 0855 01       		.byte	0x1
+ 2060 0856 36       		.byte	0x36
+ 2061 0857 4F050000 		.4byte	0x54f
+ 2062 085b 05       		.uleb128 0x5
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 48
+
+
+ 2063 085c 03       		.byte	0x3
+ 2064 085d 00000000 		.4byte	lv_style_btn_pr
+ 2065 0861 23       		.uleb128 0x23
+ 2066 0862 EB000000 		.4byte	.LASF106
+ 2067 0866 01       		.byte	0x1
+ 2068 0867 37       		.byte	0x37
+ 2069 0868 4F050000 		.4byte	0x54f
+ 2070 086c 05       		.uleb128 0x5
+ 2071 086d 03       		.byte	0x3
+ 2072 086e 00000000 		.4byte	lv_style_btn_tgl_rel
+ 2073 0872 23       		.uleb128 0x23
+ 2074 0873 63010000 		.4byte	.LASF107
+ 2075 0877 01       		.byte	0x1
+ 2076 0878 38       		.byte	0x38
+ 2077 0879 4F050000 		.4byte	0x54f
+ 2078 087d 05       		.uleb128 0x5
+ 2079 087e 03       		.byte	0x3
+ 2080 087f 00000000 		.4byte	lv_style_btn_tgl_pr
+ 2081 0883 23       		.uleb128 0x23
+ 2082 0884 2D000000 		.4byte	.LASF108
+ 2083 0888 01       		.byte	0x1
+ 2084 0889 39       		.byte	0x39
+ 2085 088a 4F050000 		.4byte	0x54f
+ 2086 088e 05       		.uleb128 0x5
+ 2087 088f 03       		.byte	0x3
+ 2088 0890 00000000 		.4byte	lv_style_btn_ina
+ 2089 0894 00       		.byte	0
+ 2090              		.section	.debug_abbrev,"",%progbits
+ 2091              	.Ldebug_abbrev0:
+ 2092 0000 01       		.uleb128 0x1
+ 2093 0001 11       		.uleb128 0x11
+ 2094 0002 01       		.byte	0x1
+ 2095 0003 25       		.uleb128 0x25
+ 2096 0004 0E       		.uleb128 0xe
+ 2097 0005 13       		.uleb128 0x13
+ 2098 0006 0B       		.uleb128 0xb
+ 2099 0007 03       		.uleb128 0x3
+ 2100 0008 0E       		.uleb128 0xe
+ 2101 0009 1B       		.uleb128 0x1b
+ 2102 000a 0E       		.uleb128 0xe
+ 2103 000b 55       		.uleb128 0x55
+ 2104 000c 17       		.uleb128 0x17
+ 2105 000d 11       		.uleb128 0x11
+ 2106 000e 01       		.uleb128 0x1
+ 2107 000f 10       		.uleb128 0x10
+ 2108 0010 17       		.uleb128 0x17
+ 2109 0011 00       		.byte	0
+ 2110 0012 00       		.byte	0
+ 2111 0013 02       		.uleb128 0x2
+ 2112 0014 24       		.uleb128 0x24
+ 2113 0015 00       		.byte	0
+ 2114 0016 0B       		.uleb128 0xb
+ 2115 0017 0B       		.uleb128 0xb
+ 2116 0018 3E       		.uleb128 0x3e
+ 2117 0019 0B       		.uleb128 0xb
+ 2118 001a 03       		.uleb128 0x3
+ 2119 001b 08       		.uleb128 0x8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 49
+
+
+ 2120 001c 00       		.byte	0
+ 2121 001d 00       		.byte	0
+ 2122 001e 03       		.uleb128 0x3
+ 2123 001f 24       		.uleb128 0x24
+ 2124 0020 00       		.byte	0
+ 2125 0021 0B       		.uleb128 0xb
+ 2126 0022 0B       		.uleb128 0xb
+ 2127 0023 3E       		.uleb128 0x3e
+ 2128 0024 0B       		.uleb128 0xb
+ 2129 0025 03       		.uleb128 0x3
+ 2130 0026 0E       		.uleb128 0xe
+ 2131 0027 00       		.byte	0
+ 2132 0028 00       		.byte	0
+ 2133 0029 04       		.uleb128 0x4
+ 2134 002a 16       		.uleb128 0x16
+ 2135 002b 00       		.byte	0
+ 2136 002c 03       		.uleb128 0x3
+ 2137 002d 0E       		.uleb128 0xe
+ 2138 002e 3A       		.uleb128 0x3a
+ 2139 002f 0B       		.uleb128 0xb
+ 2140 0030 3B       		.uleb128 0x3b
+ 2141 0031 0B       		.uleb128 0xb
+ 2142 0032 49       		.uleb128 0x49
+ 2143 0033 13       		.uleb128 0x13
+ 2144 0034 00       		.byte	0
+ 2145 0035 00       		.byte	0
+ 2146 0036 05       		.uleb128 0x5
+ 2147 0037 04       		.uleb128 0x4
+ 2148 0038 01       		.byte	0x1
+ 2149 0039 0B       		.uleb128 0xb
+ 2150 003a 0B       		.uleb128 0xb
+ 2151 003b 49       		.uleb128 0x49
+ 2152 003c 13       		.uleb128 0x13
+ 2153 003d 3A       		.uleb128 0x3a
+ 2154 003e 0B       		.uleb128 0xb
+ 2155 003f 3B       		.uleb128 0x3b
+ 2156 0040 0B       		.uleb128 0xb
+ 2157 0041 01       		.uleb128 0x1
+ 2158 0042 13       		.uleb128 0x13
+ 2159 0043 00       		.byte	0
+ 2160 0044 00       		.byte	0
+ 2161 0045 06       		.uleb128 0x6
+ 2162 0046 28       		.uleb128 0x28
+ 2163 0047 00       		.byte	0
+ 2164 0048 03       		.uleb128 0x3
+ 2165 0049 0E       		.uleb128 0xe
+ 2166 004a 1C       		.uleb128 0x1c
+ 2167 004b 0B       		.uleb128 0xb
+ 2168 004c 00       		.byte	0
+ 2169 004d 00       		.byte	0
+ 2170 004e 07       		.uleb128 0x7
+ 2171 004f 17       		.uleb128 0x17
+ 2172 0050 01       		.byte	0x1
+ 2173 0051 0B       		.uleb128 0xb
+ 2174 0052 0B       		.uleb128 0xb
+ 2175 0053 3A       		.uleb128 0x3a
+ 2176 0054 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 50
+
+
+ 2177 0055 3B       		.uleb128 0x3b
+ 2178 0056 0B       		.uleb128 0xb
+ 2179 0057 01       		.uleb128 0x1
+ 2180 0058 13       		.uleb128 0x13
+ 2181 0059 00       		.byte	0
+ 2182 005a 00       		.byte	0
+ 2183 005b 08       		.uleb128 0x8
+ 2184 005c 0D       		.uleb128 0xd
+ 2185 005d 00       		.byte	0
+ 2186 005e 03       		.uleb128 0x3
+ 2187 005f 0E       		.uleb128 0xe
+ 2188 0060 3A       		.uleb128 0x3a
+ 2189 0061 0B       		.uleb128 0xb
+ 2190 0062 3B       		.uleb128 0x3b
+ 2191 0063 0B       		.uleb128 0xb
+ 2192 0064 49       		.uleb128 0x49
+ 2193 0065 13       		.uleb128 0x13
+ 2194 0066 0B       		.uleb128 0xb
+ 2195 0067 0B       		.uleb128 0xb
+ 2196 0068 0D       		.uleb128 0xd
+ 2197 0069 0B       		.uleb128 0xb
+ 2198 006a 0C       		.uleb128 0xc
+ 2199 006b 0B       		.uleb128 0xb
+ 2200 006c 00       		.byte	0
+ 2201 006d 00       		.byte	0
+ 2202 006e 09       		.uleb128 0x9
+ 2203 006f 0D       		.uleb128 0xd
+ 2204 0070 00       		.byte	0
+ 2205 0071 03       		.uleb128 0x3
+ 2206 0072 08       		.uleb128 0x8
+ 2207 0073 3A       		.uleb128 0x3a
+ 2208 0074 0B       		.uleb128 0xb
+ 2209 0075 3B       		.uleb128 0x3b
+ 2210 0076 0B       		.uleb128 0xb
+ 2211 0077 49       		.uleb128 0x49
+ 2212 0078 13       		.uleb128 0x13
+ 2213 0079 0B       		.uleb128 0xb
+ 2214 007a 0B       		.uleb128 0xb
+ 2215 007b 0D       		.uleb128 0xd
+ 2216 007c 0B       		.uleb128 0xb
+ 2217 007d 0C       		.uleb128 0xc
+ 2218 007e 0B       		.uleb128 0xb
+ 2219 007f 00       		.byte	0
+ 2220 0080 00       		.byte	0
+ 2221 0081 0A       		.uleb128 0xa
+ 2222 0082 13       		.uleb128 0x13
+ 2223 0083 01       		.byte	0x1
+ 2224 0084 0B       		.uleb128 0xb
+ 2225 0085 0B       		.uleb128 0xb
+ 2226 0086 3A       		.uleb128 0x3a
+ 2227 0087 0B       		.uleb128 0xb
+ 2228 0088 3B       		.uleb128 0x3b
+ 2229 0089 0B       		.uleb128 0xb
+ 2230 008a 01       		.uleb128 0x1
+ 2231 008b 13       		.uleb128 0x13
+ 2232 008c 00       		.byte	0
+ 2233 008d 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 51
+
+
+ 2234 008e 0B       		.uleb128 0xb
+ 2235 008f 0D       		.uleb128 0xd
+ 2236 0090 00       		.byte	0
+ 2237 0091 03       		.uleb128 0x3
+ 2238 0092 0E       		.uleb128 0xe
+ 2239 0093 3A       		.uleb128 0x3a
+ 2240 0094 0B       		.uleb128 0xb
+ 2241 0095 3B       		.uleb128 0x3b
+ 2242 0096 0B       		.uleb128 0xb
+ 2243 0097 49       		.uleb128 0x49
+ 2244 0098 13       		.uleb128 0x13
+ 2245 0099 0B       		.uleb128 0xb
+ 2246 009a 0B       		.uleb128 0xb
+ 2247 009b 0D       		.uleb128 0xd
+ 2248 009c 0B       		.uleb128 0xb
+ 2249 009d 0C       		.uleb128 0xc
+ 2250 009e 0B       		.uleb128 0xb
+ 2251 009f 38       		.uleb128 0x38
+ 2252 00a0 0B       		.uleb128 0xb
+ 2253 00a1 00       		.byte	0
+ 2254 00a2 00       		.byte	0
+ 2255 00a3 0C       		.uleb128 0xc
+ 2256 00a4 13       		.uleb128 0x13
+ 2257 00a5 01       		.byte	0x1
+ 2258 00a6 03       		.uleb128 0x3
+ 2259 00a7 0E       		.uleb128 0xe
+ 2260 00a8 0B       		.uleb128 0xb
+ 2261 00a9 0B       		.uleb128 0xb
+ 2262 00aa 3A       		.uleb128 0x3a
+ 2263 00ab 0B       		.uleb128 0xb
+ 2264 00ac 3B       		.uleb128 0x3b
+ 2265 00ad 0B       		.uleb128 0xb
+ 2266 00ae 01       		.uleb128 0x1
+ 2267 00af 13       		.uleb128 0x13
+ 2268 00b0 00       		.byte	0
+ 2269 00b1 00       		.byte	0
+ 2270 00b2 0D       		.uleb128 0xd
+ 2271 00b3 0D       		.uleb128 0xd
+ 2272 00b4 00       		.byte	0
+ 2273 00b5 03       		.uleb128 0x3
+ 2274 00b6 0E       		.uleb128 0xe
+ 2275 00b7 3A       		.uleb128 0x3a
+ 2276 00b8 0B       		.uleb128 0xb
+ 2277 00b9 3B       		.uleb128 0x3b
+ 2278 00ba 0B       		.uleb128 0xb
+ 2279 00bb 49       		.uleb128 0x49
+ 2280 00bc 13       		.uleb128 0x13
+ 2281 00bd 38       		.uleb128 0x38
+ 2282 00be 0B       		.uleb128 0xb
+ 2283 00bf 00       		.byte	0
+ 2284 00c0 00       		.byte	0
+ 2285 00c1 0E       		.uleb128 0xe
+ 2286 00c2 0D       		.uleb128 0xd
+ 2287 00c3 00       		.byte	0
+ 2288 00c4 03       		.uleb128 0x3
+ 2289 00c5 08       		.uleb128 0x8
+ 2290 00c6 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 52
+
+
+ 2291 00c7 0B       		.uleb128 0xb
+ 2292 00c8 3B       		.uleb128 0x3b
+ 2293 00c9 0B       		.uleb128 0xb
+ 2294 00ca 49       		.uleb128 0x49
+ 2295 00cb 13       		.uleb128 0x13
+ 2296 00cc 0B       		.uleb128 0xb
+ 2297 00cd 0B       		.uleb128 0xb
+ 2298 00ce 0D       		.uleb128 0xd
+ 2299 00cf 0B       		.uleb128 0xb
+ 2300 00d0 0C       		.uleb128 0xc
+ 2301 00d1 0B       		.uleb128 0xb
+ 2302 00d2 38       		.uleb128 0x38
+ 2303 00d3 0B       		.uleb128 0xb
+ 2304 00d4 00       		.byte	0
+ 2305 00d5 00       		.byte	0
+ 2306 00d6 0F       		.uleb128 0xf
+ 2307 00d7 0F       		.uleb128 0xf
+ 2308 00d8 00       		.byte	0
+ 2309 00d9 0B       		.uleb128 0xb
+ 2310 00da 0B       		.uleb128 0xb
+ 2311 00db 49       		.uleb128 0x49
+ 2312 00dc 13       		.uleb128 0x13
+ 2313 00dd 00       		.byte	0
+ 2314 00de 00       		.byte	0
+ 2315 00df 10       		.uleb128 0x10
+ 2316 00e0 26       		.uleb128 0x26
+ 2317 00e1 00       		.byte	0
+ 2318 00e2 49       		.uleb128 0x49
+ 2319 00e3 13       		.uleb128 0x13
+ 2320 00e4 00       		.byte	0
+ 2321 00e5 00       		.byte	0
+ 2322 00e6 11       		.uleb128 0x11
+ 2323 00e7 15       		.uleb128 0x15
+ 2324 00e8 01       		.byte	0x1
+ 2325 00e9 27       		.uleb128 0x27
+ 2326 00ea 19       		.uleb128 0x19
+ 2327 00eb 49       		.uleb128 0x49
+ 2328 00ec 13       		.uleb128 0x13
+ 2329 00ed 01       		.uleb128 0x1
+ 2330 00ee 13       		.uleb128 0x13
+ 2331 00ef 00       		.byte	0
+ 2332 00f0 00       		.byte	0
+ 2333 00f1 12       		.uleb128 0x12
+ 2334 00f2 05       		.uleb128 0x5
+ 2335 00f3 00       		.byte	0
+ 2336 00f4 49       		.uleb128 0x49
+ 2337 00f5 13       		.uleb128 0x13
+ 2338 00f6 00       		.byte	0
+ 2339 00f7 00       		.byte	0
+ 2340 00f8 13       		.uleb128 0x13
+ 2341 00f9 0D       		.uleb128 0xd
+ 2342 00fa 00       		.byte	0
+ 2343 00fb 03       		.uleb128 0x3
+ 2344 00fc 08       		.uleb128 0x8
+ 2345 00fd 3A       		.uleb128 0x3a
+ 2346 00fe 0B       		.uleb128 0xb
+ 2347 00ff 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 53
+
+
+ 2348 0100 0B       		.uleb128 0xb
+ 2349 0101 49       		.uleb128 0x49
+ 2350 0102 13       		.uleb128 0x13
+ 2351 0103 38       		.uleb128 0x38
+ 2352 0104 0B       		.uleb128 0xb
+ 2353 0105 00       		.byte	0
+ 2354 0106 00       		.byte	0
+ 2355 0107 14       		.uleb128 0x14
+ 2356 0108 2E       		.uleb128 0x2e
+ 2357 0109 01       		.byte	0x1
+ 2358 010a 03       		.uleb128 0x3
+ 2359 010b 0E       		.uleb128 0xe
+ 2360 010c 3A       		.uleb128 0x3a
+ 2361 010d 0B       		.uleb128 0xb
+ 2362 010e 3B       		.uleb128 0x3b
+ 2363 010f 05       		.uleb128 0x5
+ 2364 0110 27       		.uleb128 0x27
+ 2365 0111 19       		.uleb128 0x19
+ 2366 0112 49       		.uleb128 0x49
+ 2367 0113 13       		.uleb128 0x13
+ 2368 0114 20       		.uleb128 0x20
+ 2369 0115 0B       		.uleb128 0xb
+ 2370 0116 01       		.uleb128 0x1
+ 2371 0117 13       		.uleb128 0x13
+ 2372 0118 00       		.byte	0
+ 2373 0119 00       		.byte	0
+ 2374 011a 15       		.uleb128 0x15
+ 2375 011b 05       		.uleb128 0x5
+ 2376 011c 00       		.byte	0
+ 2377 011d 03       		.uleb128 0x3
+ 2378 011e 08       		.uleb128 0x8
+ 2379 011f 3A       		.uleb128 0x3a
+ 2380 0120 0B       		.uleb128 0xb
+ 2381 0121 3B       		.uleb128 0x3b
+ 2382 0122 05       		.uleb128 0x5
+ 2383 0123 49       		.uleb128 0x49
+ 2384 0124 13       		.uleb128 0x13
+ 2385 0125 00       		.byte	0
+ 2386 0126 00       		.byte	0
+ 2387 0127 16       		.uleb128 0x16
+ 2388 0128 34       		.uleb128 0x34
+ 2389 0129 00       		.byte	0
+ 2390 012a 03       		.uleb128 0x3
+ 2391 012b 08       		.uleb128 0x8
+ 2392 012c 3A       		.uleb128 0x3a
+ 2393 012d 0B       		.uleb128 0xb
+ 2394 012e 3B       		.uleb128 0x3b
+ 2395 012f 05       		.uleb128 0x5
+ 2396 0130 49       		.uleb128 0x49
+ 2397 0131 13       		.uleb128 0x13
+ 2398 0132 00       		.byte	0
+ 2399 0133 00       		.byte	0
+ 2400 0134 17       		.uleb128 0x17
+ 2401 0135 2E       		.uleb128 0x2e
+ 2402 0136 00       		.byte	0
+ 2403 0137 3F       		.uleb128 0x3f
+ 2404 0138 19       		.uleb128 0x19
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 54
+
+
+ 2405 0139 03       		.uleb128 0x3
+ 2406 013a 0E       		.uleb128 0xe
+ 2407 013b 3A       		.uleb128 0x3a
+ 2408 013c 0B       		.uleb128 0xb
+ 2409 013d 3B       		.uleb128 0x3b
+ 2410 013e 0B       		.uleb128 0xb
+ 2411 013f 27       		.uleb128 0x27
+ 2412 0140 19       		.uleb128 0x19
+ 2413 0141 11       		.uleb128 0x11
+ 2414 0142 01       		.uleb128 0x1
+ 2415 0143 12       		.uleb128 0x12
+ 2416 0144 06       		.uleb128 0x6
+ 2417 0145 40       		.uleb128 0x40
+ 2418 0146 18       		.uleb128 0x18
+ 2419 0147 9742     		.uleb128 0x2117
+ 2420 0149 19       		.uleb128 0x19
+ 2421 014a 00       		.byte	0
+ 2422 014b 00       		.byte	0
+ 2423 014c 18       		.uleb128 0x18
+ 2424 014d 2E       		.uleb128 0x2e
+ 2425 014e 01       		.byte	0x1
+ 2426 014f 3F       		.uleb128 0x3f
+ 2427 0150 19       		.uleb128 0x19
+ 2428 0151 03       		.uleb128 0x3
+ 2429 0152 0E       		.uleb128 0xe
+ 2430 0153 3A       		.uleb128 0x3a
+ 2431 0154 0B       		.uleb128 0xb
+ 2432 0155 3B       		.uleb128 0x3b
+ 2433 0156 0B       		.uleb128 0xb
+ 2434 0157 27       		.uleb128 0x27
+ 2435 0158 19       		.uleb128 0x19
+ 2436 0159 11       		.uleb128 0x11
+ 2437 015a 01       		.uleb128 0x1
+ 2438 015b 12       		.uleb128 0x12
+ 2439 015c 06       		.uleb128 0x6
+ 2440 015d 40       		.uleb128 0x40
+ 2441 015e 18       		.uleb128 0x18
+ 2442 015f 9742     		.uleb128 0x2117
+ 2443 0161 19       		.uleb128 0x19
+ 2444 0162 01       		.uleb128 0x1
+ 2445 0163 13       		.uleb128 0x13
+ 2446 0164 00       		.byte	0
+ 2447 0165 00       		.byte	0
+ 2448 0166 19       		.uleb128 0x19
+ 2449 0167 05       		.uleb128 0x5
+ 2450 0168 00       		.byte	0
+ 2451 0169 03       		.uleb128 0x3
+ 2452 016a 0E       		.uleb128 0xe
+ 2453 016b 3A       		.uleb128 0x3a
+ 2454 016c 0B       		.uleb128 0xb
+ 2455 016d 3B       		.uleb128 0x3b
+ 2456 016e 0B       		.uleb128 0xb
+ 2457 016f 49       		.uleb128 0x49
+ 2458 0170 13       		.uleb128 0x13
+ 2459 0171 02       		.uleb128 0x2
+ 2460 0172 17       		.uleb128 0x17
+ 2461 0173 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 55
+
+
+ 2462 0174 00       		.byte	0
+ 2463 0175 1A       		.uleb128 0x1a
+ 2464 0176 05       		.uleb128 0x5
+ 2465 0177 00       		.byte	0
+ 2466 0178 03       		.uleb128 0x3
+ 2467 0179 08       		.uleb128 0x8
+ 2468 017a 3A       		.uleb128 0x3a
+ 2469 017b 0B       		.uleb128 0xb
+ 2470 017c 3B       		.uleb128 0x3b
+ 2471 017d 0B       		.uleb128 0xb
+ 2472 017e 49       		.uleb128 0x49
+ 2473 017f 13       		.uleb128 0x13
+ 2474 0180 02       		.uleb128 0x2
+ 2475 0181 17       		.uleb128 0x17
+ 2476 0182 00       		.byte	0
+ 2477 0183 00       		.byte	0
+ 2478 0184 1B       		.uleb128 0x1b
+ 2479 0185 05       		.uleb128 0x5
+ 2480 0186 00       		.byte	0
+ 2481 0187 03       		.uleb128 0x3
+ 2482 0188 08       		.uleb128 0x8
+ 2483 0189 3A       		.uleb128 0x3a
+ 2484 018a 0B       		.uleb128 0xb
+ 2485 018b 3B       		.uleb128 0x3b
+ 2486 018c 0B       		.uleb128 0xb
+ 2487 018d 49       		.uleb128 0x49
+ 2488 018e 13       		.uleb128 0x13
+ 2489 018f 02       		.uleb128 0x2
+ 2490 0190 18       		.uleb128 0x18
+ 2491 0191 00       		.byte	0
+ 2492 0192 00       		.byte	0
+ 2493 0193 1C       		.uleb128 0x1c
+ 2494 0194 34       		.uleb128 0x34
+ 2495 0195 00       		.byte	0
+ 2496 0196 03       		.uleb128 0x3
+ 2497 0197 08       		.uleb128 0x8
+ 2498 0198 3A       		.uleb128 0x3a
+ 2499 0199 0B       		.uleb128 0xb
+ 2500 019a 3B       		.uleb128 0x3b
+ 2501 019b 0B       		.uleb128 0xb
+ 2502 019c 49       		.uleb128 0x49
+ 2503 019d 13       		.uleb128 0x13
+ 2504 019e 00       		.byte	0
+ 2505 019f 00       		.byte	0
+ 2506 01a0 1D       		.uleb128 0x1d
+ 2507 01a1 1D       		.uleb128 0x1d
+ 2508 01a2 01       		.byte	0x1
+ 2509 01a3 31       		.uleb128 0x31
+ 2510 01a4 13       		.uleb128 0x13
+ 2511 01a5 11       		.uleb128 0x11
+ 2512 01a6 01       		.uleb128 0x1
+ 2513 01a7 12       		.uleb128 0x12
+ 2514 01a8 06       		.uleb128 0x6
+ 2515 01a9 58       		.uleb128 0x58
+ 2516 01aa 0B       		.uleb128 0xb
+ 2517 01ab 59       		.uleb128 0x59
+ 2518 01ac 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 56
+
+
+ 2519 01ad 01       		.uleb128 0x1
+ 2520 01ae 13       		.uleb128 0x13
+ 2521 01af 00       		.byte	0
+ 2522 01b0 00       		.byte	0
+ 2523 01b1 1E       		.uleb128 0x1e
+ 2524 01b2 05       		.uleb128 0x5
+ 2525 01b3 00       		.byte	0
+ 2526 01b4 31       		.uleb128 0x31
+ 2527 01b5 13       		.uleb128 0x13
+ 2528 01b6 00       		.byte	0
+ 2529 01b7 00       		.byte	0
+ 2530 01b8 1F       		.uleb128 0x1f
+ 2531 01b9 0B       		.uleb128 0xb
+ 2532 01ba 01       		.byte	0x1
+ 2533 01bb 11       		.uleb128 0x11
+ 2534 01bc 01       		.uleb128 0x1
+ 2535 01bd 12       		.uleb128 0x12
+ 2536 01be 06       		.uleb128 0x6
+ 2537 01bf 00       		.byte	0
+ 2538 01c0 00       		.byte	0
+ 2539 01c1 20       		.uleb128 0x20
+ 2540 01c2 34       		.uleb128 0x34
+ 2541 01c3 00       		.byte	0
+ 2542 01c4 31       		.uleb128 0x31
+ 2543 01c5 13       		.uleb128 0x13
+ 2544 01c6 00       		.byte	0
+ 2545 01c7 00       		.byte	0
+ 2546 01c8 21       		.uleb128 0x21
+ 2547 01c9 1D       		.uleb128 0x1d
+ 2548 01ca 01       		.byte	0x1
+ 2549 01cb 31       		.uleb128 0x31
+ 2550 01cc 13       		.uleb128 0x13
+ 2551 01cd 11       		.uleb128 0x11
+ 2552 01ce 01       		.uleb128 0x1
+ 2553 01cf 12       		.uleb128 0x12
+ 2554 01d0 06       		.uleb128 0x6
+ 2555 01d1 58       		.uleb128 0x58
+ 2556 01d2 0B       		.uleb128 0xb
+ 2557 01d3 59       		.uleb128 0x59
+ 2558 01d4 0B       		.uleb128 0xb
+ 2559 01d5 00       		.byte	0
+ 2560 01d6 00       		.byte	0
+ 2561 01d7 22       		.uleb128 0x22
+ 2562 01d8 34       		.uleb128 0x34
+ 2563 01d9 00       		.byte	0
+ 2564 01da 03       		.uleb128 0x3
+ 2565 01db 0E       		.uleb128 0xe
+ 2566 01dc 3A       		.uleb128 0x3a
+ 2567 01dd 0B       		.uleb128 0xb
+ 2568 01de 3B       		.uleb128 0x3b
+ 2569 01df 0B       		.uleb128 0xb
+ 2570 01e0 49       		.uleb128 0x49
+ 2571 01e1 13       		.uleb128 0x13
+ 2572 01e2 3F       		.uleb128 0x3f
+ 2573 01e3 19       		.uleb128 0x19
+ 2574 01e4 3C       		.uleb128 0x3c
+ 2575 01e5 19       		.uleb128 0x19
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 57
+
+
+ 2576 01e6 00       		.byte	0
+ 2577 01e7 00       		.byte	0
+ 2578 01e8 23       		.uleb128 0x23
+ 2579 01e9 34       		.uleb128 0x34
+ 2580 01ea 00       		.byte	0
+ 2581 01eb 03       		.uleb128 0x3
+ 2582 01ec 0E       		.uleb128 0xe
+ 2583 01ed 3A       		.uleb128 0x3a
+ 2584 01ee 0B       		.uleb128 0xb
+ 2585 01ef 3B       		.uleb128 0x3b
+ 2586 01f0 0B       		.uleb128 0xb
+ 2587 01f1 49       		.uleb128 0x49
+ 2588 01f2 13       		.uleb128 0x13
+ 2589 01f3 3F       		.uleb128 0x3f
+ 2590 01f4 19       		.uleb128 0x19
+ 2591 01f5 02       		.uleb128 0x2
+ 2592 01f6 18       		.uleb128 0x18
+ 2593 01f7 00       		.byte	0
+ 2594 01f8 00       		.byte	0
+ 2595 01f9 00       		.byte	0
+ 2596              		.section	.debug_loc,"",%progbits
+ 2597              	.Ldebug_loc0:
+ 2598              	.LLST0:
+ 2599 0000 00000000 		.4byte	.LVL0
+ 2600 0004 06000000 		.4byte	.LVL1
+ 2601 0008 0100     		.2byte	0x1
+ 2602 000a 50       		.byte	0x50
+ 2603 000b 06000000 		.4byte	.LVL1
+ 2604 000f 2A000000 		.4byte	.LFE13
+ 2605 0013 0400     		.2byte	0x4
+ 2606 0015 F3       		.byte	0xf3
+ 2607 0016 01       		.uleb128 0x1
+ 2608 0017 50       		.byte	0x50
+ 2609 0018 9F       		.byte	0x9f
+ 2610 0019 00000000 		.4byte	0
+ 2611 001d 00000000 		.4byte	0
+ 2612              	.LLST1:
+ 2613 0021 00000000 		.4byte	.LVL0
+ 2614 0025 06000000 		.4byte	.LVL1
+ 2615 0029 0100     		.2byte	0x1
+ 2616 002b 51       		.byte	0x51
+ 2617 002c 06000000 		.4byte	.LVL1
+ 2618 0030 22000000 		.4byte	.LVL2
+ 2619 0034 0300     		.2byte	0x3
+ 2620 0036 73       		.byte	0x73
+ 2621 0037 50       		.sleb128 -48
+ 2622 0038 9F       		.byte	0x9f
+ 2623 0039 22000000 		.4byte	.LVL2
+ 2624 003d 2A000000 		.4byte	.LFE13
+ 2625 0041 0400     		.2byte	0x4
+ 2626 0043 F3       		.byte	0xf3
+ 2627 0044 01       		.uleb128 0x1
+ 2628 0045 51       		.byte	0x51
+ 2629 0046 9F       		.byte	0x9f
+ 2630 0047 00000000 		.4byte	0
+ 2631 004b 00000000 		.4byte	0
+ 2632              	.LLST2:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 58
+
+
+ 2633 004f 00000000 		.4byte	.LVL3
+ 2634 0053 8C020000 		.4byte	.LVL15
+ 2635 0057 0100     		.2byte	0x1
+ 2636 0059 50       		.byte	0x50
+ 2637 005a 8C020000 		.4byte	.LVL15
+ 2638 005e BE020000 		.4byte	.LFE14
+ 2639 0062 0400     		.2byte	0x4
+ 2640 0064 F3       		.byte	0xf3
+ 2641 0065 01       		.uleb128 0x1
+ 2642 0066 50       		.byte	0x50
+ 2643 0067 9F       		.byte	0x9f
+ 2644 0068 00000000 		.4byte	0
+ 2645 006c 00000000 		.4byte	0
+ 2646              	.LLST3:
+ 2647 0070 00000000 		.4byte	.LVL3
+ 2648 0074 5A020000 		.4byte	.LVL12
+ 2649 0078 0100     		.2byte	0x1
+ 2650 007a 51       		.byte	0x51
+ 2651 007b 5A020000 		.4byte	.LVL12
+ 2652 007f 8A020000 		.4byte	.LVL14
+ 2653 0083 0400     		.2byte	0x4
+ 2654 0085 F3       		.byte	0xf3
+ 2655 0086 01       		.uleb128 0x1
+ 2656 0087 51       		.byte	0x51
+ 2657 0088 9F       		.byte	0x9f
+ 2658 0089 8A020000 		.4byte	.LVL14
+ 2659 008d AE020000 		.4byte	.LVL17
+ 2660 0091 0100     		.2byte	0x1
+ 2661 0093 51       		.byte	0x51
+ 2662 0094 AE020000 		.4byte	.LVL17
+ 2663 0098 BE020000 		.4byte	.LFE14
+ 2664 009c 0400     		.2byte	0x4
+ 2665 009e F3       		.byte	0xf3
+ 2666 009f 01       		.uleb128 0x1
+ 2667 00a0 51       		.byte	0x51
+ 2668 00a1 9F       		.byte	0x9f
+ 2669 00a2 00000000 		.4byte	0
+ 2670 00a6 00000000 		.4byte	0
+ 2671              	.LLST4:
+ 2672 00aa 00000000 		.4byte	.LVL3
+ 2673 00ae 5C020000 		.4byte	.LVL13
+ 2674 00b2 0100     		.2byte	0x1
+ 2675 00b4 53       		.byte	0x53
+ 2676 00b5 5C020000 		.4byte	.LVL13
+ 2677 00b9 8A020000 		.4byte	.LVL14
+ 2678 00bd 0400     		.2byte	0x4
+ 2679 00bf F3       		.byte	0xf3
+ 2680 00c0 01       		.uleb128 0x1
+ 2681 00c1 53       		.byte	0x53
+ 2682 00c2 9F       		.byte	0x9f
+ 2683 00c3 8A020000 		.4byte	.LVL14
+ 2684 00c7 8E020000 		.4byte	.LVL16
+ 2685 00cb 0100     		.2byte	0x1
+ 2686 00cd 53       		.byte	0x53
+ 2687 00ce 8E020000 		.4byte	.LVL16
+ 2688 00d2 BE020000 		.4byte	.LFE14
+ 2689 00d6 0400     		.2byte	0x4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 59
+
+
+ 2690 00d8 F3       		.byte	0xf3
+ 2691 00d9 01       		.uleb128 0x1
+ 2692 00da 53       		.byte	0x53
+ 2693 00db 9F       		.byte	0x9f
+ 2694 00dc 00000000 		.4byte	0
+ 2695 00e0 00000000 		.4byte	0
+ 2696              		.section	.debug_aranges,"",%progbits
+ 2697 0000 2C000000 		.4byte	0x2c
+ 2698 0004 0200     		.2byte	0x2
+ 2699 0006 00000000 		.4byte	.Ldebug_info0
+ 2700 000a 04       		.byte	0x4
+ 2701 000b 00       		.byte	0
+ 2702 000c 0000     		.2byte	0
+ 2703 000e 0000     		.2byte	0
+ 2704 0010 00000000 		.4byte	.LFB12
+ 2705 0014 70040000 		.4byte	.LFE12-.LFB12
+ 2706 0018 00000000 		.4byte	.LFB13
+ 2707 001c 2A000000 		.4byte	.LFE13-.LFB13
+ 2708 0020 00000000 		.4byte	.LFB14
+ 2709 0024 BE020000 		.4byte	.LFE14-.LFB14
+ 2710 0028 00000000 		.4byte	0
+ 2711 002c 00000000 		.4byte	0
+ 2712              		.section	.debug_ranges,"",%progbits
+ 2713              	.Ldebug_ranges0:
+ 2714 0000 00000000 		.4byte	.LFB12
+ 2715 0004 70040000 		.4byte	.LFE12
+ 2716 0008 00000000 		.4byte	.LFB13
+ 2717 000c 2A000000 		.4byte	.LFE13
+ 2718 0010 00000000 		.4byte	.LFB14
+ 2719 0014 BE020000 		.4byte	.LFE14
+ 2720 0018 00000000 		.4byte	0
+ 2721 001c 00000000 		.4byte	0
+ 2722              		.section	.debug_line,"",%progbits
+ 2723              	.Ldebug_line0:
+ 2724 0000 92030000 		.section	.debug_str,"MS",%progbits,1
+ 2724      0200BB01 
+ 2724      00000201 
+ 2724      FB0E0D00 
+ 2724      01010101 
+ 2725              	.LASF30:
+ 2726 0000 4C565F4F 		.ascii	"LV_OPA_COVER\000"
+ 2726      50415F43 
+ 2726      4F564552 
+ 2726      00
+ 2727              	.LASF33:
+ 2728 000d 66756C6C 		.ascii	"full\000"
+ 2728      00
+ 2729              	.LASF28:
+ 2730 0012 4C565F4F 		.ascii	"LV_OPA_90\000"
+ 2730      50415F39 
+ 2730      3000
+ 2731              	.LASF104:
+ 2732 001c 6C765F73 		.ascii	"lv_style_btn_rel\000"
+ 2732      74796C65 
+ 2732      5F62746E 
+ 2732      5F72656C 
+ 2732      00
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 60
+
+
+ 2733              	.LASF108:
+ 2734 002d 6C765F73 		.ascii	"lv_style_btn_ina\000"
+ 2734      74796C65 
+ 2734      5F62746E 
+ 2734      5F696E61 
+ 2734      00
+ 2735              	.LASF19:
+ 2736 003e 4C565F4F 		.ascii	"LV_OPA_0\000"
+ 2736      50415F30 
+ 2736      00
+ 2737              	.LASF0:
+ 2738 0047 756E7369 		.ascii	"unsigned int\000"
+ 2738      676E6564 
+ 2738      20696E74 
+ 2738      00
+ 2739              	.LASF110:
+ 2740 0054 2E2E5C6C 		.ascii	"..\\lvgl\\lv_core\\lv_style.c\000"
+ 2740      76676C5C 
+ 2740      6C765F63 
+ 2740      6F72655C 
+ 2740      6C765F73 
+ 2741              	.LASF48:
+ 2742 006f 6765745F 		.ascii	"get_bitmap\000"
+ 2742      6269746D 
+ 2742      617000
+ 2743              	.LASF63:
+ 2744 007a 4C565F53 		.ascii	"LV_SHADOW_BOTTOM\000"
+ 2744      4841444F 
+ 2744      575F424F 
+ 2744      54544F4D 
+ 2744      00
+ 2745              	.LASF59:
+ 2746 008b 4C565F42 		.ascii	"LV_BORDER_RIGHT\000"
+ 2746      4F524445 
+ 2746      525F5249 
+ 2746      47485400 
+ 2747              	.LASF47:
+ 2748 009b 756E6963 		.ascii	"unicode_list\000"
+ 2748      6F64655F 
+ 2748      6C697374 
+ 2748      00
+ 2749              	.LASF102:
+ 2750 00a8 6C765F73 		.ascii	"lv_style_pretty\000"
+ 2750      74796C65 
+ 2750      5F707265 
+ 2750      74747900 
+ 2751              	.LASF100:
+ 2752 00b8 6C765F73 		.ascii	"lv_style_plain\000"
+ 2752      74796C65 
+ 2752      5F706C61 
+ 2752      696E00
+ 2753              	.LASF113:
+ 2754 00c7 6C765F63 		.ascii	"lv_color_mix\000"
+ 2754      6F6C6F72 
+ 2754      5F6D6978 
+ 2754      00
+ 2755              	.LASF70:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 61
+
+
+ 2756 00d4 696E6E65 		.ascii	"inner\000"
+ 2756      7200
+ 2757              	.LASF17:
+ 2758 00da 75696E74 		.ascii	"uint32_t\000"
+ 2758      33325F74 
+ 2758      00
+ 2759              	.LASF15:
+ 2760 00e3 696E7431 		.ascii	"int16_t\000"
+ 2760      365F7400 
+ 2761              	.LASF106:
+ 2762 00eb 6C765F73 		.ascii	"lv_style_btn_tgl_rel\000"
+ 2762      74796C65 
+ 2762      5F62746E 
+ 2762      5F74676C 
+ 2762      5F72656C 
+ 2763              	.LASF53:
+ 2764 0100 676C7970 		.ascii	"glyph_cnt\000"
+ 2764      685F636E 
+ 2764      7400
+ 2765              	.LASF13:
+ 2766 010a 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 2766      206C6F6E 
+ 2766      6720756E 
+ 2766      7369676E 
+ 2766      65642069 
+ 2767              	.LASF68:
+ 2768 0121 70617274 		.ascii	"part\000"
+ 2768      00
+ 2769              	.LASF18:
+ 2770 0126 4C565F4F 		.ascii	"LV_OPA_TRANSP\000"
+ 2770      50415F54 
+ 2770      52414E53 
+ 2770      5000
+ 2771              	.LASF8:
+ 2772 0134 5F5F7569 		.ascii	"__uint16_t\000"
+ 2772      6E743136 
+ 2772      5F7400
+ 2773              	.LASF74:
+ 2774 013f 626F7264 		.ascii	"border\000"
+ 2774      657200
+ 2775              	.LASF61:
+ 2776 0146 4C565F42 		.ascii	"LV_BORDER_INTERNAL\000"
+ 2776      4F524445 
+ 2776      525F494E 
+ 2776      5445524E 
+ 2776      414C00
+ 2777              	.LASF50:
+ 2778 0159 6E657874 		.ascii	"next_page\000"
+ 2778      5F706167 
+ 2778      6500
+ 2779              	.LASF107:
+ 2780 0163 6C765F73 		.ascii	"lv_style_btn_tgl_pr\000"
+ 2780      74796C65 
+ 2780      5F62746E 
+ 2780      5F74676C 
+ 2780      5F707200 
+ 2781              	.LASF66:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 62
+
+
+ 2782 0177 636F6C6F 		.ascii	"color\000"
+ 2782      7200
+ 2783              	.LASF109:
+ 2784 017d 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 2784      43313120 
+ 2784      352E342E 
+ 2784      31203230 
+ 2784      31363036 
+ 2785 01b0 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 2785      20726576 
+ 2785      6973696F 
+ 2785      6E203233 
+ 2785      37373135 
+ 2786 01e3 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 2786      66756E63 
+ 2786      74696F6E 
+ 2786      2D736563 
+ 2786      74696F6E 
+ 2787              	.LASF82:
+ 2788 020b 726F756E 		.ascii	"rounded\000"
+ 2788      64656400 
+ 2789              	.LASF67:
+ 2790 0213 77696474 		.ascii	"width\000"
+ 2790      6800
+ 2791              	.LASF57:
+ 2792 0219 4C565F42 		.ascii	"LV_BORDER_TOP\000"
+ 2792      4F524445 
+ 2792      525F544F 
+ 2792      5000
+ 2793              	.LASF89:
+ 2794 0227 5F426F6F 		.ascii	"_Bool\000"
+ 2794      6C00
+ 2795              	.LASF99:
+ 2796 022d 6C765F73 		.ascii	"lv_style_transp_tight\000"
+ 2796      74796C65 
+ 2796      5F747261 
+ 2796      6E73705F 
+ 2796      74696768 
+ 2797              	.LASF112:
+ 2798 0243 5F6C765F 		.ascii	"_lv_font_struct\000"
+ 2798      666F6E74 
+ 2798      5F737472 
+ 2798      75637400 
+ 2799              	.LASF80:
+ 2800 0253 6C696E65 		.ascii	"line_space\000"
+ 2800      5F737061 
+ 2800      636500
+ 2801              	.LASF38:
+ 2802 025e 63686172 		.ascii	"char\000"
+ 2802      00
+ 2803              	.LASF111:
+ 2804 0263 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 2804      73657273 
+ 2804      5C643362 
+ 2804      75675C44 
+ 2804      6F63756D 
+ 2805 0291 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 63
+
+
+ 2805      6F5F776F 
+ 2805      726C645F 
+ 2805      6C616265 
+ 2805      6C2E6379 
+ 2806              	.LASF85:
+ 2807 02a9 74657874 		.ascii	"text\000"
+ 2807      00
+ 2808              	.LASF42:
+ 2809 02ae 6C765F66 		.ascii	"lv_font_glyph_dsc_t\000"
+ 2809      6F6E745F 
+ 2809      676C7970 
+ 2809      685F6473 
+ 2809      635F7400 
+ 2810              	.LASF34:
+ 2811 02c2 6C765F63 		.ascii	"lv_color1_t\000"
+ 2811      6F6C6F72 
+ 2811      315F7400 
+ 2812              	.LASF14:
+ 2813 02ce 75696E74 		.ascii	"uint8_t\000"
+ 2813      385F7400 
+ 2814              	.LASF65:
+ 2815 02d6 6C765F73 		.ascii	"lv_shadow_type_t\000"
+ 2815      6861646F 
+ 2815      775F7479 
+ 2815      70655F74 
+ 2815      00
+ 2816              	.LASF20:
+ 2817 02e7 4C565F4F 		.ascii	"LV_OPA_10\000"
+ 2817      50415F31 
+ 2817      3000
+ 2818              	.LASF1:
+ 2819 02f1 6C6F6E67 		.ascii	"long long int\000"
+ 2819      206C6F6E 
+ 2819      6720696E 
+ 2819      7400
+ 2820              	.LASF83:
+ 2821 02ff 676C6173 		.ascii	"glass\000"
+ 2821      7300
+ 2822              	.LASF76:
+ 2823 0305 70616464 		.ascii	"padding\000"
+ 2823      696E6700 
+ 2824              	.LASF60:
+ 2825 030d 4C565F42 		.ascii	"LV_BORDER_FULL\000"
+ 2825      4F524445 
+ 2825      525F4655 
+ 2825      4C4C00
+ 2826              	.LASF101:
+ 2827 031c 6C765F73 		.ascii	"lv_style_plain_color\000"
+ 2827      74796C65 
+ 2827      5F706C61 
+ 2827      696E5F63 
+ 2827      6F6C6F72 
+ 2828              	.LASF6:
+ 2829 0331 5F5F696E 		.ascii	"__int16_t\000"
+ 2829      7431365F 
+ 2829      7400
+ 2830              	.LASF105:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 64
+
+
+ 2831 033b 6C765F73 		.ascii	"lv_style_btn_pr\000"
+ 2831      74796C65 
+ 2831      5F62746E 
+ 2831      5F707200 
+ 2832              	.LASF21:
+ 2833 034b 4C565F4F 		.ascii	"LV_OPA_20\000"
+ 2833      50415F32 
+ 2833      3000
+ 2834              	.LASF45:
+ 2835 0355 676C7970 		.ascii	"glyph_bitmap\000"
+ 2835      685F6269 
+ 2835      746D6170 
+ 2835      00
+ 2836              	.LASF86:
+ 2837 0362 696D6167 		.ascii	"image\000"
+ 2837      6500
+ 2838              	.LASF56:
+ 2839 0368 4C565F42 		.ascii	"LV_BORDER_BOTTOM\000"
+ 2839      4F524445 
+ 2839      525F424F 
+ 2839      54544F4D 
+ 2839      00
+ 2840              	.LASF114:
+ 2841 0379 6C765F73 		.ascii	"lv_style_init\000"
+ 2841      74796C65 
+ 2841      5F696E69 
+ 2841      7400
+ 2842              	.LASF35:
+ 2843 0387 6C765F63 		.ascii	"lv_color_t\000"
+ 2843      6F6C6F72 
+ 2843      5F7400
+ 2844              	.LASF32:
+ 2845 0392 67726565 		.ascii	"green\000"
+ 2845      6E00
+ 2846              	.LASF95:
+ 2847 0398 6C765F66 		.ascii	"lv_font_monospace_8\000"
+ 2847      6F6E745F 
+ 2847      6D6F6E6F 
+ 2847      73706163 
+ 2847      655F3800 
+ 2848              	.LASF22:
+ 2849 03ac 4C565F4F 		.ascii	"LV_OPA_30\000"
+ 2849      50415F33 
+ 2849      3000
+ 2850              	.LASF2:
+ 2851 03b6 6C6F6E67 		.ascii	"long double\000"
+ 2851      20646F75 
+ 2851      626C6500 
+ 2852              	.LASF16:
+ 2853 03c2 75696E74 		.ascii	"uint16_t\000"
+ 2853      31365F74 
+ 2853      00
+ 2854              	.LASF64:
+ 2855 03cb 4C565F53 		.ascii	"LV_SHADOW_FULL\000"
+ 2855      4841444F 
+ 2855      575F4655 
+ 2855      4C4C00
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 65
+
+
+ 2856              	.LASF72:
+ 2857 03da 67726164 		.ascii	"grad_color\000"
+ 2857      5F636F6C 
+ 2857      6F7200
+ 2858              	.LASF54:
+ 2859 03e5 6C765F66 		.ascii	"lv_font_t\000"
+ 2859      6F6E745F 
+ 2859      7400
+ 2860              	.LASF79:
+ 2861 03ef 6C657474 		.ascii	"letter_space\000"
+ 2861      65725F73 
+ 2861      70616365 
+ 2861      00
+ 2862              	.LASF71:
+ 2863 03fc 6D61696E 		.ascii	"main_color\000"
+ 2863      5F636F6C 
+ 2863      6F7200
+ 2864              	.LASF7:
+ 2865 0407 73686F72 		.ascii	"short int\000"
+ 2865      7420696E 
+ 2865      7400
+ 2866              	.LASF94:
+ 2867 0411 72617469 		.ascii	"ratio\000"
+ 2867      6F00
+ 2868              	.LASF36:
+ 2869 0417 6C765F6F 		.ascii	"lv_opa_t\000"
+ 2869      70615F74 
+ 2869      00
+ 2870              	.LASF58:
+ 2871 0420 4C565F42 		.ascii	"LV_BORDER_LEFT\000"
+ 2871      4F524445 
+ 2871      525F4C45 
+ 2871      465400
+ 2872              	.LASF10:
+ 2873 042f 6C6F6E67 		.ascii	"long int\000"
+ 2873      20696E74 
+ 2873      00
+ 2874              	.LASF23:
+ 2875 0438 4C565F4F 		.ascii	"LV_OPA_40\000"
+ 2875      50415F34 
+ 2875      3000
+ 2876              	.LASF51:
+ 2877 0442 685F7078 		.ascii	"h_px\000"
+ 2877      00
+ 2878              	.LASF31:
+ 2879 0447 626C7565 		.ascii	"blue\000"
+ 2879      00
+ 2880              	.LASF39:
+ 2881 044c 6C765F63 		.ascii	"lv_coord_t\000"
+ 2881      6F6F7264 
+ 2881      5F7400
+ 2882              	.LASF29:
+ 2883 0457 4C565F4F 		.ascii	"LV_OPA_100\000"
+ 2883      50415F31 
+ 2883      303000
+ 2884              	.LASF5:
+ 2885 0462 5F5F7569 		.ascii	"__uint8_t\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 66
+
+
+ 2885      6E74385F 
+ 2885      7400
+ 2886              	.LASF24:
+ 2887 046c 4C565F4F 		.ascii	"LV_OPA_50\000"
+ 2887      50415F35 
+ 2887      3000
+ 2888              	.LASF93:
+ 2889 0476 73746172 		.ascii	"start\000"
+ 2889      7400
+ 2890              	.LASF98:
+ 2891 047c 6C765F73 		.ascii	"lv_style_transp_fit\000"
+ 2891      74796C65 
+ 2891      5F747261 
+ 2891      6E73705F 
+ 2891      66697400 
+ 2892              	.LASF78:
+ 2893 0490 666F6E74 		.ascii	"font\000"
+ 2893      00
+ 2894              	.LASF37:
+ 2895 0495 73697A65 		.ascii	"sizetype\000"
+ 2895      74797065 
+ 2895      00
+ 2896              	.LASF12:
+ 2897 049e 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2897      20756E73 
+ 2897      69676E65 
+ 2897      6420696E 
+ 2897      7400
+ 2898              	.LASF77:
+ 2899 04b0 656D7074 		.ascii	"empty\000"
+ 2899      7900
+ 2900              	.LASF81:
+ 2901 04b6 696E7465 		.ascii	"intense\000"
+ 2901      6E736500 
+ 2902              	.LASF52:
+ 2903 04be 6D6F6E6F 		.ascii	"monospace\000"
+ 2903      73706163 
+ 2903      6500
+ 2904              	.LASF41:
+ 2905 04c8 676C7970 		.ascii	"glyph_index\000"
+ 2905      685F696E 
+ 2905      64657800 
+ 2906              	.LASF73:
+ 2907 04d4 72616469 		.ascii	"radius\000"
+ 2907      757300
+ 2908              	.LASF84:
+ 2909 04db 626F6479 		.ascii	"body\000"
+ 2909      00
+ 2910              	.LASF25:
+ 2911 04e0 4C565F4F 		.ascii	"LV_OPA_60\000"
+ 2911      50415F36 
+ 2911      3000
+ 2912              	.LASF69:
+ 2913 04ea 74797065 		.ascii	"type\000"
+ 2913      00
+ 2914              	.LASF4:
+ 2915 04ef 756E7369 		.ascii	"unsigned char\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 67
+
+
+ 2915      676E6564 
+ 2915      20636861 
+ 2915      7200
+ 2916              	.LASF11:
+ 2917 04fd 5F5F7569 		.ascii	"__uint32_t\000"
+ 2917      6E743332 
+ 2917      5F7400
+ 2918              	.LASF40:
+ 2919 0508 775F7078 		.ascii	"w_px\000"
+ 2919      00
+ 2920              	.LASF87:
+ 2921 050d 6C696E65 		.ascii	"line\000"
+ 2921      00
+ 2922              	.LASF103:
+ 2923 0512 6C765F73 		.ascii	"lv_style_pretty_color\000"
+ 2923      74796C65 
+ 2923      5F707265 
+ 2923      7474795F 
+ 2923      636F6C6F 
+ 2924              	.LASF97:
+ 2925 0528 6C765F73 		.ascii	"lv_style_transp\000"
+ 2925      74796C65 
+ 2925      5F747261 
+ 2925      6E737000 
+ 2926              	.LASF55:
+ 2927 0538 4C565F42 		.ascii	"LV_BORDER_NONE\000"
+ 2927      4F524445 
+ 2927      525F4E4F 
+ 2927      4E4500
+ 2928              	.LASF26:
+ 2929 0547 4C565F4F 		.ascii	"LV_OPA_70\000"
+ 2929      50415F37 
+ 2929      3000
+ 2930              	.LASF49:
+ 2931 0551 6765745F 		.ascii	"get_width\000"
+ 2931      77696474 
+ 2931      6800
+ 2932              	.LASF75:
+ 2933 055b 73686164 		.ascii	"shadow\000"
+ 2933      6F7700
+ 2934              	.LASF3:
+ 2935 0562 7369676E 		.ascii	"signed char\000"
+ 2935      65642063 
+ 2935      68617200 
+ 2936              	.LASF9:
+ 2937 056e 73686F72 		.ascii	"short unsigned int\000"
+ 2937      7420756E 
+ 2937      7369676E 
+ 2937      65642069 
+ 2937      6E7400
+ 2938              	.LASF96:
+ 2939 0581 6C765F73 		.ascii	"lv_style_scr\000"
+ 2939      74796C65 
+ 2939      5F736372 
+ 2939      00
+ 2940              	.LASF46:
+ 2941 058e 676C7970 		.ascii	"glyph_dsc\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccxiqlWF.s 			page 68
+
+
+ 2941      685F6473 
+ 2941      6300
+ 2942              	.LASF27:
+ 2943 0598 4C565F4F 		.ascii	"LV_OPA_80\000"
+ 2943      50415F38 
+ 2943      3000
+ 2944              	.LASF92:
+ 2945 05a2 6C765F73 		.ascii	"lv_style_mix\000"
+ 2945      74796C65 
+ 2945      5F6D6978 
+ 2945      00
+ 2946              	.LASF43:
+ 2947 05af 756E6963 		.ascii	"unicode_first\000"
+ 2947      6F64655F 
+ 2947      66697273 
+ 2947      7400
+ 2948              	.LASF62:
+ 2949 05bd 6C765F62 		.ascii	"lv_border_part_t\000"
+ 2949      6F726465 
+ 2949      725F7061 
+ 2949      72745F74 
+ 2949      00
+ 2950              	.LASF44:
+ 2951 05ce 756E6963 		.ascii	"unicode_last\000"
+ 2951      6F64655F 
+ 2951      6C617374 
+ 2951      00
+ 2952              	.LASF88:
+ 2953 05db 6C765F73 		.ascii	"lv_style_t\000"
+ 2953      74796C65 
+ 2953      5F7400
+ 2954              	.LASF90:
+ 2955 05e6 64657374 		.ascii	"dest\000"
+ 2955      00
+ 2956              	.LASF91:
+ 2957 05eb 6C765F73 		.ascii	"lv_style_copy\000"
+ 2957      74796C65 
+ 2957      5F636F70 
+ 2957      7900
+ 2958              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

@@ -1,0 +1,246 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccWFTqLH.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_theme_night.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              	.Letext0:
+  20              		.section	.debug_info,"",%progbits
+  21              	.Ldebug_info0:
+  22 0000 75000000 		.4byte	0x75
+  23 0004 0400     		.2byte	0x4
+  24 0006 00000000 		.4byte	.Ldebug_abbrev0
+  25 000a 04       		.byte	0x4
+  26 000b 01       		.uleb128 0x1
+  27 000c 1B000000 		.4byte	.LASF12
+  28 0010 0C       		.byte	0xc
+  29 0011 D2000000 		.4byte	.LASF13
+  30 0015 03010000 		.4byte	.LASF14
+  31 0019 00000000 		.4byte	.Ldebug_line0
+  32 001d 02       		.uleb128 0x2
+  33 001e 01       		.byte	0x1
+  34 001f 06       		.byte	0x6
+  35 0020 6A010000 		.4byte	.LASF0
+  36 0024 02       		.uleb128 0x2
+  37 0025 01       		.byte	0x1
+  38 0026 08       		.byte	0x8
+  39 0027 F5000000 		.4byte	.LASF1
+  40 002b 02       		.uleb128 0x2
+  41 002c 02       		.byte	0x2
+  42 002d 05       		.byte	0x5
+  43 002e 82010000 		.4byte	.LASF2
+  44 0032 02       		.uleb128 0x2
+  45 0033 02       		.byte	0x2
+  46 0034 07       		.byte	0x7
+  47 0035 57010000 		.4byte	.LASF3
+  48 0039 02       		.uleb128 0x2
+  49 003a 04       		.byte	0x4
+  50 003b 05       		.byte	0x5
+  51 003c 4E010000 		.4byte	.LASF4
+  52 0040 02       		.uleb128 0x2
+  53 0041 04       		.byte	0x4
+  54 0042 07       		.byte	0x7
+  55 0043 A9000000 		.4byte	.LASF5
+  56 0047 02       		.uleb128 0x2
+  57 0048 08       		.byte	0x8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccWFTqLH.s 			page 2
+
+
+  58 0049 05       		.byte	0x5
+  59 004a 00000000 		.4byte	.LASF6
+  60 004e 02       		.uleb128 0x2
+  61 004f 08       		.byte	0x8
+  62 0050 07       		.byte	0x7
+  63 0051 BB000000 		.4byte	.LASF7
+  64 0055 03       		.uleb128 0x3
+  65 0056 04       		.byte	0x4
+  66 0057 05       		.byte	0x5
+  67 0058 696E7400 		.ascii	"int\000"
+  68 005c 02       		.uleb128 0x2
+  69 005d 04       		.byte	0x4
+  70 005e 07       		.byte	0x7
+  71 005f 0E000000 		.4byte	.LASF8
+  72 0063 02       		.uleb128 0x2
+  73 0064 08       		.byte	0x8
+  74 0065 04       		.byte	0x4
+  75 0066 76010000 		.4byte	.LASF9
+  76 006a 02       		.uleb128 0x2
+  77 006b 04       		.byte	0x4
+  78 006c 07       		.byte	0x7
+  79 006d 8C010000 		.4byte	.LASF10
+  80 0071 02       		.uleb128 0x2
+  81 0072 01       		.byte	0x1
+  82 0073 08       		.byte	0x8
+  83 0074 49010000 		.4byte	.LASF11
+  84 0078 00       		.byte	0
+  85              		.section	.debug_abbrev,"",%progbits
+  86              	.Ldebug_abbrev0:
+  87 0000 01       		.uleb128 0x1
+  88 0001 11       		.uleb128 0x11
+  89 0002 01       		.byte	0x1
+  90 0003 25       		.uleb128 0x25
+  91 0004 0E       		.uleb128 0xe
+  92 0005 13       		.uleb128 0x13
+  93 0006 0B       		.uleb128 0xb
+  94 0007 03       		.uleb128 0x3
+  95 0008 0E       		.uleb128 0xe
+  96 0009 1B       		.uleb128 0x1b
+  97 000a 0E       		.uleb128 0xe
+  98 000b 10       		.uleb128 0x10
+  99 000c 17       		.uleb128 0x17
+ 100 000d 00       		.byte	0
+ 101 000e 00       		.byte	0
+ 102 000f 02       		.uleb128 0x2
+ 103 0010 24       		.uleb128 0x24
+ 104 0011 00       		.byte	0
+ 105 0012 0B       		.uleb128 0xb
+ 106 0013 0B       		.uleb128 0xb
+ 107 0014 3E       		.uleb128 0x3e
+ 108 0015 0B       		.uleb128 0xb
+ 109 0016 03       		.uleb128 0x3
+ 110 0017 0E       		.uleb128 0xe
+ 111 0018 00       		.byte	0
+ 112 0019 00       		.byte	0
+ 113 001a 03       		.uleb128 0x3
+ 114 001b 24       		.uleb128 0x24
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccWFTqLH.s 			page 3
+
+
+ 115 001c 00       		.byte	0
+ 116 001d 0B       		.uleb128 0xb
+ 117 001e 0B       		.uleb128 0xb
+ 118 001f 3E       		.uleb128 0x3e
+ 119 0020 0B       		.uleb128 0xb
+ 120 0021 03       		.uleb128 0x3
+ 121 0022 08       		.uleb128 0x8
+ 122 0023 00       		.byte	0
+ 123 0024 00       		.byte	0
+ 124 0025 00       		.byte	0
+ 125              		.section	.debug_aranges,"",%progbits
+ 126 0000 14000000 		.4byte	0x14
+ 127 0004 0200     		.2byte	0x2
+ 128 0006 00000000 		.4byte	.Ldebug_info0
+ 129 000a 04       		.byte	0x4
+ 130 000b 00       		.byte	0
+ 131 000c 0000     		.2byte	0
+ 132 000e 0000     		.2byte	0
+ 133 0010 00000000 		.4byte	0
+ 134 0014 00000000 		.4byte	0
+ 135              		.section	.debug_line,"",%progbits
+ 136              	.Ldebug_line0:
+ 137 0000 19000000 		.section	.debug_str,"MS",%progbits,1
+ 137      02001300 
+ 137      00000201 
+ 137      FB0E0D00 
+ 137      01010101 
+ 138              	.LASF6:
+ 139 0000 6C6F6E67 		.ascii	"long long int\000"
+ 139      206C6F6E 
+ 139      6720696E 
+ 139      7400
+ 140              	.LASF8:
+ 141 000e 756E7369 		.ascii	"unsigned int\000"
+ 141      676E6564 
+ 141      20696E74 
+ 141      00
+ 142              	.LASF12:
+ 143 001b 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 143      43313120 
+ 143      352E342E 
+ 143      31203230 
+ 143      31363036 
+ 144 004e 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 144      20726576 
+ 144      6973696F 
+ 144      6E203233 
+ 144      37373135 
+ 145 0081 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 145      66756E63 
+ 145      74696F6E 
+ 145      2D736563 
+ 145      74696F6E 
+ 146              	.LASF5:
+ 147 00a9 6C6F6E67 		.ascii	"long unsigned int\000"
+ 147      20756E73 
+ 147      69676E65 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccWFTqLH.s 			page 4
+
+
+ 147      6420696E 
+ 147      7400
+ 148              	.LASF7:
+ 149 00bb 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 149      206C6F6E 
+ 149      6720756E 
+ 149      7369676E 
+ 149      65642069 
+ 150              	.LASF13:
+ 151 00d2 2E2E5C6C 		.ascii	"..\\lvgl\\lv_themes\\lv_theme_night.c\000"
+ 151      76676C5C 
+ 151      6C765F74 
+ 151      68656D65 
+ 151      735C6C76 
+ 152              	.LASF1:
+ 153 00f5 756E7369 		.ascii	"unsigned char\000"
+ 153      676E6564 
+ 153      20636861 
+ 153      7200
+ 154              	.LASF14:
+ 155 0103 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 155      73657273 
+ 155      5C643362 
+ 155      75675C44 
+ 155      6F63756D 
+ 156 0131 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 156      6F5F776F 
+ 156      726C645F 
+ 156      6C616265 
+ 156      6C2E6379 
+ 157              	.LASF11:
+ 158 0149 63686172 		.ascii	"char\000"
+ 158      00
+ 159              	.LASF4:
+ 160 014e 6C6F6E67 		.ascii	"long int\000"
+ 160      20696E74 
+ 160      00
+ 161              	.LASF3:
+ 162 0157 73686F72 		.ascii	"short unsigned int\000"
+ 162      7420756E 
+ 162      7369676E 
+ 162      65642069 
+ 162      6E7400
+ 163              	.LASF0:
+ 164 016a 7369676E 		.ascii	"signed char\000"
+ 164      65642063 
+ 164      68617200 
+ 165              	.LASF9:
+ 166 0176 6C6F6E67 		.ascii	"long double\000"
+ 166      20646F75 
+ 166      626C6500 
+ 167              	.LASF2:
+ 168 0182 73686F72 		.ascii	"short int\000"
+ 168      7420696E 
+ 168      7400
+ 169              	.LASF10:
+ 170 018c 73697A65 		.ascii	"sizetype\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccWFTqLH.s 			page 5
+
+
+ 170      74797065 
+ 170      00
+ 171              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

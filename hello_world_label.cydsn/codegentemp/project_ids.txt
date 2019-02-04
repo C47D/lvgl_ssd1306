@@ -1,0 +1,7 @@
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|8ed5d4f0-810f-4609-80b6-6bd48213a649
+C:\Users\d3bug\Documents\PSoC Creator\4.2\Downloads ( 4.2).cylib\Downloads ( 4.2).cyprj|28f65828-cdea-433f-80cb-99b49f5cfd23
+C:\Users\d3bug\Documents\PSoC Creator\4.1\Downloads ( 4.1).cylib\Downloads ( 4.1).cyprj|5fab7f87-94de-40ae-b15b-836f9ca852f8
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|184bdb44-5ff3-40da-9a81-4015da6a3723
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|0d2db028-6bd4-4805-801c-94519028cfc0
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|fed5b1b1-7f56-45b1-afbe-69ba705a8ecd
+C:\Users\d3bug\Documents\Creator\lvgl_ssd1306\hello_world_label.cydsn\hello_world_label.cyprj|90e9d241-8b15-41ef-ba17-73e70a41be33

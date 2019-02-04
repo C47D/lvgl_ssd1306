@@ -1,0 +1,3815 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_task.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_task_create,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_task_create
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_task_create, %function
+  25              	lv_task_create:
+  26              	.LFB2:
+  27              		.file 1 "..\\lvgl\\lv_misc\\lv_task.c"
+   1:..\lvgl\lv_misc/lv_task.c **** /**
+   2:..\lvgl\lv_misc/lv_task.c ****  * @file lv_task.c
+   3:..\lvgl\lv_misc/lv_task.c ****  * An 'lv_task'  is a void (*fp) (void* param) type function which will be called periodically.
+   4:..\lvgl\lv_misc/lv_task.c ****  * A priority (5 levels + disable) can be assigned to lv_tasks.
+   5:..\lvgl\lv_misc/lv_task.c ****  */
+   6:..\lvgl\lv_misc/lv_task.c **** 
+   7:..\lvgl\lv_misc/lv_task.c **** /*********************
+   8:..\lvgl\lv_misc/lv_task.c ****  *      INCLUDES
+   9:..\lvgl\lv_misc/lv_task.c ****  *********************/
+  10:..\lvgl\lv_misc/lv_task.c **** #include <stddef.h>
+  11:..\lvgl\lv_misc/lv_task.c **** #include "lv_task.h"
+  12:..\lvgl\lv_misc/lv_task.c **** #include "../lv_hal/lv_hal_tick.h"
+  13:..\lvgl\lv_misc/lv_task.c **** #include "lv_gc.h"
+  14:..\lvgl\lv_misc/lv_task.c **** 
+  15:..\lvgl\lv_misc/lv_task.c **** #if defined(LV_GC_INCLUDE)
+  16:..\lvgl\lv_misc/lv_task.c **** #   include LV_GC_INCLUDE
+  17:..\lvgl\lv_misc/lv_task.c **** #endif /* LV_ENABLE_GC */
+  18:..\lvgl\lv_misc/lv_task.c **** 
+  19:..\lvgl\lv_misc/lv_task.c **** /*********************
+  20:..\lvgl\lv_misc/lv_task.c ****  *      DEFINES
+  21:..\lvgl\lv_misc/lv_task.c ****  *********************/
+  22:..\lvgl\lv_misc/lv_task.c **** #define IDLE_MEAS_PERIOD    500     /*[ms]*/
+  23:..\lvgl\lv_misc/lv_task.c **** 
+  24:..\lvgl\lv_misc/lv_task.c **** /**********************
+  25:..\lvgl\lv_misc/lv_task.c ****  *      TYPEDEFS
+  26:..\lvgl\lv_misc/lv_task.c ****  **********************/
+  27:..\lvgl\lv_misc/lv_task.c **** 
+  28:..\lvgl\lv_misc/lv_task.c **** /**********************
+  29:..\lvgl\lv_misc/lv_task.c ****  *  STATIC PROTOTYPES
+  30:..\lvgl\lv_misc/lv_task.c ****  **********************/
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 2
+
+
+  31:..\lvgl\lv_misc/lv_task.c **** static bool lv_task_exec(lv_task_t * lv_task_p);
+  32:..\lvgl\lv_misc/lv_task.c **** 
+  33:..\lvgl\lv_misc/lv_task.c **** /**********************
+  34:..\lvgl\lv_misc/lv_task.c ****  *  STATIC VARIABLES
+  35:..\lvgl\lv_misc/lv_task.c ****  **********************/
+  36:..\lvgl\lv_misc/lv_task.c **** static bool lv_task_run = false;
+  37:..\lvgl\lv_misc/lv_task.c **** static uint8_t idle_last = 0;
+  38:..\lvgl\lv_misc/lv_task.c **** static bool task_deleted;
+  39:..\lvgl\lv_misc/lv_task.c **** static bool task_created;
+  40:..\lvgl\lv_misc/lv_task.c **** 
+  41:..\lvgl\lv_misc/lv_task.c **** /**********************
+  42:..\lvgl\lv_misc/lv_task.c ****  *      MACROS
+  43:..\lvgl\lv_misc/lv_task.c ****  **********************/
+  44:..\lvgl\lv_misc/lv_task.c **** 
+  45:..\lvgl\lv_misc/lv_task.c **** /**********************
+  46:..\lvgl\lv_misc/lv_task.c ****  *   GLOBAL FUNCTIONS
+  47:..\lvgl\lv_misc/lv_task.c ****  **********************/
+  48:..\lvgl\lv_misc/lv_task.c **** 
+  49:..\lvgl\lv_misc/lv_task.c **** /**
+  50:..\lvgl\lv_misc/lv_task.c ****  * Init the lv_task module
+  51:..\lvgl\lv_misc/lv_task.c ****  */
+  52:..\lvgl\lv_misc/lv_task.c **** void lv_task_init(void)
+  53:..\lvgl\lv_misc/lv_task.c **** {
+  54:..\lvgl\lv_misc/lv_task.c ****     lv_ll_init(&LV_GC_ROOT(_lv_task_ll), sizeof(lv_task_t));
+  55:..\lvgl\lv_misc/lv_task.c **** 
+  56:..\lvgl\lv_misc/lv_task.c ****     /*Initially enable the lv_task handling*/
+  57:..\lvgl\lv_misc/lv_task.c ****     lv_task_enable(true);
+  58:..\lvgl\lv_misc/lv_task.c **** }
+  59:..\lvgl\lv_misc/lv_task.c **** 
+  60:..\lvgl\lv_misc/lv_task.c **** /**
+  61:..\lvgl\lv_misc/lv_task.c ****  * Call it  periodically to handle lv_tasks.
+  62:..\lvgl\lv_misc/lv_task.c ****  */
+  63:..\lvgl\lv_misc/lv_task.c **** LV_ATTRIBUTE_TASK_HANDLER void lv_task_handler(void)
+  64:..\lvgl\lv_misc/lv_task.c **** {
+  65:..\lvgl\lv_misc/lv_task.c ****     LV_LOG_TRACE("lv_task_handler started");
+  66:..\lvgl\lv_misc/lv_task.c **** 
+  67:..\lvgl\lv_misc/lv_task.c ****     /*Avoid concurrent running of the task handler*/
+  68:..\lvgl\lv_misc/lv_task.c ****     static bool task_handler_mutex = false;
+  69:..\lvgl\lv_misc/lv_task.c ****     if(task_handler_mutex) return;
+  70:..\lvgl\lv_misc/lv_task.c ****     task_handler_mutex = true;
+  71:..\lvgl\lv_misc/lv_task.c **** 
+  72:..\lvgl\lv_misc/lv_task.c ****     static uint32_t idle_period_start = 0;
+  73:..\lvgl\lv_misc/lv_task.c ****     static uint32_t handler_start = 0;
+  74:..\lvgl\lv_misc/lv_task.c ****     static uint32_t busy_time = 0;
+  75:..\lvgl\lv_misc/lv_task.c **** 
+  76:..\lvgl\lv_misc/lv_task.c ****     if(lv_task_run == false) return;
+  77:..\lvgl\lv_misc/lv_task.c **** 
+  78:..\lvgl\lv_misc/lv_task.c ****     handler_start = lv_tick_get();
+  79:..\lvgl\lv_misc/lv_task.c **** 
+  80:..\lvgl\lv_misc/lv_task.c ****     /* Run all task from the highest to the lowest priority
+  81:..\lvgl\lv_misc/lv_task.c ****      * If a lower priority task is executed check task again from the highest priority
+  82:..\lvgl\lv_misc/lv_task.c ****      * but on the priority of executed tasks don't run tasks before the executed*/
+  83:..\lvgl\lv_misc/lv_task.c ****     lv_task_t * task_interrupter = NULL;
+  84:..\lvgl\lv_misc/lv_task.c ****     lv_task_t * next;
+  85:..\lvgl\lv_misc/lv_task.c ****     bool end_flag;
+  86:..\lvgl\lv_misc/lv_task.c ****     do {
+  87:..\lvgl\lv_misc/lv_task.c ****         end_flag = true;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 3
+
+
+  88:..\lvgl\lv_misc/lv_task.c ****         task_deleted = false;
+  89:..\lvgl\lv_misc/lv_task.c ****         task_created = false;
+  90:..\lvgl\lv_misc/lv_task.c ****         LV_GC_ROOT(_lv_task_act) = lv_ll_get_head(&LV_GC_ROOT(_lv_task_ll));
+  91:..\lvgl\lv_misc/lv_task.c ****         while(LV_GC_ROOT(_lv_task_act)) {
+  92:..\lvgl\lv_misc/lv_task.c ****             /* The task might be deleted if it runs only once ('once = 1')
+  93:..\lvgl\lv_misc/lv_task.c ****              * So get next element until the current is surely valid*/
+  94:..\lvgl\lv_misc/lv_task.c ****             next = lv_ll_get_next(&LV_GC_ROOT(_lv_task_ll), LV_GC_ROOT(_lv_task_act));
+  95:..\lvgl\lv_misc/lv_task.c **** 
+  96:..\lvgl\lv_misc/lv_task.c ****             /*We reach priority of the turned off task. There is nothing more to do.*/
+  97:..\lvgl\lv_misc/lv_task.c ****             if(((lv_task_t *)LV_GC_ROOT(_lv_task_act))->prio == LV_TASK_PRIO_OFF) {
+  98:..\lvgl\lv_misc/lv_task.c ****                 break;
+  99:..\lvgl\lv_misc/lv_task.c ****             }
+ 100:..\lvgl\lv_misc/lv_task.c **** 
+ 101:..\lvgl\lv_misc/lv_task.c ****             /*Here is the interrupter task. Don't execute it again.*/
+ 102:..\lvgl\lv_misc/lv_task.c ****             if(LV_GC_ROOT(_lv_task_act) == task_interrupter) {
+ 103:..\lvgl\lv_misc/lv_task.c ****                 task_interrupter = NULL;     /*From this point only task after the interrupter come
+ 104:..\lvgl\lv_misc/lv_task.c ****                 LV_GC_ROOT(_lv_task_act) = next;
+ 105:..\lvgl\lv_misc/lv_task.c ****                 continue;                   /*Load the next task*/
+ 106:..\lvgl\lv_misc/lv_task.c ****             }
+ 107:..\lvgl\lv_misc/lv_task.c **** 
+ 108:..\lvgl\lv_misc/lv_task.c ****             /*Just try to run the tasks with highest priority.*/
+ 109:..\lvgl\lv_misc/lv_task.c ****             if(((lv_task_t *)LV_GC_ROOT(_lv_task_act))->prio == LV_TASK_PRIO_HIGHEST) {
+ 110:..\lvgl\lv_misc/lv_task.c ****                 lv_task_exec(LV_GC_ROOT(_lv_task_act));
+ 111:..\lvgl\lv_misc/lv_task.c ****             }
+ 112:..\lvgl\lv_misc/lv_task.c ****             /*Tasks with higher priority then the interrupted shall be run in every case*/
+ 113:..\lvgl\lv_misc/lv_task.c ****             else if(task_interrupter) {
+ 114:..\lvgl\lv_misc/lv_task.c ****                 if(((lv_task_t *)LV_GC_ROOT(_lv_task_act))->prio > task_interrupter->prio) {
+ 115:..\lvgl\lv_misc/lv_task.c ****                     if(lv_task_exec(LV_GC_ROOT(_lv_task_act))) {
+ 116:..\lvgl\lv_misc/lv_task.c ****                         task_interrupter = LV_GC_ROOT(_lv_task_act);  /*Check all tasks again from 
+ 117:..\lvgl\lv_misc/lv_task.c ****                         end_flag = false;
+ 118:..\lvgl\lv_misc/lv_task.c ****                         break;
+ 119:..\lvgl\lv_misc/lv_task.c ****                     }
+ 120:..\lvgl\lv_misc/lv_task.c ****                 }
+ 121:..\lvgl\lv_misc/lv_task.c ****             }
+ 122:..\lvgl\lv_misc/lv_task.c ****             /* It is no interrupter task or we already reached it earlier.
+ 123:..\lvgl\lv_misc/lv_task.c ****              * Just run the remaining tasks*/
+ 124:..\lvgl\lv_misc/lv_task.c ****             else {
+ 125:..\lvgl\lv_misc/lv_task.c ****                 if(lv_task_exec(LV_GC_ROOT(_lv_task_act))) {
+ 126:..\lvgl\lv_misc/lv_task.c ****                     task_interrupter = LV_GC_ROOT(_lv_task_act);  /*Check all tasks again from the 
+ 127:..\lvgl\lv_misc/lv_task.c ****                     end_flag = false;
+ 128:..\lvgl\lv_misc/lv_task.c ****                     break;
+ 129:..\lvgl\lv_misc/lv_task.c ****                 }
+ 130:..\lvgl\lv_misc/lv_task.c ****             }
+ 131:..\lvgl\lv_misc/lv_task.c **** 
+ 132:..\lvgl\lv_misc/lv_task.c ****             if(task_deleted) break;     /*If a task was deleted then this or the next item might be
+ 133:..\lvgl\lv_misc/lv_task.c ****             if(task_created) break;     /*If a task was deleted then this or the next item might be
+ 134:..\lvgl\lv_misc/lv_task.c **** 
+ 135:..\lvgl\lv_misc/lv_task.c ****             LV_GC_ROOT(_lv_task_act) = next;         /*Load the next task*/
+ 136:..\lvgl\lv_misc/lv_task.c ****         }
+ 137:..\lvgl\lv_misc/lv_task.c ****     } while(!end_flag);
+ 138:..\lvgl\lv_misc/lv_task.c **** 
+ 139:..\lvgl\lv_misc/lv_task.c ****     busy_time += lv_tick_elaps(handler_start);
+ 140:..\lvgl\lv_misc/lv_task.c ****     uint32_t idle_period_time = lv_tick_elaps(idle_period_start);
+ 141:..\lvgl\lv_misc/lv_task.c ****     if(idle_period_time >= IDLE_MEAS_PERIOD) {
+ 142:..\lvgl\lv_misc/lv_task.c **** 
+ 143:..\lvgl\lv_misc/lv_task.c ****         idle_last = (uint32_t)((uint32_t)busy_time * 100) / IDLE_MEAS_PERIOD;   /*Calculate the bus
+ 144:..\lvgl\lv_misc/lv_task.c ****         idle_last = idle_last > 100 ? 0 : 100 - idle_last;                      /*But we need idle 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 4
+
+
+ 145:..\lvgl\lv_misc/lv_task.c ****         busy_time = 0;
+ 146:..\lvgl\lv_misc/lv_task.c ****         idle_period_start = lv_tick_get();
+ 147:..\lvgl\lv_misc/lv_task.c **** 
+ 148:..\lvgl\lv_misc/lv_task.c **** 
+ 149:..\lvgl\lv_misc/lv_task.c ****     }
+ 150:..\lvgl\lv_misc/lv_task.c **** 
+ 151:..\lvgl\lv_misc/lv_task.c ****     task_handler_mutex = false;     /*Release the mutex*/
+ 152:..\lvgl\lv_misc/lv_task.c **** 
+ 153:..\lvgl\lv_misc/lv_task.c ****     LV_LOG_TRACE("lv_task_handler ready");
+ 154:..\lvgl\lv_misc/lv_task.c **** }
+ 155:..\lvgl\lv_misc/lv_task.c **** 
+ 156:..\lvgl\lv_misc/lv_task.c **** /**
+ 157:..\lvgl\lv_misc/lv_task.c ****  * Create a new lv_task
+ 158:..\lvgl\lv_misc/lv_task.c ****  * @param task a function which is the task itself
+ 159:..\lvgl\lv_misc/lv_task.c ****  * @param period call period in ms unit
+ 160:..\lvgl\lv_misc/lv_task.c ****  * @param prio priority of the task (LV_TASK_PRIO_OFF means the task is stopped)
+ 161:..\lvgl\lv_misc/lv_task.c ****  * @param param free parameter
+ 162:..\lvgl\lv_misc/lv_task.c ****  * @return pointer to the new task
+ 163:..\lvgl\lv_misc/lv_task.c ****  */
+ 164:..\lvgl\lv_misc/lv_task.c **** lv_task_t * lv_task_create(void (*task)(void *), uint32_t period, lv_task_prio_t prio, void * param
+ 165:..\lvgl\lv_misc/lv_task.c **** {
+  28              		.loc 1 165 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              	.LVL0:
+  33 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+  34              		.cfi_def_cfa_offset 32
+  35              		.cfi_offset 3, -32
+  36              		.cfi_offset 4, -28
+  37              		.cfi_offset 5, -24
+  38              		.cfi_offset 6, -20
+  39              		.cfi_offset 7, -16
+  40              		.cfi_offset 8, -12
+  41              		.cfi_offset 9, -8
+  42              		.cfi_offset 14, -4
+  43 0004 8046     		mov	r8, r0
+  44 0006 8946     		mov	r9, r1
+  45 0008 1546     		mov	r5, r2
+  46 000a 1F46     		mov	r7, r3
+  47              	.LVL1:
+ 166:..\lvgl\lv_misc/lv_task.c ****     lv_task_t * new_lv_task = NULL;
+ 167:..\lvgl\lv_misc/lv_task.c ****     lv_task_t * tmp;
+ 168:..\lvgl\lv_misc/lv_task.c **** 
+ 169:..\lvgl\lv_misc/lv_task.c ****     /*Create task lists in order of priority from high to low*/
+ 170:..\lvgl\lv_misc/lv_task.c ****     tmp = lv_ll_get_head(&LV_GC_ROOT(_lv_task_ll));
+  48              		.loc 1 170 0
+  49 000c 2C48     		ldr	r0, .L17
+  50              	.LVL2:
+  51 000e FFF7FEFF 		bl	lv_ll_get_head
+  52              	.LVL3:
+ 171:..\lvgl\lv_misc/lv_task.c ****     if(NULL == tmp) {                               /*First task*/
+  53              		.loc 1 171 0
+  54 0012 0446     		mov	r4, r0
+  55 0014 68B9     		cbnz	r0, .L2
+ 172:..\lvgl\lv_misc/lv_task.c ****         new_lv_task = lv_ll_ins_head(&LV_GC_ROOT(_lv_task_ll));
+  56              		.loc 1 172 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 5
+
+
+  57 0016 2A48     		ldr	r0, .L17
+  58              	.LVL4:
+  59 0018 FFF7FEFF 		bl	lv_ll_ins_head
+  60              	.LVL5:
+ 173:..\lvgl\lv_misc/lv_task.c ****         lv_mem_assert(new_lv_task);
+  61              		.loc 1 173 0
+  62 001c 0646     		mov	r6, r0
+  63 001e 30B9     		cbnz	r0, .L3
+  64              		.loc 1 173 0 is_stmt 0 discriminator 1
+  65 0020 284B     		ldr	r3, .L17+4
+  66 0022 AD22     		movs	r2, #173
+  67 0024 2849     		ldr	r1, .L17+8
+  68 0026 0320     		movs	r0, #3
+  69              	.LVL6:
+  70 0028 FFF7FEFF 		bl	lv_log_add
+  71              	.LVL7:
+  72              	.L4:
+  73 002c FEE7     		b	.L4
+  74              	.LVL8:
+  75              	.L3:
+ 174:..\lvgl\lv_misc/lv_task.c ****         if(new_lv_task == NULL) return NULL;
+  76              		.loc 1 174 0 is_stmt 1
+  77 002e 50BB     		cbnz	r0, .L6
+  78 0030 3DE0     		b	.L13
+  79              	.LVL9:
+  80              	.L2:
+ 175:..\lvgl\lv_misc/lv_task.c ****     } else {
+ 176:..\lvgl\lv_misc/lv_task.c ****         do {
+ 177:..\lvgl\lv_misc/lv_task.c ****             if(tmp->prio <= prio) {
+  81              		.loc 1 177 0
+  82 0032 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+  83 0034 03F00703 		and	r3, r3, #7
+  84 0038 AB42     		cmp	r3, r5
+  85 003a 0EDC     		bgt	.L7
+ 178:..\lvgl\lv_misc/lv_task.c ****                 new_lv_task = lv_ll_ins_prev(&LV_GC_ROOT(_lv_task_ll), tmp);
+  86              		.loc 1 178 0
+  87 003c 2146     		mov	r1, r4
+  88 003e 2048     		ldr	r0, .L17
+  89              	.LVL10:
+  90 0040 FFF7FEFF 		bl	lv_ll_ins_prev
+  91              	.LVL11:
+ 179:..\lvgl\lv_misc/lv_task.c ****                 lv_mem_assert(new_lv_task);
+  92              		.loc 1 179 0
+  93 0044 0646     		mov	r6, r0
+  94 0046 30B9     		cbnz	r0, .L8
+  95              		.loc 1 179 0 is_stmt 0 discriminator 1
+  96 0048 1E4B     		ldr	r3, .L17+4
+  97 004a B322     		movs	r2, #179
+  98 004c 1E49     		ldr	r1, .L17+8
+  99 004e 0320     		movs	r0, #3
+ 100              	.LVL12:
+ 101 0050 FFF7FEFF 		bl	lv_log_add
+ 102              	.LVL13:
+ 103              	.L9:
+ 104 0054 FEE7     		b	.L9
+ 105              	.LVL14:
+ 106              	.L8:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 6
+
+
+ 180:..\lvgl\lv_misc/lv_task.c ****                 if(new_lv_task == NULL) return NULL;
+ 107              		.loc 1 180 0 is_stmt 1
+ 108 0056 40B9     		cbnz	r0, .L10
+ 109 0058 2CE0     		b	.L14
+ 110              	.LVL15:
+ 111              	.L7:
+ 181:..\lvgl\lv_misc/lv_task.c ****                 break;
+ 182:..\lvgl\lv_misc/lv_task.c ****             }
+ 183:..\lvgl\lv_misc/lv_task.c ****             tmp = lv_ll_get_next(&LV_GC_ROOT(_lv_task_ll), tmp);
+ 112              		.loc 1 183 0
+ 113 005a 2146     		mov	r1, r4
+ 114 005c 1848     		ldr	r0, .L17
+ 115              	.LVL16:
+ 116 005e FFF7FEFF 		bl	lv_ll_get_next
+ 117              	.LVL17:
+ 184:..\lvgl\lv_misc/lv_task.c ****         } while(tmp != NULL);
+ 118              		.loc 1 184 0
+ 119 0062 0446     		mov	r4, r0
+ 120 0064 0028     		cmp	r0, #0
+ 121 0066 E4D1     		bne	.L2
+ 166:..\lvgl\lv_misc/lv_task.c ****     lv_task_t * tmp;
+ 122              		.loc 1 166 0
+ 123 0068 0026     		movs	r6, #0
+ 124              	.LVL18:
+ 125              	.L10:
+ 185:..\lvgl\lv_misc/lv_task.c **** 
+ 186:..\lvgl\lv_misc/lv_task.c ****         if(tmp == NULL) {   /*Only too high priority tasks were found*/
+ 126              		.loc 1 186 0
+ 127 006a 64B9     		cbnz	r4, .L6
+ 187:..\lvgl\lv_misc/lv_task.c ****             new_lv_task = lv_ll_ins_tail(&LV_GC_ROOT(_lv_task_ll));
+ 128              		.loc 1 187 0
+ 129 006c 1448     		ldr	r0, .L17
+ 130 006e FFF7FEFF 		bl	lv_ll_ins_tail
+ 131              	.LVL19:
+ 188:..\lvgl\lv_misc/lv_task.c ****             lv_mem_assert(new_lv_task);
+ 132              		.loc 1 188 0
+ 133 0072 0646     		mov	r6, r0
+ 134 0074 30B9     		cbnz	r0, .L11
+ 135              		.loc 1 188 0 is_stmt 0 discriminator 1
+ 136 0076 134B     		ldr	r3, .L17+4
+ 137 0078 BC22     		movs	r2, #188
+ 138 007a 1349     		ldr	r1, .L17+8
+ 139 007c 0320     		movs	r0, #3
+ 140              	.LVL20:
+ 141 007e FFF7FEFF 		bl	lv_log_add
+ 142              	.LVL21:
+ 143              	.L12:
+ 144 0082 FEE7     		b	.L12
+ 145              	.LVL22:
+ 146              	.L11:
+ 189:..\lvgl\lv_misc/lv_task.c ****             if(new_lv_task == NULL) return NULL;
+ 147              		.loc 1 189 0 is_stmt 1
+ 148 0084 C8B1     		cbz	r0, .L15
+ 149              	.LVL23:
+ 150              	.L6:
+ 190:..\lvgl\lv_misc/lv_task.c ****         }
+ 191:..\lvgl\lv_misc/lv_task.c ****     }
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 7
+
+
+ 192:..\lvgl\lv_misc/lv_task.c **** 
+ 193:..\lvgl\lv_misc/lv_task.c ****     new_lv_task->period = period;
+ 151              		.loc 1 193 0
+ 152 0086 C6F80090 		str	r9, [r6]
+ 194:..\lvgl\lv_misc/lv_task.c ****     new_lv_task->task = task;
+ 153              		.loc 1 194 0
+ 154 008a C6F80880 		str	r8, [r6, #8]
+ 195:..\lvgl\lv_misc/lv_task.c ****     new_lv_task->prio = prio;
+ 155              		.loc 1 195 0
+ 156 008e 337C     		ldrb	r3, [r6, #16]	@ zero_extendqisi2
+ 157 0090 65F30203 		bfi	r3, r5, #0, #3
+ 196:..\lvgl\lv_misc/lv_task.c ****     new_lv_task->param = param;
+ 158              		.loc 1 196 0
+ 159 0094 F760     		str	r7, [r6, #12]
+ 197:..\lvgl\lv_misc/lv_task.c ****     new_lv_task->once = 0;
+ 160              		.loc 1 197 0
+ 161 0096 6FF3C303 		bfc	r3, #3, #1
+ 162 009a 3374     		strb	r3, [r6, #16]
+ 198:..\lvgl\lv_misc/lv_task.c ****     new_lv_task->last_run = lv_tick_get();
+ 163              		.loc 1 198 0
+ 164 009c FFF7FEFF 		bl	lv_tick_get
+ 165              	.LVL24:
+ 166 00a0 7060     		str	r0, [r6, #4]
+ 199:..\lvgl\lv_misc/lv_task.c **** 
+ 200:..\lvgl\lv_misc/lv_task.c ****     task_created = true;
+ 167              		.loc 1 200 0
+ 168 00a2 0122     		movs	r2, #1
+ 169 00a4 094B     		ldr	r3, .L17+12
+ 170 00a6 1A70     		strb	r2, [r3]
+ 201:..\lvgl\lv_misc/lv_task.c **** 
+ 202:..\lvgl\lv_misc/lv_task.c ****     return new_lv_task;
+ 171              		.loc 1 202 0
+ 172 00a8 3046     		mov	r0, r6
+ 173 00aa BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 174              	.LVL25:
+ 175              	.L13:
+ 174:..\lvgl\lv_misc/lv_task.c ****     } else {
+ 176              		.loc 1 174 0
+ 177 00ae 0020     		movs	r0, #0
+ 178              	.LVL26:
+ 179 00b0 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 180              	.LVL27:
+ 181              	.L14:
+ 180:..\lvgl\lv_misc/lv_task.c ****                 break;
+ 182              		.loc 1 180 0
+ 183 00b4 0020     		movs	r0, #0
+ 184              	.LVL28:
+ 185 00b6 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 186              	.LVL29:
+ 187              	.L15:
+ 189:..\lvgl\lv_misc/lv_task.c ****         }
+ 188              		.loc 1 189 0
+ 189 00ba 0020     		movs	r0, #0
+ 190              	.LVL30:
+ 203:..\lvgl\lv_misc/lv_task.c **** }
+ 191              		.loc 1 203 0
+ 192 00bc BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 8
+
+
+ 193              	.LVL31:
+ 194              	.L18:
+ 195              		.align	2
+ 196              	.L17:
+ 197 00c0 00000000 		.word	_lv_task_ll
+ 198 00c4 00000000 		.word	.LC0
+ 199 00c8 10000000 		.word	.LC1
+ 200 00cc 00000000 		.word	.LANCHOR0
+ 201              		.cfi_endproc
+ 202              	.LFE2:
+ 203              		.size	lv_task_create, .-lv_task_create
+ 204              		.section	.text.lv_task_del,"ax",%progbits
+ 205              		.align	2
+ 206              		.global	lv_task_del
+ 207              		.thumb
+ 208              		.thumb_func
+ 209              		.type	lv_task_del, %function
+ 210              	lv_task_del:
+ 211              	.LFB3:
+ 204:..\lvgl\lv_misc/lv_task.c **** 
+ 205:..\lvgl\lv_misc/lv_task.c **** /**
+ 206:..\lvgl\lv_misc/lv_task.c ****  * Delete a lv_task
+ 207:..\lvgl\lv_misc/lv_task.c ****  * @param lv_task_p pointer to task created by lv_task_p
+ 208:..\lvgl\lv_misc/lv_task.c ****  */
+ 209:..\lvgl\lv_misc/lv_task.c **** void lv_task_del(lv_task_t * lv_task_p)
+ 210:..\lvgl\lv_misc/lv_task.c **** {
+ 212              		.loc 1 210 0
+ 213              		.cfi_startproc
+ 214              		@ args = 0, pretend = 0, frame = 0
+ 215              		@ frame_needed = 0, uses_anonymous_args = 0
+ 216              	.LVL32:
+ 217 0000 10B5     		push	{r4, lr}
+ 218              		.cfi_def_cfa_offset 8
+ 219              		.cfi_offset 4, -8
+ 220              		.cfi_offset 14, -4
+ 221 0002 0446     		mov	r4, r0
+ 211:..\lvgl\lv_misc/lv_task.c ****     lv_ll_rem(&LV_GC_ROOT(_lv_task_ll), lv_task_p);
+ 222              		.loc 1 211 0
+ 223 0004 0146     		mov	r1, r0
+ 224 0006 0748     		ldr	r0, .L22
+ 225              	.LVL33:
+ 226 0008 FFF7FEFF 		bl	lv_ll_rem
+ 227              	.LVL34:
+ 212:..\lvgl\lv_misc/lv_task.c **** 
+ 213:..\lvgl\lv_misc/lv_task.c ****     lv_mem_free(lv_task_p);
+ 228              		.loc 1 213 0
+ 229 000c 2046     		mov	r0, r4
+ 230 000e FFF7FEFF 		bl	lv_mem_free
+ 231              	.LVL35:
+ 214:..\lvgl\lv_misc/lv_task.c **** 
+ 215:..\lvgl\lv_misc/lv_task.c ****     if(LV_GC_ROOT(_lv_task_act) == lv_task_p) task_deleted = true;      /*The active task was delet
+ 232              		.loc 1 215 0
+ 233 0012 054B     		ldr	r3, .L22+4
+ 234 0014 1B68     		ldr	r3, [r3]
+ 235 0016 9C42     		cmp	r4, r3
+ 236 0018 02D1     		bne	.L19
+ 237              		.loc 1 215 0 is_stmt 0 discriminator 1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 9
+
+
+ 238 001a 0122     		movs	r2, #1
+ 239 001c 034B     		ldr	r3, .L22+8
+ 240 001e 5A70     		strb	r2, [r3, #1]
+ 241              	.L19:
+ 242 0020 10BD     		pop	{r4, pc}
+ 243              	.LVL36:
+ 244              	.L23:
+ 245 0022 00BF     		.align	2
+ 246              	.L22:
+ 247 0024 00000000 		.word	_lv_task_ll
+ 248 0028 00000000 		.word	_lv_task_act
+ 249 002c 00000000 		.word	.LANCHOR0
+ 250              		.cfi_endproc
+ 251              	.LFE3:
+ 252              		.size	lv_task_del, .-lv_task_del
+ 253              		.section	.text.lv_task_exec,"ax",%progbits
+ 254              		.align	2
+ 255              		.thumb
+ 256              		.thumb_func
+ 257              		.type	lv_task_exec, %function
+ 258              	lv_task_exec:
+ 259              	.LFB11:
+ 216:..\lvgl\lv_misc/lv_task.c **** }
+ 217:..\lvgl\lv_misc/lv_task.c **** 
+ 218:..\lvgl\lv_misc/lv_task.c **** /**
+ 219:..\lvgl\lv_misc/lv_task.c ****  * Set new priority for a lv_task
+ 220:..\lvgl\lv_misc/lv_task.c ****  * @param lv_task_p pointer to a lv_task
+ 221:..\lvgl\lv_misc/lv_task.c ****  * @param prio the new priority
+ 222:..\lvgl\lv_misc/lv_task.c ****  */
+ 223:..\lvgl\lv_misc/lv_task.c **** void lv_task_set_prio(lv_task_t * lv_task_p, lv_task_prio_t prio)
+ 224:..\lvgl\lv_misc/lv_task.c **** {
+ 225:..\lvgl\lv_misc/lv_task.c ****     /*Find the tasks with new priority*/
+ 226:..\lvgl\lv_misc/lv_task.c ****     lv_task_t * i;
+ 227:..\lvgl\lv_misc/lv_task.c ****     LL_READ(LV_GC_ROOT(_lv_task_ll), i) {
+ 228:..\lvgl\lv_misc/lv_task.c ****         if(i->prio <= prio) {
+ 229:..\lvgl\lv_misc/lv_task.c ****             if(i != lv_task_p) lv_ll_move_before(&LV_GC_ROOT(_lv_task_ll), lv_task_p, i);
+ 230:..\lvgl\lv_misc/lv_task.c ****             break;
+ 231:..\lvgl\lv_misc/lv_task.c ****         }
+ 232:..\lvgl\lv_misc/lv_task.c ****     }
+ 233:..\lvgl\lv_misc/lv_task.c **** 
+ 234:..\lvgl\lv_misc/lv_task.c ****     /*There was no such a low priority so far then add the node to the tail*/
+ 235:..\lvgl\lv_misc/lv_task.c ****     if(i == NULL) {
+ 236:..\lvgl\lv_misc/lv_task.c ****         lv_ll_move_before(&LV_GC_ROOT(_lv_task_ll), lv_task_p, NULL);
+ 237:..\lvgl\lv_misc/lv_task.c ****     }
+ 238:..\lvgl\lv_misc/lv_task.c **** 
+ 239:..\lvgl\lv_misc/lv_task.c **** 
+ 240:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->prio = prio;
+ 241:..\lvgl\lv_misc/lv_task.c **** }
+ 242:..\lvgl\lv_misc/lv_task.c **** 
+ 243:..\lvgl\lv_misc/lv_task.c **** /**
+ 244:..\lvgl\lv_misc/lv_task.c ****  * Set new period for a lv_task
+ 245:..\lvgl\lv_misc/lv_task.c ****  * @param lv_task_p pointer to a lv_task
+ 246:..\lvgl\lv_misc/lv_task.c ****  * @param period the new period
+ 247:..\lvgl\lv_misc/lv_task.c ****  */
+ 248:..\lvgl\lv_misc/lv_task.c **** void lv_task_set_period(lv_task_t * lv_task_p, uint32_t period)
+ 249:..\lvgl\lv_misc/lv_task.c **** {
+ 250:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->period = period;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 10
+
+
+ 251:..\lvgl\lv_misc/lv_task.c **** }
+ 252:..\lvgl\lv_misc/lv_task.c **** 
+ 253:..\lvgl\lv_misc/lv_task.c **** /**
+ 254:..\lvgl\lv_misc/lv_task.c ****  * Make a lv_task ready. It will not wait its period.
+ 255:..\lvgl\lv_misc/lv_task.c ****  * @param lv_task_p pointer to a lv_task.
+ 256:..\lvgl\lv_misc/lv_task.c ****  */
+ 257:..\lvgl\lv_misc/lv_task.c **** void lv_task_ready(lv_task_t * lv_task_p)
+ 258:..\lvgl\lv_misc/lv_task.c **** {
+ 259:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->last_run = lv_tick_get() - lv_task_p->period - 1;
+ 260:..\lvgl\lv_misc/lv_task.c **** }
+ 261:..\lvgl\lv_misc/lv_task.c **** 
+ 262:..\lvgl\lv_misc/lv_task.c **** /**
+ 263:..\lvgl\lv_misc/lv_task.c ****  * Delete the lv_task after one call
+ 264:..\lvgl\lv_misc/lv_task.c ****  * @param lv_task_p pointer to a lv_task.
+ 265:..\lvgl\lv_misc/lv_task.c ****  */
+ 266:..\lvgl\lv_misc/lv_task.c **** void lv_task_once(lv_task_t * lv_task_p)
+ 267:..\lvgl\lv_misc/lv_task.c **** {
+ 268:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->once = 1;
+ 269:..\lvgl\lv_misc/lv_task.c **** }
+ 270:..\lvgl\lv_misc/lv_task.c **** 
+ 271:..\lvgl\lv_misc/lv_task.c **** /**
+ 272:..\lvgl\lv_misc/lv_task.c ****  * Reset a lv_task.
+ 273:..\lvgl\lv_misc/lv_task.c ****  * It will be called the previously set period milliseconds later.
+ 274:..\lvgl\lv_misc/lv_task.c ****  * @param lv_task_p pointer to a lv_task.
+ 275:..\lvgl\lv_misc/lv_task.c ****  */
+ 276:..\lvgl\lv_misc/lv_task.c **** void lv_task_reset(lv_task_t * lv_task_p)
+ 277:..\lvgl\lv_misc/lv_task.c **** {
+ 278:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->last_run = lv_tick_get();
+ 279:..\lvgl\lv_misc/lv_task.c **** }
+ 280:..\lvgl\lv_misc/lv_task.c **** 
+ 281:..\lvgl\lv_misc/lv_task.c **** /**
+ 282:..\lvgl\lv_misc/lv_task.c ****  * Enable or disable the whole lv_task handling
+ 283:..\lvgl\lv_misc/lv_task.c ****  * @param en: true: lv_task handling is running, false: lv_task handling is suspended
+ 284:..\lvgl\lv_misc/lv_task.c ****  */
+ 285:..\lvgl\lv_misc/lv_task.c **** void lv_task_enable(bool en)
+ 286:..\lvgl\lv_misc/lv_task.c **** {
+ 287:..\lvgl\lv_misc/lv_task.c ****     lv_task_run = en;
+ 288:..\lvgl\lv_misc/lv_task.c **** }
+ 289:..\lvgl\lv_misc/lv_task.c **** 
+ 290:..\lvgl\lv_misc/lv_task.c **** /**
+ 291:..\lvgl\lv_misc/lv_task.c ****  * Get idle percentage
+ 292:..\lvgl\lv_misc/lv_task.c ****  * @return the lv_task idle in percentage
+ 293:..\lvgl\lv_misc/lv_task.c ****  */
+ 294:..\lvgl\lv_misc/lv_task.c **** uint8_t lv_task_get_idle(void)
+ 295:..\lvgl\lv_misc/lv_task.c **** {
+ 296:..\lvgl\lv_misc/lv_task.c ****     return idle_last;
+ 297:..\lvgl\lv_misc/lv_task.c **** }
+ 298:..\lvgl\lv_misc/lv_task.c **** 
+ 299:..\lvgl\lv_misc/lv_task.c **** 
+ 300:..\lvgl\lv_misc/lv_task.c **** /**********************
+ 301:..\lvgl\lv_misc/lv_task.c ****  *   STATIC FUNCTIONS
+ 302:..\lvgl\lv_misc/lv_task.c ****  **********************/
+ 303:..\lvgl\lv_misc/lv_task.c **** 
+ 304:..\lvgl\lv_misc/lv_task.c **** /**
+ 305:..\lvgl\lv_misc/lv_task.c ****  * Execute task if its the priority is appropriate
+ 306:..\lvgl\lv_misc/lv_task.c ****  * @param lv_task_p pointer to lv_task
+ 307:..\lvgl\lv_misc/lv_task.c ****  * @return true: execute, false: not executed
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 11
+
+
+ 308:..\lvgl\lv_misc/lv_task.c ****  */
+ 309:..\lvgl\lv_misc/lv_task.c **** static bool lv_task_exec(lv_task_t * lv_task_p)
+ 310:..\lvgl\lv_misc/lv_task.c **** {
+ 260              		.loc 1 310 0 is_stmt 1
+ 261              		.cfi_startproc
+ 262              		@ args = 0, pretend = 0, frame = 0
+ 263              		@ frame_needed = 0, uses_anonymous_args = 0
+ 264              	.LVL37:
+ 265 0000 38B5     		push	{r3, r4, r5, lr}
+ 266              		.cfi_def_cfa_offset 16
+ 267              		.cfi_offset 3, -16
+ 268              		.cfi_offset 4, -12
+ 269              		.cfi_offset 5, -8
+ 270              		.cfi_offset 14, -4
+ 271 0002 0446     		mov	r4, r0
+ 272              	.LVL38:
+ 311:..\lvgl\lv_misc/lv_task.c ****     bool exec = false;
+ 312:..\lvgl\lv_misc/lv_task.c **** 
+ 313:..\lvgl\lv_misc/lv_task.c ****     /*Execute if at least 'period' time elapsed*/
+ 314:..\lvgl\lv_misc/lv_task.c ****     uint32_t elp = lv_tick_elaps(lv_task_p->last_run);
+ 273              		.loc 1 314 0
+ 274 0004 4068     		ldr	r0, [r0, #4]
+ 275              	.LVL39:
+ 276 0006 FFF7FEFF 		bl	lv_tick_elaps
+ 277              	.LVL40:
+ 315:..\lvgl\lv_misc/lv_task.c ****     if(elp >= lv_task_p->period) {
+ 278              		.loc 1 315 0
+ 279 000a 2368     		ldr	r3, [r4]
+ 280 000c 9842     		cmp	r0, r3
+ 281 000e 14D3     		bcc	.L26
+ 316:..\lvgl\lv_misc/lv_task.c ****         lv_task_p->last_run = lv_tick_get();
+ 282              		.loc 1 316 0
+ 283 0010 FFF7FEFF 		bl	lv_tick_get
+ 284              	.LVL41:
+ 285 0014 6060     		str	r0, [r4, #4]
+ 317:..\lvgl\lv_misc/lv_task.c ****         task_deleted = false;
+ 286              		.loc 1 317 0
+ 287 0016 0C4D     		ldr	r5, .L30
+ 288 0018 0023     		movs	r3, #0
+ 289 001a 6B70     		strb	r3, [r5, #1]
+ 318:..\lvgl\lv_misc/lv_task.c ****         task_created = false;
+ 290              		.loc 1 318 0
+ 291 001c 2B70     		strb	r3, [r5]
+ 319:..\lvgl\lv_misc/lv_task.c ****         lv_task_p->task(lv_task_p->param);
+ 292              		.loc 1 319 0
+ 293 001e A368     		ldr	r3, [r4, #8]
+ 294 0020 E068     		ldr	r0, [r4, #12]
+ 295 0022 9847     		blx	r3
+ 296              	.LVL42:
+ 320:..\lvgl\lv_misc/lv_task.c **** 
+ 321:..\lvgl\lv_misc/lv_task.c ****         /*Delete if it was a one shot lv_task*/
+ 322:..\lvgl\lv_misc/lv_task.c ****         if(task_deleted == false) {			/*The task might be deleted by itself as well*/
+ 297              		.loc 1 322 0
+ 298 0024 6B78     		ldrb	r3, [r5, #1]	@ zero_extendqisi2
+ 299 0026 53B9     		cbnz	r3, .L27
+ 323:..\lvgl\lv_misc/lv_task.c ****         	if(lv_task_p->once != 0) {
+ 300              		.loc 1 323 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 12
+
+
+ 301 0028 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+ 302 002a 13F0080F 		tst	r3, #8
+ 303 002e 08D0     		beq	.L28
+ 324:..\lvgl\lv_misc/lv_task.c ****         	    lv_task_del(lv_task_p);
+ 304              		.loc 1 324 0
+ 305 0030 2046     		mov	r0, r4
+ 306 0032 FFF7FEFF 		bl	lv_task_del
+ 307              	.LVL43:
+ 325:..\lvgl\lv_misc/lv_task.c ****         	}
+ 326:..\lvgl\lv_misc/lv_task.c ****         }
+ 327:..\lvgl\lv_misc/lv_task.c ****         exec = true;
+ 308              		.loc 1 327 0
+ 309 0036 0120     		movs	r0, #1
+ 310 0038 38BD     		pop	{r3, r4, r5, pc}
+ 311              	.LVL44:
+ 312              	.L26:
+ 311:..\lvgl\lv_misc/lv_task.c **** 
+ 313              		.loc 1 311 0
+ 314 003a 0020     		movs	r0, #0
+ 315              	.LVL45:
+ 316 003c 38BD     		pop	{r3, r4, r5, pc}
+ 317              	.LVL46:
+ 318              	.L27:
+ 319              		.loc 1 327 0
+ 320 003e 0120     		movs	r0, #1
+ 321 0040 38BD     		pop	{r3, r4, r5, pc}
+ 322              	.LVL47:
+ 323              	.L28:
+ 324 0042 0120     		movs	r0, #1
+ 325              	.LVL48:
+ 328:..\lvgl\lv_misc/lv_task.c ****     }
+ 329:..\lvgl\lv_misc/lv_task.c **** 
+ 330:..\lvgl\lv_misc/lv_task.c ****     return exec;
+ 331:..\lvgl\lv_misc/lv_task.c **** }
+ 326              		.loc 1 331 0
+ 327 0044 38BD     		pop	{r3, r4, r5, pc}
+ 328              	.LVL49:
+ 329              	.L31:
+ 330 0046 00BF     		.align	2
+ 331              	.L30:
+ 332 0048 00000000 		.word	.LANCHOR0
+ 333              		.cfi_endproc
+ 334              	.LFE11:
+ 335              		.size	lv_task_exec, .-lv_task_exec
+ 336              		.section	.text.lv_task_handler,"ax",%progbits
+ 337              		.align	2
+ 338              		.global	lv_task_handler
+ 339              		.thumb
+ 340              		.thumb_func
+ 341              		.type	lv_task_handler, %function
+ 342              	lv_task_handler:
+ 343              	.LFB1:
+  64:..\lvgl\lv_misc/lv_task.c ****     LV_LOG_TRACE("lv_task_handler started");
+ 344              		.loc 1 64 0
+ 345              		.cfi_startproc
+ 346              		@ args = 0, pretend = 0, frame = 0
+ 347              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 13
+
+
+ 348 0000 38B5     		push	{r3, r4, r5, lr}
+ 349              		.cfi_def_cfa_offset 16
+ 350              		.cfi_offset 3, -16
+ 351              		.cfi_offset 4, -12
+ 352              		.cfi_offset 5, -8
+ 353              		.cfi_offset 14, -4
+  65:..\lvgl\lv_misc/lv_task.c **** 
+ 354              		.loc 1 65 0
+ 355 0002 474B     		ldr	r3, .L50
+ 356 0004 4122     		movs	r2, #65
+ 357 0006 4749     		ldr	r1, .L50+4
+ 358 0008 0020     		movs	r0, #0
+ 359 000a FFF7FEFF 		bl	lv_log_add
+ 360              	.LVL50:
+  69:..\lvgl\lv_misc/lv_task.c ****     task_handler_mutex = true;
+ 361              		.loc 1 69 0
+ 362 000e 464B     		ldr	r3, .L50+8
+ 363 0010 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 364 0012 002B     		cmp	r3, #0
+ 365 0014 40F08280 		bne	.L32
+  70:..\lvgl\lv_misc/lv_task.c **** 
+ 366              		.loc 1 70 0
+ 367 0018 434B     		ldr	r3, .L50+8
+ 368 001a 0122     		movs	r2, #1
+ 369 001c 9A70     		strb	r2, [r3, #2]
+  76:..\lvgl\lv_misc/lv_task.c **** 
+ 370              		.loc 1 76 0
+ 371 001e DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 372 0020 002B     		cmp	r3, #0
+ 373 0022 7BD0     		beq	.L32
+  78:..\lvgl\lv_misc/lv_task.c **** 
+ 374              		.loc 1 78 0
+ 375 0024 FFF7FEFF 		bl	lv_tick_get
+ 376              	.LVL51:
+ 377 0028 3F4B     		ldr	r3, .L50+8
+ 378 002a 5860     		str	r0, [r3, #4]
+ 379              	.LVL52:
+  83:..\lvgl\lv_misc/lv_task.c ****     lv_task_t * next;
+ 380              		.loc 1 83 0
+ 381 002c 0024     		movs	r4, #0
+ 382              	.LVL53:
+ 383              	.L42:
+  88:..\lvgl\lv_misc/lv_task.c ****         task_created = false;
+ 384              		.loc 1 88 0
+ 385 002e 3E4B     		ldr	r3, .L50+8
+ 386 0030 0022     		movs	r2, #0
+ 387 0032 5A70     		strb	r2, [r3, #1]
+  89:..\lvgl\lv_misc/lv_task.c ****         LV_GC_ROOT(_lv_task_act) = lv_ll_get_head(&LV_GC_ROOT(_lv_task_ll));
+ 388              		.loc 1 89 0
+ 389 0034 1A70     		strb	r2, [r3]
+  90:..\lvgl\lv_misc/lv_task.c ****         while(LV_GC_ROOT(_lv_task_act)) {
+ 390              		.loc 1 90 0
+ 391 0036 3D48     		ldr	r0, .L50+12
+ 392 0038 FFF7FEFF 		bl	lv_ll_get_head
+ 393              	.LVL54:
+ 394 003c 3C4B     		ldr	r3, .L50+16
+ 395 003e 1860     		str	r0, [r3]
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 14
+
+
+  91:..\lvgl\lv_misc/lv_task.c ****             /* The task might be deleted if it runs only once ('once = 1')
+ 396              		.loc 1 91 0
+ 397 0040 33E0     		b	.L34
+ 398              	.L41:
+  94:..\lvgl\lv_misc/lv_task.c **** 
+ 399              		.loc 1 94 0
+ 400 0042 3A48     		ldr	r0, .L50+12
+ 401 0044 FFF7FEFF 		bl	lv_ll_get_next
+ 402              	.LVL55:
+ 403 0048 0546     		mov	r5, r0
+ 404              	.LVL56:
+  97:..\lvgl\lv_misc/lv_task.c ****                 break;
+ 405              		.loc 1 97 0
+ 406 004a 394B     		ldr	r3, .L50+16
+ 407 004c 1868     		ldr	r0, [r3]
+ 408              	.LVL57:
+ 409 004e 037C     		ldrb	r3, [r0, #16]	@ zero_extendqisi2
+ 410 0050 13F00703 		ands	r3, r3, #7
+ 411 0054 2FD0     		beq	.L45
+ 102:..\lvgl\lv_misc/lv_task.c ****                 task_interrupter = NULL;     /*From this point only task after the interrupter come
+ 412              		.loc 1 102 0
+ 413 0056 8442     		cmp	r4, r0
+ 414 0058 03D1     		bne	.L36
+ 415              	.LVL58:
+ 104:..\lvgl\lv_misc/lv_task.c ****                 continue;                   /*Load the next task*/
+ 416              		.loc 1 104 0
+ 417 005a 354B     		ldr	r3, .L50+16
+ 418 005c 1D60     		str	r5, [r3]
+ 103:..\lvgl\lv_misc/lv_task.c ****                 LV_GC_ROOT(_lv_task_act) = next;
+ 419              		.loc 1 103 0
+ 420 005e 0024     		movs	r4, #0
+ 105:..\lvgl\lv_misc/lv_task.c ****             }
+ 421              		.loc 1 105 0
+ 422 0060 23E0     		b	.L34
+ 423              	.LVL59:
+ 424              	.L36:
+ 109:..\lvgl\lv_misc/lv_task.c ****                 lv_task_exec(LV_GC_ROOT(_lv_task_act));
+ 425              		.loc 1 109 0
+ 426 0062 052B     		cmp	r3, #5
+ 427 0064 02D1     		bne	.L38
+ 110:..\lvgl\lv_misc/lv_task.c ****             }
+ 428              		.loc 1 110 0
+ 429 0066 FFF7FEFF 		bl	lv_task_exec
+ 430              	.LVL60:
+ 431 006a 16E0     		b	.L39
+ 432              	.L38:
+ 113:..\lvgl\lv_misc/lv_task.c ****                 if(((lv_task_t *)LV_GC_ROOT(_lv_task_act))->prio > task_interrupter->prio) {
+ 433              		.loc 1 113 0
+ 434 006c 74B1     		cbz	r4, .L40
+ 114:..\lvgl\lv_misc/lv_task.c ****                     if(lv_task_exec(LV_GC_ROOT(_lv_task_act))) {
+ 435              		.loc 1 114 0
+ 436 006e 027C     		ldrb	r2, [r0, #16]	@ zero_extendqisi2
+ 437 0070 02F00702 		and	r2, r2, #7
+ 438 0074 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+ 439 0076 03F00703 		and	r3, r3, #7
+ 440 007a 9A42     		cmp	r2, r3
+ 441 007c 0DDD     		ble	.L39
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 15
+
+
+ 115:..\lvgl\lv_misc/lv_task.c ****                         task_interrupter = LV_GC_ROOT(_lv_task_act);  /*Check all tasks again from 
+ 442              		.loc 1 115 0
+ 443 007e FFF7FEFF 		bl	lv_task_exec
+ 444              	.LVL61:
+ 445 0082 50B1     		cbz	r0, .L39
+ 116:..\lvgl\lv_misc/lv_task.c ****                         end_flag = false;
+ 446              		.loc 1 116 0
+ 447 0084 2A4B     		ldr	r3, .L50+16
+ 448 0086 1C68     		ldr	r4, [r3]
+ 449              	.LVL62:
+ 117:..\lvgl\lv_misc/lv_task.c ****                         break;
+ 450              		.loc 1 117 0
+ 451 0088 0023     		movs	r3, #0
+ 118:..\lvgl\lv_misc/lv_task.c ****                     }
+ 452              		.loc 1 118 0
+ 453 008a 19E0     		b	.L35
+ 454              	.LVL63:
+ 455              	.L40:
+ 125:..\lvgl\lv_misc/lv_task.c ****                     task_interrupter = LV_GC_ROOT(_lv_task_act);  /*Check all tasks again from the 
+ 456              		.loc 1 125 0
+ 457 008c FFF7FEFF 		bl	lv_task_exec
+ 458              	.LVL64:
+ 459 0090 18B1     		cbz	r0, .L39
+ 126:..\lvgl\lv_misc/lv_task.c ****                     end_flag = false;
+ 460              		.loc 1 126 0
+ 461 0092 274B     		ldr	r3, .L50+16
+ 462 0094 1C68     		ldr	r4, [r3]
+ 463              	.LVL65:
+ 127:..\lvgl\lv_misc/lv_task.c ****                     break;
+ 464              		.loc 1 127 0
+ 465 0096 0023     		movs	r3, #0
+ 128:..\lvgl\lv_misc/lv_task.c ****                 }
+ 466              		.loc 1 128 0
+ 467 0098 12E0     		b	.L35
+ 468              	.LVL66:
+ 469              	.L39:
+ 132:..\lvgl\lv_misc/lv_task.c ****             if(task_created) break;     /*If a task was deleted then this or the next item might be
+ 470              		.loc 1 132 0
+ 471 009a 234B     		ldr	r3, .L50+8
+ 472 009c 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 473 009e 63B9     		cbnz	r3, .L46
+ 133:..\lvgl\lv_misc/lv_task.c **** 
+ 474              		.loc 1 133 0
+ 475 00a0 214B     		ldr	r3, .L50+8
+ 476 00a2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 477 00a4 5BB9     		cbnz	r3, .L47
+ 135:..\lvgl\lv_misc/lv_task.c ****         }
+ 478              		.loc 1 135 0
+ 479 00a6 224B     		ldr	r3, .L50+16
+ 480 00a8 1D60     		str	r5, [r3]
+ 481              	.LVL67:
+ 482              	.L34:
+  91:..\lvgl\lv_misc/lv_task.c ****             /* The task might be deleted if it runs only once ('once = 1')
+ 483              		.loc 1 91 0
+ 484 00aa 214B     		ldr	r3, .L50+16
+ 485 00ac 1968     		ldr	r1, [r3]
+ 486 00ae 0029     		cmp	r1, #0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 16
+
+
+ 487 00b0 C7D1     		bne	.L41
+  87:..\lvgl\lv_misc/lv_task.c ****         task_deleted = false;
+ 488              		.loc 1 87 0
+ 489 00b2 0123     		movs	r3, #1
+ 490 00b4 04E0     		b	.L35
+ 491              	.LVL68:
+ 492              	.L45:
+ 493 00b6 0123     		movs	r3, #1
+ 494 00b8 02E0     		b	.L35
+ 495              	.L46:
+ 496 00ba 0123     		movs	r3, #1
+ 497 00bc 00E0     		b	.L35
+ 498              	.L47:
+ 499 00be 0123     		movs	r3, #1
+ 500              	.LVL69:
+ 501              	.L35:
+ 137:..\lvgl\lv_misc/lv_task.c **** 
+ 502              		.loc 1 137 0
+ 503 00c0 002B     		cmp	r3, #0
+ 504 00c2 B4D0     		beq	.L42
+ 139:..\lvgl\lv_misc/lv_task.c ****     uint32_t idle_period_time = lv_tick_elaps(idle_period_start);
+ 505              		.loc 1 139 0
+ 506 00c4 184C     		ldr	r4, .L50+8
+ 507              	.LVL70:
+ 508 00c6 6068     		ldr	r0, [r4, #4]
+ 509 00c8 FFF7FEFF 		bl	lv_tick_elaps
+ 510              	.LVL71:
+ 511 00cc A368     		ldr	r3, [r4, #8]
+ 512 00ce 1844     		add	r0, r0, r3
+ 513 00d0 A060     		str	r0, [r4, #8]
+ 140:..\lvgl\lv_misc/lv_task.c ****     if(idle_period_time >= IDLE_MEAS_PERIOD) {
+ 514              		.loc 1 140 0
+ 515 00d2 E068     		ldr	r0, [r4, #12]
+ 516 00d4 FFF7FEFF 		bl	lv_tick_elaps
+ 517              	.LVL72:
+ 141:..\lvgl\lv_misc/lv_task.c **** 
+ 518              		.loc 1 141 0
+ 519 00d8 B0F5FA7F 		cmp	r0, #500
+ 520 00dc 16D3     		bcc	.L43
+ 143:..\lvgl\lv_misc/lv_task.c ****         idle_last = idle_last > 100 ? 0 : 100 - idle_last;                      /*But we need idle 
+ 521              		.loc 1 143 0
+ 522 00de A268     		ldr	r2, [r4, #8]
+ 523 00e0 6423     		movs	r3, #100
+ 524 00e2 03FB02F3 		mul	r3, r3, r2
+ 525 00e6 134A     		ldr	r2, .L50+20
+ 526 00e8 A2FB0323 		umull	r2, r3, r2, r3
+ 527 00ec C3F34713 		ubfx	r3, r3, #5, #8
+ 144:..\lvgl\lv_misc/lv_task.c ****         busy_time = 0;
+ 528              		.loc 1 144 0
+ 529 00f0 642B     		cmp	r3, #100
+ 530 00f2 03D8     		bhi	.L48
+ 144:..\lvgl\lv_misc/lv_task.c ****         busy_time = 0;
+ 531              		.loc 1 144 0 is_stmt 0 discriminator 1
+ 532 00f4 C3F16403 		rsb	r3, r3, #100
+ 533 00f8 DBB2     		uxtb	r3, r3
+ 534 00fa 00E0     		b	.L44
+ 535              	.L48:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 17
+
+
+ 144:..\lvgl\lv_misc/lv_task.c ****         busy_time = 0;
+ 536              		.loc 1 144 0
+ 537 00fc 0023     		movs	r3, #0
+ 538              	.L44:
+ 144:..\lvgl\lv_misc/lv_task.c ****         busy_time = 0;
+ 539              		.loc 1 144 0 discriminator 4
+ 540 00fe 0A4C     		ldr	r4, .L50+8
+ 541 0100 2374     		strb	r3, [r4, #16]
+ 145:..\lvgl\lv_misc/lv_task.c ****         idle_period_start = lv_tick_get();
+ 542              		.loc 1 145 0 is_stmt 1 discriminator 4
+ 543 0102 0023     		movs	r3, #0
+ 544 0104 A360     		str	r3, [r4, #8]
+ 146:..\lvgl\lv_misc/lv_task.c **** 
+ 545              		.loc 1 146 0 discriminator 4
+ 546 0106 FFF7FEFF 		bl	lv_tick_get
+ 547              	.LVL73:
+ 548 010a E060     		str	r0, [r4, #12]
+ 549              	.L43:
+ 151:..\lvgl\lv_misc/lv_task.c **** 
+ 550              		.loc 1 151 0
+ 551 010c 0020     		movs	r0, #0
+ 552 010e 064B     		ldr	r3, .L50+8
+ 553 0110 9870     		strb	r0, [r3, #2]
+ 153:..\lvgl\lv_misc/lv_task.c **** }
+ 554              		.loc 1 153 0
+ 555 0112 094B     		ldr	r3, .L50+24
+ 556 0114 9922     		movs	r2, #153
+ 557 0116 0349     		ldr	r1, .L50+4
+ 558 0118 FFF7FEFF 		bl	lv_log_add
+ 559              	.LVL74:
+ 560              	.L32:
+ 561 011c 38BD     		pop	{r3, r4, r5, pc}
+ 562              	.L51:
+ 563 011e 00BF     		.align	2
+ 564              	.L50:
+ 565 0120 2C000000 		.word	.LC2
+ 566 0124 10000000 		.word	.LC1
+ 567 0128 00000000 		.word	.LANCHOR0
+ 568 012c 00000000 		.word	_lv_task_ll
+ 569 0130 00000000 		.word	_lv_task_act
+ 570 0134 D34D6210 		.word	274877907
+ 571 0138 44000000 		.word	.LC3
+ 572              		.cfi_endproc
+ 573              	.LFE1:
+ 574              		.size	lv_task_handler, .-lv_task_handler
+ 575              		.section	.text.lv_task_set_prio,"ax",%progbits
+ 576              		.align	2
+ 577              		.global	lv_task_set_prio
+ 578              		.thumb
+ 579              		.thumb_func
+ 580              		.type	lv_task_set_prio, %function
+ 581              	lv_task_set_prio:
+ 582              	.LFB4:
+ 224:..\lvgl\lv_misc/lv_task.c ****     /*Find the tasks with new priority*/
+ 583              		.loc 1 224 0
+ 584              		.cfi_startproc
+ 585              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 18
+
+
+ 586              		@ frame_needed = 0, uses_anonymous_args = 0
+ 587              	.LVL75:
+ 588 0000 70B5     		push	{r4, r5, r6, lr}
+ 589              		.cfi_def_cfa_offset 16
+ 590              		.cfi_offset 4, -16
+ 591              		.cfi_offset 5, -12
+ 592              		.cfi_offset 6, -8
+ 593              		.cfi_offset 14, -4
+ 594 0002 0646     		mov	r6, r0
+ 595 0004 0D46     		mov	r5, r1
+ 227:..\lvgl\lv_misc/lv_task.c ****         if(i->prio <= prio) {
+ 596              		.loc 1 227 0
+ 597 0006 1248     		ldr	r0, .L59
+ 598              	.LVL76:
+ 599 0008 FFF7FEFF 		bl	lv_ll_get_head
+ 600              	.LVL77:
+ 601 000c 0446     		mov	r4, r0
+ 602              	.LVL78:
+ 603 000e 11E0     		b	.L53
+ 604              	.L56:
+ 228:..\lvgl\lv_misc/lv_task.c ****             if(i != lv_task_p) lv_ll_move_before(&LV_GC_ROOT(_lv_task_ll), lv_task_p, i);
+ 605              		.loc 1 228 0
+ 606 0010 237C     		ldrb	r3, [r4, #16]	@ zero_extendqisi2
+ 607 0012 03F00703 		and	r3, r3, #7
+ 608 0016 AB42     		cmp	r3, r5
+ 609 0018 07DC     		bgt	.L54
+ 229:..\lvgl\lv_misc/lv_task.c ****             break;
+ 610              		.loc 1 229 0
+ 611 001a B442     		cmp	r4, r6
+ 612 001c 0CD0     		beq	.L55
+ 229:..\lvgl\lv_misc/lv_task.c ****             break;
+ 613              		.loc 1 229 0 is_stmt 0 discriminator 1
+ 614 001e 2246     		mov	r2, r4
+ 615 0020 3146     		mov	r1, r6
+ 616 0022 0B48     		ldr	r0, .L59
+ 617              	.LVL79:
+ 618 0024 FFF7FEFF 		bl	lv_ll_move_before
+ 619              	.LVL80:
+ 620 0028 06E0     		b	.L55
+ 621              	.LVL81:
+ 622              	.L54:
+ 227:..\lvgl\lv_misc/lv_task.c ****         if(i->prio <= prio) {
+ 623              		.loc 1 227 0 is_stmt 1 discriminator 2
+ 624 002a 2146     		mov	r1, r4
+ 625 002c 0848     		ldr	r0, .L59
+ 626              	.LVL82:
+ 627 002e FFF7FEFF 		bl	lv_ll_get_next
+ 628              	.LVL83:
+ 629 0032 0446     		mov	r4, r0
+ 630              	.LVL84:
+ 631              	.L53:
+ 227:..\lvgl\lv_misc/lv_task.c ****         if(i->prio <= prio) {
+ 632              		.loc 1 227 0 is_stmt 0 discriminator 1
+ 633 0034 002C     		cmp	r4, #0
+ 634 0036 EBD1     		bne	.L56
+ 635              	.LVL85:
+ 636              	.L55:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 19
+
+
+ 235:..\lvgl\lv_misc/lv_task.c ****         lv_ll_move_before(&LV_GC_ROOT(_lv_task_ll), lv_task_p, NULL);
+ 637              		.loc 1 235 0 is_stmt 1
+ 638 0038 24B9     		cbnz	r4, .L57
+ 236:..\lvgl\lv_misc/lv_task.c ****     }
+ 639              		.loc 1 236 0
+ 640 003a 0022     		movs	r2, #0
+ 641 003c 3146     		mov	r1, r6
+ 642 003e 0448     		ldr	r0, .L59
+ 643 0040 FFF7FEFF 		bl	lv_ll_move_before
+ 644              	.LVL86:
+ 645              	.L57:
+ 240:..\lvgl\lv_misc/lv_task.c **** }
+ 646              		.loc 1 240 0
+ 647 0044 337C     		ldrb	r3, [r6, #16]	@ zero_extendqisi2
+ 648 0046 65F30203 		bfi	r3, r5, #0, #3
+ 649 004a 3374     		strb	r3, [r6, #16]
+ 650 004c 70BD     		pop	{r4, r5, r6, pc}
+ 651              	.LVL87:
+ 652              	.L60:
+ 653 004e 00BF     		.align	2
+ 654              	.L59:
+ 655 0050 00000000 		.word	_lv_task_ll
+ 656              		.cfi_endproc
+ 657              	.LFE4:
+ 658              		.size	lv_task_set_prio, .-lv_task_set_prio
+ 659              		.section	.text.lv_task_set_period,"ax",%progbits
+ 660              		.align	2
+ 661              		.global	lv_task_set_period
+ 662              		.thumb
+ 663              		.thumb_func
+ 664              		.type	lv_task_set_period, %function
+ 665              	lv_task_set_period:
+ 666              	.LFB5:
+ 249:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->period = period;
+ 667              		.loc 1 249 0
+ 668              		.cfi_startproc
+ 669              		@ args = 0, pretend = 0, frame = 0
+ 670              		@ frame_needed = 0, uses_anonymous_args = 0
+ 671              		@ link register save eliminated.
+ 672              	.LVL88:
+ 250:..\lvgl\lv_misc/lv_task.c **** }
+ 673              		.loc 1 250 0
+ 674 0000 0160     		str	r1, [r0]
+ 675 0002 7047     		bx	lr
+ 676              		.cfi_endproc
+ 677              	.LFE5:
+ 678              		.size	lv_task_set_period, .-lv_task_set_period
+ 679              		.section	.text.lv_task_ready,"ax",%progbits
+ 680              		.align	2
+ 681              		.global	lv_task_ready
+ 682              		.thumb
+ 683              		.thumb_func
+ 684              		.type	lv_task_ready, %function
+ 685              	lv_task_ready:
+ 686              	.LFB6:
+ 258:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->last_run = lv_tick_get() - lv_task_p->period - 1;
+ 687              		.loc 1 258 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 20
+
+
+ 688              		.cfi_startproc
+ 689              		@ args = 0, pretend = 0, frame = 0
+ 690              		@ frame_needed = 0, uses_anonymous_args = 0
+ 691              	.LVL89:
+ 692 0000 10B5     		push	{r4, lr}
+ 693              		.cfi_def_cfa_offset 8
+ 694              		.cfi_offset 4, -8
+ 695              		.cfi_offset 14, -4
+ 696 0002 0446     		mov	r4, r0
+ 259:..\lvgl\lv_misc/lv_task.c **** }
+ 697              		.loc 1 259 0
+ 698 0004 FFF7FEFF 		bl	lv_tick_get
+ 699              	.LVL90:
+ 700 0008 2368     		ldr	r3, [r4]
+ 701 000a C01A     		subs	r0, r0, r3
+ 702 000c 0138     		subs	r0, r0, #1
+ 703 000e 6060     		str	r0, [r4, #4]
+ 704 0010 10BD     		pop	{r4, pc}
+ 705              		.cfi_endproc
+ 706              	.LFE6:
+ 707              		.size	lv_task_ready, .-lv_task_ready
+ 708 0012 00BF     		.section	.text.lv_task_once,"ax",%progbits
+ 709              		.align	2
+ 710              		.global	lv_task_once
+ 711              		.thumb
+ 712              		.thumb_func
+ 713              		.type	lv_task_once, %function
+ 714              	lv_task_once:
+ 715              	.LFB7:
+ 267:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->once = 1;
+ 716              		.loc 1 267 0
+ 717              		.cfi_startproc
+ 718              		@ args = 0, pretend = 0, frame = 0
+ 719              		@ frame_needed = 0, uses_anonymous_args = 0
+ 720              		@ link register save eliminated.
+ 721              	.LVL91:
+ 268:..\lvgl\lv_misc/lv_task.c **** }
+ 722              		.loc 1 268 0
+ 723 0000 037C     		ldrb	r3, [r0, #16]	@ zero_extendqisi2
+ 724 0002 43F00803 		orr	r3, r3, #8
+ 725 0006 0374     		strb	r3, [r0, #16]
+ 726 0008 7047     		bx	lr
+ 727              		.cfi_endproc
+ 728              	.LFE7:
+ 729              		.size	lv_task_once, .-lv_task_once
+ 730 000a 00BF     		.section	.text.lv_task_reset,"ax",%progbits
+ 731              		.align	2
+ 732              		.global	lv_task_reset
+ 733              		.thumb
+ 734              		.thumb_func
+ 735              		.type	lv_task_reset, %function
+ 736              	lv_task_reset:
+ 737              	.LFB8:
+ 277:..\lvgl\lv_misc/lv_task.c ****     lv_task_p->last_run = lv_tick_get();
+ 738              		.loc 1 277 0
+ 739              		.cfi_startproc
+ 740              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 21
+
+
+ 741              		@ frame_needed = 0, uses_anonymous_args = 0
+ 742              	.LVL92:
+ 743 0000 10B5     		push	{r4, lr}
+ 744              		.cfi_def_cfa_offset 8
+ 745              		.cfi_offset 4, -8
+ 746              		.cfi_offset 14, -4
+ 747 0002 0446     		mov	r4, r0
+ 278:..\lvgl\lv_misc/lv_task.c **** }
+ 748              		.loc 1 278 0
+ 749 0004 FFF7FEFF 		bl	lv_tick_get
+ 750              	.LVL93:
+ 751 0008 6060     		str	r0, [r4, #4]
+ 752 000a 10BD     		pop	{r4, pc}
+ 753              		.cfi_endproc
+ 754              	.LFE8:
+ 755              		.size	lv_task_reset, .-lv_task_reset
+ 756              		.section	.text.lv_task_enable,"ax",%progbits
+ 757              		.align	2
+ 758              		.global	lv_task_enable
+ 759              		.thumb
+ 760              		.thumb_func
+ 761              		.type	lv_task_enable, %function
+ 762              	lv_task_enable:
+ 763              	.LFB9:
+ 286:..\lvgl\lv_misc/lv_task.c ****     lv_task_run = en;
+ 764              		.loc 1 286 0
+ 765              		.cfi_startproc
+ 766              		@ args = 0, pretend = 0, frame = 0
+ 767              		@ frame_needed = 0, uses_anonymous_args = 0
+ 768              		@ link register save eliminated.
+ 769              	.LVL94:
+ 287:..\lvgl\lv_misc/lv_task.c **** }
+ 770              		.loc 1 287 0
+ 771 0000 014B     		ldr	r3, .L68
+ 772 0002 D870     		strb	r0, [r3, #3]
+ 773 0004 7047     		bx	lr
+ 774              	.L69:
+ 775 0006 00BF     		.align	2
+ 776              	.L68:
+ 777 0008 00000000 		.word	.LANCHOR0
+ 778              		.cfi_endproc
+ 779              	.LFE9:
+ 780              		.size	lv_task_enable, .-lv_task_enable
+ 781              		.section	.text.lv_task_init,"ax",%progbits
+ 782              		.align	2
+ 783              		.global	lv_task_init
+ 784              		.thumb
+ 785              		.thumb_func
+ 786              		.type	lv_task_init, %function
+ 787              	lv_task_init:
+ 788              	.LFB0:
+  53:..\lvgl\lv_misc/lv_task.c ****     lv_ll_init(&LV_GC_ROOT(_lv_task_ll), sizeof(lv_task_t));
+ 789              		.loc 1 53 0
+ 790              		.cfi_startproc
+ 791              		@ args = 0, pretend = 0, frame = 0
+ 792              		@ frame_needed = 0, uses_anonymous_args = 0
+ 793 0000 08B5     		push	{r3, lr}
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 22
+
+
+ 794              		.cfi_def_cfa_offset 8
+ 795              		.cfi_offset 3, -8
+ 796              		.cfi_offset 14, -4
+  54:..\lvgl\lv_misc/lv_task.c **** 
+ 797              		.loc 1 54 0
+ 798 0002 1421     		movs	r1, #20
+ 799 0004 0348     		ldr	r0, .L72
+ 800 0006 FFF7FEFF 		bl	lv_ll_init
+ 801              	.LVL95:
+  57:..\lvgl\lv_misc/lv_task.c **** }
+ 802              		.loc 1 57 0
+ 803 000a 0120     		movs	r0, #1
+ 804 000c FFF7FEFF 		bl	lv_task_enable
+ 805              	.LVL96:
+ 806 0010 08BD     		pop	{r3, pc}
+ 807              	.L73:
+ 808 0012 00BF     		.align	2
+ 809              	.L72:
+ 810 0014 00000000 		.word	_lv_task_ll
+ 811              		.cfi_endproc
+ 812              	.LFE0:
+ 813              		.size	lv_task_init, .-lv_task_init
+ 814              		.section	.text.lv_task_get_idle,"ax",%progbits
+ 815              		.align	2
+ 816              		.global	lv_task_get_idle
+ 817              		.thumb
+ 818              		.thumb_func
+ 819              		.type	lv_task_get_idle, %function
+ 820              	lv_task_get_idle:
+ 821              	.LFB10:
+ 295:..\lvgl\lv_misc/lv_task.c ****     return idle_last;
+ 822              		.loc 1 295 0
+ 823              		.cfi_startproc
+ 824              		@ args = 0, pretend = 0, frame = 0
+ 825              		@ frame_needed = 0, uses_anonymous_args = 0
+ 826              		@ link register save eliminated.
+ 297:..\lvgl\lv_misc/lv_task.c **** 
+ 827              		.loc 1 297 0
+ 828 0000 014B     		ldr	r3, .L75
+ 829 0002 187C     		ldrb	r0, [r3, #16]	@ zero_extendqisi2
+ 830 0004 7047     		bx	lr
+ 831              	.L76:
+ 832 0006 00BF     		.align	2
+ 833              	.L75:
+ 834 0008 00000000 		.word	.LANCHOR0
+ 835              		.cfi_endproc
+ 836              	.LFE10:
+ 837              		.size	lv_task_get_idle, .-lv_task_get_idle
+ 838              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 839              		.align	2
+ 840              	.LC0:
+ 841 0000 4F757420 		.ascii	"Out of memory!\000"
+ 841      6F66206D 
+ 841      656D6F72 
+ 841      792100
+ 842 000f 00       		.space	1
+ 843              	.LC1:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 23
+
+
+ 844 0010 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_task.c\000"
+ 844      76676C5C 
+ 844      6C765F6D 
+ 844      6973635C 
+ 844      6C765F74 
+ 845 002a 0000     		.space	2
+ 846              	.LC2:
+ 847 002c 6C765F74 		.ascii	"lv_task_handler started\000"
+ 847      61736B5F 
+ 847      68616E64 
+ 847      6C657220 
+ 847      73746172 
+ 848              	.LC3:
+ 849 0044 6C765F74 		.ascii	"lv_task_handler ready\000"
+ 849      61736B5F 
+ 849      68616E64 
+ 849      6C657220 
+ 849      72656164 
+ 850              		.bss
+ 851              		.align	2
+ 852              		.set	.LANCHOR0,. + 0
+ 853              		.type	task_created, %object
+ 854              		.size	task_created, 1
+ 855              	task_created:
+ 856 0000 00       		.space	1
+ 857              		.type	task_deleted, %object
+ 858              		.size	task_deleted, 1
+ 859              	task_deleted:
+ 860 0001 00       		.space	1
+ 861              		.type	task_handler_mutex.4368, %object
+ 862              		.size	task_handler_mutex.4368, 1
+ 863              	task_handler_mutex.4368:
+ 864 0002 00       		.space	1
+ 865              		.type	lv_task_run, %object
+ 866              		.size	lv_task_run, 1
+ 867              	lv_task_run:
+ 868 0003 00       		.space	1
+ 869              		.type	handler_start.4370, %object
+ 870              		.size	handler_start.4370, 4
+ 871              	handler_start.4370:
+ 872 0004 00000000 		.space	4
+ 873              		.type	busy_time.4371, %object
+ 874              		.size	busy_time.4371, 4
+ 875              	busy_time.4371:
+ 876 0008 00000000 		.space	4
+ 877              		.type	idle_period_start.4369, %object
+ 878              		.size	idle_period_start.4369, 4
+ 879              	idle_period_start.4369:
+ 880 000c 00000000 		.space	4
+ 881              		.type	idle_last, %object
+ 882              		.size	idle_last, 1
+ 883              	idle_last:
+ 884 0010 00       		.space	1
+ 885              		.text
+ 886              	.Letext0:
+ 887              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 888              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 24
+
+
+ 889              		.file 4 "..\\lvgl\\lv_misc\\lv_ll.h"
+ 890              		.file 5 "..\\lvgl\\lv_misc\\lv_task.h"
+ 891              		.file 6 "..\\lvgl\\lv_misc\\lv_gc.h"
+ 892              		.file 7 "..\\lvgl\\lv_misc\\lv_log.h"
+ 893              		.file 8 "..\\lvgl\\lv_misc\\../lv_hal/lv_hal_tick.h"
+ 894              		.file 9 "..\\lvgl\\lv_misc\\lv_mem.h"
+ 895              		.section	.debug_info,"",%progbits
+ 896              	.Ldebug_info0:
+ 897 0000 6A070000 		.4byte	0x76a
+ 898 0004 0400     		.2byte	0x4
+ 899 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 900 000a 04       		.byte	0x4
+ 901 000b 01       		.uleb128 0x1
+ 902 000c E6030000 		.4byte	.LASF73
+ 903 0010 0C       		.byte	0xc
+ 904 0011 B6020000 		.4byte	.LASF74
+ 905 0015 4E010000 		.4byte	.LASF75
+ 906 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 907 001d 00000000 		.4byte	0
+ 908 0021 00000000 		.4byte	.Ldebug_line0
+ 909 0025 02       		.uleb128 0x2
+ 910 0026 04       		.byte	0x4
+ 911 0027 05       		.byte	0x5
+ 912 0028 696E7400 		.ascii	"int\000"
+ 913 002c 03       		.uleb128 0x3
+ 914 002d 04       		.byte	0x4
+ 915 002e 07       		.byte	0x7
+ 916 002f A9020000 		.4byte	.LASF0
+ 917 0033 03       		.uleb128 0x3
+ 918 0034 08       		.byte	0x8
+ 919 0035 05       		.byte	0x5
+ 920 0036 A5010000 		.4byte	.LASF1
+ 921 003a 03       		.uleb128 0x3
+ 922 003b 08       		.byte	0x8
+ 923 003c 04       		.byte	0x4
+ 924 003d 37020000 		.4byte	.LASF2
+ 925 0041 03       		.uleb128 0x3
+ 926 0042 01       		.byte	0x1
+ 927 0043 06       		.byte	0x6
+ 928 0044 78020000 		.4byte	.LASF3
+ 929 0048 04       		.uleb128 0x4
+ 930 0049 0F020000 		.4byte	.LASF8
+ 931 004d 02       		.byte	0x2
+ 932 004e 1D       		.byte	0x1d
+ 933 004f 53000000 		.4byte	0x53
+ 934 0053 03       		.uleb128 0x3
+ 935 0054 01       		.byte	0x1
+ 936 0055 08       		.byte	0x8
+ 937 0056 59020000 		.4byte	.LASF4
+ 938 005a 03       		.uleb128 0x3
+ 939 005b 02       		.byte	0x2
+ 940 005c 05       		.byte	0x5
+ 941 005d 6C000000 		.4byte	.LASF5
+ 942 0061 03       		.uleb128 0x3
+ 943 0062 02       		.byte	0x2
+ 944 0063 07       		.byte	0x7
+ 945 0064 EF020000 		.4byte	.LASF6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 25
+
+
+ 946 0068 03       		.uleb128 0x3
+ 947 0069 04       		.byte	0x4
+ 948 006a 05       		.byte	0x5
+ 949 006b E2010000 		.4byte	.LASF7
+ 950 006f 04       		.uleb128 0x4
+ 951 0070 A7000000 		.4byte	.LASF9
+ 952 0074 02       		.byte	0x2
+ 953 0075 41       		.byte	0x41
+ 954 0076 7A000000 		.4byte	0x7a
+ 955 007a 03       		.uleb128 0x3
+ 956 007b 04       		.byte	0x4
+ 957 007c 07       		.byte	0x7
+ 958 007d 7E030000 		.4byte	.LASF10
+ 959 0081 03       		.uleb128 0x3
+ 960 0082 08       		.byte	0x8
+ 961 0083 07       		.byte	0x7
+ 962 0084 84020000 		.4byte	.LASF11
+ 963 0088 04       		.uleb128 0x4
+ 964 0089 FB000000 		.4byte	.LASF12
+ 965 008d 03       		.byte	0x3
+ 966 008e 18       		.byte	0x18
+ 967 008f 48000000 		.4byte	0x48
+ 968 0093 04       		.uleb128 0x4
+ 969 0094 A0020000 		.4byte	.LASF13
+ 970 0098 03       		.byte	0x3
+ 971 0099 30       		.byte	0x30
+ 972 009a 6F000000 		.4byte	0x6f
+ 973 009e 04       		.uleb128 0x4
+ 974 009f 00000000 		.4byte	.LASF14
+ 975 00a3 04       		.byte	0x4
+ 976 00a4 1E       		.byte	0x1e
+ 977 00a5 88000000 		.4byte	0x88
+ 978 00a9 05       		.uleb128 0x5
+ 979 00aa 0C       		.byte	0xc
+ 980 00ab 04       		.byte	0x4
+ 981 00ac 21       		.byte	0x21
+ 982 00ad D6000000 		.4byte	0xd6
+ 983 00b1 06       		.uleb128 0x6
+ 984 00b2 AC040000 		.4byte	.LASF15
+ 985 00b6 04       		.byte	0x4
+ 986 00b7 23       		.byte	0x23
+ 987 00b8 93000000 		.4byte	0x93
+ 988 00bc 00       		.byte	0
+ 989 00bd 06       		.uleb128 0x6
+ 990 00be D2000000 		.4byte	.LASF16
+ 991 00c2 04       		.byte	0x4
+ 992 00c3 24       		.byte	0x24
+ 993 00c4 D6000000 		.4byte	0xd6
+ 994 00c8 04       		.byte	0x4
+ 995 00c9 06       		.uleb128 0x6
+ 996 00ca 43020000 		.4byte	.LASF17
+ 997 00ce 04       		.byte	0x4
+ 998 00cf 25       		.byte	0x25
+ 999 00d0 D6000000 		.4byte	0xd6
+ 1000 00d4 08       		.byte	0x8
+ 1001 00d5 00       		.byte	0
+ 1002 00d6 07       		.uleb128 0x7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 26
+
+
+ 1003 00d7 04       		.byte	0x4
+ 1004 00d8 9E000000 		.4byte	0x9e
+ 1005 00dc 04       		.uleb128 0x4
+ 1006 00dd 2F020000 		.4byte	.LASF18
+ 1007 00e1 04       		.byte	0x4
+ 1008 00e2 26       		.byte	0x26
+ 1009 00e3 A9000000 		.4byte	0xa9
+ 1010 00e7 08       		.uleb128 0x8
+ 1011 00e8 01       		.byte	0x1
+ 1012 00e9 53000000 		.4byte	0x53
+ 1013 00ed 05       		.byte	0x5
+ 1014 00ee 29       		.byte	0x29
+ 1015 00ef 1E010000 		.4byte	0x11e
+ 1016 00f3 09       		.uleb128 0x9
+ 1017 00f4 B3010000 		.4byte	.LASF19
+ 1018 00f8 00       		.byte	0
+ 1019 00f9 09       		.uleb128 0x9
+ 1020 00fa 19030000 		.4byte	.LASF20
+ 1021 00fe 01       		.byte	0x1
+ 1022 00ff 09       		.uleb128 0x9
+ 1023 0100 96000000 		.4byte	.LASF21
+ 1024 0104 02       		.byte	0x2
+ 1025 0105 09       		.uleb128 0x9
+ 1026 0106 C4010000 		.4byte	.LASF22
+ 1027 010a 03       		.byte	0x3
+ 1028 010b 09       		.uleb128 0x9
+ 1029 010c 4C030000 		.4byte	.LASF23
+ 1030 0110 04       		.byte	0x4
+ 1031 0111 09       		.uleb128 0x9
+ 1032 0112 D7000000 		.4byte	.LASF24
+ 1033 0116 05       		.byte	0x5
+ 1034 0117 09       		.uleb128 0x9
+ 1035 0118 48020000 		.4byte	.LASF25
+ 1036 011c 06       		.byte	0x6
+ 1037 011d 00       		.byte	0
+ 1038 011e 04       		.uleb128 0x4
+ 1039 011f B2000000 		.4byte	.LASF26
+ 1040 0123 05       		.byte	0x5
+ 1041 0124 32       		.byte	0x32
+ 1042 0125 88000000 		.4byte	0x88
+ 1043 0129 05       		.uleb128 0x5
+ 1044 012a 14       		.byte	0x14
+ 1045 012b 05       		.byte	0x5
+ 1046 012c 37       		.byte	0x37
+ 1047 012d 80010000 		.4byte	0x180
+ 1048 0131 06       		.uleb128 0x6
+ 1049 0132 FE010000 		.4byte	.LASF27
+ 1050 0136 05       		.byte	0x5
+ 1051 0137 39       		.byte	0x39
+ 1052 0138 93000000 		.4byte	0x93
+ 1053 013c 00       		.byte	0
+ 1054 013d 06       		.uleb128 0x6
+ 1055 013e 19020000 		.4byte	.LASF28
+ 1056 0142 05       		.byte	0x5
+ 1057 0143 3A       		.byte	0x3a
+ 1058 0144 93000000 		.4byte	0x93
+ 1059 0148 04       		.byte	0x4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 27
+
+
+ 1060 0149 06       		.uleb128 0x6
+ 1061 014a 91000000 		.4byte	.LASF29
+ 1062 014e 05       		.byte	0x5
+ 1063 014f 3B       		.byte	0x3b
+ 1064 0150 8D010000 		.4byte	0x18d
+ 1065 0154 08       		.byte	0x8
+ 1066 0155 06       		.uleb128 0x6
+ 1067 0156 E9020000 		.4byte	.LASF30
+ 1068 015a 05       		.byte	0x5
+ 1069 015b 3C       		.byte	0x3c
+ 1070 015c 8B010000 		.4byte	0x18b
+ 1071 0160 0C       		.byte	0xc
+ 1072 0161 0A       		.uleb128 0xa
+ 1073 0162 93040000 		.4byte	.LASF31
+ 1074 0166 05       		.byte	0x5
+ 1075 0167 3D       		.byte	0x3d
+ 1076 0168 88000000 		.4byte	0x88
+ 1077 016c 01       		.byte	0x1
+ 1078 016d 03       		.byte	0x3
+ 1079 016e 05       		.byte	0x5
+ 1080 016f 10       		.byte	0x10
+ 1081 0170 0A       		.uleb128 0xa
+ 1082 0171 9B020000 		.4byte	.LASF32
+ 1083 0175 05       		.byte	0x5
+ 1084 0176 3E       		.byte	0x3e
+ 1085 0177 88000000 		.4byte	0x88
+ 1086 017b 01       		.byte	0x1
+ 1087 017c 01       		.byte	0x1
+ 1088 017d 04       		.byte	0x4
+ 1089 017e 10       		.byte	0x10
+ 1090 017f 00       		.byte	0
+ 1091 0180 0B       		.uleb128 0xb
+ 1092 0181 8B010000 		.4byte	0x18b
+ 1093 0185 0C       		.uleb128 0xc
+ 1094 0186 8B010000 		.4byte	0x18b
+ 1095 018a 00       		.byte	0
+ 1096 018b 0D       		.uleb128 0xd
+ 1097 018c 04       		.byte	0x4
+ 1098 018d 07       		.uleb128 0x7
+ 1099 018e 04       		.byte	0x4
+ 1100 018f 80010000 		.4byte	0x180
+ 1101 0193 04       		.uleb128 0x4
+ 1102 0194 54000000 		.4byte	.LASF33
+ 1103 0198 05       		.byte	0x5
+ 1104 0199 3F       		.byte	0x3f
+ 1105 019a 29010000 		.4byte	0x129
+ 1106 019e 0E       		.uleb128 0xe
+ 1107 019f D7030000 		.4byte	.LASF76
+ 1108 01a3 01       		.byte	0x1
+ 1109 01a4 A4       		.byte	0xa4
+ 1110 01a5 DF020000 		.4byte	0x2df
+ 1111 01a9 00000000 		.4byte	.LFB2
+ 1112 01ad D0000000 		.4byte	.LFE2-.LFB2
+ 1113 01b1 01       		.uleb128 0x1
+ 1114 01b2 9C       		.byte	0x9c
+ 1115 01b3 DF020000 		.4byte	0x2df
+ 1116 01b7 0F       		.uleb128 0xf
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 28
+
+
+ 1117 01b8 91000000 		.4byte	.LASF29
+ 1118 01bc 01       		.byte	0x1
+ 1119 01bd A4       		.byte	0xa4
+ 1120 01be 8D010000 		.4byte	0x18d
+ 1121 01c2 00000000 		.4byte	.LLST0
+ 1122 01c6 0F       		.uleb128 0xf
+ 1123 01c7 FE010000 		.4byte	.LASF27
+ 1124 01cb 01       		.byte	0x1
+ 1125 01cc A4       		.byte	0xa4
+ 1126 01cd 93000000 		.4byte	0x93
+ 1127 01d1 2C000000 		.4byte	.LLST1
+ 1128 01d5 0F       		.uleb128 0xf
+ 1129 01d6 93040000 		.4byte	.LASF31
+ 1130 01da 01       		.byte	0x1
+ 1131 01db A4       		.byte	0xa4
+ 1132 01dc 1E010000 		.4byte	0x11e
+ 1133 01e0 58000000 		.4byte	.LLST2
+ 1134 01e4 0F       		.uleb128 0xf
+ 1135 01e5 E9020000 		.4byte	.LASF30
+ 1136 01e9 01       		.byte	0x1
+ 1137 01ea A4       		.byte	0xa4
+ 1138 01eb 8B010000 		.4byte	0x18b
+ 1139 01ef 79000000 		.4byte	.LLST3
+ 1140 01f3 10       		.uleb128 0x10
+ 1141 01f4 D0020000 		.4byte	.LASF34
+ 1142 01f8 01       		.byte	0x1
+ 1143 01f9 A6       		.byte	0xa6
+ 1144 01fa DF020000 		.4byte	0x2df
+ 1145 01fe A5000000 		.4byte	.LLST4
+ 1146 0202 11       		.uleb128 0x11
+ 1147 0203 746D7000 		.ascii	"tmp\000"
+ 1148 0207 01       		.byte	0x1
+ 1149 0208 A7       		.byte	0xa7
+ 1150 0209 DF020000 		.4byte	0x2df
+ 1151 020d 8C010000 		.4byte	.LLST5
+ 1152 0211 12       		.uleb128 0x12
+ 1153 0212 12000000 		.4byte	.LVL3
+ 1154 0216 E9060000 		.4byte	0x6e9
+ 1155 021a 12       		.uleb128 0x12
+ 1156 021b 1C000000 		.4byte	.LVL5
+ 1157 021f F4060000 		.4byte	0x6f4
+ 1158 0223 13       		.uleb128 0x13
+ 1159 0224 2C000000 		.4byte	.LVL7
+ 1160 0228 FF060000 		.4byte	0x6ff
+ 1161 022c 4E020000 		.4byte	0x24e
+ 1162 0230 14       		.uleb128 0x14
+ 1163 0231 01       		.uleb128 0x1
+ 1164 0232 50       		.byte	0x50
+ 1165 0233 01       		.uleb128 0x1
+ 1166 0234 33       		.byte	0x33
+ 1167 0235 14       		.uleb128 0x14
+ 1168 0236 01       		.uleb128 0x1
+ 1169 0237 51       		.byte	0x51
+ 1170 0238 05       		.uleb128 0x5
+ 1171 0239 03       		.byte	0x3
+ 1172 023a 10000000 		.4byte	.LC1
+ 1173 023e 14       		.uleb128 0x14
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 29
+
+
+ 1174 023f 01       		.uleb128 0x1
+ 1175 0240 52       		.byte	0x52
+ 1176 0241 02       		.uleb128 0x2
+ 1177 0242 08       		.byte	0x8
+ 1178 0243 AD       		.byte	0xad
+ 1179 0244 14       		.uleb128 0x14
+ 1180 0245 01       		.uleb128 0x1
+ 1181 0246 53       		.byte	0x53
+ 1182 0247 05       		.uleb128 0x5
+ 1183 0248 03       		.byte	0x3
+ 1184 0249 00000000 		.4byte	.LC0
+ 1185 024d 00       		.byte	0
+ 1186 024e 13       		.uleb128 0x13
+ 1187 024f 44000000 		.4byte	.LVL11
+ 1188 0253 0A070000 		.4byte	0x70a
+ 1189 0257 62020000 		.4byte	0x262
+ 1190 025b 14       		.uleb128 0x14
+ 1191 025c 01       		.uleb128 0x1
+ 1192 025d 51       		.byte	0x51
+ 1193 025e 02       		.uleb128 0x2
+ 1194 025f 74       		.byte	0x74
+ 1195 0260 00       		.sleb128 0
+ 1196 0261 00       		.byte	0
+ 1197 0262 13       		.uleb128 0x13
+ 1198 0263 54000000 		.4byte	.LVL13
+ 1199 0267 FF060000 		.4byte	0x6ff
+ 1200 026b 8D020000 		.4byte	0x28d
+ 1201 026f 14       		.uleb128 0x14
+ 1202 0270 01       		.uleb128 0x1
+ 1203 0271 50       		.byte	0x50
+ 1204 0272 01       		.uleb128 0x1
+ 1205 0273 33       		.byte	0x33
+ 1206 0274 14       		.uleb128 0x14
+ 1207 0275 01       		.uleb128 0x1
+ 1208 0276 51       		.byte	0x51
+ 1209 0277 05       		.uleb128 0x5
+ 1210 0278 03       		.byte	0x3
+ 1211 0279 10000000 		.4byte	.LC1
+ 1212 027d 14       		.uleb128 0x14
+ 1213 027e 01       		.uleb128 0x1
+ 1214 027f 52       		.byte	0x52
+ 1215 0280 02       		.uleb128 0x2
+ 1216 0281 08       		.byte	0x8
+ 1217 0282 B3       		.byte	0xb3
+ 1218 0283 14       		.uleb128 0x14
+ 1219 0284 01       		.uleb128 0x1
+ 1220 0285 53       		.byte	0x53
+ 1221 0286 05       		.uleb128 0x5
+ 1222 0287 03       		.byte	0x3
+ 1223 0288 00000000 		.4byte	.LC0
+ 1224 028c 00       		.byte	0
+ 1225 028d 13       		.uleb128 0x13
+ 1226 028e 62000000 		.4byte	.LVL17
+ 1227 0292 15070000 		.4byte	0x715
+ 1228 0296 A1020000 		.4byte	0x2a1
+ 1229 029a 14       		.uleb128 0x14
+ 1230 029b 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 30
+
+
+ 1231 029c 51       		.byte	0x51
+ 1232 029d 02       		.uleb128 0x2
+ 1233 029e 74       		.byte	0x74
+ 1234 029f 00       		.sleb128 0
+ 1235 02a0 00       		.byte	0
+ 1236 02a1 12       		.uleb128 0x12
+ 1237 02a2 72000000 		.4byte	.LVL19
+ 1238 02a6 20070000 		.4byte	0x720
+ 1239 02aa 13       		.uleb128 0x13
+ 1240 02ab 82000000 		.4byte	.LVL21
+ 1241 02af FF060000 		.4byte	0x6ff
+ 1242 02b3 D5020000 		.4byte	0x2d5
+ 1243 02b7 14       		.uleb128 0x14
+ 1244 02b8 01       		.uleb128 0x1
+ 1245 02b9 50       		.byte	0x50
+ 1246 02ba 01       		.uleb128 0x1
+ 1247 02bb 33       		.byte	0x33
+ 1248 02bc 14       		.uleb128 0x14
+ 1249 02bd 01       		.uleb128 0x1
+ 1250 02be 51       		.byte	0x51
+ 1251 02bf 05       		.uleb128 0x5
+ 1252 02c0 03       		.byte	0x3
+ 1253 02c1 10000000 		.4byte	.LC1
+ 1254 02c5 14       		.uleb128 0x14
+ 1255 02c6 01       		.uleb128 0x1
+ 1256 02c7 52       		.byte	0x52
+ 1257 02c8 02       		.uleb128 0x2
+ 1258 02c9 08       		.byte	0x8
+ 1259 02ca BC       		.byte	0xbc
+ 1260 02cb 14       		.uleb128 0x14
+ 1261 02cc 01       		.uleb128 0x1
+ 1262 02cd 53       		.byte	0x53
+ 1263 02ce 05       		.uleb128 0x5
+ 1264 02cf 03       		.byte	0x3
+ 1265 02d0 00000000 		.4byte	.LC0
+ 1266 02d4 00       		.byte	0
+ 1267 02d5 12       		.uleb128 0x12
+ 1268 02d6 A0000000 		.4byte	.LVL24
+ 1269 02da 2B070000 		.4byte	0x72b
+ 1270 02de 00       		.byte	0
+ 1271 02df 07       		.uleb128 0x7
+ 1272 02e0 04       		.byte	0x4
+ 1273 02e1 93010000 		.4byte	0x193
+ 1274 02e5 15       		.uleb128 0x15
+ 1275 02e6 40030000 		.4byte	.LASF38
+ 1276 02ea 01       		.byte	0x1
+ 1277 02eb D1       		.byte	0xd1
+ 1278 02ec 00000000 		.4byte	.LFB3
+ 1279 02f0 30000000 		.4byte	.LFE3-.LFB3
+ 1280 02f4 01       		.uleb128 0x1
+ 1281 02f5 9C       		.byte	0x9c
+ 1282 02f6 2E030000 		.4byte	0x32e
+ 1283 02fa 0F       		.uleb128 0xf
+ 1284 02fb 3E000000 		.4byte	.LASF35
+ 1285 02ff 01       		.byte	0x1
+ 1286 0300 D1       		.byte	0xd1
+ 1287 0301 DF020000 		.4byte	0x2df
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 31
+
+
+ 1288 0305 F7010000 		.4byte	.LLST6
+ 1289 0309 13       		.uleb128 0x13
+ 1290 030a 0C000000 		.4byte	.LVL34
+ 1291 030e 36070000 		.4byte	0x736
+ 1292 0312 1D030000 		.4byte	0x31d
+ 1293 0316 14       		.uleb128 0x14
+ 1294 0317 01       		.uleb128 0x1
+ 1295 0318 51       		.byte	0x51
+ 1296 0319 02       		.uleb128 0x2
+ 1297 031a 74       		.byte	0x74
+ 1298 031b 00       		.sleb128 0
+ 1299 031c 00       		.byte	0
+ 1300 031d 16       		.uleb128 0x16
+ 1301 031e 12000000 		.4byte	.LVL35
+ 1302 0322 41070000 		.4byte	0x741
+ 1303 0326 14       		.uleb128 0x14
+ 1304 0327 01       		.uleb128 0x1
+ 1305 0328 50       		.byte	0x50
+ 1306 0329 02       		.uleb128 0x2
+ 1307 032a 74       		.byte	0x74
+ 1308 032b 00       		.sleb128 0
+ 1309 032c 00       		.byte	0
+ 1310 032d 00       		.byte	0
+ 1311 032e 17       		.uleb128 0x17
+ 1312 032f D5010000 		.4byte	.LASF77
+ 1313 0333 01       		.byte	0x1
+ 1314 0334 3501     		.2byte	0x135
+ 1315 0336 9B030000 		.4byte	0x39b
+ 1316 033a 00000000 		.4byte	.LFB11
+ 1317 033e 4C000000 		.4byte	.LFE11-.LFB11
+ 1318 0342 01       		.uleb128 0x1
+ 1319 0343 9C       		.byte	0x9c
+ 1320 0344 9B030000 		.4byte	0x39b
+ 1321 0348 18       		.uleb128 0x18
+ 1322 0349 3E000000 		.4byte	.LASF35
+ 1323 034d 01       		.byte	0x1
+ 1324 034e 3501     		.2byte	0x135
+ 1325 0350 DF020000 		.4byte	0x2df
+ 1326 0354 2E020000 		.4byte	.LLST7
+ 1327 0358 19       		.uleb128 0x19
+ 1328 0359 94010000 		.4byte	.LASF36
+ 1329 035d 01       		.byte	0x1
+ 1330 035e 3701     		.2byte	0x137
+ 1331 0360 9B030000 		.4byte	0x39b
+ 1332 0364 5A020000 		.4byte	.LLST8
+ 1333 0368 1A       		.uleb128 0x1a
+ 1334 0369 656C7000 		.ascii	"elp\000"
+ 1335 036d 01       		.byte	0x1
+ 1336 036e 3A01     		.2byte	0x13a
+ 1337 0370 93000000 		.4byte	0x93
+ 1338 0374 79020000 		.4byte	.LLST9
+ 1339 0378 12       		.uleb128 0x12
+ 1340 0379 0A000000 		.4byte	.LVL40
+ 1341 037d 4C070000 		.4byte	0x74c
+ 1342 0381 12       		.uleb128 0x12
+ 1343 0382 14000000 		.4byte	.LVL41
+ 1344 0386 2B070000 		.4byte	0x72b
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 32
+
+
+ 1345 038a 16       		.uleb128 0x16
+ 1346 038b 36000000 		.4byte	.LVL43
+ 1347 038f E5020000 		.4byte	0x2e5
+ 1348 0393 14       		.uleb128 0x14
+ 1349 0394 01       		.uleb128 0x1
+ 1350 0395 50       		.byte	0x50
+ 1351 0396 02       		.uleb128 0x2
+ 1352 0397 74       		.byte	0x74
+ 1353 0398 00       		.sleb128 0
+ 1354 0399 00       		.byte	0
+ 1355 039a 00       		.byte	0
+ 1356 039b 03       		.uleb128 0x3
+ 1357 039c 01       		.byte	0x1
+ 1358 039d 02       		.byte	0x2
+ 1359 039e 2D030000 		.4byte	.LASF37
+ 1360 03a2 15       		.uleb128 0x15
+ 1361 03a3 90030000 		.4byte	.LASF39
+ 1362 03a7 01       		.byte	0x1
+ 1363 03a8 3F       		.byte	0x3f
+ 1364 03a9 00000000 		.4byte	.LFB1
+ 1365 03ad 3C010000 		.4byte	.LFE1-.LFB1
+ 1366 03b1 01       		.uleb128 0x1
+ 1367 03b2 9C       		.byte	0x9c
+ 1368 03b3 DB040000 		.4byte	0x4db
+ 1369 03b7 1B       		.uleb128 0x1b
+ 1370 03b8 0D000000 		.4byte	.LASF40
+ 1371 03bc 01       		.byte	0x1
+ 1372 03bd 44       		.byte	0x44
+ 1373 03be 9B030000 		.4byte	0x39b
+ 1374 03c2 05       		.uleb128 0x5
+ 1375 03c3 03       		.byte	0x3
+ 1376 03c4 02000000 		.4byte	task_handler_mutex.4368
+ 1377 03c8 1B       		.uleb128 0x1b
+ 1378 03c9 AC030000 		.4byte	.LASF41
+ 1379 03cd 01       		.byte	0x1
+ 1380 03ce 48       		.byte	0x48
+ 1381 03cf 93000000 		.4byte	0x93
+ 1382 03d3 05       		.uleb128 0x5
+ 1383 03d4 03       		.byte	0x3
+ 1384 03d5 0C000000 		.4byte	idle_period_start.4369
+ 1385 03d9 1B       		.uleb128 0x1b
+ 1386 03da 03010000 		.4byte	.LASF42
+ 1387 03de 01       		.byte	0x1
+ 1388 03df 49       		.byte	0x49
+ 1389 03e0 93000000 		.4byte	0x93
+ 1390 03e4 05       		.uleb128 0x5
+ 1391 03e5 03       		.byte	0x3
+ 1392 03e6 04000000 		.4byte	handler_start.4370
+ 1393 03ea 1B       		.uleb128 0x1b
+ 1394 03eb 0F030000 		.4byte	.LASF43
+ 1395 03ef 01       		.byte	0x1
+ 1396 03f0 4A       		.byte	0x4a
+ 1397 03f1 93000000 		.4byte	0x93
+ 1398 03f5 05       		.uleb128 0x5
+ 1399 03f6 03       		.byte	0x3
+ 1400 03f7 08000000 		.4byte	busy_time.4371
+ 1401 03fb 10       		.uleb128 0x10
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 33
+
+
+ 1402 03fc 67020000 		.4byte	.LASF44
+ 1403 0400 01       		.byte	0x1
+ 1404 0401 53       		.byte	0x53
+ 1405 0402 DF020000 		.4byte	0x2df
+ 1406 0406 97020000 		.4byte	.LLST10
+ 1407 040a 10       		.uleb128 0x10
+ 1408 040b 98040000 		.4byte	.LASF45
+ 1409 040f 01       		.byte	0x1
+ 1410 0410 54       		.byte	0x54
+ 1411 0411 DF020000 		.4byte	0x2df
+ 1412 0415 CD020000 		.4byte	.LLST11
+ 1413 0419 10       		.uleb128 0x10
+ 1414 041a 74040000 		.4byte	.LASF46
+ 1415 041e 01       		.byte	0x1
+ 1416 041f 55       		.byte	0x55
+ 1417 0420 9B030000 		.4byte	0x39b
+ 1418 0424 F6020000 		.4byte	.LLST12
+ 1419 0428 10       		.uleb128 0x10
+ 1420 0429 C1000000 		.4byte	.LASF47
+ 1421 042d 01       		.byte	0x1
+ 1422 042e 8C       		.byte	0x8c
+ 1423 042f 93000000 		.4byte	0x93
+ 1424 0433 45030000 		.4byte	.LLST13
+ 1425 0437 13       		.uleb128 0x13
+ 1426 0438 0E000000 		.4byte	.LVL50
+ 1427 043c FF060000 		.4byte	0x6ff
+ 1428 0440 62040000 		.4byte	0x462
+ 1429 0444 14       		.uleb128 0x14
+ 1430 0445 01       		.uleb128 0x1
+ 1431 0446 50       		.byte	0x50
+ 1432 0447 01       		.uleb128 0x1
+ 1433 0448 30       		.byte	0x30
+ 1434 0449 14       		.uleb128 0x14
+ 1435 044a 01       		.uleb128 0x1
+ 1436 044b 51       		.byte	0x51
+ 1437 044c 05       		.uleb128 0x5
+ 1438 044d 03       		.byte	0x3
+ 1439 044e 10000000 		.4byte	.LC1
+ 1440 0452 14       		.uleb128 0x14
+ 1441 0453 01       		.uleb128 0x1
+ 1442 0454 52       		.byte	0x52
+ 1443 0455 02       		.uleb128 0x2
+ 1444 0456 08       		.byte	0x8
+ 1445 0457 41       		.byte	0x41
+ 1446 0458 14       		.uleb128 0x14
+ 1447 0459 01       		.uleb128 0x1
+ 1448 045a 53       		.byte	0x53
+ 1449 045b 05       		.uleb128 0x5
+ 1450 045c 03       		.byte	0x3
+ 1451 045d 2C000000 		.4byte	.LC2
+ 1452 0461 00       		.byte	0
+ 1453 0462 12       		.uleb128 0x12
+ 1454 0463 28000000 		.4byte	.LVL51
+ 1455 0467 2B070000 		.4byte	0x72b
+ 1456 046b 12       		.uleb128 0x12
+ 1457 046c 3C000000 		.4byte	.LVL54
+ 1458 0470 E9060000 		.4byte	0x6e9
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 34
+
+
+ 1459 0474 12       		.uleb128 0x12
+ 1460 0475 48000000 		.4byte	.LVL55
+ 1461 0479 15070000 		.4byte	0x715
+ 1462 047d 12       		.uleb128 0x12
+ 1463 047e 6A000000 		.4byte	.LVL60
+ 1464 0482 2E030000 		.4byte	0x32e
+ 1465 0486 12       		.uleb128 0x12
+ 1466 0487 82000000 		.4byte	.LVL61
+ 1467 048b 2E030000 		.4byte	0x32e
+ 1468 048f 12       		.uleb128 0x12
+ 1469 0490 90000000 		.4byte	.LVL64
+ 1470 0494 2E030000 		.4byte	0x32e
+ 1471 0498 12       		.uleb128 0x12
+ 1472 0499 CC000000 		.4byte	.LVL71
+ 1473 049d 4C070000 		.4byte	0x74c
+ 1474 04a1 12       		.uleb128 0x12
+ 1475 04a2 D8000000 		.4byte	.LVL72
+ 1476 04a6 4C070000 		.4byte	0x74c
+ 1477 04aa 12       		.uleb128 0x12
+ 1478 04ab 0A010000 		.4byte	.LVL73
+ 1479 04af 2B070000 		.4byte	0x72b
+ 1480 04b3 16       		.uleb128 0x16
+ 1481 04b4 1C010000 		.4byte	.LVL74
+ 1482 04b8 FF060000 		.4byte	0x6ff
+ 1483 04bc 14       		.uleb128 0x14
+ 1484 04bd 01       		.uleb128 0x1
+ 1485 04be 50       		.byte	0x50
+ 1486 04bf 01       		.uleb128 0x1
+ 1487 04c0 30       		.byte	0x30
+ 1488 04c1 14       		.uleb128 0x14
+ 1489 04c2 01       		.uleb128 0x1
+ 1490 04c3 51       		.byte	0x51
+ 1491 04c4 05       		.uleb128 0x5
+ 1492 04c5 03       		.byte	0x3
+ 1493 04c6 10000000 		.4byte	.LC1
+ 1494 04ca 14       		.uleb128 0x14
+ 1495 04cb 01       		.uleb128 0x1
+ 1496 04cc 52       		.byte	0x52
+ 1497 04cd 02       		.uleb128 0x2
+ 1498 04ce 08       		.byte	0x8
+ 1499 04cf 99       		.byte	0x99
+ 1500 04d0 14       		.uleb128 0x14
+ 1501 04d1 01       		.uleb128 0x1
+ 1502 04d2 53       		.byte	0x53
+ 1503 04d3 05       		.uleb128 0x5
+ 1504 04d4 03       		.byte	0x3
+ 1505 04d5 44000000 		.4byte	.LC3
+ 1506 04d9 00       		.byte	0
+ 1507 04da 00       		.byte	0
+ 1508 04db 15       		.uleb128 0x15
+ 1509 04dc 1C010000 		.4byte	.LASF48
+ 1510 04e0 01       		.byte	0x1
+ 1511 04e1 DF       		.byte	0xdf
+ 1512 04e2 00000000 		.4byte	.LFB4
+ 1513 04e6 54000000 		.4byte	.LFE4-.LFB4
+ 1514 04ea 01       		.uleb128 0x1
+ 1515 04eb 9C       		.byte	0x9c
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 35
+
+
+ 1516 04ec 68050000 		.4byte	0x568
+ 1517 04f0 0F       		.uleb128 0xf
+ 1518 04f1 3E000000 		.4byte	.LASF35
+ 1519 04f5 01       		.byte	0x1
+ 1520 04f6 DF       		.byte	0xdf
+ 1521 04f7 DF020000 		.4byte	0x2df
+ 1522 04fb 58030000 		.4byte	.LLST14
+ 1523 04ff 0F       		.uleb128 0xf
+ 1524 0500 93040000 		.4byte	.LASF31
+ 1525 0504 01       		.byte	0x1
+ 1526 0505 DF       		.byte	0xdf
+ 1527 0506 1E010000 		.4byte	0x11e
+ 1528 050a 84030000 		.4byte	.LLST15
+ 1529 050e 11       		.uleb128 0x11
+ 1530 050f 6900     		.ascii	"i\000"
+ 1531 0511 01       		.byte	0x1
+ 1532 0512 E2       		.byte	0xe2
+ 1533 0513 DF020000 		.4byte	0x2df
+ 1534 0517 A5030000 		.4byte	.LLST16
+ 1535 051b 12       		.uleb128 0x12
+ 1536 051c 0C000000 		.4byte	.LVL77
+ 1537 0520 E9060000 		.4byte	0x6e9
+ 1538 0524 13       		.uleb128 0x13
+ 1539 0525 28000000 		.4byte	.LVL80
+ 1540 0529 57070000 		.4byte	0x757
+ 1541 052d 3E050000 		.4byte	0x53e
+ 1542 0531 14       		.uleb128 0x14
+ 1543 0532 01       		.uleb128 0x1
+ 1544 0533 51       		.byte	0x51
+ 1545 0534 02       		.uleb128 0x2
+ 1546 0535 76       		.byte	0x76
+ 1547 0536 00       		.sleb128 0
+ 1548 0537 14       		.uleb128 0x14
+ 1549 0538 01       		.uleb128 0x1
+ 1550 0539 52       		.byte	0x52
+ 1551 053a 02       		.uleb128 0x2
+ 1552 053b 74       		.byte	0x74
+ 1553 053c 00       		.sleb128 0
+ 1554 053d 00       		.byte	0
+ 1555 053e 13       		.uleb128 0x13
+ 1556 053f 32000000 		.4byte	.LVL83
+ 1557 0543 15070000 		.4byte	0x715
+ 1558 0547 52050000 		.4byte	0x552
+ 1559 054b 14       		.uleb128 0x14
+ 1560 054c 01       		.uleb128 0x1
+ 1561 054d 51       		.byte	0x51
+ 1562 054e 02       		.uleb128 0x2
+ 1563 054f 74       		.byte	0x74
+ 1564 0550 00       		.sleb128 0
+ 1565 0551 00       		.byte	0
+ 1566 0552 16       		.uleb128 0x16
+ 1567 0553 44000000 		.4byte	.LVL86
+ 1568 0557 57070000 		.4byte	0x757
+ 1569 055b 14       		.uleb128 0x14
+ 1570 055c 01       		.uleb128 0x1
+ 1571 055d 51       		.byte	0x51
+ 1572 055e 02       		.uleb128 0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 36
+
+
+ 1573 055f 76       		.byte	0x76
+ 1574 0560 00       		.sleb128 0
+ 1575 0561 14       		.uleb128 0x14
+ 1576 0562 01       		.uleb128 0x1
+ 1577 0563 52       		.byte	0x52
+ 1578 0564 01       		.uleb128 0x1
+ 1579 0565 30       		.byte	0x30
+ 1580 0566 00       		.byte	0
+ 1581 0567 00       		.byte	0
+ 1582 0568 15       		.uleb128 0x15
+ 1583 0569 EB010000 		.4byte	.LASF49
+ 1584 056d 01       		.byte	0x1
+ 1585 056e F8       		.byte	0xf8
+ 1586 056f 00000000 		.4byte	.LFB5
+ 1587 0573 04000000 		.4byte	.LFE5-.LFB5
+ 1588 0577 01       		.uleb128 0x1
+ 1589 0578 9C       		.byte	0x9c
+ 1590 0579 98050000 		.4byte	0x598
+ 1591 057d 1C       		.uleb128 0x1c
+ 1592 057e 3E000000 		.4byte	.LASF35
+ 1593 0582 01       		.byte	0x1
+ 1594 0583 F8       		.byte	0xf8
+ 1595 0584 DF020000 		.4byte	0x2df
+ 1596 0588 01       		.uleb128 0x1
+ 1597 0589 50       		.byte	0x50
+ 1598 058a 1C       		.uleb128 0x1c
+ 1599 058b FE010000 		.4byte	.LASF27
+ 1600 058f 01       		.byte	0x1
+ 1601 0590 F8       		.byte	0xf8
+ 1602 0591 93000000 		.4byte	0x93
+ 1603 0595 01       		.uleb128 0x1
+ 1604 0596 51       		.byte	0x51
+ 1605 0597 00       		.byte	0
+ 1606 0598 1D       		.uleb128 0x1d
+ 1607 0599 BE030000 		.4byte	.LASF50
+ 1608 059d 01       		.byte	0x1
+ 1609 059e 0101     		.2byte	0x101
+ 1610 05a0 00000000 		.4byte	.LFB6
+ 1611 05a4 12000000 		.4byte	.LFE6-.LFB6
+ 1612 05a8 01       		.uleb128 0x1
+ 1613 05a9 9C       		.byte	0x9c
+ 1614 05aa C8050000 		.4byte	0x5c8
+ 1615 05ae 18       		.uleb128 0x18
+ 1616 05af 3E000000 		.4byte	.LASF35
+ 1617 05b3 01       		.byte	0x1
+ 1618 05b4 0101     		.2byte	0x101
+ 1619 05b6 DF020000 		.4byte	0x2df
+ 1620 05ba FA030000 		.4byte	.LLST17
+ 1621 05be 12       		.uleb128 0x12
+ 1622 05bf 08000000 		.4byte	.LVL90
+ 1623 05c3 2B070000 		.4byte	0x72b
+ 1624 05c7 00       		.byte	0
+ 1625 05c8 1D       		.uleb128 0x1d
+ 1626 05c9 02030000 		.4byte	.LASF51
+ 1627 05cd 01       		.byte	0x1
+ 1628 05ce 0A01     		.2byte	0x10a
+ 1629 05d0 00000000 		.4byte	.LFB7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 37
+
+
+ 1630 05d4 0A000000 		.4byte	.LFE7-.LFB7
+ 1631 05d8 01       		.uleb128 0x1
+ 1632 05d9 9C       		.byte	0x9c
+ 1633 05da ED050000 		.4byte	0x5ed
+ 1634 05de 1E       		.uleb128 0x1e
+ 1635 05df 3E000000 		.4byte	.LASF35
+ 1636 05e3 01       		.byte	0x1
+ 1637 05e4 0A01     		.2byte	0x10a
+ 1638 05e6 DF020000 		.4byte	0x2df
+ 1639 05ea 01       		.uleb128 0x1
+ 1640 05eb 50       		.byte	0x50
+ 1641 05ec 00       		.byte	0
+ 1642 05ed 1D       		.uleb128 0x1d
+ 1643 05ee 5E000000 		.4byte	.LASF52
+ 1644 05f2 01       		.byte	0x1
+ 1645 05f3 1401     		.2byte	0x114
+ 1646 05f5 00000000 		.4byte	.LFB8
+ 1647 05f9 0C000000 		.4byte	.LFE8-.LFB8
+ 1648 05fd 01       		.uleb128 0x1
+ 1649 05fe 9C       		.byte	0x9c
+ 1650 05ff 1D060000 		.4byte	0x61d
+ 1651 0603 18       		.uleb128 0x18
+ 1652 0604 3E000000 		.4byte	.LASF35
+ 1653 0608 01       		.byte	0x1
+ 1654 0609 1401     		.2byte	0x114
+ 1655 060b DF020000 		.4byte	0x2df
+ 1656 060f 18040000 		.4byte	.LLST18
+ 1657 0613 12       		.uleb128 0x12
+ 1658 0614 08000000 		.4byte	.LVL93
+ 1659 0618 2B070000 		.4byte	0x72b
+ 1660 061c 00       		.byte	0
+ 1661 061d 1D       		.uleb128 0x1d
+ 1662 061e 6F030000 		.4byte	.LASF53
+ 1663 0622 01       		.byte	0x1
+ 1664 0623 1D01     		.2byte	0x11d
+ 1665 0625 00000000 		.4byte	.LFB9
+ 1666 0629 0C000000 		.4byte	.LFE9-.LFB9
+ 1667 062d 01       		.uleb128 0x1
+ 1668 062e 9C       		.byte	0x9c
+ 1669 062f 41060000 		.4byte	0x641
+ 1670 0633 1F       		.uleb128 0x1f
+ 1671 0634 656E00   		.ascii	"en\000"
+ 1672 0637 01       		.byte	0x1
+ 1673 0638 1D01     		.2byte	0x11d
+ 1674 063a 9B030000 		.4byte	0x39b
+ 1675 063e 01       		.uleb128 0x1
+ 1676 063f 50       		.byte	0x50
+ 1677 0640 00       		.byte	0
+ 1678 0641 15       		.uleb128 0x15
+ 1679 0642 33030000 		.4byte	.LASF54
+ 1680 0646 01       		.byte	0x1
+ 1681 0647 34       		.byte	0x34
+ 1682 0648 00000000 		.4byte	.LFB0
+ 1683 064c 18000000 		.4byte	.LFE0-.LFB0
+ 1684 0650 01       		.uleb128 0x1
+ 1685 0651 9C       		.byte	0x9c
+ 1686 0652 79060000 		.4byte	0x679
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 38
+
+
+ 1687 0656 13       		.uleb128 0x13
+ 1688 0657 0A000000 		.4byte	.LVL95
+ 1689 065b 62070000 		.4byte	0x762
+ 1690 065f 69060000 		.4byte	0x669
+ 1691 0663 14       		.uleb128 0x14
+ 1692 0664 01       		.uleb128 0x1
+ 1693 0665 51       		.byte	0x51
+ 1694 0666 01       		.uleb128 0x1
+ 1695 0667 44       		.byte	0x44
+ 1696 0668 00       		.byte	0
+ 1697 0669 16       		.uleb128 0x16
+ 1698 066a 10000000 		.4byte	.LVL96
+ 1699 066e 1D060000 		.4byte	0x61d
+ 1700 0672 14       		.uleb128 0x14
+ 1701 0673 01       		.uleb128 0x1
+ 1702 0674 50       		.byte	0x50
+ 1703 0675 01       		.uleb128 0x1
+ 1704 0676 31       		.byte	0x31
+ 1705 0677 00       		.byte	0
+ 1706 0678 00       		.byte	0
+ 1707 0679 20       		.uleb128 0x20
+ 1708 067a 5E030000 		.4byte	.LASF78
+ 1709 067e 01       		.byte	0x1
+ 1710 067f 2601     		.2byte	0x126
+ 1711 0681 88000000 		.4byte	0x88
+ 1712 0685 00000000 		.4byte	.LFB10
+ 1713 0689 0C000000 		.4byte	.LFE10-.LFB10
+ 1714 068d 01       		.uleb128 0x1
+ 1715 068e 9C       		.byte	0x9c
+ 1716 068f 1B       		.uleb128 0x1b
+ 1717 0690 48000000 		.4byte	.LASF55
+ 1718 0694 01       		.byte	0x1
+ 1719 0695 24       		.byte	0x24
+ 1720 0696 9B030000 		.4byte	0x39b
+ 1721 069a 05       		.uleb128 0x5
+ 1722 069b 03       		.byte	0x3
+ 1723 069c 03000000 		.4byte	lv_task_run
+ 1724 06a0 1B       		.uleb128 0x1b
+ 1725 06a1 05020000 		.4byte	.LASF56
+ 1726 06a5 01       		.byte	0x1
+ 1727 06a6 25       		.byte	0x25
+ 1728 06a7 88000000 		.4byte	0x88
+ 1729 06ab 05       		.uleb128 0x5
+ 1730 06ac 03       		.byte	0x3
+ 1731 06ad 10000000 		.4byte	idle_last
+ 1732 06b1 1B       		.uleb128 0x1b
+ 1733 06b2 76000000 		.4byte	.LASF57
+ 1734 06b6 01       		.byte	0x1
+ 1735 06b7 26       		.byte	0x26
+ 1736 06b8 9B030000 		.4byte	0x39b
+ 1737 06bc 05       		.uleb128 0x5
+ 1738 06bd 03       		.byte	0x3
+ 1739 06be 01000000 		.4byte	task_deleted
+ 1740 06c2 1B       		.uleb128 0x1b
+ 1741 06c3 DC020000 		.4byte	.LASF58
+ 1742 06c7 01       		.byte	0x1
+ 1743 06c8 27       		.byte	0x27
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 39
+
+
+ 1744 06c9 9B030000 		.4byte	0x39b
+ 1745 06cd 05       		.uleb128 0x5
+ 1746 06ce 03       		.byte	0x3
+ 1747 06cf 00000000 		.4byte	task_created
+ 1748 06d3 21       		.uleb128 0x21
+ 1749 06d4 A0030000 		.4byte	.LASF59
+ 1750 06d8 06       		.byte	0x6
+ 1751 06d9 38       		.byte	0x38
+ 1752 06da DC000000 		.4byte	0xdc
+ 1753 06de 21       		.uleb128 0x21
+ 1754 06df 22020000 		.4byte	.LASF60
+ 1755 06e3 06       		.byte	0x6
+ 1756 06e4 38       		.byte	0x38
+ 1757 06e5 8B010000 		.4byte	0x18b
+ 1758 06e9 22       		.uleb128 0x22
+ 1759 06ea EC000000 		.4byte	.LASF61
+ 1760 06ee EC000000 		.4byte	.LASF61
+ 1761 06f2 04       		.byte	0x4
+ 1762 06f3 64       		.byte	0x64
+ 1763 06f4 22       		.uleb128 0x22
+ 1764 06f5 3F010000 		.4byte	.LASF62
+ 1765 06f9 3F010000 		.4byte	.LASF62
+ 1766 06fd 04       		.byte	0x4
+ 1767 06fe 38       		.byte	0x38
+ 1768 06ff 22       		.uleb128 0x22
+ 1769 0700 11010000 		.4byte	.LASF63
+ 1770 0704 11010000 		.4byte	.LASF63
+ 1771 0708 07       		.byte	0x7
+ 1772 0709 3D       		.byte	0x3d
+ 1773 070a 22       		.uleb128 0x22
+ 1774 070b 20000000 		.4byte	.LASF64
+ 1775 070f 20000000 		.4byte	.LASF64
+ 1776 0713 04       		.byte	0x4
+ 1777 0714 40       		.byte	0x40
+ 1778 0715 22       		.uleb128 0x22
+ 1779 0716 9D040000 		.4byte	.LASF65
+ 1780 071a 9D040000 		.4byte	.LASF65
+ 1781 071e 04       		.byte	0x4
+ 1782 071f 73       		.byte	0x73
+ 1783 0720 22       		.uleb128 0x22
+ 1784 0721 2F000000 		.4byte	.LASF66
+ 1785 0725 2F000000 		.4byte	.LASF66
+ 1786 0729 04       		.byte	0x4
+ 1787 072a 47       		.byte	0x47
+ 1788 072b 22       		.uleb128 0x22
+ 1789 072c 99010000 		.4byte	.LASF67
+ 1790 0730 99010000 		.4byte	.LASF67
+ 1791 0734 08       		.byte	0x8
+ 1792 0735 31       		.byte	0x31
+ 1793 0736 22       		.uleb128 0x22
+ 1794 0737 7D040000 		.4byte	.LASF68
+ 1795 073b 7D040000 		.4byte	.LASF68
+ 1796 073f 04       		.byte	0x4
+ 1797 0740 4F       		.byte	0x4f
+ 1798 0741 22       		.uleb128 0x22
+ 1799 0742 87040000 		.4byte	.LASF69
+ 1800 0746 87040000 		.4byte	.LASF69
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 40
+
+
+ 1801 074a 09       		.byte	0x9
+ 1802 074b 4E       		.byte	0x4e
+ 1803 074c 22       		.uleb128 0x22
+ 1804 074d 83000000 		.4byte	.LASF70
+ 1805 0751 83000000 		.4byte	.LASF70
+ 1806 0755 08       		.byte	0x8
+ 1807 0756 38       		.byte	0x38
+ 1808 0757 22       		.uleb128 0x22
+ 1809 0758 2D010000 		.4byte	.LASF71
+ 1810 075c 2D010000 		.4byte	.LASF71
+ 1811 0760 04       		.byte	0x4
+ 1812 0761 83       		.byte	0x83
+ 1813 0762 22       		.uleb128 0x22
+ 1814 0763 CC030000 		.4byte	.LASF72
+ 1815 0767 CC030000 		.4byte	.LASF72
+ 1816 076b 04       		.byte	0x4
+ 1817 076c 31       		.byte	0x31
+ 1818 076d 00       		.byte	0
+ 1819              		.section	.debug_abbrev,"",%progbits
+ 1820              	.Ldebug_abbrev0:
+ 1821 0000 01       		.uleb128 0x1
+ 1822 0001 11       		.uleb128 0x11
+ 1823 0002 01       		.byte	0x1
+ 1824 0003 25       		.uleb128 0x25
+ 1825 0004 0E       		.uleb128 0xe
+ 1826 0005 13       		.uleb128 0x13
+ 1827 0006 0B       		.uleb128 0xb
+ 1828 0007 03       		.uleb128 0x3
+ 1829 0008 0E       		.uleb128 0xe
+ 1830 0009 1B       		.uleb128 0x1b
+ 1831 000a 0E       		.uleb128 0xe
+ 1832 000b 55       		.uleb128 0x55
+ 1833 000c 17       		.uleb128 0x17
+ 1834 000d 11       		.uleb128 0x11
+ 1835 000e 01       		.uleb128 0x1
+ 1836 000f 10       		.uleb128 0x10
+ 1837 0010 17       		.uleb128 0x17
+ 1838 0011 00       		.byte	0
+ 1839 0012 00       		.byte	0
+ 1840 0013 02       		.uleb128 0x2
+ 1841 0014 24       		.uleb128 0x24
+ 1842 0015 00       		.byte	0
+ 1843 0016 0B       		.uleb128 0xb
+ 1844 0017 0B       		.uleb128 0xb
+ 1845 0018 3E       		.uleb128 0x3e
+ 1846 0019 0B       		.uleb128 0xb
+ 1847 001a 03       		.uleb128 0x3
+ 1848 001b 08       		.uleb128 0x8
+ 1849 001c 00       		.byte	0
+ 1850 001d 00       		.byte	0
+ 1851 001e 03       		.uleb128 0x3
+ 1852 001f 24       		.uleb128 0x24
+ 1853 0020 00       		.byte	0
+ 1854 0021 0B       		.uleb128 0xb
+ 1855 0022 0B       		.uleb128 0xb
+ 1856 0023 3E       		.uleb128 0x3e
+ 1857 0024 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 41
+
+
+ 1858 0025 03       		.uleb128 0x3
+ 1859 0026 0E       		.uleb128 0xe
+ 1860 0027 00       		.byte	0
+ 1861 0028 00       		.byte	0
+ 1862 0029 04       		.uleb128 0x4
+ 1863 002a 16       		.uleb128 0x16
+ 1864 002b 00       		.byte	0
+ 1865 002c 03       		.uleb128 0x3
+ 1866 002d 0E       		.uleb128 0xe
+ 1867 002e 3A       		.uleb128 0x3a
+ 1868 002f 0B       		.uleb128 0xb
+ 1869 0030 3B       		.uleb128 0x3b
+ 1870 0031 0B       		.uleb128 0xb
+ 1871 0032 49       		.uleb128 0x49
+ 1872 0033 13       		.uleb128 0x13
+ 1873 0034 00       		.byte	0
+ 1874 0035 00       		.byte	0
+ 1875 0036 05       		.uleb128 0x5
+ 1876 0037 13       		.uleb128 0x13
+ 1877 0038 01       		.byte	0x1
+ 1878 0039 0B       		.uleb128 0xb
+ 1879 003a 0B       		.uleb128 0xb
+ 1880 003b 3A       		.uleb128 0x3a
+ 1881 003c 0B       		.uleb128 0xb
+ 1882 003d 3B       		.uleb128 0x3b
+ 1883 003e 0B       		.uleb128 0xb
+ 1884 003f 01       		.uleb128 0x1
+ 1885 0040 13       		.uleb128 0x13
+ 1886 0041 00       		.byte	0
+ 1887 0042 00       		.byte	0
+ 1888 0043 06       		.uleb128 0x6
+ 1889 0044 0D       		.uleb128 0xd
+ 1890 0045 00       		.byte	0
+ 1891 0046 03       		.uleb128 0x3
+ 1892 0047 0E       		.uleb128 0xe
+ 1893 0048 3A       		.uleb128 0x3a
+ 1894 0049 0B       		.uleb128 0xb
+ 1895 004a 3B       		.uleb128 0x3b
+ 1896 004b 0B       		.uleb128 0xb
+ 1897 004c 49       		.uleb128 0x49
+ 1898 004d 13       		.uleb128 0x13
+ 1899 004e 38       		.uleb128 0x38
+ 1900 004f 0B       		.uleb128 0xb
+ 1901 0050 00       		.byte	0
+ 1902 0051 00       		.byte	0
+ 1903 0052 07       		.uleb128 0x7
+ 1904 0053 0F       		.uleb128 0xf
+ 1905 0054 00       		.byte	0
+ 1906 0055 0B       		.uleb128 0xb
+ 1907 0056 0B       		.uleb128 0xb
+ 1908 0057 49       		.uleb128 0x49
+ 1909 0058 13       		.uleb128 0x13
+ 1910 0059 00       		.byte	0
+ 1911 005a 00       		.byte	0
+ 1912 005b 08       		.uleb128 0x8
+ 1913 005c 04       		.uleb128 0x4
+ 1914 005d 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 42
+
+
+ 1915 005e 0B       		.uleb128 0xb
+ 1916 005f 0B       		.uleb128 0xb
+ 1917 0060 49       		.uleb128 0x49
+ 1918 0061 13       		.uleb128 0x13
+ 1919 0062 3A       		.uleb128 0x3a
+ 1920 0063 0B       		.uleb128 0xb
+ 1921 0064 3B       		.uleb128 0x3b
+ 1922 0065 0B       		.uleb128 0xb
+ 1923 0066 01       		.uleb128 0x1
+ 1924 0067 13       		.uleb128 0x13
+ 1925 0068 00       		.byte	0
+ 1926 0069 00       		.byte	0
+ 1927 006a 09       		.uleb128 0x9
+ 1928 006b 28       		.uleb128 0x28
+ 1929 006c 00       		.byte	0
+ 1930 006d 03       		.uleb128 0x3
+ 1931 006e 0E       		.uleb128 0xe
+ 1932 006f 1C       		.uleb128 0x1c
+ 1933 0070 0B       		.uleb128 0xb
+ 1934 0071 00       		.byte	0
+ 1935 0072 00       		.byte	0
+ 1936 0073 0A       		.uleb128 0xa
+ 1937 0074 0D       		.uleb128 0xd
+ 1938 0075 00       		.byte	0
+ 1939 0076 03       		.uleb128 0x3
+ 1940 0077 0E       		.uleb128 0xe
+ 1941 0078 3A       		.uleb128 0x3a
+ 1942 0079 0B       		.uleb128 0xb
+ 1943 007a 3B       		.uleb128 0x3b
+ 1944 007b 0B       		.uleb128 0xb
+ 1945 007c 49       		.uleb128 0x49
+ 1946 007d 13       		.uleb128 0x13
+ 1947 007e 0B       		.uleb128 0xb
+ 1948 007f 0B       		.uleb128 0xb
+ 1949 0080 0D       		.uleb128 0xd
+ 1950 0081 0B       		.uleb128 0xb
+ 1951 0082 0C       		.uleb128 0xc
+ 1952 0083 0B       		.uleb128 0xb
+ 1953 0084 38       		.uleb128 0x38
+ 1954 0085 0B       		.uleb128 0xb
+ 1955 0086 00       		.byte	0
+ 1956 0087 00       		.byte	0
+ 1957 0088 0B       		.uleb128 0xb
+ 1958 0089 15       		.uleb128 0x15
+ 1959 008a 01       		.byte	0x1
+ 1960 008b 27       		.uleb128 0x27
+ 1961 008c 19       		.uleb128 0x19
+ 1962 008d 01       		.uleb128 0x1
+ 1963 008e 13       		.uleb128 0x13
+ 1964 008f 00       		.byte	0
+ 1965 0090 00       		.byte	0
+ 1966 0091 0C       		.uleb128 0xc
+ 1967 0092 05       		.uleb128 0x5
+ 1968 0093 00       		.byte	0
+ 1969 0094 49       		.uleb128 0x49
+ 1970 0095 13       		.uleb128 0x13
+ 1971 0096 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 43
+
+
+ 1972 0097 00       		.byte	0
+ 1973 0098 0D       		.uleb128 0xd
+ 1974 0099 0F       		.uleb128 0xf
+ 1975 009a 00       		.byte	0
+ 1976 009b 0B       		.uleb128 0xb
+ 1977 009c 0B       		.uleb128 0xb
+ 1978 009d 00       		.byte	0
+ 1979 009e 00       		.byte	0
+ 1980 009f 0E       		.uleb128 0xe
+ 1981 00a0 2E       		.uleb128 0x2e
+ 1982 00a1 01       		.byte	0x1
+ 1983 00a2 3F       		.uleb128 0x3f
+ 1984 00a3 19       		.uleb128 0x19
+ 1985 00a4 03       		.uleb128 0x3
+ 1986 00a5 0E       		.uleb128 0xe
+ 1987 00a6 3A       		.uleb128 0x3a
+ 1988 00a7 0B       		.uleb128 0xb
+ 1989 00a8 3B       		.uleb128 0x3b
+ 1990 00a9 0B       		.uleb128 0xb
+ 1991 00aa 27       		.uleb128 0x27
+ 1992 00ab 19       		.uleb128 0x19
+ 1993 00ac 49       		.uleb128 0x49
+ 1994 00ad 13       		.uleb128 0x13
+ 1995 00ae 11       		.uleb128 0x11
+ 1996 00af 01       		.uleb128 0x1
+ 1997 00b0 12       		.uleb128 0x12
+ 1998 00b1 06       		.uleb128 0x6
+ 1999 00b2 40       		.uleb128 0x40
+ 2000 00b3 18       		.uleb128 0x18
+ 2001 00b4 9742     		.uleb128 0x2117
+ 2002 00b6 19       		.uleb128 0x19
+ 2003 00b7 01       		.uleb128 0x1
+ 2004 00b8 13       		.uleb128 0x13
+ 2005 00b9 00       		.byte	0
+ 2006 00ba 00       		.byte	0
+ 2007 00bb 0F       		.uleb128 0xf
+ 2008 00bc 05       		.uleb128 0x5
+ 2009 00bd 00       		.byte	0
+ 2010 00be 03       		.uleb128 0x3
+ 2011 00bf 0E       		.uleb128 0xe
+ 2012 00c0 3A       		.uleb128 0x3a
+ 2013 00c1 0B       		.uleb128 0xb
+ 2014 00c2 3B       		.uleb128 0x3b
+ 2015 00c3 0B       		.uleb128 0xb
+ 2016 00c4 49       		.uleb128 0x49
+ 2017 00c5 13       		.uleb128 0x13
+ 2018 00c6 02       		.uleb128 0x2
+ 2019 00c7 17       		.uleb128 0x17
+ 2020 00c8 00       		.byte	0
+ 2021 00c9 00       		.byte	0
+ 2022 00ca 10       		.uleb128 0x10
+ 2023 00cb 34       		.uleb128 0x34
+ 2024 00cc 00       		.byte	0
+ 2025 00cd 03       		.uleb128 0x3
+ 2026 00ce 0E       		.uleb128 0xe
+ 2027 00cf 3A       		.uleb128 0x3a
+ 2028 00d0 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 44
+
+
+ 2029 00d1 3B       		.uleb128 0x3b
+ 2030 00d2 0B       		.uleb128 0xb
+ 2031 00d3 49       		.uleb128 0x49
+ 2032 00d4 13       		.uleb128 0x13
+ 2033 00d5 02       		.uleb128 0x2
+ 2034 00d6 17       		.uleb128 0x17
+ 2035 00d7 00       		.byte	0
+ 2036 00d8 00       		.byte	0
+ 2037 00d9 11       		.uleb128 0x11
+ 2038 00da 34       		.uleb128 0x34
+ 2039 00db 00       		.byte	0
+ 2040 00dc 03       		.uleb128 0x3
+ 2041 00dd 08       		.uleb128 0x8
+ 2042 00de 3A       		.uleb128 0x3a
+ 2043 00df 0B       		.uleb128 0xb
+ 2044 00e0 3B       		.uleb128 0x3b
+ 2045 00e1 0B       		.uleb128 0xb
+ 2046 00e2 49       		.uleb128 0x49
+ 2047 00e3 13       		.uleb128 0x13
+ 2048 00e4 02       		.uleb128 0x2
+ 2049 00e5 17       		.uleb128 0x17
+ 2050 00e6 00       		.byte	0
+ 2051 00e7 00       		.byte	0
+ 2052 00e8 12       		.uleb128 0x12
+ 2053 00e9 898201   		.uleb128 0x4109
+ 2054 00ec 00       		.byte	0
+ 2055 00ed 11       		.uleb128 0x11
+ 2056 00ee 01       		.uleb128 0x1
+ 2057 00ef 31       		.uleb128 0x31
+ 2058 00f0 13       		.uleb128 0x13
+ 2059 00f1 00       		.byte	0
+ 2060 00f2 00       		.byte	0
+ 2061 00f3 13       		.uleb128 0x13
+ 2062 00f4 898201   		.uleb128 0x4109
+ 2063 00f7 01       		.byte	0x1
+ 2064 00f8 11       		.uleb128 0x11
+ 2065 00f9 01       		.uleb128 0x1
+ 2066 00fa 31       		.uleb128 0x31
+ 2067 00fb 13       		.uleb128 0x13
+ 2068 00fc 01       		.uleb128 0x1
+ 2069 00fd 13       		.uleb128 0x13
+ 2070 00fe 00       		.byte	0
+ 2071 00ff 00       		.byte	0
+ 2072 0100 14       		.uleb128 0x14
+ 2073 0101 8A8201   		.uleb128 0x410a
+ 2074 0104 00       		.byte	0
+ 2075 0105 02       		.uleb128 0x2
+ 2076 0106 18       		.uleb128 0x18
+ 2077 0107 9142     		.uleb128 0x2111
+ 2078 0109 18       		.uleb128 0x18
+ 2079 010a 00       		.byte	0
+ 2080 010b 00       		.byte	0
+ 2081 010c 15       		.uleb128 0x15
+ 2082 010d 2E       		.uleb128 0x2e
+ 2083 010e 01       		.byte	0x1
+ 2084 010f 3F       		.uleb128 0x3f
+ 2085 0110 19       		.uleb128 0x19
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 45
+
+
+ 2086 0111 03       		.uleb128 0x3
+ 2087 0112 0E       		.uleb128 0xe
+ 2088 0113 3A       		.uleb128 0x3a
+ 2089 0114 0B       		.uleb128 0xb
+ 2090 0115 3B       		.uleb128 0x3b
+ 2091 0116 0B       		.uleb128 0xb
+ 2092 0117 27       		.uleb128 0x27
+ 2093 0118 19       		.uleb128 0x19
+ 2094 0119 11       		.uleb128 0x11
+ 2095 011a 01       		.uleb128 0x1
+ 2096 011b 12       		.uleb128 0x12
+ 2097 011c 06       		.uleb128 0x6
+ 2098 011d 40       		.uleb128 0x40
+ 2099 011e 18       		.uleb128 0x18
+ 2100 011f 9742     		.uleb128 0x2117
+ 2101 0121 19       		.uleb128 0x19
+ 2102 0122 01       		.uleb128 0x1
+ 2103 0123 13       		.uleb128 0x13
+ 2104 0124 00       		.byte	0
+ 2105 0125 00       		.byte	0
+ 2106 0126 16       		.uleb128 0x16
+ 2107 0127 898201   		.uleb128 0x4109
+ 2108 012a 01       		.byte	0x1
+ 2109 012b 11       		.uleb128 0x11
+ 2110 012c 01       		.uleb128 0x1
+ 2111 012d 31       		.uleb128 0x31
+ 2112 012e 13       		.uleb128 0x13
+ 2113 012f 00       		.byte	0
+ 2114 0130 00       		.byte	0
+ 2115 0131 17       		.uleb128 0x17
+ 2116 0132 2E       		.uleb128 0x2e
+ 2117 0133 01       		.byte	0x1
+ 2118 0134 03       		.uleb128 0x3
+ 2119 0135 0E       		.uleb128 0xe
+ 2120 0136 3A       		.uleb128 0x3a
+ 2121 0137 0B       		.uleb128 0xb
+ 2122 0138 3B       		.uleb128 0x3b
+ 2123 0139 05       		.uleb128 0x5
+ 2124 013a 27       		.uleb128 0x27
+ 2125 013b 19       		.uleb128 0x19
+ 2126 013c 49       		.uleb128 0x49
+ 2127 013d 13       		.uleb128 0x13
+ 2128 013e 11       		.uleb128 0x11
+ 2129 013f 01       		.uleb128 0x1
+ 2130 0140 12       		.uleb128 0x12
+ 2131 0141 06       		.uleb128 0x6
+ 2132 0142 40       		.uleb128 0x40
+ 2133 0143 18       		.uleb128 0x18
+ 2134 0144 9642     		.uleb128 0x2116
+ 2135 0146 19       		.uleb128 0x19
+ 2136 0147 01       		.uleb128 0x1
+ 2137 0148 13       		.uleb128 0x13
+ 2138 0149 00       		.byte	0
+ 2139 014a 00       		.byte	0
+ 2140 014b 18       		.uleb128 0x18
+ 2141 014c 05       		.uleb128 0x5
+ 2142 014d 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 46
+
+
+ 2143 014e 03       		.uleb128 0x3
+ 2144 014f 0E       		.uleb128 0xe
+ 2145 0150 3A       		.uleb128 0x3a
+ 2146 0151 0B       		.uleb128 0xb
+ 2147 0152 3B       		.uleb128 0x3b
+ 2148 0153 05       		.uleb128 0x5
+ 2149 0154 49       		.uleb128 0x49
+ 2150 0155 13       		.uleb128 0x13
+ 2151 0156 02       		.uleb128 0x2
+ 2152 0157 17       		.uleb128 0x17
+ 2153 0158 00       		.byte	0
+ 2154 0159 00       		.byte	0
+ 2155 015a 19       		.uleb128 0x19
+ 2156 015b 34       		.uleb128 0x34
+ 2157 015c 00       		.byte	0
+ 2158 015d 03       		.uleb128 0x3
+ 2159 015e 0E       		.uleb128 0xe
+ 2160 015f 3A       		.uleb128 0x3a
+ 2161 0160 0B       		.uleb128 0xb
+ 2162 0161 3B       		.uleb128 0x3b
+ 2163 0162 05       		.uleb128 0x5
+ 2164 0163 49       		.uleb128 0x49
+ 2165 0164 13       		.uleb128 0x13
+ 2166 0165 02       		.uleb128 0x2
+ 2167 0166 17       		.uleb128 0x17
+ 2168 0167 00       		.byte	0
+ 2169 0168 00       		.byte	0
+ 2170 0169 1A       		.uleb128 0x1a
+ 2171 016a 34       		.uleb128 0x34
+ 2172 016b 00       		.byte	0
+ 2173 016c 03       		.uleb128 0x3
+ 2174 016d 08       		.uleb128 0x8
+ 2175 016e 3A       		.uleb128 0x3a
+ 2176 016f 0B       		.uleb128 0xb
+ 2177 0170 3B       		.uleb128 0x3b
+ 2178 0171 05       		.uleb128 0x5
+ 2179 0172 49       		.uleb128 0x49
+ 2180 0173 13       		.uleb128 0x13
+ 2181 0174 02       		.uleb128 0x2
+ 2182 0175 17       		.uleb128 0x17
+ 2183 0176 00       		.byte	0
+ 2184 0177 00       		.byte	0
+ 2185 0178 1B       		.uleb128 0x1b
+ 2186 0179 34       		.uleb128 0x34
+ 2187 017a 00       		.byte	0
+ 2188 017b 03       		.uleb128 0x3
+ 2189 017c 0E       		.uleb128 0xe
+ 2190 017d 3A       		.uleb128 0x3a
+ 2191 017e 0B       		.uleb128 0xb
+ 2192 017f 3B       		.uleb128 0x3b
+ 2193 0180 0B       		.uleb128 0xb
+ 2194 0181 49       		.uleb128 0x49
+ 2195 0182 13       		.uleb128 0x13
+ 2196 0183 02       		.uleb128 0x2
+ 2197 0184 18       		.uleb128 0x18
+ 2198 0185 00       		.byte	0
+ 2199 0186 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 47
+
+
+ 2200 0187 1C       		.uleb128 0x1c
+ 2201 0188 05       		.uleb128 0x5
+ 2202 0189 00       		.byte	0
+ 2203 018a 03       		.uleb128 0x3
+ 2204 018b 0E       		.uleb128 0xe
+ 2205 018c 3A       		.uleb128 0x3a
+ 2206 018d 0B       		.uleb128 0xb
+ 2207 018e 3B       		.uleb128 0x3b
+ 2208 018f 0B       		.uleb128 0xb
+ 2209 0190 49       		.uleb128 0x49
+ 2210 0191 13       		.uleb128 0x13
+ 2211 0192 02       		.uleb128 0x2
+ 2212 0193 18       		.uleb128 0x18
+ 2213 0194 00       		.byte	0
+ 2214 0195 00       		.byte	0
+ 2215 0196 1D       		.uleb128 0x1d
+ 2216 0197 2E       		.uleb128 0x2e
+ 2217 0198 01       		.byte	0x1
+ 2218 0199 3F       		.uleb128 0x3f
+ 2219 019a 19       		.uleb128 0x19
+ 2220 019b 03       		.uleb128 0x3
+ 2221 019c 0E       		.uleb128 0xe
+ 2222 019d 3A       		.uleb128 0x3a
+ 2223 019e 0B       		.uleb128 0xb
+ 2224 019f 3B       		.uleb128 0x3b
+ 2225 01a0 05       		.uleb128 0x5
+ 2226 01a1 27       		.uleb128 0x27
+ 2227 01a2 19       		.uleb128 0x19
+ 2228 01a3 11       		.uleb128 0x11
+ 2229 01a4 01       		.uleb128 0x1
+ 2230 01a5 12       		.uleb128 0x12
+ 2231 01a6 06       		.uleb128 0x6
+ 2232 01a7 40       		.uleb128 0x40
+ 2233 01a8 18       		.uleb128 0x18
+ 2234 01a9 9742     		.uleb128 0x2117
+ 2235 01ab 19       		.uleb128 0x19
+ 2236 01ac 01       		.uleb128 0x1
+ 2237 01ad 13       		.uleb128 0x13
+ 2238 01ae 00       		.byte	0
+ 2239 01af 00       		.byte	0
+ 2240 01b0 1E       		.uleb128 0x1e
+ 2241 01b1 05       		.uleb128 0x5
+ 2242 01b2 00       		.byte	0
+ 2243 01b3 03       		.uleb128 0x3
+ 2244 01b4 0E       		.uleb128 0xe
+ 2245 01b5 3A       		.uleb128 0x3a
+ 2246 01b6 0B       		.uleb128 0xb
+ 2247 01b7 3B       		.uleb128 0x3b
+ 2248 01b8 05       		.uleb128 0x5
+ 2249 01b9 49       		.uleb128 0x49
+ 2250 01ba 13       		.uleb128 0x13
+ 2251 01bb 02       		.uleb128 0x2
+ 2252 01bc 18       		.uleb128 0x18
+ 2253 01bd 00       		.byte	0
+ 2254 01be 00       		.byte	0
+ 2255 01bf 1F       		.uleb128 0x1f
+ 2256 01c0 05       		.uleb128 0x5
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 48
+
+
+ 2257 01c1 00       		.byte	0
+ 2258 01c2 03       		.uleb128 0x3
+ 2259 01c3 08       		.uleb128 0x8
+ 2260 01c4 3A       		.uleb128 0x3a
+ 2261 01c5 0B       		.uleb128 0xb
+ 2262 01c6 3B       		.uleb128 0x3b
+ 2263 01c7 05       		.uleb128 0x5
+ 2264 01c8 49       		.uleb128 0x49
+ 2265 01c9 13       		.uleb128 0x13
+ 2266 01ca 02       		.uleb128 0x2
+ 2267 01cb 18       		.uleb128 0x18
+ 2268 01cc 00       		.byte	0
+ 2269 01cd 00       		.byte	0
+ 2270 01ce 20       		.uleb128 0x20
+ 2271 01cf 2E       		.uleb128 0x2e
+ 2272 01d0 00       		.byte	0
+ 2273 01d1 3F       		.uleb128 0x3f
+ 2274 01d2 19       		.uleb128 0x19
+ 2275 01d3 03       		.uleb128 0x3
+ 2276 01d4 0E       		.uleb128 0xe
+ 2277 01d5 3A       		.uleb128 0x3a
+ 2278 01d6 0B       		.uleb128 0xb
+ 2279 01d7 3B       		.uleb128 0x3b
+ 2280 01d8 05       		.uleb128 0x5
+ 2281 01d9 27       		.uleb128 0x27
+ 2282 01da 19       		.uleb128 0x19
+ 2283 01db 49       		.uleb128 0x49
+ 2284 01dc 13       		.uleb128 0x13
+ 2285 01dd 11       		.uleb128 0x11
+ 2286 01de 01       		.uleb128 0x1
+ 2287 01df 12       		.uleb128 0x12
+ 2288 01e0 06       		.uleb128 0x6
+ 2289 01e1 40       		.uleb128 0x40
+ 2290 01e2 18       		.uleb128 0x18
+ 2291 01e3 9742     		.uleb128 0x2117
+ 2292 01e5 19       		.uleb128 0x19
+ 2293 01e6 00       		.byte	0
+ 2294 01e7 00       		.byte	0
+ 2295 01e8 21       		.uleb128 0x21
+ 2296 01e9 34       		.uleb128 0x34
+ 2297 01ea 00       		.byte	0
+ 2298 01eb 03       		.uleb128 0x3
+ 2299 01ec 0E       		.uleb128 0xe
+ 2300 01ed 3A       		.uleb128 0x3a
+ 2301 01ee 0B       		.uleb128 0xb
+ 2302 01ef 3B       		.uleb128 0x3b
+ 2303 01f0 0B       		.uleb128 0xb
+ 2304 01f1 49       		.uleb128 0x49
+ 2305 01f2 13       		.uleb128 0x13
+ 2306 01f3 3F       		.uleb128 0x3f
+ 2307 01f4 19       		.uleb128 0x19
+ 2308 01f5 3C       		.uleb128 0x3c
+ 2309 01f6 19       		.uleb128 0x19
+ 2310 01f7 00       		.byte	0
+ 2311 01f8 00       		.byte	0
+ 2312 01f9 22       		.uleb128 0x22
+ 2313 01fa 2E       		.uleb128 0x2e
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 49
+
+
+ 2314 01fb 00       		.byte	0
+ 2315 01fc 3F       		.uleb128 0x3f
+ 2316 01fd 19       		.uleb128 0x19
+ 2317 01fe 3C       		.uleb128 0x3c
+ 2318 01ff 19       		.uleb128 0x19
+ 2319 0200 6E       		.uleb128 0x6e
+ 2320 0201 0E       		.uleb128 0xe
+ 2321 0202 03       		.uleb128 0x3
+ 2322 0203 0E       		.uleb128 0xe
+ 2323 0204 3A       		.uleb128 0x3a
+ 2324 0205 0B       		.uleb128 0xb
+ 2325 0206 3B       		.uleb128 0x3b
+ 2326 0207 0B       		.uleb128 0xb
+ 2327 0208 00       		.byte	0
+ 2328 0209 00       		.byte	0
+ 2329 020a 00       		.byte	0
+ 2330              		.section	.debug_loc,"",%progbits
+ 2331              	.Ldebug_loc0:
+ 2332              	.LLST0:
+ 2333 0000 00000000 		.4byte	.LVL0
+ 2334 0004 0E000000 		.4byte	.LVL2
+ 2335 0008 0100     		.2byte	0x1
+ 2336 000a 50       		.byte	0x50
+ 2337 000b 0E000000 		.4byte	.LVL2
+ 2338 000f C0000000 		.4byte	.LVL31
+ 2339 0013 0100     		.2byte	0x1
+ 2340 0015 58       		.byte	0x58
+ 2341 0016 C0000000 		.4byte	.LVL31
+ 2342 001a D0000000 		.4byte	.LFE2
+ 2343 001e 0400     		.2byte	0x4
+ 2344 0020 F3       		.byte	0xf3
+ 2345 0021 01       		.uleb128 0x1
+ 2346 0022 50       		.byte	0x50
+ 2347 0023 9F       		.byte	0x9f
+ 2348 0024 00000000 		.4byte	0
+ 2349 0028 00000000 		.4byte	0
+ 2350              	.LLST1:
+ 2351 002c 00000000 		.4byte	.LVL0
+ 2352 0030 11000000 		.4byte	.LVL3-1
+ 2353 0034 0100     		.2byte	0x1
+ 2354 0036 51       		.byte	0x51
+ 2355 0037 11000000 		.4byte	.LVL3-1
+ 2356 003b C0000000 		.4byte	.LVL31
+ 2357 003f 0100     		.2byte	0x1
+ 2358 0041 59       		.byte	0x59
+ 2359 0042 C0000000 		.4byte	.LVL31
+ 2360 0046 D0000000 		.4byte	.LFE2
+ 2361 004a 0400     		.2byte	0x4
+ 2362 004c F3       		.byte	0xf3
+ 2363 004d 01       		.uleb128 0x1
+ 2364 004e 51       		.byte	0x51
+ 2365 004f 9F       		.byte	0x9f
+ 2366 0050 00000000 		.4byte	0
+ 2367 0054 00000000 		.4byte	0
+ 2368              	.LLST2:
+ 2369 0058 00000000 		.4byte	.LVL0
+ 2370 005c 11000000 		.4byte	.LVL3-1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 50
+
+
+ 2371 0060 0100     		.2byte	0x1
+ 2372 0062 52       		.byte	0x52
+ 2373 0063 11000000 		.4byte	.LVL3-1
+ 2374 0067 D0000000 		.4byte	.LFE2
+ 2375 006b 0400     		.2byte	0x4
+ 2376 006d F3       		.byte	0xf3
+ 2377 006e 01       		.uleb128 0x1
+ 2378 006f 52       		.byte	0x52
+ 2379 0070 9F       		.byte	0x9f
+ 2380 0071 00000000 		.4byte	0
+ 2381 0075 00000000 		.4byte	0
+ 2382              	.LLST3:
+ 2383 0079 00000000 		.4byte	.LVL0
+ 2384 007d 11000000 		.4byte	.LVL3-1
+ 2385 0081 0100     		.2byte	0x1
+ 2386 0083 53       		.byte	0x53
+ 2387 0084 11000000 		.4byte	.LVL3-1
+ 2388 0088 C0000000 		.4byte	.LVL31
+ 2389 008c 0100     		.2byte	0x1
+ 2390 008e 57       		.byte	0x57
+ 2391 008f C0000000 		.4byte	.LVL31
+ 2392 0093 D0000000 		.4byte	.LFE2
+ 2393 0097 0400     		.2byte	0x4
+ 2394 0099 F3       		.byte	0xf3
+ 2395 009a 01       		.uleb128 0x1
+ 2396 009b 53       		.byte	0x53
+ 2397 009c 9F       		.byte	0x9f
+ 2398 009d 00000000 		.4byte	0
+ 2399 00a1 00000000 		.4byte	0
+ 2400              	.LLST4:
+ 2401 00a5 0C000000 		.4byte	.LVL1
+ 2402 00a9 1C000000 		.4byte	.LVL5
+ 2403 00ad 0200     		.2byte	0x2
+ 2404 00af 30       		.byte	0x30
+ 2405 00b0 9F       		.byte	0x9f
+ 2406 00b1 1C000000 		.4byte	.LVL5
+ 2407 00b5 28000000 		.4byte	.LVL6
+ 2408 00b9 0100     		.2byte	0x1
+ 2409 00bb 50       		.byte	0x50
+ 2410 00bc 28000000 		.4byte	.LVL6
+ 2411 00c0 2E000000 		.4byte	.LVL8
+ 2412 00c4 0100     		.2byte	0x1
+ 2413 00c6 56       		.byte	0x56
+ 2414 00c7 2E000000 		.4byte	.LVL8
+ 2415 00cb 32000000 		.4byte	.LVL9
+ 2416 00cf 0100     		.2byte	0x1
+ 2417 00d1 50       		.byte	0x50
+ 2418 00d2 32000000 		.4byte	.LVL9
+ 2419 00d6 44000000 		.4byte	.LVL11
+ 2420 00da 0200     		.2byte	0x2
+ 2421 00dc 30       		.byte	0x30
+ 2422 00dd 9F       		.byte	0x9f
+ 2423 00de 44000000 		.4byte	.LVL11
+ 2424 00e2 50000000 		.4byte	.LVL12
+ 2425 00e6 0100     		.2byte	0x1
+ 2426 00e8 50       		.byte	0x50
+ 2427 00e9 50000000 		.4byte	.LVL12
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 51
+
+
+ 2428 00ed 56000000 		.4byte	.LVL14
+ 2429 00f1 0100     		.2byte	0x1
+ 2430 00f3 56       		.byte	0x56
+ 2431 00f4 56000000 		.4byte	.LVL14
+ 2432 00f8 5A000000 		.4byte	.LVL15
+ 2433 00fc 0100     		.2byte	0x1
+ 2434 00fe 50       		.byte	0x50
+ 2435 00ff 5A000000 		.4byte	.LVL15
+ 2436 0103 6A000000 		.4byte	.LVL18
+ 2437 0107 0200     		.2byte	0x2
+ 2438 0109 30       		.byte	0x30
+ 2439 010a 9F       		.byte	0x9f
+ 2440 010b 6A000000 		.4byte	.LVL18
+ 2441 010f 72000000 		.4byte	.LVL19
+ 2442 0113 0100     		.2byte	0x1
+ 2443 0115 56       		.byte	0x56
+ 2444 0116 72000000 		.4byte	.LVL19
+ 2445 011a 7E000000 		.4byte	.LVL20
+ 2446 011e 0100     		.2byte	0x1
+ 2447 0120 50       		.byte	0x50
+ 2448 0121 7E000000 		.4byte	.LVL20
+ 2449 0125 84000000 		.4byte	.LVL22
+ 2450 0129 0100     		.2byte	0x1
+ 2451 012b 56       		.byte	0x56
+ 2452 012c 84000000 		.4byte	.LVL22
+ 2453 0130 86000000 		.4byte	.LVL23
+ 2454 0134 0100     		.2byte	0x1
+ 2455 0136 50       		.byte	0x50
+ 2456 0137 86000000 		.4byte	.LVL23
+ 2457 013b AE000000 		.4byte	.LVL25
+ 2458 013f 0100     		.2byte	0x1
+ 2459 0141 56       		.byte	0x56
+ 2460 0142 AE000000 		.4byte	.LVL25
+ 2461 0146 B0000000 		.4byte	.LVL26
+ 2462 014a 0100     		.2byte	0x1
+ 2463 014c 50       		.byte	0x50
+ 2464 014d B0000000 		.4byte	.LVL26
+ 2465 0151 B4000000 		.4byte	.LVL27
+ 2466 0155 0100     		.2byte	0x1
+ 2467 0157 56       		.byte	0x56
+ 2468 0158 B4000000 		.4byte	.LVL27
+ 2469 015c B6000000 		.4byte	.LVL28
+ 2470 0160 0100     		.2byte	0x1
+ 2471 0162 50       		.byte	0x50
+ 2472 0163 B6000000 		.4byte	.LVL28
+ 2473 0167 BA000000 		.4byte	.LVL29
+ 2474 016b 0100     		.2byte	0x1
+ 2475 016d 56       		.byte	0x56
+ 2476 016e BA000000 		.4byte	.LVL29
+ 2477 0172 BC000000 		.4byte	.LVL30
+ 2478 0176 0100     		.2byte	0x1
+ 2479 0178 50       		.byte	0x50
+ 2480 0179 BC000000 		.4byte	.LVL30
+ 2481 017d C0000000 		.4byte	.LVL31
+ 2482 0181 0100     		.2byte	0x1
+ 2483 0183 56       		.byte	0x56
+ 2484 0184 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 52
+
+
+ 2485 0188 00000000 		.4byte	0
+ 2486              	.LLST5:
+ 2487 018c 12000000 		.4byte	.LVL3
+ 2488 0190 18000000 		.4byte	.LVL4
+ 2489 0194 0100     		.2byte	0x1
+ 2490 0196 50       		.byte	0x50
+ 2491 0197 18000000 		.4byte	.LVL4
+ 2492 019b 32000000 		.4byte	.LVL9
+ 2493 019f 0100     		.2byte	0x1
+ 2494 01a1 54       		.byte	0x54
+ 2495 01a2 32000000 		.4byte	.LVL9
+ 2496 01a6 40000000 		.4byte	.LVL10
+ 2497 01aa 0100     		.2byte	0x1
+ 2498 01ac 50       		.byte	0x50
+ 2499 01ad 40000000 		.4byte	.LVL10
+ 2500 01b1 43000000 		.4byte	.LVL11-1
+ 2501 01b5 0100     		.2byte	0x1
+ 2502 01b7 51       		.byte	0x51
+ 2503 01b8 43000000 		.4byte	.LVL11-1
+ 2504 01bc 5A000000 		.4byte	.LVL15
+ 2505 01c0 0100     		.2byte	0x1
+ 2506 01c2 54       		.byte	0x54
+ 2507 01c3 5A000000 		.4byte	.LVL15
+ 2508 01c7 5E000000 		.4byte	.LVL16
+ 2509 01cb 0100     		.2byte	0x1
+ 2510 01cd 50       		.byte	0x50
+ 2511 01ce 5E000000 		.4byte	.LVL16
+ 2512 01d2 62000000 		.4byte	.LVL17
+ 2513 01d6 0100     		.2byte	0x1
+ 2514 01d8 54       		.byte	0x54
+ 2515 01d9 62000000 		.4byte	.LVL17
+ 2516 01dd 6A000000 		.4byte	.LVL18
+ 2517 01e1 0100     		.2byte	0x1
+ 2518 01e3 50       		.byte	0x50
+ 2519 01e4 6A000000 		.4byte	.LVL18
+ 2520 01e8 C0000000 		.4byte	.LVL31
+ 2521 01ec 0100     		.2byte	0x1
+ 2522 01ee 54       		.byte	0x54
+ 2523 01ef 00000000 		.4byte	0
+ 2524 01f3 00000000 		.4byte	0
+ 2525              	.LLST6:
+ 2526 01f7 00000000 		.4byte	.LVL32
+ 2527 01fb 08000000 		.4byte	.LVL33
+ 2528 01ff 0100     		.2byte	0x1
+ 2529 0201 50       		.byte	0x50
+ 2530 0202 08000000 		.4byte	.LVL33
+ 2531 0206 0B000000 		.4byte	.LVL34-1
+ 2532 020a 0100     		.2byte	0x1
+ 2533 020c 51       		.byte	0x51
+ 2534 020d 0B000000 		.4byte	.LVL34-1
+ 2535 0211 22000000 		.4byte	.LVL36
+ 2536 0215 0100     		.2byte	0x1
+ 2537 0217 54       		.byte	0x54
+ 2538 0218 22000000 		.4byte	.LVL36
+ 2539 021c 30000000 		.4byte	.LFE3
+ 2540 0220 0400     		.2byte	0x4
+ 2541 0222 F3       		.byte	0xf3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 53
+
+
+ 2542 0223 01       		.uleb128 0x1
+ 2543 0224 50       		.byte	0x50
+ 2544 0225 9F       		.byte	0x9f
+ 2545 0226 00000000 		.4byte	0
+ 2546 022a 00000000 		.4byte	0
+ 2547              	.LLST7:
+ 2548 022e 00000000 		.4byte	.LVL37
+ 2549 0232 06000000 		.4byte	.LVL39
+ 2550 0236 0100     		.2byte	0x1
+ 2551 0238 50       		.byte	0x50
+ 2552 0239 06000000 		.4byte	.LVL39
+ 2553 023d 46000000 		.4byte	.LVL49
+ 2554 0241 0100     		.2byte	0x1
+ 2555 0243 54       		.byte	0x54
+ 2556 0244 46000000 		.4byte	.LVL49
+ 2557 0248 4C000000 		.4byte	.LFE11
+ 2558 024c 0400     		.2byte	0x4
+ 2559 024e F3       		.byte	0xf3
+ 2560 024f 01       		.uleb128 0x1
+ 2561 0250 50       		.byte	0x50
+ 2562 0251 9F       		.byte	0x9f
+ 2563 0252 00000000 		.4byte	0
+ 2564 0256 00000000 		.4byte	0
+ 2565              	.LLST8:
+ 2566 025a 04000000 		.4byte	.LVL38
+ 2567 025e 44000000 		.4byte	.LVL48
+ 2568 0262 0200     		.2byte	0x2
+ 2569 0264 30       		.byte	0x30
+ 2570 0265 9F       		.byte	0x9f
+ 2571 0266 44000000 		.4byte	.LVL48
+ 2572 026a 4C000000 		.4byte	.LFE11
+ 2573 026e 0100     		.2byte	0x1
+ 2574 0270 50       		.byte	0x50
+ 2575 0271 00000000 		.4byte	0
+ 2576 0275 00000000 		.4byte	0
+ 2577              	.LLST9:
+ 2578 0279 0A000000 		.4byte	.LVL40
+ 2579 027d 13000000 		.4byte	.LVL41-1
+ 2580 0281 0100     		.2byte	0x1
+ 2581 0283 50       		.byte	0x50
+ 2582 0284 3A000000 		.4byte	.LVL44
+ 2583 0288 3C000000 		.4byte	.LVL45
+ 2584 028c 0100     		.2byte	0x1
+ 2585 028e 50       		.byte	0x50
+ 2586 028f 00000000 		.4byte	0
+ 2587 0293 00000000 		.4byte	0
+ 2588              	.LLST10:
+ 2589 0297 2C000000 		.4byte	.LVL52
+ 2590 029b 2E000000 		.4byte	.LVL53
+ 2591 029f 0200     		.2byte	0x2
+ 2592 02a1 30       		.byte	0x30
+ 2593 02a2 9F       		.byte	0x9f
+ 2594 02a3 2E000000 		.4byte	.LVL53
+ 2595 02a7 5A000000 		.4byte	.LVL58
+ 2596 02ab 0100     		.2byte	0x1
+ 2597 02ad 54       		.byte	0x54
+ 2598 02ae 5A000000 		.4byte	.LVL58
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 54
+
+
+ 2599 02b2 62000000 		.4byte	.LVL59
+ 2600 02b6 0200     		.2byte	0x2
+ 2601 02b8 30       		.byte	0x30
+ 2602 02b9 9F       		.byte	0x9f
+ 2603 02ba 62000000 		.4byte	.LVL59
+ 2604 02be C6000000 		.4byte	.LVL70
+ 2605 02c2 0100     		.2byte	0x1
+ 2606 02c4 54       		.byte	0x54
+ 2607 02c5 00000000 		.4byte	0
+ 2608 02c9 00000000 		.4byte	0
+ 2609              	.LLST11:
+ 2610 02cd 4A000000 		.4byte	.LVL56
+ 2611 02d1 4E000000 		.4byte	.LVL57
+ 2612 02d5 0100     		.2byte	0x1
+ 2613 02d7 50       		.byte	0x50
+ 2614 02d8 4E000000 		.4byte	.LVL57
+ 2615 02dc AA000000 		.4byte	.LVL67
+ 2616 02e0 0100     		.2byte	0x1
+ 2617 02e2 55       		.byte	0x55
+ 2618 02e3 B6000000 		.4byte	.LVL68
+ 2619 02e7 C0000000 		.4byte	.LVL69
+ 2620 02eb 0100     		.2byte	0x1
+ 2621 02ed 55       		.byte	0x55
+ 2622 02ee 00000000 		.4byte	0
+ 2623 02f2 00000000 		.4byte	0
+ 2624              	.LLST12:
+ 2625 02f6 2E000000 		.4byte	.LVL53
+ 2626 02fa 88000000 		.4byte	.LVL62
+ 2627 02fe 0200     		.2byte	0x2
+ 2628 0300 31       		.byte	0x31
+ 2629 0301 9F       		.byte	0x9f
+ 2630 0302 88000000 		.4byte	.LVL62
+ 2631 0306 8C000000 		.4byte	.LVL63
+ 2632 030a 0200     		.2byte	0x2
+ 2633 030c 30       		.byte	0x30
+ 2634 030d 9F       		.byte	0x9f
+ 2635 030e 8C000000 		.4byte	.LVL63
+ 2636 0312 96000000 		.4byte	.LVL65
+ 2637 0316 0200     		.2byte	0x2
+ 2638 0318 31       		.byte	0x31
+ 2639 0319 9F       		.byte	0x9f
+ 2640 031a 96000000 		.4byte	.LVL65
+ 2641 031e 9A000000 		.4byte	.LVL66
+ 2642 0322 0200     		.2byte	0x2
+ 2643 0324 30       		.byte	0x30
+ 2644 0325 9F       		.byte	0x9f
+ 2645 0326 9A000000 		.4byte	.LVL66
+ 2646 032a C0000000 		.4byte	.LVL69
+ 2647 032e 0200     		.2byte	0x2
+ 2648 0330 31       		.byte	0x31
+ 2649 0331 9F       		.byte	0x9f
+ 2650 0332 C0000000 		.4byte	.LVL69
+ 2651 0336 CB000000 		.4byte	.LVL71-1
+ 2652 033a 0100     		.2byte	0x1
+ 2653 033c 53       		.byte	0x53
+ 2654 033d 00000000 		.4byte	0
+ 2655 0341 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 55
+
+
+ 2656              	.LLST13:
+ 2657 0345 D8000000 		.4byte	.LVL72
+ 2658 0349 09010000 		.4byte	.LVL73-1
+ 2659 034d 0100     		.2byte	0x1
+ 2660 034f 50       		.byte	0x50
+ 2661 0350 00000000 		.4byte	0
+ 2662 0354 00000000 		.4byte	0
+ 2663              	.LLST14:
+ 2664 0358 00000000 		.4byte	.LVL75
+ 2665 035c 08000000 		.4byte	.LVL76
+ 2666 0360 0100     		.2byte	0x1
+ 2667 0362 50       		.byte	0x50
+ 2668 0363 08000000 		.4byte	.LVL76
+ 2669 0367 4E000000 		.4byte	.LVL87
+ 2670 036b 0100     		.2byte	0x1
+ 2671 036d 56       		.byte	0x56
+ 2672 036e 4E000000 		.4byte	.LVL87
+ 2673 0372 54000000 		.4byte	.LFE4
+ 2674 0376 0400     		.2byte	0x4
+ 2675 0378 F3       		.byte	0xf3
+ 2676 0379 01       		.uleb128 0x1
+ 2677 037a 50       		.byte	0x50
+ 2678 037b 9F       		.byte	0x9f
+ 2679 037c 00000000 		.4byte	0
+ 2680 0380 00000000 		.4byte	0
+ 2681              	.LLST15:
+ 2682 0384 00000000 		.4byte	.LVL75
+ 2683 0388 0B000000 		.4byte	.LVL77-1
+ 2684 038c 0100     		.2byte	0x1
+ 2685 038e 51       		.byte	0x51
+ 2686 038f 0B000000 		.4byte	.LVL77-1
+ 2687 0393 54000000 		.4byte	.LFE4
+ 2688 0397 0400     		.2byte	0x4
+ 2689 0399 F3       		.byte	0xf3
+ 2690 039a 01       		.uleb128 0x1
+ 2691 039b 51       		.byte	0x51
+ 2692 039c 9F       		.byte	0x9f
+ 2693 039d 00000000 		.4byte	0
+ 2694 03a1 00000000 		.4byte	0
+ 2695              	.LLST16:
+ 2696 03a5 0E000000 		.4byte	.LVL78
+ 2697 03a9 24000000 		.4byte	.LVL79
+ 2698 03ad 0100     		.2byte	0x1
+ 2699 03af 50       		.byte	0x50
+ 2700 03b0 24000000 		.4byte	.LVL79
+ 2701 03b4 27000000 		.4byte	.LVL80-1
+ 2702 03b8 0100     		.2byte	0x1
+ 2703 03ba 52       		.byte	0x52
+ 2704 03bb 27000000 		.4byte	.LVL80-1
+ 2705 03bf 2A000000 		.4byte	.LVL81
+ 2706 03c3 0100     		.2byte	0x1
+ 2707 03c5 54       		.byte	0x54
+ 2708 03c6 2A000000 		.4byte	.LVL81
+ 2709 03ca 2E000000 		.4byte	.LVL82
+ 2710 03ce 0100     		.2byte	0x1
+ 2711 03d0 50       		.byte	0x50
+ 2712 03d1 2E000000 		.4byte	.LVL82
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 56
+
+
+ 2713 03d5 34000000 		.4byte	.LVL84
+ 2714 03d9 0100     		.2byte	0x1
+ 2715 03db 54       		.byte	0x54
+ 2716 03dc 34000000 		.4byte	.LVL84
+ 2717 03e0 38000000 		.4byte	.LVL85
+ 2718 03e4 0100     		.2byte	0x1
+ 2719 03e6 50       		.byte	0x50
+ 2720 03e7 38000000 		.4byte	.LVL85
+ 2721 03eb 4E000000 		.4byte	.LVL87
+ 2722 03ef 0100     		.2byte	0x1
+ 2723 03f1 54       		.byte	0x54
+ 2724 03f2 00000000 		.4byte	0
+ 2725 03f6 00000000 		.4byte	0
+ 2726              	.LLST17:
+ 2727 03fa 00000000 		.4byte	.LVL89
+ 2728 03fe 07000000 		.4byte	.LVL90-1
+ 2729 0402 0100     		.2byte	0x1
+ 2730 0404 50       		.byte	0x50
+ 2731 0405 07000000 		.4byte	.LVL90-1
+ 2732 0409 12000000 		.4byte	.LFE6
+ 2733 040d 0100     		.2byte	0x1
+ 2734 040f 54       		.byte	0x54
+ 2735 0410 00000000 		.4byte	0
+ 2736 0414 00000000 		.4byte	0
+ 2737              	.LLST18:
+ 2738 0418 00000000 		.4byte	.LVL92
+ 2739 041c 07000000 		.4byte	.LVL93-1
+ 2740 0420 0100     		.2byte	0x1
+ 2741 0422 50       		.byte	0x50
+ 2742 0423 07000000 		.4byte	.LVL93-1
+ 2743 0427 0C000000 		.4byte	.LFE8
+ 2744 042b 0100     		.2byte	0x1
+ 2745 042d 54       		.byte	0x54
+ 2746 042e 00000000 		.4byte	0
+ 2747 0432 00000000 		.4byte	0
+ 2748              		.section	.debug_aranges,"",%progbits
+ 2749 0000 74000000 		.4byte	0x74
+ 2750 0004 0200     		.2byte	0x2
+ 2751 0006 00000000 		.4byte	.Ldebug_info0
+ 2752 000a 04       		.byte	0x4
+ 2753 000b 00       		.byte	0
+ 2754 000c 0000     		.2byte	0
+ 2755 000e 0000     		.2byte	0
+ 2756 0010 00000000 		.4byte	.LFB2
+ 2757 0014 D0000000 		.4byte	.LFE2-.LFB2
+ 2758 0018 00000000 		.4byte	.LFB3
+ 2759 001c 30000000 		.4byte	.LFE3-.LFB3
+ 2760 0020 00000000 		.4byte	.LFB11
+ 2761 0024 4C000000 		.4byte	.LFE11-.LFB11
+ 2762 0028 00000000 		.4byte	.LFB1
+ 2763 002c 3C010000 		.4byte	.LFE1-.LFB1
+ 2764 0030 00000000 		.4byte	.LFB4
+ 2765 0034 54000000 		.4byte	.LFE4-.LFB4
+ 2766 0038 00000000 		.4byte	.LFB5
+ 2767 003c 04000000 		.4byte	.LFE5-.LFB5
+ 2768 0040 00000000 		.4byte	.LFB6
+ 2769 0044 12000000 		.4byte	.LFE6-.LFB6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 57
+
+
+ 2770 0048 00000000 		.4byte	.LFB7
+ 2771 004c 0A000000 		.4byte	.LFE7-.LFB7
+ 2772 0050 00000000 		.4byte	.LFB8
+ 2773 0054 0C000000 		.4byte	.LFE8-.LFB8
+ 2774 0058 00000000 		.4byte	.LFB9
+ 2775 005c 0C000000 		.4byte	.LFE9-.LFB9
+ 2776 0060 00000000 		.4byte	.LFB0
+ 2777 0064 18000000 		.4byte	.LFE0-.LFB0
+ 2778 0068 00000000 		.4byte	.LFB10
+ 2779 006c 0C000000 		.4byte	.LFE10-.LFB10
+ 2780 0070 00000000 		.4byte	0
+ 2781 0074 00000000 		.4byte	0
+ 2782              		.section	.debug_ranges,"",%progbits
+ 2783              	.Ldebug_ranges0:
+ 2784 0000 00000000 		.4byte	.LFB2
+ 2785 0004 D0000000 		.4byte	.LFE2
+ 2786 0008 00000000 		.4byte	.LFB3
+ 2787 000c 30000000 		.4byte	.LFE3
+ 2788 0010 00000000 		.4byte	.LFB11
+ 2789 0014 4C000000 		.4byte	.LFE11
+ 2790 0018 00000000 		.4byte	.LFB1
+ 2791 001c 3C010000 		.4byte	.LFE1
+ 2792 0020 00000000 		.4byte	.LFB4
+ 2793 0024 54000000 		.4byte	.LFE4
+ 2794 0028 00000000 		.4byte	.LFB5
+ 2795 002c 04000000 		.4byte	.LFE5
+ 2796 0030 00000000 		.4byte	.LFB6
+ 2797 0034 12000000 		.4byte	.LFE6
+ 2798 0038 00000000 		.4byte	.LFB7
+ 2799 003c 0A000000 		.4byte	.LFE7
+ 2800 0040 00000000 		.4byte	.LFB8
+ 2801 0044 0C000000 		.4byte	.LFE8
+ 2802 0048 00000000 		.4byte	.LFB9
+ 2803 004c 0C000000 		.4byte	.LFE9
+ 2804 0050 00000000 		.4byte	.LFB0
+ 2805 0054 18000000 		.4byte	.LFE0
+ 2806 0058 00000000 		.4byte	.LFB10
+ 2807 005c 0C000000 		.4byte	.LFE10
+ 2808 0060 00000000 		.4byte	0
+ 2809 0064 00000000 		.4byte	0
+ 2810              		.section	.debug_line,"",%progbits
+ 2811              	.Ldebug_line0:
+ 2812 0000 11030000 		.section	.debug_str,"MS",%progbits,1
+ 2812      02009301 
+ 2812      00000201 
+ 2812      FB0E0D00 
+ 2812      01010101 
+ 2813              	.LASF14:
+ 2814 0000 6C765F6C 		.ascii	"lv_ll_node_t\000"
+ 2814      6C5F6E6F 
+ 2814      64655F74 
+ 2814      00
+ 2815              	.LASF40:
+ 2816 000d 7461736B 		.ascii	"task_handler_mutex\000"
+ 2816      5F68616E 
+ 2816      646C6572 
+ 2816      5F6D7574 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 58
+
+
+ 2816      657800
+ 2817              	.LASF64:
+ 2818 0020 6C765F6C 		.ascii	"lv_ll_ins_prev\000"
+ 2818      6C5F696E 
+ 2818      735F7072 
+ 2818      657600
+ 2819              	.LASF66:
+ 2820 002f 6C765F6C 		.ascii	"lv_ll_ins_tail\000"
+ 2820      6C5F696E 
+ 2820      735F7461 
+ 2820      696C00
+ 2821              	.LASF35:
+ 2822 003e 6C765F74 		.ascii	"lv_task_p\000"
+ 2822      61736B5F 
+ 2822      7000
+ 2823              	.LASF55:
+ 2824 0048 6C765F74 		.ascii	"lv_task_run\000"
+ 2824      61736B5F 
+ 2824      72756E00 
+ 2825              	.LASF33:
+ 2826 0054 6C765F74 		.ascii	"lv_task_t\000"
+ 2826      61736B5F 
+ 2826      7400
+ 2827              	.LASF52:
+ 2828 005e 6C765F74 		.ascii	"lv_task_reset\000"
+ 2828      61736B5F 
+ 2828      72657365 
+ 2828      7400
+ 2829              	.LASF5:
+ 2830 006c 73686F72 		.ascii	"short int\000"
+ 2830      7420696E 
+ 2830      7400
+ 2831              	.LASF57:
+ 2832 0076 7461736B 		.ascii	"task_deleted\000"
+ 2832      5F64656C 
+ 2832      65746564 
+ 2832      00
+ 2833              	.LASF70:
+ 2834 0083 6C765F74 		.ascii	"lv_tick_elaps\000"
+ 2834      69636B5F 
+ 2834      656C6170 
+ 2834      7300
+ 2835              	.LASF29:
+ 2836 0091 7461736B 		.ascii	"task\000"
+ 2836      00
+ 2837              	.LASF21:
+ 2838 0096 4C565F54 		.ascii	"LV_TASK_PRIO_LOW\000"
+ 2838      41534B5F 
+ 2838      5052494F 
+ 2838      5F4C4F57 
+ 2838      00
+ 2839              	.LASF9:
+ 2840 00a7 5F5F7569 		.ascii	"__uint32_t\000"
+ 2840      6E743332 
+ 2840      5F7400
+ 2841              	.LASF26:
+ 2842 00b2 6C765F74 		.ascii	"lv_task_prio_t\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 59
+
+
+ 2842      61736B5F 
+ 2842      7072696F 
+ 2842      5F7400
+ 2843              	.LASF47:
+ 2844 00c1 69646C65 		.ascii	"idle_period_time\000"
+ 2844      5F706572 
+ 2844      696F645F 
+ 2844      74696D65 
+ 2844      00
+ 2845              	.LASF16:
+ 2846 00d2 68656164 		.ascii	"head\000"
+ 2846      00
+ 2847              	.LASF24:
+ 2848 00d7 4C565F54 		.ascii	"LV_TASK_PRIO_HIGHEST\000"
+ 2848      41534B5F 
+ 2848      5052494F 
+ 2848      5F484947 
+ 2848      48455354 
+ 2849              	.LASF61:
+ 2850 00ec 6C765F6C 		.ascii	"lv_ll_get_head\000"
+ 2850      6C5F6765 
+ 2850      745F6865 
+ 2850      616400
+ 2851              	.LASF12:
+ 2852 00fb 75696E74 		.ascii	"uint8_t\000"
+ 2852      385F7400 
+ 2853              	.LASF42:
+ 2854 0103 68616E64 		.ascii	"handler_start\000"
+ 2854      6C65725F 
+ 2854      73746172 
+ 2854      7400
+ 2855              	.LASF63:
+ 2856 0111 6C765F6C 		.ascii	"lv_log_add\000"
+ 2856      6F675F61 
+ 2856      646400
+ 2857              	.LASF48:
+ 2858 011c 6C765F74 		.ascii	"lv_task_set_prio\000"
+ 2858      61736B5F 
+ 2858      7365745F 
+ 2858      7072696F 
+ 2858      00
+ 2859              	.LASF71:
+ 2860 012d 6C765F6C 		.ascii	"lv_ll_move_before\000"
+ 2860      6C5F6D6F 
+ 2860      76655F62 
+ 2860      65666F72 
+ 2860      6500
+ 2861              	.LASF62:
+ 2862 013f 6C765F6C 		.ascii	"lv_ll_ins_head\000"
+ 2862      6C5F696E 
+ 2862      735F6865 
+ 2862      616400
+ 2863              	.LASF75:
+ 2864 014e 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 2864      73657273 
+ 2864      5C643362 
+ 2864      75675C44 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 60
+
+
+ 2864      6F63756D 
+ 2865 017c 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 2865      6F5F776F 
+ 2865      726C645F 
+ 2865      6C616265 
+ 2865      6C2E6379 
+ 2866              	.LASF36:
+ 2867 0194 65786563 		.ascii	"exec\000"
+ 2867      00
+ 2868              	.LASF67:
+ 2869 0199 6C765F74 		.ascii	"lv_tick_get\000"
+ 2869      69636B5F 
+ 2869      67657400 
+ 2870              	.LASF1:
+ 2871 01a5 6C6F6E67 		.ascii	"long long int\000"
+ 2871      206C6F6E 
+ 2871      6720696E 
+ 2871      7400
+ 2872              	.LASF19:
+ 2873 01b3 4C565F54 		.ascii	"LV_TASK_PRIO_OFF\000"
+ 2873      41534B5F 
+ 2873      5052494F 
+ 2873      5F4F4646 
+ 2873      00
+ 2874              	.LASF22:
+ 2875 01c4 4C565F54 		.ascii	"LV_TASK_PRIO_MID\000"
+ 2875      41534B5F 
+ 2875      5052494F 
+ 2875      5F4D4944 
+ 2875      00
+ 2876              	.LASF77:
+ 2877 01d5 6C765F74 		.ascii	"lv_task_exec\000"
+ 2877      61736B5F 
+ 2877      65786563 
+ 2877      00
+ 2878              	.LASF7:
+ 2879 01e2 6C6F6E67 		.ascii	"long int\000"
+ 2879      20696E74 
+ 2879      00
+ 2880              	.LASF49:
+ 2881 01eb 6C765F74 		.ascii	"lv_task_set_period\000"
+ 2881      61736B5F 
+ 2881      7365745F 
+ 2881      70657269 
+ 2881      6F6400
+ 2882              	.LASF27:
+ 2883 01fe 70657269 		.ascii	"period\000"
+ 2883      6F6400
+ 2884              	.LASF56:
+ 2885 0205 69646C65 		.ascii	"idle_last\000"
+ 2885      5F6C6173 
+ 2885      7400
+ 2886              	.LASF8:
+ 2887 020f 5F5F7569 		.ascii	"__uint8_t\000"
+ 2887      6E74385F 
+ 2887      7400
+ 2888              	.LASF28:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 61
+
+
+ 2889 0219 6C617374 		.ascii	"last_run\000"
+ 2889      5F72756E 
+ 2889      00
+ 2890              	.LASF60:
+ 2891 0222 5F6C765F 		.ascii	"_lv_task_act\000"
+ 2891      7461736B 
+ 2891      5F616374 
+ 2891      00
+ 2892              	.LASF18:
+ 2893 022f 6C765F6C 		.ascii	"lv_ll_t\000"
+ 2893      6C5F7400 
+ 2894              	.LASF2:
+ 2895 0237 6C6F6E67 		.ascii	"long double\000"
+ 2895      20646F75 
+ 2895      626C6500 
+ 2896              	.LASF17:
+ 2897 0243 7461696C 		.ascii	"tail\000"
+ 2897      00
+ 2898              	.LASF25:
+ 2899 0248 4C565F54 		.ascii	"LV_TASK_PRIO_NUM\000"
+ 2899      41534B5F 
+ 2899      5052494F 
+ 2899      5F4E554D 
+ 2899      00
+ 2900              	.LASF4:
+ 2901 0259 756E7369 		.ascii	"unsigned char\000"
+ 2901      676E6564 
+ 2901      20636861 
+ 2901      7200
+ 2902              	.LASF44:
+ 2903 0267 7461736B 		.ascii	"task_interrupter\000"
+ 2903      5F696E74 
+ 2903      65727275 
+ 2903      70746572 
+ 2903      00
+ 2904              	.LASF3:
+ 2905 0278 7369676E 		.ascii	"signed char\000"
+ 2905      65642063 
+ 2905      68617200 
+ 2906              	.LASF11:
+ 2907 0284 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 2907      206C6F6E 
+ 2907      6720756E 
+ 2907      7369676E 
+ 2907      65642069 
+ 2908              	.LASF32:
+ 2909 029b 6F6E6365 		.ascii	"once\000"
+ 2909      00
+ 2910              	.LASF13:
+ 2911 02a0 75696E74 		.ascii	"uint32_t\000"
+ 2911      33325F74 
+ 2911      00
+ 2912              	.LASF0:
+ 2913 02a9 756E7369 		.ascii	"unsigned int\000"
+ 2913      676E6564 
+ 2913      20696E74 
+ 2913      00
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 62
+
+
+ 2914              	.LASF74:
+ 2915 02b6 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_task.c\000"
+ 2915      76676C5C 
+ 2915      6C765F6D 
+ 2915      6973635C 
+ 2915      6C765F74 
+ 2916              	.LASF34:
+ 2917 02d0 6E65775F 		.ascii	"new_lv_task\000"
+ 2917      6C765F74 
+ 2917      61736B00 
+ 2918              	.LASF58:
+ 2919 02dc 7461736B 		.ascii	"task_created\000"
+ 2919      5F637265 
+ 2919      61746564 
+ 2919      00
+ 2920              	.LASF30:
+ 2921 02e9 70617261 		.ascii	"param\000"
+ 2921      6D00
+ 2922              	.LASF6:
+ 2923 02ef 73686F72 		.ascii	"short unsigned int\000"
+ 2923      7420756E 
+ 2923      7369676E 
+ 2923      65642069 
+ 2923      6E7400
+ 2924              	.LASF51:
+ 2925 0302 6C765F74 		.ascii	"lv_task_once\000"
+ 2925      61736B5F 
+ 2925      6F6E6365 
+ 2925      00
+ 2926              	.LASF43:
+ 2927 030f 62757379 		.ascii	"busy_time\000"
+ 2927      5F74696D 
+ 2927      6500
+ 2928              	.LASF20:
+ 2929 0319 4C565F54 		.ascii	"LV_TASK_PRIO_LOWEST\000"
+ 2929      41534B5F 
+ 2929      5052494F 
+ 2929      5F4C4F57 
+ 2929      45535400 
+ 2930              	.LASF37:
+ 2931 032d 5F426F6F 		.ascii	"_Bool\000"
+ 2931      6C00
+ 2932              	.LASF54:
+ 2933 0333 6C765F74 		.ascii	"lv_task_init\000"
+ 2933      61736B5F 
+ 2933      696E6974 
+ 2933      00
+ 2934              	.LASF38:
+ 2935 0340 6C765F74 		.ascii	"lv_task_del\000"
+ 2935      61736B5F 
+ 2935      64656C00 
+ 2936              	.LASF23:
+ 2937 034c 4C565F54 		.ascii	"LV_TASK_PRIO_HIGH\000"
+ 2937      41534B5F 
+ 2937      5052494F 
+ 2937      5F484947 
+ 2937      4800
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 63
+
+
+ 2938              	.LASF78:
+ 2939 035e 6C765F74 		.ascii	"lv_task_get_idle\000"
+ 2939      61736B5F 
+ 2939      6765745F 
+ 2939      69646C65 
+ 2939      00
+ 2940              	.LASF53:
+ 2941 036f 6C765F74 		.ascii	"lv_task_enable\000"
+ 2941      61736B5F 
+ 2941      656E6162 
+ 2941      6C6500
+ 2942              	.LASF10:
+ 2943 037e 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2943      20756E73 
+ 2943      69676E65 
+ 2943      6420696E 
+ 2943      7400
+ 2944              	.LASF39:
+ 2945 0390 6C765F74 		.ascii	"lv_task_handler\000"
+ 2945      61736B5F 
+ 2945      68616E64 
+ 2945      6C657200 
+ 2946              	.LASF59:
+ 2947 03a0 5F6C765F 		.ascii	"_lv_task_ll\000"
+ 2947      7461736B 
+ 2947      5F6C6C00 
+ 2948              	.LASF41:
+ 2949 03ac 69646C65 		.ascii	"idle_period_start\000"
+ 2949      5F706572 
+ 2949      696F645F 
+ 2949      73746172 
+ 2949      7400
+ 2950              	.LASF50:
+ 2951 03be 6C765F74 		.ascii	"lv_task_ready\000"
+ 2951      61736B5F 
+ 2951      72656164 
+ 2951      7900
+ 2952              	.LASF72:
+ 2953 03cc 6C765F6C 		.ascii	"lv_ll_init\000"
+ 2953      6C5F696E 
+ 2953      697400
+ 2954              	.LASF76:
+ 2955 03d7 6C765F74 		.ascii	"lv_task_create\000"
+ 2955      61736B5F 
+ 2955      63726561 
+ 2955      746500
+ 2956              	.LASF73:
+ 2957 03e6 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 2957      43313120 
+ 2957      352E342E 
+ 2957      31203230 
+ 2957      31363036 
+ 2958 0419 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 2958      20726576 
+ 2958      6973696F 
+ 2958      6E203233 
+ 2958      37373135 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cclZ2SKJ.s 			page 64
+
+
+ 2959 044c 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 2959      66756E63 
+ 2959      74696F6E 
+ 2959      2D736563 
+ 2959      74696F6E 
+ 2960              	.LASF46:
+ 2961 0474 656E645F 		.ascii	"end_flag\000"
+ 2961      666C6167 
+ 2961      00
+ 2962              	.LASF68:
+ 2963 047d 6C765F6C 		.ascii	"lv_ll_rem\000"
+ 2963      6C5F7265 
+ 2963      6D00
+ 2964              	.LASF69:
+ 2965 0487 6C765F6D 		.ascii	"lv_mem_free\000"
+ 2965      656D5F66 
+ 2965      72656500 
+ 2966              	.LASF31:
+ 2967 0493 7072696F 		.ascii	"prio\000"
+ 2967      00
+ 2968              	.LASF45:
+ 2969 0498 6E657874 		.ascii	"next\000"
+ 2969      00
+ 2970              	.LASF65:
+ 2971 049d 6C765F6C 		.ascii	"lv_ll_get_next\000"
+ 2971      6C5F6765 
+ 2971      745F6E65 
+ 2971      787400
+ 2972              	.LASF15:
+ 2973 04ac 6E5F7369 		.ascii	"n_size\000"
+ 2973      7A6500
+ 2974              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

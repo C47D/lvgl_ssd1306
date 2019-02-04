@@ -1,0 +1,2230 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"SSD1306.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.ssd_send_command,"ax",%progbits
+  20              		.align	2
+  21              		.global	ssd_send_command
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	ssd_send_command, %function
+  25              	ssd_send_command:
+  26              	.LFB66:
+  27              		.file 1 "..\\SSD1306\\SSD1306.c"
+   1:..\SSD1306/SSD1306.c **** #include <stdint.h>
+   2:..\SSD1306/SSD1306.c **** #include <stdbool.h>
+   3:..\SSD1306/SSD1306.c **** #include <string.h>
+   4:..\SSD1306/SSD1306.c **** 
+   5:..\SSD1306/SSD1306.c **** #include "project.h"
+   6:..\SSD1306/SSD1306.c **** 
+   7:..\SSD1306/SSD1306.c **** #include "SSD1306.h"
+   8:..\SSD1306/SSD1306.c **** 
+   9:..\SSD1306/SSD1306.c **** #define SSD1306_SLAVE_ADDR  0x3C
+  10:..\SSD1306/SSD1306.c **** 
+  11:..\SSD1306/SSD1306.c **** void ssd_init(void)
+  12:..\SSD1306/SSD1306.c **** {
+  13:..\SSD1306/SSD1306.c ****     CyDelay(10);
+  14:..\SSD1306/SSD1306.c ****     
+  15:..\SSD1306/SSD1306.c ****     // ssd1306_display_on(dev, false)
+  16:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_DISPLAY_OFF);
+  17:..\SSD1306/SSD1306.c ****     // ssd1306_set_osc_freq(dev, 0x80)
+  18:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_DISPLAY_CLOCK);
+  19:..\SSD1306/SSD1306.c ****     ssd_send_command(0x80);
+  20:..\SSD1306/SSD1306.c ****     // ssd1306_set_mux_ratio(dev, dev->height - 1)
+  21:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_MULTIPLEX_RATIO);
+  22:..\SSD1306/SSD1306.c ****     ssd_send_command(63);
+  23:..\SSD1306/SSD1306.c ****     // ssd1306_set_display_offset(dev, 0x00)
+  24:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_DISPLAY_OFFSET);
+  25:..\SSD1306/SSD1306.c ****     ssd_send_command(0x00);
+  26:..\SSD1306/SSD1306.c ****     // ssd1306_set_display_start_line(dev, 0x00)
+  27:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_DISPLAY_START_LINE | 0x00);
+  28:..\SSD1306/SSD1306.c ****     // ssd1306_set_charge_pump_enabled(dev, true)
+  29:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_CHARGE_PUMP);
+  30:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_CHARGE_PUMP_ENABLE);
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 2
+
+
+  31:..\SSD1306/SSD1306.c ****     // ssd1306_set_mem_addr_mode(dev, SSD_ADDR_MODE_HORIZONTAL)
+  32:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_MEMORY_ADDRESSING_MODE);
+  33:..\SSD1306/SSD1306.c ****     ssd_send_command(0x00); // 0x00 horizontal, 0x01 vertical, 0x10 page addressing mode, 0x11 inva
+  34:..\SSD1306/SSD1306.c ****     
+  35:..\SSD1306/SSD1306.c ****     /* Para empezar a escribir desde lo amarillo debemos de voltear los segmentos y columnas */
+  36:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_SEGMENT_REMAP1);
+  37:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_COM_OUTPUT_REMAPPED_MODE);
+  38:..\SSD1306/SSD1306.c ****     
+  39:..\SSD1306/SSD1306.c ****     /* Para empezar normal */
+  40:..\SSD1306/SSD1306.c ****     // ssd_send_command(SET_SEGMENT_REMAP0);
+  41:..\SSD1306/SSD1306.c ****     // ssd_send_command(SET_COM_OUTPUT_NORMAL_MODE);
+  42:..\SSD1306/SSD1306.c ****     
+  43:..\SSD1306/SSD1306.c ****     // ssd1306_set_com_pin_hw_config(dev, pin_cfg)
+  44:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_COM_PINS_HW_CONF);
+  45:..\SSD1306/SSD1306.c ****     ssd_send_command(0x12); // alternative com configuration (RESET)
+  46:..\SSD1306/SSD1306.c ****     // ssd1306_set_contrast(dev, 0x9F)
+  47:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_CONTRAST_CONTROL);
+  48:..\SSD1306/SSD1306.c ****     ssd_send_command(0x0f);
+  49:..\SSD1306/SSD1306.c ****     // ssd1306_set_precharge_period(dev, 0xF1)
+  50:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_PRECHARGE_PERIOD);
+  51:..\SSD1306/SSD1306.c ****     ssd_send_command(0xf1);
+  52:..\SSD1306/SSD1306.c ****     // ssd1306_set_deseltct_lvl(dev, 0x40)
+  53:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_DESELECT_LVL);
+  54:..\SSD1306/SSD1306.c ****     ssd_send_command(0x40);
+  55:..\SSD1306/SSD1306.c ****     // ssd1306_set_whole_display_lighting(dev, true)
+  56:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_ENTIRE_DISPLAY_ON);
+  57:..\SSD1306/SSD1306.c ****     // ssd1306_set_inversion(dev, false)
+  58:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_NORMAL_DISPLAY);
+  59:..\SSD1306/SSD1306.c ****     
+  60:..\SSD1306/SSD1306.c ****     ssd_set_column_addr(0, 127);
+  61:..\SSD1306/SSD1306.c ****     ssd_set_page_addr(0, 7);
+  62:..\SSD1306/SSD1306.c ****     
+  63:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_DISPLAY_ON);
+  64:..\SSD1306/SSD1306.c ****     
+  65:..\SSD1306/SSD1306.c ****     const uint8_t zero_buffer[128 * 8] = {0};
+  66:..\SSD1306/SSD1306.c ****     ssd_send_buffer(zero_buffer, sizeof zero_buffer);
+  67:..\SSD1306/SSD1306.c **** }
+  68:..\SSD1306/SSD1306.c **** 
+  69:..\SSD1306/SSD1306.c **** void ssd_set_column_addr(uint8_t x1, uint8_t x2)
+  70:..\SSD1306/SSD1306.c **** {
+  71:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_COLUMN_ADDRESS);
+  72:..\SSD1306/SSD1306.c ****     ssd_send_command(x1);
+  73:..\SSD1306/SSD1306.c ****     ssd_send_command(x2);
+  74:..\SSD1306/SSD1306.c **** }
+  75:..\SSD1306/SSD1306.c **** 
+  76:..\SSD1306/SSD1306.c **** void ssd_set_page_addr(uint8_t y1, uint8_t y2)
+  77:..\SSD1306/SSD1306.c **** {
+  78:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_PAGE_ADDRESS);
+  79:..\SSD1306/SSD1306.c ****     ssd_send_command(y1);
+  80:..\SSD1306/SSD1306.c ****     ssd_send_command(y2);
+  81:..\SSD1306/SSD1306.c **** }
+  82:..\SSD1306/SSD1306.c **** 
+  83:..\SSD1306/SSD1306.c **** void ssd_send_command(uint8_t cmd)
+  84:..\SSD1306/SSD1306.c **** {
+  28              		.loc 1 84 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 3
+
+
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              	.LVL0:
+  33 0000 10B5     		push	{r4, lr}
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 4, -8
+  36              		.cfi_offset 14, -4
+  37 0002 82B0     		sub	sp, sp, #8
+  38              		.cfi_def_cfa_offset 16
+  85:..\SSD1306/SSD1306.c ****     uint8_t dummy[] = {
+  39              		.loc 1 85 0
+  40 0004 0024     		movs	r4, #0
+  41 0006 8DF80440 		strb	r4, [sp, #4]
+  42 000a 8DF80500 		strb	r0, [sp, #5]
+  86:..\SSD1306/SSD1306.c ****         0x00, cmd
+  87:..\SSD1306/SSD1306.c ****     };
+  88:..\SSD1306/SSD1306.c ****     I2C_MasterClearStatus();
+  43              		.loc 1 88 0
+  44 000e FFF7FEFF 		bl	I2C_MasterClearStatus
+  45              	.LVL1:
+  89:..\SSD1306/SSD1306.c ****     I2C_MasterWriteBuf(SSD1306_SLAVE_ADDR, dummy, sizeof dummy, I2C_MODE_COMPLETE_XFER);
+  46              		.loc 1 89 0
+  47 0012 2346     		mov	r3, r4
+  48 0014 0222     		movs	r2, #2
+  49 0016 01A9     		add	r1, sp, #4
+  50 0018 3C20     		movs	r0, #60
+  51 001a FFF7FEFF 		bl	I2C_MasterWriteBuf
+  52              	.LVL2:
+  90:..\SSD1306/SSD1306.c ****     while (I2C_MSTAT_WR_CMPLT != I2C_MasterStatus()) {
+  53              		.loc 1 90 0
+  54 001e 02E0     		b	.L2
+  55              	.L3:
+  91:..\SSD1306/SSD1306.c ****         CyDelay(1);
+  56              		.loc 1 91 0
+  57 0020 0120     		movs	r0, #1
+  58 0022 FFF7FEFF 		bl	CyDelay
+  59              	.LVL3:
+  60              	.L2:
+  90:..\SSD1306/SSD1306.c ****     while (I2C_MSTAT_WR_CMPLT != I2C_MasterStatus()) {
+  61              		.loc 1 90 0
+  62 0026 FFF7FEFF 		bl	I2C_MasterStatus
+  63              	.LVL4:
+  64 002a 0228     		cmp	r0, #2
+  65 002c F8D1     		bne	.L3
+  92:..\SSD1306/SSD1306.c ****     }
+  93:..\SSD1306/SSD1306.c **** }
+  66              		.loc 1 93 0
+  67 002e 02B0     		add	sp, sp, #8
+  68              		.cfi_def_cfa_offset 8
+  69              		@ sp needed
+  70 0030 10BD     		pop	{r4, pc}
+  71              		.cfi_endproc
+  72              	.LFE66:
+  73              		.size	ssd_send_command, .-ssd_send_command
+  74 0032 00BF     		.section	.text.ssd_set_column_addr,"ax",%progbits
+  75              		.align	2
+  76              		.global	ssd_set_column_addr
+  77              		.thumb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 4
+
+
+  78              		.thumb_func
+  79              		.type	ssd_set_column_addr, %function
+  80              	ssd_set_column_addr:
+  81              	.LFB64:
+  70:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_COLUMN_ADDRESS);
+  82              		.loc 1 70 0
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 0
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              	.LVL5:
+  87 0000 38B5     		push	{r3, r4, r5, lr}
+  88              		.cfi_def_cfa_offset 16
+  89              		.cfi_offset 3, -16
+  90              		.cfi_offset 4, -12
+  91              		.cfi_offset 5, -8
+  92              		.cfi_offset 14, -4
+  93 0002 0546     		mov	r5, r0
+  94 0004 0C46     		mov	r4, r1
+  71:..\SSD1306/SSD1306.c ****     ssd_send_command(x1);
+  95              		.loc 1 71 0
+  96 0006 2120     		movs	r0, #33
+  97              	.LVL6:
+  98 0008 FFF7FEFF 		bl	ssd_send_command
+  99              	.LVL7:
+  72:..\SSD1306/SSD1306.c ****     ssd_send_command(x2);
+ 100              		.loc 1 72 0
+ 101 000c 2846     		mov	r0, r5
+ 102 000e FFF7FEFF 		bl	ssd_send_command
+ 103              	.LVL8:
+  73:..\SSD1306/SSD1306.c **** }
+ 104              		.loc 1 73 0
+ 105 0012 2046     		mov	r0, r4
+ 106 0014 FFF7FEFF 		bl	ssd_send_command
+ 107              	.LVL9:
+ 108 0018 38BD     		pop	{r3, r4, r5, pc}
+ 109              		.cfi_endproc
+ 110              	.LFE64:
+ 111              		.size	ssd_set_column_addr, .-ssd_set_column_addr
+ 112 001a 00BF     		.section	.text.ssd_set_page_addr,"ax",%progbits
+ 113              		.align	2
+ 114              		.global	ssd_set_page_addr
+ 115              		.thumb
+ 116              		.thumb_func
+ 117              		.type	ssd_set_page_addr, %function
+ 118              	ssd_set_page_addr:
+ 119              	.LFB65:
+  77:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_PAGE_ADDRESS);
+ 120              		.loc 1 77 0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              	.LVL10:
+ 125 0000 38B5     		push	{r3, r4, r5, lr}
+ 126              		.cfi_def_cfa_offset 16
+ 127              		.cfi_offset 3, -16
+ 128              		.cfi_offset 4, -12
+ 129              		.cfi_offset 5, -8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 5
+
+
+ 130              		.cfi_offset 14, -4
+ 131 0002 0546     		mov	r5, r0
+ 132 0004 0C46     		mov	r4, r1
+  78:..\SSD1306/SSD1306.c ****     ssd_send_command(y1);
+ 133              		.loc 1 78 0
+ 134 0006 2220     		movs	r0, #34
+ 135              	.LVL11:
+ 136 0008 FFF7FEFF 		bl	ssd_send_command
+ 137              	.LVL12:
+  79:..\SSD1306/SSD1306.c ****     ssd_send_command(y2);
+ 138              		.loc 1 79 0
+ 139 000c 2846     		mov	r0, r5
+ 140 000e FFF7FEFF 		bl	ssd_send_command
+ 141              	.LVL13:
+  80:..\SSD1306/SSD1306.c **** }
+ 142              		.loc 1 80 0
+ 143 0012 2046     		mov	r0, r4
+ 144 0014 FFF7FEFF 		bl	ssd_send_command
+ 145              	.LVL14:
+ 146 0018 38BD     		pop	{r3, r4, r5, pc}
+ 147              		.cfi_endproc
+ 148              	.LFE65:
+ 149              		.size	ssd_set_page_addr, .-ssd_set_page_addr
+ 150 001a 00BF     		.section	.text.ssd_send_data,"ax",%progbits
+ 151              		.align	2
+ 152              		.global	ssd_send_data
+ 153              		.thumb
+ 154              		.thumb_func
+ 155              		.type	ssd_send_data, %function
+ 156              	ssd_send_data:
+ 157              	.LFB67:
+  94:..\SSD1306/SSD1306.c **** 
+  95:..\SSD1306/SSD1306.c **** void ssd_send_data(uint8_t data)
+  96:..\SSD1306/SSD1306.c **** {
+ 158              		.loc 1 96 0
+ 159              		.cfi_startproc
+ 160              		@ args = 0, pretend = 0, frame = 8
+ 161              		@ frame_needed = 0, uses_anonymous_args = 0
+ 162              	.LVL15:
+ 163 0000 00B5     		push	{lr}
+ 164              		.cfi_def_cfa_offset 4
+ 165              		.cfi_offset 14, -4
+ 166 0002 83B0     		sub	sp, sp, #12
+ 167              		.cfi_def_cfa_offset 16
+  97:..\SSD1306/SSD1306.c ****     uint8_t dummy[] = {
+ 168              		.loc 1 97 0
+ 169 0004 4023     		movs	r3, #64
+ 170 0006 8DF80430 		strb	r3, [sp, #4]
+ 171 000a 8DF80500 		strb	r0, [sp, #5]
+  98:..\SSD1306/SSD1306.c ****         0x40, data
+  99:..\SSD1306/SSD1306.c ****     };
+ 100:..\SSD1306/SSD1306.c ****     I2C_MasterClearStatus();
+ 172              		.loc 1 100 0
+ 173 000e FFF7FEFF 		bl	I2C_MasterClearStatus
+ 174              	.LVL16:
+ 101:..\SSD1306/SSD1306.c ****     I2C_MasterWriteBuf(SSD1306_SLAVE_ADDR, dummy, sizeof dummy, I2C_MODE_COMPLETE_XFER);
+ 175              		.loc 1 101 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 6
+
+
+ 176 0012 0023     		movs	r3, #0
+ 177 0014 0222     		movs	r2, #2
+ 178 0016 01A9     		add	r1, sp, #4
+ 179 0018 3C20     		movs	r0, #60
+ 180 001a FFF7FEFF 		bl	I2C_MasterWriteBuf
+ 181              	.LVL17:
+ 102:..\SSD1306/SSD1306.c ****     while (I2C_MSTAT_WR_CMPLT != I2C_MasterStatus()) {
+ 182              		.loc 1 102 0
+ 183 001e 02E0     		b	.L10
+ 184              	.L11:
+ 103:..\SSD1306/SSD1306.c ****         CyDelay(1);
+ 185              		.loc 1 103 0
+ 186 0020 0120     		movs	r0, #1
+ 187 0022 FFF7FEFF 		bl	CyDelay
+ 188              	.LVL18:
+ 189              	.L10:
+ 102:..\SSD1306/SSD1306.c ****     while (I2C_MSTAT_WR_CMPLT != I2C_MasterStatus()) {
+ 190              		.loc 1 102 0
+ 191 0026 FFF7FEFF 		bl	I2C_MasterStatus
+ 192              	.LVL19:
+ 193 002a 0228     		cmp	r0, #2
+ 194 002c F8D1     		bne	.L11
+ 104:..\SSD1306/SSD1306.c ****     }
+ 105:..\SSD1306/SSD1306.c **** }
+ 195              		.loc 1 105 0
+ 196 002e 03B0     		add	sp, sp, #12
+ 197              		.cfi_def_cfa_offset 4
+ 198              		@ sp needed
+ 199 0030 5DF804FB 		ldr	pc, [sp], #4
+ 200              		.cfi_endproc
+ 201              	.LFE67:
+ 202              		.size	ssd_send_data, .-ssd_send_data
+ 203              		.section	.text.ssd_send_buffer,"ax",%progbits
+ 204              		.align	2
+ 205              		.global	ssd_send_buffer
+ 206              		.thumb
+ 207              		.thumb_func
+ 208              		.type	ssd_send_buffer, %function
+ 209              	ssd_send_buffer:
+ 210              	.LFB68:
+ 106:..\SSD1306/SSD1306.c **** 
+ 107:..\SSD1306/SSD1306.c **** void ssd_send_buffer(uint8_t *data, size_t len)
+ 108:..\SSD1306/SSD1306.c **** {
+ 211              		.loc 1 108 0
+ 212              		.cfi_startproc
+ 213              		@ args = 0, pretend = 0, frame = 0
+ 214              		@ frame_needed = 1, uses_anonymous_args = 0
+ 215              	.LVL20:
+ 216 0000 98B5     		push	{r3, r4, r7, lr}
+ 217              		.cfi_def_cfa_offset 16
+ 218              		.cfi_offset 3, -16
+ 219              		.cfi_offset 4, -12
+ 220              		.cfi_offset 7, -8
+ 221              		.cfi_offset 14, -4
+ 222 0002 00AF     		add	r7, sp, #0
+ 223              		.cfi_def_cfa_register 7
+ 224 0004 0A46     		mov	r2, r1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 7
+
+
+ 109:..\SSD1306/SSD1306.c **** #if 0
+ 110:..\SSD1306/SSD1306.c ****     for (size_t i = 0; i < len; i++) {
+ 111:..\SSD1306/SSD1306.c ****         ssd_send_data(data[i]);
+ 112:..\SSD1306/SSD1306.c ****     }
+ 113:..\SSD1306/SSD1306.c **** #else
+ 114:..\SSD1306/SSD1306.c ****     uint8_t dummy[len + 1];
+ 225              		.loc 1 114 0
+ 226 0006 4C1C     		adds	r4, r1, #1
+ 227              	.LVL21:
+ 228 0008 01F10803 		add	r3, r1, #8
+ 229 000c 23F00703 		bic	r3, r3, #7
+ 230 0010 ADEB030D 		sub	sp, sp, r3
+ 231              	.LVL22:
+ 115:..\SSD1306/SSD1306.c ****     dummy[0] = 0x40;
+ 232              		.loc 1 115 0
+ 233 0014 6B46     		mov	r3, sp
+ 234 0016 4021     		movs	r1, #64
+ 235              	.LVL23:
+ 236 0018 03F8011B 		strb	r1, [r3], #1
+ 116:..\SSD1306/SSD1306.c ****     memcpy(&dummy[1], data, len);
+ 237              		.loc 1 116 0
+ 238 001c 0146     		mov	r1, r0
+ 239 001e 1846     		mov	r0, r3
+ 240              	.LVL24:
+ 241 0020 FFF7FEFF 		bl	memcpy
+ 242              	.LVL25:
+ 117:..\SSD1306/SSD1306.c ****     I2C_MasterClearStatus();
+ 243              		.loc 1 117 0
+ 244 0024 FFF7FEFF 		bl	I2C_MasterClearStatus
+ 245              	.LVL26:
+ 118:..\SSD1306/SSD1306.c ****     I2C_MasterWriteBuf(SSD1306_SLAVE_ADDR, dummy, sizeof dummy, I2C_MODE_COMPLETE_XFER);
+ 246              		.loc 1 118 0
+ 247 0028 0023     		movs	r3, #0
+ 248 002a E2B2     		uxtb	r2, r4
+ 249 002c 6946     		mov	r1, sp
+ 250 002e 3C20     		movs	r0, #60
+ 251 0030 FFF7FEFF 		bl	I2C_MasterWriteBuf
+ 252              	.LVL27:
+ 119:..\SSD1306/SSD1306.c ****     while (I2C_MSTAT_WR_CMPLT != I2C_MasterStatus()) {
+ 253              		.loc 1 119 0
+ 254 0034 02E0     		b	.L14
+ 255              	.L15:
+ 120:..\SSD1306/SSD1306.c ****         CyDelay(1);
+ 256              		.loc 1 120 0
+ 257 0036 0120     		movs	r0, #1
+ 258 0038 FFF7FEFF 		bl	CyDelay
+ 259              	.LVL28:
+ 260              	.L14:
+ 119:..\SSD1306/SSD1306.c ****     while (I2C_MSTAT_WR_CMPLT != I2C_MasterStatus()) {
+ 261              		.loc 1 119 0
+ 262 003c FFF7FEFF 		bl	I2C_MasterStatus
+ 263              	.LVL29:
+ 264 0040 0228     		cmp	r0, #2
+ 265 0042 F8D1     		bne	.L15
+ 121:..\SSD1306/SSD1306.c ****     }
+ 122:..\SSD1306/SSD1306.c **** #endif
+ 123:..\SSD1306/SSD1306.c **** }
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 8
+
+
+ 266              		.loc 1 123 0
+ 267 0044 BD46     		mov	sp, r7
+ 268              		.cfi_def_cfa_register 13
+ 269              	.LVL30:
+ 270              		@ sp needed
+ 271 0046 98BD     		pop	{r3, r4, r7, pc}
+ 272              		.cfi_endproc
+ 273              	.LFE68:
+ 274              		.size	ssd_send_buffer, .-ssd_send_buffer
+ 275              		.section	.text.ssd_init,"ax",%progbits
+ 276              		.align	2
+ 277              		.global	ssd_init
+ 278              		.thumb
+ 279              		.thumb_func
+ 280              		.type	ssd_init, %function
+ 281              	ssd_init:
+ 282              	.LFB63:
+  12:..\SSD1306/SSD1306.c ****     CyDelay(10);
+ 283              		.loc 1 12 0
+ 284              		.cfi_startproc
+ 285              		@ args = 0, pretend = 0, frame = 1024
+ 286              		@ frame_needed = 0, uses_anonymous_args = 0
+ 287 0000 10B5     		push	{r4, lr}
+ 288              		.cfi_def_cfa_offset 8
+ 289              		.cfi_offset 4, -8
+ 290              		.cfi_offset 14, -4
+ 291 0002 ADF5806D 		sub	sp, sp, #1024
+ 292              		.cfi_def_cfa_offset 1032
+  13:..\SSD1306/SSD1306.c ****     
+ 293              		.loc 1 13 0
+ 294 0006 0A20     		movs	r0, #10
+ 295 0008 FFF7FEFF 		bl	CyDelay
+ 296              	.LVL31:
+  16:..\SSD1306/SSD1306.c ****     // ssd1306_set_osc_freq(dev, 0x80)
+ 297              		.loc 1 16 0
+ 298 000c AE20     		movs	r0, #174
+ 299 000e FFF7FEFF 		bl	ssd_send_command
+ 300              	.LVL32:
+  18:..\SSD1306/SSD1306.c ****     ssd_send_command(0x80);
+ 301              		.loc 1 18 0
+ 302 0012 D520     		movs	r0, #213
+ 303 0014 FFF7FEFF 		bl	ssd_send_command
+ 304              	.LVL33:
+  19:..\SSD1306/SSD1306.c ****     // ssd1306_set_mux_ratio(dev, dev->height - 1)
+ 305              		.loc 1 19 0
+ 306 0018 8020     		movs	r0, #128
+ 307 001a FFF7FEFF 		bl	ssd_send_command
+ 308              	.LVL34:
+  21:..\SSD1306/SSD1306.c ****     ssd_send_command(63);
+ 309              		.loc 1 21 0
+ 310 001e A820     		movs	r0, #168
+ 311 0020 FFF7FEFF 		bl	ssd_send_command
+ 312              	.LVL35:
+  22:..\SSD1306/SSD1306.c ****     // ssd1306_set_display_offset(dev, 0x00)
+ 313              		.loc 1 22 0
+ 314 0024 3F20     		movs	r0, #63
+ 315 0026 FFF7FEFF 		bl	ssd_send_command
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 9
+
+
+ 316              	.LVL36:
+  24:..\SSD1306/SSD1306.c ****     ssd_send_command(0x00);
+ 317              		.loc 1 24 0
+ 318 002a D320     		movs	r0, #211
+ 319 002c FFF7FEFF 		bl	ssd_send_command
+ 320              	.LVL37:
+  25:..\SSD1306/SSD1306.c ****     // ssd1306_set_display_start_line(dev, 0x00)
+ 321              		.loc 1 25 0
+ 322 0030 0020     		movs	r0, #0
+ 323 0032 FFF7FEFF 		bl	ssd_send_command
+ 324              	.LVL38:
+  27:..\SSD1306/SSD1306.c ****     // ssd1306_set_charge_pump_enabled(dev, true)
+ 325              		.loc 1 27 0
+ 326 0036 4020     		movs	r0, #64
+ 327 0038 FFF7FEFF 		bl	ssd_send_command
+ 328              	.LVL39:
+  29:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_CHARGE_PUMP_ENABLE);
+ 329              		.loc 1 29 0
+ 330 003c 8D20     		movs	r0, #141
+ 331 003e FFF7FEFF 		bl	ssd_send_command
+ 332              	.LVL40:
+  30:..\SSD1306/SSD1306.c ****     // ssd1306_set_mem_addr_mode(dev, SSD_ADDR_MODE_HORIZONTAL)
+ 333              		.loc 1 30 0
+ 334 0042 1420     		movs	r0, #20
+ 335 0044 FFF7FEFF 		bl	ssd_send_command
+ 336              	.LVL41:
+  32:..\SSD1306/SSD1306.c ****     ssd_send_command(0x00); // 0x00 horizontal, 0x01 vertical, 0x10 page addressing mode, 0x11 inva
+ 337              		.loc 1 32 0
+ 338 0048 2020     		movs	r0, #32
+ 339 004a FFF7FEFF 		bl	ssd_send_command
+ 340              	.LVL42:
+  33:..\SSD1306/SSD1306.c ****     
+ 341              		.loc 1 33 0
+ 342 004e 0020     		movs	r0, #0
+ 343 0050 FFF7FEFF 		bl	ssd_send_command
+ 344              	.LVL43:
+  36:..\SSD1306/SSD1306.c ****     ssd_send_command(SET_COM_OUTPUT_REMAPPED_MODE);
+ 345              		.loc 1 36 0
+ 346 0054 A120     		movs	r0, #161
+ 347 0056 FFF7FEFF 		bl	ssd_send_command
+ 348              	.LVL44:
+  37:..\SSD1306/SSD1306.c ****     
+ 349              		.loc 1 37 0
+ 350 005a C820     		movs	r0, #200
+ 351 005c FFF7FEFF 		bl	ssd_send_command
+ 352              	.LVL45:
+  44:..\SSD1306/SSD1306.c ****     ssd_send_command(0x12); // alternative com configuration (RESET)
+ 353              		.loc 1 44 0
+ 354 0060 DA20     		movs	r0, #218
+ 355 0062 FFF7FEFF 		bl	ssd_send_command
+ 356              	.LVL46:
+  45:..\SSD1306/SSD1306.c ****     // ssd1306_set_contrast(dev, 0x9F)
+ 357              		.loc 1 45 0
+ 358 0066 1220     		movs	r0, #18
+ 359 0068 FFF7FEFF 		bl	ssd_send_command
+ 360              	.LVL47:
+  47:..\SSD1306/SSD1306.c ****     ssd_send_command(0x0f);
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 10
+
+
+ 361              		.loc 1 47 0
+ 362 006c 8120     		movs	r0, #129
+ 363 006e FFF7FEFF 		bl	ssd_send_command
+ 364              	.LVL48:
+  48:..\SSD1306/SSD1306.c ****     // ssd1306_set_precharge_period(dev, 0xF1)
+ 365              		.loc 1 48 0
+ 366 0072 0F20     		movs	r0, #15
+ 367 0074 FFF7FEFF 		bl	ssd_send_command
+ 368              	.LVL49:
+  50:..\SSD1306/SSD1306.c ****     ssd_send_command(0xf1);
+ 369              		.loc 1 50 0
+ 370 0078 D920     		movs	r0, #217
+ 371 007a FFF7FEFF 		bl	ssd_send_command
+ 372              	.LVL50:
+  51:..\SSD1306/SSD1306.c ****     // ssd1306_set_deseltct_lvl(dev, 0x40)
+ 373              		.loc 1 51 0
+ 374 007e F120     		movs	r0, #241
+ 375 0080 FFF7FEFF 		bl	ssd_send_command
+ 376              	.LVL51:
+  53:..\SSD1306/SSD1306.c ****     ssd_send_command(0x40);
+ 377              		.loc 1 53 0
+ 378 0084 DB20     		movs	r0, #219
+ 379 0086 FFF7FEFF 		bl	ssd_send_command
+ 380              	.LVL52:
+  54:..\SSD1306/SSD1306.c ****     // ssd1306_set_whole_display_lighting(dev, true)
+ 381              		.loc 1 54 0
+ 382 008a 4020     		movs	r0, #64
+ 383 008c FFF7FEFF 		bl	ssd_send_command
+ 384              	.LVL53:
+  56:..\SSD1306/SSD1306.c ****     // ssd1306_set_inversion(dev, false)
+ 385              		.loc 1 56 0
+ 386 0090 A420     		movs	r0, #164
+ 387 0092 FFF7FEFF 		bl	ssd_send_command
+ 388              	.LVL54:
+  58:..\SSD1306/SSD1306.c ****     
+ 389              		.loc 1 58 0
+ 390 0096 A620     		movs	r0, #166
+ 391 0098 FFF7FEFF 		bl	ssd_send_command
+ 392              	.LVL55:
+  60:..\SSD1306/SSD1306.c ****     ssd_set_page_addr(0, 7);
+ 393              		.loc 1 60 0
+ 394 009c 7F21     		movs	r1, #127
+ 395 009e 0020     		movs	r0, #0
+ 396 00a0 FFF7FEFF 		bl	ssd_set_column_addr
+ 397              	.LVL56:
+  61:..\SSD1306/SSD1306.c ****     
+ 398              		.loc 1 61 0
+ 399 00a4 0721     		movs	r1, #7
+ 400 00a6 0020     		movs	r0, #0
+ 401 00a8 FFF7FEFF 		bl	ssd_set_page_addr
+ 402              	.LVL57:
+  63:..\SSD1306/SSD1306.c ****     
+ 403              		.loc 1 63 0
+ 404 00ac AF20     		movs	r0, #175
+ 405 00ae FFF7FEFF 		bl	ssd_send_command
+ 406              	.LVL58:
+  65:..\SSD1306/SSD1306.c ****     ssd_send_buffer(zero_buffer, sizeof zero_buffer);
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 11
+
+
+ 407              		.loc 1 65 0
+ 408 00b2 4FF48064 		mov	r4, #1024
+ 409 00b6 2246     		mov	r2, r4
+ 410 00b8 0021     		movs	r1, #0
+ 411 00ba 6846     		mov	r0, sp
+ 412 00bc FFF7FEFF 		bl	memset
+ 413              	.LVL59:
+  66:..\SSD1306/SSD1306.c **** }
+ 414              		.loc 1 66 0
+ 415 00c0 2146     		mov	r1, r4
+ 416 00c2 6846     		mov	r0, sp
+ 417 00c4 FFF7FEFF 		bl	ssd_send_buffer
+ 418              	.LVL60:
+  67:..\SSD1306/SSD1306.c **** 
+ 419              		.loc 1 67 0
+ 420 00c8 0DF5806D 		add	sp, sp, #1024
+ 421              		.cfi_def_cfa_offset 8
+ 422              		@ sp needed
+ 423 00cc 10BD     		pop	{r4, pc}
+ 424              		.cfi_endproc
+ 425              	.LFE63:
+ 426              		.size	ssd_init, .-ssd_init
+ 427 00ce 00BF     		.text
+ 428              	.Letext0:
+ 429              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 430              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 431              		.file 4 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 432              		.file 5 "Generated_Source\\PSoC5/I2C.h"
+ 433              		.file 6 "Generated_Source\\PSoC5/CyLib.h"
+ 434              		.file 7 "Generated_Source\\PSoC5/core_cm3.h"
+ 435              		.section	.debug_info,"",%progbits
+ 436              	.Ldebug_info0:
+ 437 0000 5C060000 		.4byte	0x65c
+ 438 0004 0400     		.2byte	0x4
+ 439 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 440 000a 04       		.byte	0x4
+ 441 000b 01       		.uleb128 0x1
+ 442 000c 75010000 		.4byte	.LASF34
+ 443 0010 0C       		.byte	0xc
+ 444 0011 3C000000 		.4byte	.LASF35
+ 445 0015 FE000000 		.4byte	.LASF36
+ 446 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 447 001d 00000000 		.4byte	0
+ 448 0021 00000000 		.4byte	.Ldebug_line0
+ 449 0025 02       		.uleb128 0x2
+ 450 0026 01       		.byte	0x1
+ 451 0027 06       		.byte	0x6
+ 452 0028 61020000 		.4byte	.LASF0
+ 453 002c 03       		.uleb128 0x3
+ 454 002d 0E000000 		.4byte	.LASF4
+ 455 0031 02       		.byte	0x2
+ 456 0032 1D       		.byte	0x1d
+ 457 0033 37000000 		.4byte	0x37
+ 458 0037 02       		.uleb128 0x2
+ 459 0038 01       		.byte	0x1
+ 460 0039 08       		.byte	0x8
+ 461 003a 7E000000 		.4byte	.LASF1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 12
+
+
+ 462 003e 02       		.uleb128 0x2
+ 463 003f 02       		.byte	0x2
+ 464 0040 05       		.byte	0x5
+ 465 0041 42020000 		.4byte	.LASF2
+ 466 0045 02       		.uleb128 0x2
+ 467 0046 02       		.byte	0x2
+ 468 0047 07       		.byte	0x7
+ 469 0048 29000000 		.4byte	.LASF3
+ 470 004c 03       		.uleb128 0x3
+ 471 004d 1F000000 		.4byte	.LASF5
+ 472 0051 02       		.byte	0x2
+ 473 0052 3F       		.byte	0x3f
+ 474 0053 57000000 		.4byte	0x57
+ 475 0057 02       		.uleb128 0x2
+ 476 0058 04       		.byte	0x4
+ 477 0059 05       		.byte	0x5
+ 478 005a 4C020000 		.4byte	.LASF6
+ 479 005e 02       		.uleb128 0x2
+ 480 005f 04       		.byte	0x4
+ 481 0060 07       		.byte	0x7
+ 482 0061 B5000000 		.4byte	.LASF7
+ 483 0065 02       		.uleb128 0x2
+ 484 0066 08       		.byte	0x8
+ 485 0067 05       		.byte	0x5
+ 486 0068 00000000 		.4byte	.LASF8
+ 487 006c 02       		.uleb128 0x2
+ 488 006d 08       		.byte	0x8
+ 489 006e 07       		.byte	0x7
+ 490 006f 44010000 		.4byte	.LASF9
+ 491 0073 04       		.uleb128 0x4
+ 492 0074 04       		.byte	0x4
+ 493 0075 05       		.byte	0x5
+ 494 0076 696E7400 		.ascii	"int\000"
+ 495 007a 02       		.uleb128 0x2
+ 496 007b 04       		.byte	0x4
+ 497 007c 07       		.byte	0x7
+ 498 007d F1000000 		.4byte	.LASF10
+ 499 0081 03       		.uleb128 0x3
+ 500 0082 5B010000 		.4byte	.LASF11
+ 501 0086 03       		.byte	0x3
+ 502 0087 18       		.byte	0x18
+ 503 0088 2C000000 		.4byte	0x2c
+ 504 008c 03       		.uleb128 0x3
+ 505 008d 03020000 		.4byte	.LASF12
+ 506 0091 03       		.byte	0x3
+ 507 0092 2C       		.byte	0x2c
+ 508 0093 4C000000 		.4byte	0x4c
+ 509 0097 03       		.uleb128 0x3
+ 510 0098 18000000 		.4byte	.LASF13
+ 511 009c 04       		.byte	0x4
+ 512 009d D8       		.byte	0xd8
+ 513 009e 7A000000 		.4byte	0x7a
+ 514 00a2 02       		.uleb128 0x2
+ 515 00a3 08       		.byte	0x8
+ 516 00a4 04       		.byte	0x4
+ 517 00a5 55020000 		.4byte	.LASF14
+ 518 00a9 02       		.uleb128 0x2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 13
+
+
+ 519 00aa 04       		.byte	0x4
+ 520 00ab 07       		.byte	0x7
+ 521 00ac 0B020000 		.4byte	.LASF15
+ 522 00b0 02       		.uleb128 0x2
+ 523 00b1 01       		.byte	0x1
+ 524 00b2 08       		.byte	0x8
+ 525 00b3 14020000 		.4byte	.LASF16
+ 526 00b7 02       		.uleb128 0x2
+ 527 00b8 04       		.byte	0x4
+ 528 00b9 04       		.byte	0x4
+ 529 00ba 73000000 		.4byte	.LASF17
+ 530 00be 02       		.uleb128 0x2
+ 531 00bf 08       		.byte	0x8
+ 532 00c0 04       		.byte	0x4
+ 533 00c1 EA000000 		.4byte	.LASF18
+ 534 00c5 05       		.uleb128 0x5
+ 535 00c6 2A020000 		.4byte	.LASF19
+ 536 00ca 01       		.byte	0x1
+ 537 00cb 53       		.byte	0x53
+ 538 00cc 00000000 		.4byte	.LFB66
+ 539 00d0 32000000 		.4byte	.LFE66-.LFB66
+ 540 00d4 01       		.uleb128 0x1
+ 541 00d5 9C       		.byte	0x9c
+ 542 00d6 42010000 		.4byte	0x142
+ 543 00da 06       		.uleb128 0x6
+ 544 00db 636D6400 		.ascii	"cmd\000"
+ 545 00df 01       		.byte	0x1
+ 546 00e0 53       		.byte	0x53
+ 547 00e1 81000000 		.4byte	0x81
+ 548 00e5 00000000 		.4byte	.LLST0
+ 549 00e9 07       		.uleb128 0x7
+ 550 00ea C7000000 		.4byte	.LASF24
+ 551 00ee 01       		.byte	0x1
+ 552 00ef 55       		.byte	0x55
+ 553 00f0 42010000 		.4byte	0x142
+ 554 00f4 02       		.uleb128 0x2
+ 555 00f5 91       		.byte	0x91
+ 556 00f6 74       		.sleb128 -12
+ 557 00f7 08       		.uleb128 0x8
+ 558 00f8 12000000 		.4byte	.LVL1
+ 559 00fc 21060000 		.4byte	0x621
+ 560 0100 09       		.uleb128 0x9
+ 561 0101 1E000000 		.4byte	.LVL2
+ 562 0105 2C060000 		.4byte	0x62c
+ 563 0109 25010000 		.4byte	0x125
+ 564 010d 0A       		.uleb128 0xa
+ 565 010e 01       		.uleb128 0x1
+ 566 010f 50       		.byte	0x50
+ 567 0110 02       		.uleb128 0x2
+ 568 0111 08       		.byte	0x8
+ 569 0112 3C       		.byte	0x3c
+ 570 0113 0A       		.uleb128 0xa
+ 571 0114 01       		.uleb128 0x1
+ 572 0115 51       		.byte	0x51
+ 573 0116 02       		.uleb128 0x2
+ 574 0117 91       		.byte	0x91
+ 575 0118 74       		.sleb128 -12
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 14
+
+
+ 576 0119 0A       		.uleb128 0xa
+ 577 011a 01       		.uleb128 0x1
+ 578 011b 52       		.byte	0x52
+ 579 011c 01       		.uleb128 0x1
+ 580 011d 32       		.byte	0x32
+ 581 011e 0A       		.uleb128 0xa
+ 582 011f 01       		.uleb128 0x1
+ 583 0120 53       		.byte	0x53
+ 584 0121 02       		.uleb128 0x2
+ 585 0122 74       		.byte	0x74
+ 586 0123 00       		.sleb128 0
+ 587 0124 00       		.byte	0
+ 588 0125 09       		.uleb128 0x9
+ 589 0126 26000000 		.4byte	.LVL3
+ 590 012a 37060000 		.4byte	0x637
+ 591 012e 38010000 		.4byte	0x138
+ 592 0132 0A       		.uleb128 0xa
+ 593 0133 01       		.uleb128 0x1
+ 594 0134 50       		.byte	0x50
+ 595 0135 01       		.uleb128 0x1
+ 596 0136 31       		.byte	0x31
+ 597 0137 00       		.byte	0
+ 598 0138 08       		.uleb128 0x8
+ 599 0139 2A000000 		.4byte	.LVL4
+ 600 013d 42060000 		.4byte	0x642
+ 601 0141 00       		.byte	0
+ 602 0142 0B       		.uleb128 0xb
+ 603 0143 81000000 		.4byte	0x81
+ 604 0147 52010000 		.4byte	0x152
+ 605 014b 0C       		.uleb128 0xc
+ 606 014c A9000000 		.4byte	0xa9
+ 607 0150 01       		.byte	0x1
+ 608 0151 00       		.byte	0
+ 609 0152 05       		.uleb128 0x5
+ 610 0153 5F000000 		.4byte	.LASF20
+ 611 0157 01       		.byte	0x1
+ 612 0158 45       		.byte	0x45
+ 613 0159 00000000 		.4byte	.LFB64
+ 614 015d 1A000000 		.4byte	.LFE64-.LFB64
+ 615 0161 01       		.uleb128 0x1
+ 616 0162 9C       		.byte	0x9c
+ 617 0163 BC010000 		.4byte	0x1bc
+ 618 0167 06       		.uleb128 0x6
+ 619 0168 783100   		.ascii	"x1\000"
+ 620 016b 01       		.byte	0x1
+ 621 016c 45       		.byte	0x45
+ 622 016d 81000000 		.4byte	0x81
+ 623 0171 21000000 		.4byte	.LLST1
+ 624 0175 06       		.uleb128 0x6
+ 625 0176 783200   		.ascii	"x2\000"
+ 626 0179 01       		.byte	0x1
+ 627 017a 45       		.byte	0x45
+ 628 017b 81000000 		.4byte	0x81
+ 629 017f 42000000 		.4byte	.LLST2
+ 630 0183 09       		.uleb128 0x9
+ 631 0184 0C000000 		.4byte	.LVL7
+ 632 0188 C5000000 		.4byte	0xc5
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 15
+
+
+ 633 018c 97010000 		.4byte	0x197
+ 634 0190 0A       		.uleb128 0xa
+ 635 0191 01       		.uleb128 0x1
+ 636 0192 50       		.byte	0x50
+ 637 0193 02       		.uleb128 0x2
+ 638 0194 08       		.byte	0x8
+ 639 0195 21       		.byte	0x21
+ 640 0196 00       		.byte	0
+ 641 0197 09       		.uleb128 0x9
+ 642 0198 12000000 		.4byte	.LVL8
+ 643 019c C5000000 		.4byte	0xc5
+ 644 01a0 AB010000 		.4byte	0x1ab
+ 645 01a4 0A       		.uleb128 0xa
+ 646 01a5 01       		.uleb128 0x1
+ 647 01a6 50       		.byte	0x50
+ 648 01a7 02       		.uleb128 0x2
+ 649 01a8 75       		.byte	0x75
+ 650 01a9 00       		.sleb128 0
+ 651 01aa 00       		.byte	0
+ 652 01ab 0D       		.uleb128 0xd
+ 653 01ac 18000000 		.4byte	.LVL9
+ 654 01b0 C5000000 		.4byte	0xc5
+ 655 01b4 0A       		.uleb128 0xa
+ 656 01b5 01       		.uleb128 0x1
+ 657 01b6 50       		.byte	0x50
+ 658 01b7 02       		.uleb128 0x2
+ 659 01b8 74       		.byte	0x74
+ 660 01b9 00       		.sleb128 0
+ 661 01ba 00       		.byte	0
+ 662 01bb 00       		.byte	0
+ 663 01bc 05       		.uleb128 0x5
+ 664 01bd 63010000 		.4byte	.LASF21
+ 665 01c1 01       		.byte	0x1
+ 666 01c2 4C       		.byte	0x4c
+ 667 01c3 00000000 		.4byte	.LFB65
+ 668 01c7 1A000000 		.4byte	.LFE65-.LFB65
+ 669 01cb 01       		.uleb128 0x1
+ 670 01cc 9C       		.byte	0x9c
+ 671 01cd 26020000 		.4byte	0x226
+ 672 01d1 06       		.uleb128 0x6
+ 673 01d2 793100   		.ascii	"y1\000"
+ 674 01d5 01       		.byte	0x1
+ 675 01d6 4C       		.byte	0x4c
+ 676 01d7 81000000 		.4byte	0x81
+ 677 01db 63000000 		.4byte	.LLST3
+ 678 01df 06       		.uleb128 0x6
+ 679 01e0 793200   		.ascii	"y2\000"
+ 680 01e3 01       		.byte	0x1
+ 681 01e4 4C       		.byte	0x4c
+ 682 01e5 81000000 		.4byte	0x81
+ 683 01e9 84000000 		.4byte	.LLST4
+ 684 01ed 09       		.uleb128 0x9
+ 685 01ee 0C000000 		.4byte	.LVL12
+ 686 01f2 C5000000 		.4byte	0xc5
+ 687 01f6 01020000 		.4byte	0x201
+ 688 01fa 0A       		.uleb128 0xa
+ 689 01fb 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 16
+
+
+ 690 01fc 50       		.byte	0x50
+ 691 01fd 02       		.uleb128 0x2
+ 692 01fe 08       		.byte	0x8
+ 693 01ff 22       		.byte	0x22
+ 694 0200 00       		.byte	0
+ 695 0201 09       		.uleb128 0x9
+ 696 0202 12000000 		.4byte	.LVL13
+ 697 0206 C5000000 		.4byte	0xc5
+ 698 020a 15020000 		.4byte	0x215
+ 699 020e 0A       		.uleb128 0xa
+ 700 020f 01       		.uleb128 0x1
+ 701 0210 50       		.byte	0x50
+ 702 0211 02       		.uleb128 0x2
+ 703 0212 75       		.byte	0x75
+ 704 0213 00       		.sleb128 0
+ 705 0214 00       		.byte	0
+ 706 0215 0D       		.uleb128 0xd
+ 707 0216 18000000 		.4byte	.LVL14
+ 708 021a C5000000 		.4byte	0xc5
+ 709 021e 0A       		.uleb128 0xa
+ 710 021f 01       		.uleb128 0x1
+ 711 0220 50       		.byte	0x50
+ 712 0221 02       		.uleb128 0x2
+ 713 0222 74       		.byte	0x74
+ 714 0223 00       		.sleb128 0
+ 715 0224 00       		.byte	0
+ 716 0225 00       		.byte	0
+ 717 0226 05       		.uleb128 0x5
+ 718 0227 51000000 		.4byte	.LASF22
+ 719 022b 01       		.byte	0x1
+ 720 022c 5F       		.byte	0x5f
+ 721 022d 00000000 		.4byte	.LFB67
+ 722 0231 34000000 		.4byte	.LFE67-.LFB67
+ 723 0235 01       		.uleb128 0x1
+ 724 0236 9C       		.byte	0x9c
+ 725 0237 A2020000 		.4byte	0x2a2
+ 726 023b 0E       		.uleb128 0xe
+ 727 023c 79000000 		.4byte	.LASF23
+ 728 0240 01       		.byte	0x1
+ 729 0241 5F       		.byte	0x5f
+ 730 0242 81000000 		.4byte	0x81
+ 731 0246 A5000000 		.4byte	.LLST5
+ 732 024a 07       		.uleb128 0x7
+ 733 024b C7000000 		.4byte	.LASF24
+ 734 024f 01       		.byte	0x1
+ 735 0250 61       		.byte	0x61
+ 736 0251 42010000 		.4byte	0x142
+ 737 0255 02       		.uleb128 0x2
+ 738 0256 91       		.byte	0x91
+ 739 0257 74       		.sleb128 -12
+ 740 0258 08       		.uleb128 0x8
+ 741 0259 12000000 		.4byte	.LVL16
+ 742 025d 21060000 		.4byte	0x621
+ 743 0261 09       		.uleb128 0x9
+ 744 0262 1E000000 		.4byte	.LVL17
+ 745 0266 2C060000 		.4byte	0x62c
+ 746 026a 85020000 		.4byte	0x285
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 17
+
+
+ 747 026e 0A       		.uleb128 0xa
+ 748 026f 01       		.uleb128 0x1
+ 749 0270 50       		.byte	0x50
+ 750 0271 02       		.uleb128 0x2
+ 751 0272 08       		.byte	0x8
+ 752 0273 3C       		.byte	0x3c
+ 753 0274 0A       		.uleb128 0xa
+ 754 0275 01       		.uleb128 0x1
+ 755 0276 51       		.byte	0x51
+ 756 0277 02       		.uleb128 0x2
+ 757 0278 91       		.byte	0x91
+ 758 0279 74       		.sleb128 -12
+ 759 027a 0A       		.uleb128 0xa
+ 760 027b 01       		.uleb128 0x1
+ 761 027c 52       		.byte	0x52
+ 762 027d 01       		.uleb128 0x1
+ 763 027e 32       		.byte	0x32
+ 764 027f 0A       		.uleb128 0xa
+ 765 0280 01       		.uleb128 0x1
+ 766 0281 53       		.byte	0x53
+ 767 0282 01       		.uleb128 0x1
+ 768 0283 30       		.byte	0x30
+ 769 0284 00       		.byte	0
+ 770 0285 09       		.uleb128 0x9
+ 771 0286 26000000 		.4byte	.LVL18
+ 772 028a 37060000 		.4byte	0x637
+ 773 028e 98020000 		.4byte	0x298
+ 774 0292 0A       		.uleb128 0xa
+ 775 0293 01       		.uleb128 0x1
+ 776 0294 50       		.byte	0x50
+ 777 0295 01       		.uleb128 0x1
+ 778 0296 31       		.byte	0x31
+ 779 0297 00       		.byte	0
+ 780 0298 08       		.uleb128 0x8
+ 781 0299 2A000000 		.4byte	.LVL19
+ 782 029d 42060000 		.4byte	0x642
+ 783 02a1 00       		.byte	0
+ 784 02a2 05       		.uleb128 0x5
+ 785 02a3 6D020000 		.4byte	.LASF25
+ 786 02a7 01       		.byte	0x1
+ 787 02a8 6B       		.byte	0x6b
+ 788 02a9 00000000 		.4byte	.LFB68
+ 789 02ad 48000000 		.4byte	.LFE68-.LFB68
+ 790 02b1 01       		.uleb128 0x1
+ 791 02b2 9C       		.byte	0x9c
+ 792 02b3 50030000 		.4byte	0x350
+ 793 02b7 0E       		.uleb128 0xe
+ 794 02b8 79000000 		.4byte	.LASF23
+ 795 02bc 01       		.byte	0x1
+ 796 02bd 6B       		.byte	0x6b
+ 797 02be 50030000 		.4byte	0x350
+ 798 02c2 C6000000 		.4byte	.LLST6
+ 799 02c6 06       		.uleb128 0x6
+ 800 02c7 6C656E00 		.ascii	"len\000"
+ 801 02cb 01       		.byte	0x1
+ 802 02cc 6B       		.byte	0x6b
+ 803 02cd 97000000 		.4byte	0x97
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 18
+
+
+ 804 02d1 F2000000 		.4byte	.LLST7
+ 805 02d5 0F       		.uleb128 0xf
+ 806 02d6 C7000000 		.4byte	.LASF24
+ 807 02da 01       		.byte	0x1
+ 808 02db 72       		.byte	0x72
+ 809 02dc 56030000 		.4byte	0x356
+ 810 02e0 1D010000 		.4byte	.LLST8
+ 811 02e4 09       		.uleb128 0x9
+ 812 02e5 24000000 		.4byte	.LVL25
+ 813 02e9 4D060000 		.4byte	0x64d
+ 814 02ed 05030000 		.4byte	0x305
+ 815 02f1 0A       		.uleb128 0xa
+ 816 02f2 01       		.uleb128 0x1
+ 817 02f3 50       		.byte	0x50
+ 818 02f4 02       		.uleb128 0x2
+ 819 02f5 7D       		.byte	0x7d
+ 820 02f6 01       		.sleb128 1
+ 821 02f7 0A       		.uleb128 0xa
+ 822 02f8 01       		.uleb128 0x1
+ 823 02f9 51       		.byte	0x51
+ 824 02fa 03       		.uleb128 0x3
+ 825 02fb F3       		.byte	0xf3
+ 826 02fc 01       		.uleb128 0x1
+ 827 02fd 50       		.byte	0x50
+ 828 02fe 0A       		.uleb128 0xa
+ 829 02ff 01       		.uleb128 0x1
+ 830 0300 52       		.byte	0x52
+ 831 0301 02       		.uleb128 0x2
+ 832 0302 74       		.byte	0x74
+ 833 0303 7F       		.sleb128 -1
+ 834 0304 00       		.byte	0
+ 835 0305 08       		.uleb128 0x8
+ 836 0306 28000000 		.4byte	.LVL26
+ 837 030a 21060000 		.4byte	0x621
+ 838 030e 09       		.uleb128 0x9
+ 839 030f 34000000 		.4byte	.LVL27
+ 840 0313 2C060000 		.4byte	0x62c
+ 841 0317 33030000 		.4byte	0x333
+ 842 031b 0A       		.uleb128 0xa
+ 843 031c 01       		.uleb128 0x1
+ 844 031d 50       		.byte	0x50
+ 845 031e 02       		.uleb128 0x2
+ 846 031f 08       		.byte	0x8
+ 847 0320 3C       		.byte	0x3c
+ 848 0321 0A       		.uleb128 0xa
+ 849 0322 01       		.uleb128 0x1
+ 850 0323 51       		.byte	0x51
+ 851 0324 02       		.uleb128 0x2
+ 852 0325 7D       		.byte	0x7d
+ 853 0326 00       		.sleb128 0
+ 854 0327 0A       		.uleb128 0xa
+ 855 0328 01       		.uleb128 0x1
+ 856 0329 52       		.byte	0x52
+ 857 032a 02       		.uleb128 0x2
+ 858 032b 74       		.byte	0x74
+ 859 032c 00       		.sleb128 0
+ 860 032d 0A       		.uleb128 0xa
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 19
+
+
+ 861 032e 01       		.uleb128 0x1
+ 862 032f 53       		.byte	0x53
+ 863 0330 01       		.uleb128 0x1
+ 864 0331 30       		.byte	0x30
+ 865 0332 00       		.byte	0
+ 866 0333 09       		.uleb128 0x9
+ 867 0334 3C000000 		.4byte	.LVL28
+ 868 0338 37060000 		.4byte	0x637
+ 869 033c 46030000 		.4byte	0x346
+ 870 0340 0A       		.uleb128 0xa
+ 871 0341 01       		.uleb128 0x1
+ 872 0342 50       		.byte	0x50
+ 873 0343 01       		.uleb128 0x1
+ 874 0344 31       		.byte	0x31
+ 875 0345 00       		.byte	0
+ 876 0346 08       		.uleb128 0x8
+ 877 0347 40000000 		.4byte	.LVL29
+ 878 034b 42060000 		.4byte	0x642
+ 879 034f 00       		.byte	0
+ 880 0350 10       		.uleb128 0x10
+ 881 0351 04       		.byte	0x4
+ 882 0352 81000000 		.4byte	0x81
+ 883 0356 0B       		.uleb128 0xb
+ 884 0357 81000000 		.4byte	0x81
+ 885 035b 68030000 		.4byte	0x368
+ 886 035f 11       		.uleb128 0x11
+ 887 0360 A9000000 		.4byte	0xa9
+ 888 0364 02       		.uleb128 0x2
+ 889 0365 74       		.byte	0x74
+ 890 0366 7F       		.sleb128 -1
+ 891 0367 00       		.byte	0
+ 892 0368 05       		.uleb128 0x5
+ 893 0369 DA000000 		.4byte	.LASF26
+ 894 036d 01       		.byte	0x1
+ 895 036e 0B       		.byte	0xb
+ 896 036f 00000000 		.4byte	.LFB63
+ 897 0373 CE000000 		.4byte	.LFE63-.LFB63
+ 898 0377 01       		.uleb128 0x1
+ 899 0378 9C       		.byte	0x9c
+ 900 0379 F5050000 		.4byte	0x5f5
+ 901 037d 07       		.uleb128 0x7
+ 902 037e 85020000 		.4byte	.LASF27
+ 903 0382 01       		.byte	0x1
+ 904 0383 41       		.byte	0x41
+ 905 0384 0B060000 		.4byte	0x60b
+ 906 0388 03       		.uleb128 0x3
+ 907 0389 91       		.byte	0x91
+ 908 038a F877     		.sleb128 -1032
+ 909 038c 09       		.uleb128 0x9
+ 910 038d 0C000000 		.4byte	.LVL31
+ 911 0391 37060000 		.4byte	0x637
+ 912 0395 9F030000 		.4byte	0x39f
+ 913 0399 0A       		.uleb128 0xa
+ 914 039a 01       		.uleb128 0x1
+ 915 039b 50       		.byte	0x50
+ 916 039c 01       		.uleb128 0x1
+ 917 039d 3A       		.byte	0x3a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 20
+
+
+ 918 039e 00       		.byte	0
+ 919 039f 09       		.uleb128 0x9
+ 920 03a0 12000000 		.4byte	.LVL32
+ 921 03a4 C5000000 		.4byte	0xc5
+ 922 03a8 B3030000 		.4byte	0x3b3
+ 923 03ac 0A       		.uleb128 0xa
+ 924 03ad 01       		.uleb128 0x1
+ 925 03ae 50       		.byte	0x50
+ 926 03af 02       		.uleb128 0x2
+ 927 03b0 09       		.byte	0x9
+ 928 03b1 AE       		.byte	0xae
+ 929 03b2 00       		.byte	0
+ 930 03b3 09       		.uleb128 0x9
+ 931 03b4 18000000 		.4byte	.LVL33
+ 932 03b8 C5000000 		.4byte	0xc5
+ 933 03bc C7030000 		.4byte	0x3c7
+ 934 03c0 0A       		.uleb128 0xa
+ 935 03c1 01       		.uleb128 0x1
+ 936 03c2 50       		.byte	0x50
+ 937 03c3 02       		.uleb128 0x2
+ 938 03c4 09       		.byte	0x9
+ 939 03c5 D5       		.byte	0xd5
+ 940 03c6 00       		.byte	0
+ 941 03c7 09       		.uleb128 0x9
+ 942 03c8 1E000000 		.4byte	.LVL34
+ 943 03cc C5000000 		.4byte	0xc5
+ 944 03d0 DB030000 		.4byte	0x3db
+ 945 03d4 0A       		.uleb128 0xa
+ 946 03d5 01       		.uleb128 0x1
+ 947 03d6 50       		.byte	0x50
+ 948 03d7 02       		.uleb128 0x2
+ 949 03d8 09       		.byte	0x9
+ 950 03d9 80       		.byte	0x80
+ 951 03da 00       		.byte	0
+ 952 03db 09       		.uleb128 0x9
+ 953 03dc 24000000 		.4byte	.LVL35
+ 954 03e0 C5000000 		.4byte	0xc5
+ 955 03e4 EF030000 		.4byte	0x3ef
+ 956 03e8 0A       		.uleb128 0xa
+ 957 03e9 01       		.uleb128 0x1
+ 958 03ea 50       		.byte	0x50
+ 959 03eb 02       		.uleb128 0x2
+ 960 03ec 09       		.byte	0x9
+ 961 03ed A8       		.byte	0xa8
+ 962 03ee 00       		.byte	0
+ 963 03ef 09       		.uleb128 0x9
+ 964 03f0 2A000000 		.4byte	.LVL36
+ 965 03f4 C5000000 		.4byte	0xc5
+ 966 03f8 03040000 		.4byte	0x403
+ 967 03fc 0A       		.uleb128 0xa
+ 968 03fd 01       		.uleb128 0x1
+ 969 03fe 50       		.byte	0x50
+ 970 03ff 02       		.uleb128 0x2
+ 971 0400 08       		.byte	0x8
+ 972 0401 3F       		.byte	0x3f
+ 973 0402 00       		.byte	0
+ 974 0403 09       		.uleb128 0x9
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 21
+
+
+ 975 0404 30000000 		.4byte	.LVL37
+ 976 0408 C5000000 		.4byte	0xc5
+ 977 040c 17040000 		.4byte	0x417
+ 978 0410 0A       		.uleb128 0xa
+ 979 0411 01       		.uleb128 0x1
+ 980 0412 50       		.byte	0x50
+ 981 0413 02       		.uleb128 0x2
+ 982 0414 09       		.byte	0x9
+ 983 0415 D3       		.byte	0xd3
+ 984 0416 00       		.byte	0
+ 985 0417 09       		.uleb128 0x9
+ 986 0418 36000000 		.4byte	.LVL38
+ 987 041c C5000000 		.4byte	0xc5
+ 988 0420 2A040000 		.4byte	0x42a
+ 989 0424 0A       		.uleb128 0xa
+ 990 0425 01       		.uleb128 0x1
+ 991 0426 50       		.byte	0x50
+ 992 0427 01       		.uleb128 0x1
+ 993 0428 30       		.byte	0x30
+ 994 0429 00       		.byte	0
+ 995 042a 09       		.uleb128 0x9
+ 996 042b 3C000000 		.4byte	.LVL39
+ 997 042f C5000000 		.4byte	0xc5
+ 998 0433 3E040000 		.4byte	0x43e
+ 999 0437 0A       		.uleb128 0xa
+ 1000 0438 01       		.uleb128 0x1
+ 1001 0439 50       		.byte	0x50
+ 1002 043a 02       		.uleb128 0x2
+ 1003 043b 08       		.byte	0x8
+ 1004 043c 40       		.byte	0x40
+ 1005 043d 00       		.byte	0
+ 1006 043e 09       		.uleb128 0x9
+ 1007 043f 42000000 		.4byte	.LVL40
+ 1008 0443 C5000000 		.4byte	0xc5
+ 1009 0447 52040000 		.4byte	0x452
+ 1010 044b 0A       		.uleb128 0xa
+ 1011 044c 01       		.uleb128 0x1
+ 1012 044d 50       		.byte	0x50
+ 1013 044e 02       		.uleb128 0x2
+ 1014 044f 09       		.byte	0x9
+ 1015 0450 8D       		.byte	0x8d
+ 1016 0451 00       		.byte	0
+ 1017 0452 09       		.uleb128 0x9
+ 1018 0453 48000000 		.4byte	.LVL41
+ 1019 0457 C5000000 		.4byte	0xc5
+ 1020 045b 65040000 		.4byte	0x465
+ 1021 045f 0A       		.uleb128 0xa
+ 1022 0460 01       		.uleb128 0x1
+ 1023 0461 50       		.byte	0x50
+ 1024 0462 01       		.uleb128 0x1
+ 1025 0463 44       		.byte	0x44
+ 1026 0464 00       		.byte	0
+ 1027 0465 09       		.uleb128 0x9
+ 1028 0466 4E000000 		.4byte	.LVL42
+ 1029 046a C5000000 		.4byte	0xc5
+ 1030 046e 79040000 		.4byte	0x479
+ 1031 0472 0A       		.uleb128 0xa
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 22
+
+
+ 1032 0473 01       		.uleb128 0x1
+ 1033 0474 50       		.byte	0x50
+ 1034 0475 02       		.uleb128 0x2
+ 1035 0476 08       		.byte	0x8
+ 1036 0477 20       		.byte	0x20
+ 1037 0478 00       		.byte	0
+ 1038 0479 09       		.uleb128 0x9
+ 1039 047a 54000000 		.4byte	.LVL43
+ 1040 047e C5000000 		.4byte	0xc5
+ 1041 0482 8C040000 		.4byte	0x48c
+ 1042 0486 0A       		.uleb128 0xa
+ 1043 0487 01       		.uleb128 0x1
+ 1044 0488 50       		.byte	0x50
+ 1045 0489 01       		.uleb128 0x1
+ 1046 048a 30       		.byte	0x30
+ 1047 048b 00       		.byte	0
+ 1048 048c 09       		.uleb128 0x9
+ 1049 048d 5A000000 		.4byte	.LVL44
+ 1050 0491 C5000000 		.4byte	0xc5
+ 1051 0495 A0040000 		.4byte	0x4a0
+ 1052 0499 0A       		.uleb128 0xa
+ 1053 049a 01       		.uleb128 0x1
+ 1054 049b 50       		.byte	0x50
+ 1055 049c 02       		.uleb128 0x2
+ 1056 049d 09       		.byte	0x9
+ 1057 049e A1       		.byte	0xa1
+ 1058 049f 00       		.byte	0
+ 1059 04a0 09       		.uleb128 0x9
+ 1060 04a1 60000000 		.4byte	.LVL45
+ 1061 04a5 C5000000 		.4byte	0xc5
+ 1062 04a9 B4040000 		.4byte	0x4b4
+ 1063 04ad 0A       		.uleb128 0xa
+ 1064 04ae 01       		.uleb128 0x1
+ 1065 04af 50       		.byte	0x50
+ 1066 04b0 02       		.uleb128 0x2
+ 1067 04b1 09       		.byte	0x9
+ 1068 04b2 C8       		.byte	0xc8
+ 1069 04b3 00       		.byte	0
+ 1070 04b4 09       		.uleb128 0x9
+ 1071 04b5 66000000 		.4byte	.LVL46
+ 1072 04b9 C5000000 		.4byte	0xc5
+ 1073 04bd C8040000 		.4byte	0x4c8
+ 1074 04c1 0A       		.uleb128 0xa
+ 1075 04c2 01       		.uleb128 0x1
+ 1076 04c3 50       		.byte	0x50
+ 1077 04c4 02       		.uleb128 0x2
+ 1078 04c5 09       		.byte	0x9
+ 1079 04c6 DA       		.byte	0xda
+ 1080 04c7 00       		.byte	0
+ 1081 04c8 09       		.uleb128 0x9
+ 1082 04c9 6C000000 		.4byte	.LVL47
+ 1083 04cd C5000000 		.4byte	0xc5
+ 1084 04d1 DB040000 		.4byte	0x4db
+ 1085 04d5 0A       		.uleb128 0xa
+ 1086 04d6 01       		.uleb128 0x1
+ 1087 04d7 50       		.byte	0x50
+ 1088 04d8 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 23
+
+
+ 1089 04d9 42       		.byte	0x42
+ 1090 04da 00       		.byte	0
+ 1091 04db 09       		.uleb128 0x9
+ 1092 04dc 72000000 		.4byte	.LVL48
+ 1093 04e0 C5000000 		.4byte	0xc5
+ 1094 04e4 EF040000 		.4byte	0x4ef
+ 1095 04e8 0A       		.uleb128 0xa
+ 1096 04e9 01       		.uleb128 0x1
+ 1097 04ea 50       		.byte	0x50
+ 1098 04eb 02       		.uleb128 0x2
+ 1099 04ec 09       		.byte	0x9
+ 1100 04ed 81       		.byte	0x81
+ 1101 04ee 00       		.byte	0
+ 1102 04ef 09       		.uleb128 0x9
+ 1103 04f0 78000000 		.4byte	.LVL49
+ 1104 04f4 C5000000 		.4byte	0xc5
+ 1105 04f8 02050000 		.4byte	0x502
+ 1106 04fc 0A       		.uleb128 0xa
+ 1107 04fd 01       		.uleb128 0x1
+ 1108 04fe 50       		.byte	0x50
+ 1109 04ff 01       		.uleb128 0x1
+ 1110 0500 3F       		.byte	0x3f
+ 1111 0501 00       		.byte	0
+ 1112 0502 09       		.uleb128 0x9
+ 1113 0503 7E000000 		.4byte	.LVL50
+ 1114 0507 C5000000 		.4byte	0xc5
+ 1115 050b 16050000 		.4byte	0x516
+ 1116 050f 0A       		.uleb128 0xa
+ 1117 0510 01       		.uleb128 0x1
+ 1118 0511 50       		.byte	0x50
+ 1119 0512 02       		.uleb128 0x2
+ 1120 0513 09       		.byte	0x9
+ 1121 0514 D9       		.byte	0xd9
+ 1122 0515 00       		.byte	0
+ 1123 0516 09       		.uleb128 0x9
+ 1124 0517 84000000 		.4byte	.LVL51
+ 1125 051b C5000000 		.4byte	0xc5
+ 1126 051f 2A050000 		.4byte	0x52a
+ 1127 0523 0A       		.uleb128 0xa
+ 1128 0524 01       		.uleb128 0x1
+ 1129 0525 50       		.byte	0x50
+ 1130 0526 02       		.uleb128 0x2
+ 1131 0527 09       		.byte	0x9
+ 1132 0528 F1       		.byte	0xf1
+ 1133 0529 00       		.byte	0
+ 1134 052a 09       		.uleb128 0x9
+ 1135 052b 8A000000 		.4byte	.LVL52
+ 1136 052f C5000000 		.4byte	0xc5
+ 1137 0533 3E050000 		.4byte	0x53e
+ 1138 0537 0A       		.uleb128 0xa
+ 1139 0538 01       		.uleb128 0x1
+ 1140 0539 50       		.byte	0x50
+ 1141 053a 02       		.uleb128 0x2
+ 1142 053b 09       		.byte	0x9
+ 1143 053c DB       		.byte	0xdb
+ 1144 053d 00       		.byte	0
+ 1145 053e 09       		.uleb128 0x9
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 24
+
+
+ 1146 053f 90000000 		.4byte	.LVL53
+ 1147 0543 C5000000 		.4byte	0xc5
+ 1148 0547 52050000 		.4byte	0x552
+ 1149 054b 0A       		.uleb128 0xa
+ 1150 054c 01       		.uleb128 0x1
+ 1151 054d 50       		.byte	0x50
+ 1152 054e 02       		.uleb128 0x2
+ 1153 054f 08       		.byte	0x8
+ 1154 0550 40       		.byte	0x40
+ 1155 0551 00       		.byte	0
+ 1156 0552 09       		.uleb128 0x9
+ 1157 0553 96000000 		.4byte	.LVL54
+ 1158 0557 C5000000 		.4byte	0xc5
+ 1159 055b 66050000 		.4byte	0x566
+ 1160 055f 0A       		.uleb128 0xa
+ 1161 0560 01       		.uleb128 0x1
+ 1162 0561 50       		.byte	0x50
+ 1163 0562 02       		.uleb128 0x2
+ 1164 0563 09       		.byte	0x9
+ 1165 0564 A4       		.byte	0xa4
+ 1166 0565 00       		.byte	0
+ 1167 0566 09       		.uleb128 0x9
+ 1168 0567 9C000000 		.4byte	.LVL55
+ 1169 056b C5000000 		.4byte	0xc5
+ 1170 056f 7A050000 		.4byte	0x57a
+ 1171 0573 0A       		.uleb128 0xa
+ 1172 0574 01       		.uleb128 0x1
+ 1173 0575 50       		.byte	0x50
+ 1174 0576 02       		.uleb128 0x2
+ 1175 0577 09       		.byte	0x9
+ 1176 0578 A6       		.byte	0xa6
+ 1177 0579 00       		.byte	0
+ 1178 057a 09       		.uleb128 0x9
+ 1179 057b A4000000 		.4byte	.LVL56
+ 1180 057f 52010000 		.4byte	0x152
+ 1181 0583 93050000 		.4byte	0x593
+ 1182 0587 0A       		.uleb128 0xa
+ 1183 0588 01       		.uleb128 0x1
+ 1184 0589 50       		.byte	0x50
+ 1185 058a 01       		.uleb128 0x1
+ 1186 058b 30       		.byte	0x30
+ 1187 058c 0A       		.uleb128 0xa
+ 1188 058d 01       		.uleb128 0x1
+ 1189 058e 51       		.byte	0x51
+ 1190 058f 02       		.uleb128 0x2
+ 1191 0590 08       		.byte	0x8
+ 1192 0591 7F       		.byte	0x7f
+ 1193 0592 00       		.byte	0
+ 1194 0593 09       		.uleb128 0x9
+ 1195 0594 AC000000 		.4byte	.LVL57
+ 1196 0598 BC010000 		.4byte	0x1bc
+ 1197 059c AB050000 		.4byte	0x5ab
+ 1198 05a0 0A       		.uleb128 0xa
+ 1199 05a1 01       		.uleb128 0x1
+ 1200 05a2 50       		.byte	0x50
+ 1201 05a3 01       		.uleb128 0x1
+ 1202 05a4 30       		.byte	0x30
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 25
+
+
+ 1203 05a5 0A       		.uleb128 0xa
+ 1204 05a6 01       		.uleb128 0x1
+ 1205 05a7 51       		.byte	0x51
+ 1206 05a8 01       		.uleb128 0x1
+ 1207 05a9 37       		.byte	0x37
+ 1208 05aa 00       		.byte	0
+ 1209 05ab 09       		.uleb128 0x9
+ 1210 05ac B2000000 		.4byte	.LVL58
+ 1211 05b0 C5000000 		.4byte	0xc5
+ 1212 05b4 BF050000 		.4byte	0x5bf
+ 1213 05b8 0A       		.uleb128 0xa
+ 1214 05b9 01       		.uleb128 0x1
+ 1215 05ba 50       		.byte	0x50
+ 1216 05bb 02       		.uleb128 0x2
+ 1217 05bc 09       		.byte	0x9
+ 1218 05bd AF       		.byte	0xaf
+ 1219 05be 00       		.byte	0
+ 1220 05bf 09       		.uleb128 0x9
+ 1221 05c0 C0000000 		.4byte	.LVL59
+ 1222 05c4 56060000 		.4byte	0x656
+ 1223 05c8 DE050000 		.4byte	0x5de
+ 1224 05cc 0A       		.uleb128 0xa
+ 1225 05cd 01       		.uleb128 0x1
+ 1226 05ce 50       		.byte	0x50
+ 1227 05cf 02       		.uleb128 0x2
+ 1228 05d0 7D       		.byte	0x7d
+ 1229 05d1 00       		.sleb128 0
+ 1230 05d2 0A       		.uleb128 0xa
+ 1231 05d3 01       		.uleb128 0x1
+ 1232 05d4 51       		.byte	0x51
+ 1233 05d5 01       		.uleb128 0x1
+ 1234 05d6 30       		.byte	0x30
+ 1235 05d7 0A       		.uleb128 0xa
+ 1236 05d8 01       		.uleb128 0x1
+ 1237 05d9 52       		.byte	0x52
+ 1238 05da 02       		.uleb128 0x2
+ 1239 05db 74       		.byte	0x74
+ 1240 05dc 00       		.sleb128 0
+ 1241 05dd 00       		.byte	0
+ 1242 05de 0D       		.uleb128 0xd
+ 1243 05df C8000000 		.4byte	.LVL60
+ 1244 05e3 A2020000 		.4byte	0x2a2
+ 1245 05e7 0A       		.uleb128 0xa
+ 1246 05e8 01       		.uleb128 0x1
+ 1247 05e9 50       		.byte	0x50
+ 1248 05ea 02       		.uleb128 0x2
+ 1249 05eb 7D       		.byte	0x7d
+ 1250 05ec 00       		.sleb128 0
+ 1251 05ed 0A       		.uleb128 0xa
+ 1252 05ee 01       		.uleb128 0x1
+ 1253 05ef 51       		.byte	0x51
+ 1254 05f0 02       		.uleb128 0x2
+ 1255 05f1 74       		.byte	0x74
+ 1256 05f2 00       		.sleb128 0
+ 1257 05f3 00       		.byte	0
+ 1258 05f4 00       		.byte	0
+ 1259 05f5 0B       		.uleb128 0xb
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 26
+
+
+ 1260 05f6 06060000 		.4byte	0x606
+ 1261 05fa 06060000 		.4byte	0x606
+ 1262 05fe 12       		.uleb128 0x12
+ 1263 05ff A9000000 		.4byte	0xa9
+ 1264 0603 FF03     		.2byte	0x3ff
+ 1265 0605 00       		.byte	0
+ 1266 0606 13       		.uleb128 0x13
+ 1267 0607 81000000 		.4byte	0x81
+ 1268 060b 13       		.uleb128 0x13
+ 1269 060c F5050000 		.4byte	0x5f5
+ 1270 0610 14       		.uleb128 0x14
+ 1271 0611 CD000000 		.4byte	.LASF37
+ 1272 0615 07       		.byte	0x7
+ 1273 0616 1207     		.2byte	0x712
+ 1274 0618 1C060000 		.4byte	0x61c
+ 1275 061c 15       		.uleb128 0x15
+ 1276 061d 8C000000 		.4byte	0x8c
+ 1277 0621 16       		.uleb128 0x16
+ 1278 0622 9F000000 		.4byte	.LASF28
+ 1279 0626 9F000000 		.4byte	.LASF28
+ 1280 062a 05       		.byte	0x5
+ 1281 062b A4       		.byte	0xa4
+ 1282 062c 16       		.uleb128 0x16
+ 1283 062d 8C000000 		.4byte	.LASF29
+ 1284 0631 8C000000 		.4byte	.LASF29
+ 1285 0635 05       		.byte	0x5
+ 1286 0636 A7       		.byte	0xa7
+ 1287 0637 16       		.uleb128 0x16
+ 1288 0638 7D020000 		.4byte	.LASF30
+ 1289 063c 7D020000 		.4byte	.LASF30
+ 1290 0640 06       		.byte	0x6
+ 1291 0641 76       		.byte	0x76
+ 1292 0642 16       		.uleb128 0x16
+ 1293 0643 19020000 		.4byte	.LASF31
+ 1294 0647 19020000 		.4byte	.LASF31
+ 1295 064b 05       		.byte	0x5
+ 1296 064c A3       		.byte	0xa3
+ 1297 064d 17       		.uleb128 0x17
+ 1298 064e 3B020000 		.4byte	.LASF32
+ 1299 0652 3B020000 		.4byte	.LASF32
+ 1300 0656 17       		.uleb128 0x17
+ 1301 0657 E3000000 		.4byte	.LASF33
+ 1302 065b E3000000 		.4byte	.LASF33
+ 1303 065f 00       		.byte	0
+ 1304              		.section	.debug_abbrev,"",%progbits
+ 1305              	.Ldebug_abbrev0:
+ 1306 0000 01       		.uleb128 0x1
+ 1307 0001 11       		.uleb128 0x11
+ 1308 0002 01       		.byte	0x1
+ 1309 0003 25       		.uleb128 0x25
+ 1310 0004 0E       		.uleb128 0xe
+ 1311 0005 13       		.uleb128 0x13
+ 1312 0006 0B       		.uleb128 0xb
+ 1313 0007 03       		.uleb128 0x3
+ 1314 0008 0E       		.uleb128 0xe
+ 1315 0009 1B       		.uleb128 0x1b
+ 1316 000a 0E       		.uleb128 0xe
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 27
+
+
+ 1317 000b 55       		.uleb128 0x55
+ 1318 000c 17       		.uleb128 0x17
+ 1319 000d 11       		.uleb128 0x11
+ 1320 000e 01       		.uleb128 0x1
+ 1321 000f 10       		.uleb128 0x10
+ 1322 0010 17       		.uleb128 0x17
+ 1323 0011 00       		.byte	0
+ 1324 0012 00       		.byte	0
+ 1325 0013 02       		.uleb128 0x2
+ 1326 0014 24       		.uleb128 0x24
+ 1327 0015 00       		.byte	0
+ 1328 0016 0B       		.uleb128 0xb
+ 1329 0017 0B       		.uleb128 0xb
+ 1330 0018 3E       		.uleb128 0x3e
+ 1331 0019 0B       		.uleb128 0xb
+ 1332 001a 03       		.uleb128 0x3
+ 1333 001b 0E       		.uleb128 0xe
+ 1334 001c 00       		.byte	0
+ 1335 001d 00       		.byte	0
+ 1336 001e 03       		.uleb128 0x3
+ 1337 001f 16       		.uleb128 0x16
+ 1338 0020 00       		.byte	0
+ 1339 0021 03       		.uleb128 0x3
+ 1340 0022 0E       		.uleb128 0xe
+ 1341 0023 3A       		.uleb128 0x3a
+ 1342 0024 0B       		.uleb128 0xb
+ 1343 0025 3B       		.uleb128 0x3b
+ 1344 0026 0B       		.uleb128 0xb
+ 1345 0027 49       		.uleb128 0x49
+ 1346 0028 13       		.uleb128 0x13
+ 1347 0029 00       		.byte	0
+ 1348 002a 00       		.byte	0
+ 1349 002b 04       		.uleb128 0x4
+ 1350 002c 24       		.uleb128 0x24
+ 1351 002d 00       		.byte	0
+ 1352 002e 0B       		.uleb128 0xb
+ 1353 002f 0B       		.uleb128 0xb
+ 1354 0030 3E       		.uleb128 0x3e
+ 1355 0031 0B       		.uleb128 0xb
+ 1356 0032 03       		.uleb128 0x3
+ 1357 0033 08       		.uleb128 0x8
+ 1358 0034 00       		.byte	0
+ 1359 0035 00       		.byte	0
+ 1360 0036 05       		.uleb128 0x5
+ 1361 0037 2E       		.uleb128 0x2e
+ 1362 0038 01       		.byte	0x1
+ 1363 0039 3F       		.uleb128 0x3f
+ 1364 003a 19       		.uleb128 0x19
+ 1365 003b 03       		.uleb128 0x3
+ 1366 003c 0E       		.uleb128 0xe
+ 1367 003d 3A       		.uleb128 0x3a
+ 1368 003e 0B       		.uleb128 0xb
+ 1369 003f 3B       		.uleb128 0x3b
+ 1370 0040 0B       		.uleb128 0xb
+ 1371 0041 27       		.uleb128 0x27
+ 1372 0042 19       		.uleb128 0x19
+ 1373 0043 11       		.uleb128 0x11
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 28
+
+
+ 1374 0044 01       		.uleb128 0x1
+ 1375 0045 12       		.uleb128 0x12
+ 1376 0046 06       		.uleb128 0x6
+ 1377 0047 40       		.uleb128 0x40
+ 1378 0048 18       		.uleb128 0x18
+ 1379 0049 9742     		.uleb128 0x2117
+ 1380 004b 19       		.uleb128 0x19
+ 1381 004c 01       		.uleb128 0x1
+ 1382 004d 13       		.uleb128 0x13
+ 1383 004e 00       		.byte	0
+ 1384 004f 00       		.byte	0
+ 1385 0050 06       		.uleb128 0x6
+ 1386 0051 05       		.uleb128 0x5
+ 1387 0052 00       		.byte	0
+ 1388 0053 03       		.uleb128 0x3
+ 1389 0054 08       		.uleb128 0x8
+ 1390 0055 3A       		.uleb128 0x3a
+ 1391 0056 0B       		.uleb128 0xb
+ 1392 0057 3B       		.uleb128 0x3b
+ 1393 0058 0B       		.uleb128 0xb
+ 1394 0059 49       		.uleb128 0x49
+ 1395 005a 13       		.uleb128 0x13
+ 1396 005b 02       		.uleb128 0x2
+ 1397 005c 17       		.uleb128 0x17
+ 1398 005d 00       		.byte	0
+ 1399 005e 00       		.byte	0
+ 1400 005f 07       		.uleb128 0x7
+ 1401 0060 34       		.uleb128 0x34
+ 1402 0061 00       		.byte	0
+ 1403 0062 03       		.uleb128 0x3
+ 1404 0063 0E       		.uleb128 0xe
+ 1405 0064 3A       		.uleb128 0x3a
+ 1406 0065 0B       		.uleb128 0xb
+ 1407 0066 3B       		.uleb128 0x3b
+ 1408 0067 0B       		.uleb128 0xb
+ 1409 0068 49       		.uleb128 0x49
+ 1410 0069 13       		.uleb128 0x13
+ 1411 006a 02       		.uleb128 0x2
+ 1412 006b 18       		.uleb128 0x18
+ 1413 006c 00       		.byte	0
+ 1414 006d 00       		.byte	0
+ 1415 006e 08       		.uleb128 0x8
+ 1416 006f 898201   		.uleb128 0x4109
+ 1417 0072 00       		.byte	0
+ 1418 0073 11       		.uleb128 0x11
+ 1419 0074 01       		.uleb128 0x1
+ 1420 0075 31       		.uleb128 0x31
+ 1421 0076 13       		.uleb128 0x13
+ 1422 0077 00       		.byte	0
+ 1423 0078 00       		.byte	0
+ 1424 0079 09       		.uleb128 0x9
+ 1425 007a 898201   		.uleb128 0x4109
+ 1426 007d 01       		.byte	0x1
+ 1427 007e 11       		.uleb128 0x11
+ 1428 007f 01       		.uleb128 0x1
+ 1429 0080 31       		.uleb128 0x31
+ 1430 0081 13       		.uleb128 0x13
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 29
+
+
+ 1431 0082 01       		.uleb128 0x1
+ 1432 0083 13       		.uleb128 0x13
+ 1433 0084 00       		.byte	0
+ 1434 0085 00       		.byte	0
+ 1435 0086 0A       		.uleb128 0xa
+ 1436 0087 8A8201   		.uleb128 0x410a
+ 1437 008a 00       		.byte	0
+ 1438 008b 02       		.uleb128 0x2
+ 1439 008c 18       		.uleb128 0x18
+ 1440 008d 9142     		.uleb128 0x2111
+ 1441 008f 18       		.uleb128 0x18
+ 1442 0090 00       		.byte	0
+ 1443 0091 00       		.byte	0
+ 1444 0092 0B       		.uleb128 0xb
+ 1445 0093 01       		.uleb128 0x1
+ 1446 0094 01       		.byte	0x1
+ 1447 0095 49       		.uleb128 0x49
+ 1448 0096 13       		.uleb128 0x13
+ 1449 0097 01       		.uleb128 0x1
+ 1450 0098 13       		.uleb128 0x13
+ 1451 0099 00       		.byte	0
+ 1452 009a 00       		.byte	0
+ 1453 009b 0C       		.uleb128 0xc
+ 1454 009c 21       		.uleb128 0x21
+ 1455 009d 00       		.byte	0
+ 1456 009e 49       		.uleb128 0x49
+ 1457 009f 13       		.uleb128 0x13
+ 1458 00a0 2F       		.uleb128 0x2f
+ 1459 00a1 0B       		.uleb128 0xb
+ 1460 00a2 00       		.byte	0
+ 1461 00a3 00       		.byte	0
+ 1462 00a4 0D       		.uleb128 0xd
+ 1463 00a5 898201   		.uleb128 0x4109
+ 1464 00a8 01       		.byte	0x1
+ 1465 00a9 11       		.uleb128 0x11
+ 1466 00aa 01       		.uleb128 0x1
+ 1467 00ab 31       		.uleb128 0x31
+ 1468 00ac 13       		.uleb128 0x13
+ 1469 00ad 00       		.byte	0
+ 1470 00ae 00       		.byte	0
+ 1471 00af 0E       		.uleb128 0xe
+ 1472 00b0 05       		.uleb128 0x5
+ 1473 00b1 00       		.byte	0
+ 1474 00b2 03       		.uleb128 0x3
+ 1475 00b3 0E       		.uleb128 0xe
+ 1476 00b4 3A       		.uleb128 0x3a
+ 1477 00b5 0B       		.uleb128 0xb
+ 1478 00b6 3B       		.uleb128 0x3b
+ 1479 00b7 0B       		.uleb128 0xb
+ 1480 00b8 49       		.uleb128 0x49
+ 1481 00b9 13       		.uleb128 0x13
+ 1482 00ba 02       		.uleb128 0x2
+ 1483 00bb 17       		.uleb128 0x17
+ 1484 00bc 00       		.byte	0
+ 1485 00bd 00       		.byte	0
+ 1486 00be 0F       		.uleb128 0xf
+ 1487 00bf 34       		.uleb128 0x34
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 30
+
+
+ 1488 00c0 00       		.byte	0
+ 1489 00c1 03       		.uleb128 0x3
+ 1490 00c2 0E       		.uleb128 0xe
+ 1491 00c3 3A       		.uleb128 0x3a
+ 1492 00c4 0B       		.uleb128 0xb
+ 1493 00c5 3B       		.uleb128 0x3b
+ 1494 00c6 0B       		.uleb128 0xb
+ 1495 00c7 49       		.uleb128 0x49
+ 1496 00c8 13       		.uleb128 0x13
+ 1497 00c9 02       		.uleb128 0x2
+ 1498 00ca 17       		.uleb128 0x17
+ 1499 00cb 00       		.byte	0
+ 1500 00cc 00       		.byte	0
+ 1501 00cd 10       		.uleb128 0x10
+ 1502 00ce 0F       		.uleb128 0xf
+ 1503 00cf 00       		.byte	0
+ 1504 00d0 0B       		.uleb128 0xb
+ 1505 00d1 0B       		.uleb128 0xb
+ 1506 00d2 49       		.uleb128 0x49
+ 1507 00d3 13       		.uleb128 0x13
+ 1508 00d4 00       		.byte	0
+ 1509 00d5 00       		.byte	0
+ 1510 00d6 11       		.uleb128 0x11
+ 1511 00d7 21       		.uleb128 0x21
+ 1512 00d8 00       		.byte	0
+ 1513 00d9 49       		.uleb128 0x49
+ 1514 00da 13       		.uleb128 0x13
+ 1515 00db 2F       		.uleb128 0x2f
+ 1516 00dc 18       		.uleb128 0x18
+ 1517 00dd 00       		.byte	0
+ 1518 00de 00       		.byte	0
+ 1519 00df 12       		.uleb128 0x12
+ 1520 00e0 21       		.uleb128 0x21
+ 1521 00e1 00       		.byte	0
+ 1522 00e2 49       		.uleb128 0x49
+ 1523 00e3 13       		.uleb128 0x13
+ 1524 00e4 2F       		.uleb128 0x2f
+ 1525 00e5 05       		.uleb128 0x5
+ 1526 00e6 00       		.byte	0
+ 1527 00e7 00       		.byte	0
+ 1528 00e8 13       		.uleb128 0x13
+ 1529 00e9 26       		.uleb128 0x26
+ 1530 00ea 00       		.byte	0
+ 1531 00eb 49       		.uleb128 0x49
+ 1532 00ec 13       		.uleb128 0x13
+ 1533 00ed 00       		.byte	0
+ 1534 00ee 00       		.byte	0
+ 1535 00ef 14       		.uleb128 0x14
+ 1536 00f0 34       		.uleb128 0x34
+ 1537 00f1 00       		.byte	0
+ 1538 00f2 03       		.uleb128 0x3
+ 1539 00f3 0E       		.uleb128 0xe
+ 1540 00f4 3A       		.uleb128 0x3a
+ 1541 00f5 0B       		.uleb128 0xb
+ 1542 00f6 3B       		.uleb128 0x3b
+ 1543 00f7 05       		.uleb128 0x5
+ 1544 00f8 49       		.uleb128 0x49
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 31
+
+
+ 1545 00f9 13       		.uleb128 0x13
+ 1546 00fa 3F       		.uleb128 0x3f
+ 1547 00fb 19       		.uleb128 0x19
+ 1548 00fc 3C       		.uleb128 0x3c
+ 1549 00fd 19       		.uleb128 0x19
+ 1550 00fe 00       		.byte	0
+ 1551 00ff 00       		.byte	0
+ 1552 0100 15       		.uleb128 0x15
+ 1553 0101 35       		.uleb128 0x35
+ 1554 0102 00       		.byte	0
+ 1555 0103 49       		.uleb128 0x49
+ 1556 0104 13       		.uleb128 0x13
+ 1557 0105 00       		.byte	0
+ 1558 0106 00       		.byte	0
+ 1559 0107 16       		.uleb128 0x16
+ 1560 0108 2E       		.uleb128 0x2e
+ 1561 0109 00       		.byte	0
+ 1562 010a 3F       		.uleb128 0x3f
+ 1563 010b 19       		.uleb128 0x19
+ 1564 010c 3C       		.uleb128 0x3c
+ 1565 010d 19       		.uleb128 0x19
+ 1566 010e 6E       		.uleb128 0x6e
+ 1567 010f 0E       		.uleb128 0xe
+ 1568 0110 03       		.uleb128 0x3
+ 1569 0111 0E       		.uleb128 0xe
+ 1570 0112 3A       		.uleb128 0x3a
+ 1571 0113 0B       		.uleb128 0xb
+ 1572 0114 3B       		.uleb128 0x3b
+ 1573 0115 0B       		.uleb128 0xb
+ 1574 0116 00       		.byte	0
+ 1575 0117 00       		.byte	0
+ 1576 0118 17       		.uleb128 0x17
+ 1577 0119 2E       		.uleb128 0x2e
+ 1578 011a 00       		.byte	0
+ 1579 011b 3F       		.uleb128 0x3f
+ 1580 011c 19       		.uleb128 0x19
+ 1581 011d 3C       		.uleb128 0x3c
+ 1582 011e 19       		.uleb128 0x19
+ 1583 011f 6E       		.uleb128 0x6e
+ 1584 0120 0E       		.uleb128 0xe
+ 1585 0121 03       		.uleb128 0x3
+ 1586 0122 0E       		.uleb128 0xe
+ 1587 0123 00       		.byte	0
+ 1588 0124 00       		.byte	0
+ 1589 0125 00       		.byte	0
+ 1590              		.section	.debug_loc,"",%progbits
+ 1591              	.Ldebug_loc0:
+ 1592              	.LLST0:
+ 1593 0000 00000000 		.4byte	.LVL0
+ 1594 0004 11000000 		.4byte	.LVL1-1
+ 1595 0008 0100     		.2byte	0x1
+ 1596 000a 50       		.byte	0x50
+ 1597 000b 11000000 		.4byte	.LVL1-1
+ 1598 000f 32000000 		.4byte	.LFE66
+ 1599 0013 0400     		.2byte	0x4
+ 1600 0015 F3       		.byte	0xf3
+ 1601 0016 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 32
+
+
+ 1602 0017 50       		.byte	0x50
+ 1603 0018 9F       		.byte	0x9f
+ 1604 0019 00000000 		.4byte	0
+ 1605 001d 00000000 		.4byte	0
+ 1606              	.LLST1:
+ 1607 0021 00000000 		.4byte	.LVL5
+ 1608 0025 08000000 		.4byte	.LVL6
+ 1609 0029 0100     		.2byte	0x1
+ 1610 002b 50       		.byte	0x50
+ 1611 002c 08000000 		.4byte	.LVL6
+ 1612 0030 1A000000 		.4byte	.LFE64
+ 1613 0034 0400     		.2byte	0x4
+ 1614 0036 F3       		.byte	0xf3
+ 1615 0037 01       		.uleb128 0x1
+ 1616 0038 50       		.byte	0x50
+ 1617 0039 9F       		.byte	0x9f
+ 1618 003a 00000000 		.4byte	0
+ 1619 003e 00000000 		.4byte	0
+ 1620              	.LLST2:
+ 1621 0042 00000000 		.4byte	.LVL5
+ 1622 0046 0B000000 		.4byte	.LVL7-1
+ 1623 004a 0100     		.2byte	0x1
+ 1624 004c 51       		.byte	0x51
+ 1625 004d 0B000000 		.4byte	.LVL7-1
+ 1626 0051 1A000000 		.4byte	.LFE64
+ 1627 0055 0400     		.2byte	0x4
+ 1628 0057 F3       		.byte	0xf3
+ 1629 0058 01       		.uleb128 0x1
+ 1630 0059 51       		.byte	0x51
+ 1631 005a 9F       		.byte	0x9f
+ 1632 005b 00000000 		.4byte	0
+ 1633 005f 00000000 		.4byte	0
+ 1634              	.LLST3:
+ 1635 0063 00000000 		.4byte	.LVL10
+ 1636 0067 08000000 		.4byte	.LVL11
+ 1637 006b 0100     		.2byte	0x1
+ 1638 006d 50       		.byte	0x50
+ 1639 006e 08000000 		.4byte	.LVL11
+ 1640 0072 1A000000 		.4byte	.LFE65
+ 1641 0076 0400     		.2byte	0x4
+ 1642 0078 F3       		.byte	0xf3
+ 1643 0079 01       		.uleb128 0x1
+ 1644 007a 50       		.byte	0x50
+ 1645 007b 9F       		.byte	0x9f
+ 1646 007c 00000000 		.4byte	0
+ 1647 0080 00000000 		.4byte	0
+ 1648              	.LLST4:
+ 1649 0084 00000000 		.4byte	.LVL10
+ 1650 0088 0B000000 		.4byte	.LVL12-1
+ 1651 008c 0100     		.2byte	0x1
+ 1652 008e 51       		.byte	0x51
+ 1653 008f 0B000000 		.4byte	.LVL12-1
+ 1654 0093 1A000000 		.4byte	.LFE65
+ 1655 0097 0400     		.2byte	0x4
+ 1656 0099 F3       		.byte	0xf3
+ 1657 009a 01       		.uleb128 0x1
+ 1658 009b 51       		.byte	0x51
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 33
+
+
+ 1659 009c 9F       		.byte	0x9f
+ 1660 009d 00000000 		.4byte	0
+ 1661 00a1 00000000 		.4byte	0
+ 1662              	.LLST5:
+ 1663 00a5 00000000 		.4byte	.LVL15
+ 1664 00a9 11000000 		.4byte	.LVL16-1
+ 1665 00ad 0100     		.2byte	0x1
+ 1666 00af 50       		.byte	0x50
+ 1667 00b0 11000000 		.4byte	.LVL16-1
+ 1668 00b4 34000000 		.4byte	.LFE67
+ 1669 00b8 0400     		.2byte	0x4
+ 1670 00ba F3       		.byte	0xf3
+ 1671 00bb 01       		.uleb128 0x1
+ 1672 00bc 50       		.byte	0x50
+ 1673 00bd 9F       		.byte	0x9f
+ 1674 00be 00000000 		.4byte	0
+ 1675 00c2 00000000 		.4byte	0
+ 1676              	.LLST6:
+ 1677 00c6 00000000 		.4byte	.LVL20
+ 1678 00ca 20000000 		.4byte	.LVL24
+ 1679 00ce 0100     		.2byte	0x1
+ 1680 00d0 50       		.byte	0x50
+ 1681 00d1 20000000 		.4byte	.LVL24
+ 1682 00d5 23000000 		.4byte	.LVL25-1
+ 1683 00d9 0100     		.2byte	0x1
+ 1684 00db 51       		.byte	0x51
+ 1685 00dc 23000000 		.4byte	.LVL25-1
+ 1686 00e0 48000000 		.4byte	.LFE68
+ 1687 00e4 0400     		.2byte	0x4
+ 1688 00e6 F3       		.byte	0xf3
+ 1689 00e7 01       		.uleb128 0x1
+ 1690 00e8 50       		.byte	0x50
+ 1691 00e9 9F       		.byte	0x9f
+ 1692 00ea 00000000 		.4byte	0
+ 1693 00ee 00000000 		.4byte	0
+ 1694              	.LLST7:
+ 1695 00f2 00000000 		.4byte	.LVL20
+ 1696 00f6 18000000 		.4byte	.LVL23
+ 1697 00fa 0100     		.2byte	0x1
+ 1698 00fc 51       		.byte	0x51
+ 1699 00fd 18000000 		.4byte	.LVL23
+ 1700 0101 23000000 		.4byte	.LVL25-1
+ 1701 0105 0100     		.2byte	0x1
+ 1702 0107 52       		.byte	0x52
+ 1703 0108 23000000 		.4byte	.LVL25-1
+ 1704 010c 48000000 		.4byte	.LFE68
+ 1705 0110 0300     		.2byte	0x3
+ 1706 0112 74       		.byte	0x74
+ 1707 0113 7F       		.sleb128 -1
+ 1708 0114 9F       		.byte	0x9f
+ 1709 0115 00000000 		.4byte	0
+ 1710 0119 00000000 		.4byte	0
+ 1711              	.LLST8:
+ 1712 011d 14000000 		.4byte	.LVL22
+ 1713 0121 46000000 		.4byte	.LVL30
+ 1714 0125 0200     		.2byte	0x2
+ 1715 0127 7D       		.byte	0x7d
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 34
+
+
+ 1716 0128 00       		.sleb128 0
+ 1717 0129 00000000 		.4byte	0
+ 1718 012d 00000000 		.4byte	0
+ 1719              		.section	.debug_aranges,"",%progbits
+ 1720 0000 44000000 		.4byte	0x44
+ 1721 0004 0200     		.2byte	0x2
+ 1722 0006 00000000 		.4byte	.Ldebug_info0
+ 1723 000a 04       		.byte	0x4
+ 1724 000b 00       		.byte	0
+ 1725 000c 0000     		.2byte	0
+ 1726 000e 0000     		.2byte	0
+ 1727 0010 00000000 		.4byte	.LFB66
+ 1728 0014 32000000 		.4byte	.LFE66-.LFB66
+ 1729 0018 00000000 		.4byte	.LFB64
+ 1730 001c 1A000000 		.4byte	.LFE64-.LFB64
+ 1731 0020 00000000 		.4byte	.LFB65
+ 1732 0024 1A000000 		.4byte	.LFE65-.LFB65
+ 1733 0028 00000000 		.4byte	.LFB67
+ 1734 002c 34000000 		.4byte	.LFE67-.LFB67
+ 1735 0030 00000000 		.4byte	.LFB68
+ 1736 0034 48000000 		.4byte	.LFE68-.LFB68
+ 1737 0038 00000000 		.4byte	.LFB63
+ 1738 003c CE000000 		.4byte	.LFE63-.LFB63
+ 1739 0040 00000000 		.4byte	0
+ 1740 0044 00000000 		.4byte	0
+ 1741              		.section	.debug_ranges,"",%progbits
+ 1742              	.Ldebug_ranges0:
+ 1743 0000 00000000 		.4byte	.LFB66
+ 1744 0004 32000000 		.4byte	.LFE66
+ 1745 0008 00000000 		.4byte	.LFB64
+ 1746 000c 1A000000 		.4byte	.LFE64
+ 1747 0010 00000000 		.4byte	.LFB65
+ 1748 0014 1A000000 		.4byte	.LFE65
+ 1749 0018 00000000 		.4byte	.LFB67
+ 1750 001c 34000000 		.4byte	.LFE67
+ 1751 0020 00000000 		.4byte	.LFB68
+ 1752 0024 48000000 		.4byte	.LFE68
+ 1753 0028 00000000 		.4byte	.LFB63
+ 1754 002c CE000000 		.4byte	.LFE63
+ 1755 0030 00000000 		.4byte	0
+ 1756 0034 00000000 		.4byte	0
+ 1757              		.section	.debug_line,"",%progbits
+ 1758              	.Ldebug_line0:
+ 1759 0000 84020000 		.section	.debug_str,"MS",%progbits,1
+ 1759      0200E301 
+ 1759      00000201 
+ 1759      FB0E0D00 
+ 1759      01010101 
+ 1760              	.LASF8:
+ 1761 0000 6C6F6E67 		.ascii	"long long int\000"
+ 1761      206C6F6E 
+ 1761      6720696E 
+ 1761      7400
+ 1762              	.LASF4:
+ 1763 000e 5F5F7569 		.ascii	"__uint8_t\000"
+ 1763      6E74385F 
+ 1763      7400
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 35
+
+
+ 1764              	.LASF13:
+ 1765 0018 73697A65 		.ascii	"size_t\000"
+ 1765      5F7400
+ 1766              	.LASF5:
+ 1767 001f 5F5F696E 		.ascii	"__int32_t\000"
+ 1767      7433325F 
+ 1767      7400
+ 1768              	.LASF3:
+ 1769 0029 73686F72 		.ascii	"short unsigned int\000"
+ 1769      7420756E 
+ 1769      7369676E 
+ 1769      65642069 
+ 1769      6E7400
+ 1770              	.LASF35:
+ 1771 003c 2E2E5C53 		.ascii	"..\\SSD1306\\SSD1306.c\000"
+ 1771      53443133 
+ 1771      30365C53 
+ 1771      53443133 
+ 1771      30362E63 
+ 1772              	.LASF22:
+ 1773 0051 7373645F 		.ascii	"ssd_send_data\000"
+ 1773      73656E64 
+ 1773      5F646174 
+ 1773      6100
+ 1774              	.LASF20:
+ 1775 005f 7373645F 		.ascii	"ssd_set_column_addr\000"
+ 1775      7365745F 
+ 1775      636F6C75 
+ 1775      6D6E5F61 
+ 1775      64647200 
+ 1776              	.LASF17:
+ 1777 0073 666C6F61 		.ascii	"float\000"
+ 1777      7400
+ 1778              	.LASF23:
+ 1779 0079 64617461 		.ascii	"data\000"
+ 1779      00
+ 1780              	.LASF1:
+ 1781 007e 756E7369 		.ascii	"unsigned char\000"
+ 1781      676E6564 
+ 1781      20636861 
+ 1781      7200
+ 1782              	.LASF29:
+ 1783 008c 4932435F 		.ascii	"I2C_MasterWriteBuf\000"
+ 1783      4D617374 
+ 1783      65725772 
+ 1783      69746542 
+ 1783      756600
+ 1784              	.LASF28:
+ 1785 009f 4932435F 		.ascii	"I2C_MasterClearStatus\000"
+ 1785      4D617374 
+ 1785      6572436C 
+ 1785      65617253 
+ 1785      74617475 
+ 1786              	.LASF7:
+ 1787 00b5 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1787      20756E73 
+ 1787      69676E65 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 36
+
+
+ 1787      6420696E 
+ 1787      7400
+ 1788              	.LASF24:
+ 1789 00c7 64756D6D 		.ascii	"dummy\000"
+ 1789      7900
+ 1790              	.LASF37:
+ 1791 00cd 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 1791      52784275 
+ 1791      66666572 
+ 1791      00
+ 1792              	.LASF26:
+ 1793 00da 7373645F 		.ascii	"ssd_init\000"
+ 1793      696E6974 
+ 1793      00
+ 1794              	.LASF33:
+ 1795 00e3 6D656D73 		.ascii	"memset\000"
+ 1795      657400
+ 1796              	.LASF18:
+ 1797 00ea 646F7562 		.ascii	"double\000"
+ 1797      6C6500
+ 1798              	.LASF10:
+ 1799 00f1 756E7369 		.ascii	"unsigned int\000"
+ 1799      676E6564 
+ 1799      20696E74 
+ 1799      00
+ 1800              	.LASF36:
+ 1801 00fe 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 1801      73657273 
+ 1801      5C643362 
+ 1801      75675C44 
+ 1801      6F63756D 
+ 1802 012c 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 1802      6F5F776F 
+ 1802      726C645F 
+ 1802      6C616265 
+ 1802      6C2E6379 
+ 1803              	.LASF9:
+ 1804 0144 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1804      206C6F6E 
+ 1804      6720756E 
+ 1804      7369676E 
+ 1804      65642069 
+ 1805              	.LASF11:
+ 1806 015b 75696E74 		.ascii	"uint8_t\000"
+ 1806      385F7400 
+ 1807              	.LASF21:
+ 1808 0163 7373645F 		.ascii	"ssd_set_page_addr\000"
+ 1808      7365745F 
+ 1808      70616765 
+ 1808      5F616464 
+ 1808      7200
+ 1809              	.LASF34:
+ 1810 0175 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 1810      43313120 
+ 1810      352E342E 
+ 1810      31203230 
+ 1810      31363036 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 37
+
+
+ 1811 01a8 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 1811      20726576 
+ 1811      6973696F 
+ 1811      6E203233 
+ 1811      37373135 
+ 1812 01db 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1812      66756E63 
+ 1812      74696F6E 
+ 1812      2D736563 
+ 1812      74696F6E 
+ 1813              	.LASF12:
+ 1814 0203 696E7433 		.ascii	"int32_t\000"
+ 1814      325F7400 
+ 1815              	.LASF15:
+ 1816 020b 73697A65 		.ascii	"sizetype\000"
+ 1816      74797065 
+ 1816      00
+ 1817              	.LASF16:
+ 1818 0214 63686172 		.ascii	"char\000"
+ 1818      00
+ 1819              	.LASF31:
+ 1820 0219 4932435F 		.ascii	"I2C_MasterStatus\000"
+ 1820      4D617374 
+ 1820      65725374 
+ 1820      61747573 
+ 1820      00
+ 1821              	.LASF19:
+ 1822 022a 7373645F 		.ascii	"ssd_send_command\000"
+ 1822      73656E64 
+ 1822      5F636F6D 
+ 1822      6D616E64 
+ 1822      00
+ 1823              	.LASF32:
+ 1824 023b 6D656D63 		.ascii	"memcpy\000"
+ 1824      707900
+ 1825              	.LASF2:
+ 1826 0242 73686F72 		.ascii	"short int\000"
+ 1826      7420696E 
+ 1826      7400
+ 1827              	.LASF6:
+ 1828 024c 6C6F6E67 		.ascii	"long int\000"
+ 1828      20696E74 
+ 1828      00
+ 1829              	.LASF14:
+ 1830 0255 6C6F6E67 		.ascii	"long double\000"
+ 1830      20646F75 
+ 1830      626C6500 
+ 1831              	.LASF0:
+ 1832 0261 7369676E 		.ascii	"signed char\000"
+ 1832      65642063 
+ 1832      68617200 
+ 1833              	.LASF25:
+ 1834 026d 7373645F 		.ascii	"ssd_send_buffer\000"
+ 1834      73656E64 
+ 1834      5F627566 
+ 1834      66657200 
+ 1835              	.LASF30:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccg90oCj.s 			page 38
+
+
+ 1836 027d 43794465 		.ascii	"CyDelay\000"
+ 1836      6C617900 
+ 1837              	.LASF27:
+ 1838 0285 7A65726F 		.ascii	"zero_buffer\000"
+ 1838      5F627566 
+ 1838      66657200 
+ 1839              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

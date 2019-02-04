@@ -1,0 +1,2534 @@
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"lv_area.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_area_set,"ax",%progbits
+  20              		.align	2
+  21              		.global	lv_area_set
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	lv_area_set, %function
+  25              	lv_area_set:
+  26              	.LFB3:
+  27              		.file 1 "..\\lvgl\\lv_misc\\lv_area.c"
+   1:..\lvgl\lv_misc/lv_area.c **** /**
+   2:..\lvgl\lv_misc/lv_area.c ****  * @file lv_area.c
+   3:..\lvgl\lv_misc/lv_area.c ****  *
+   4:..\lvgl\lv_misc/lv_area.c ****  */
+   5:..\lvgl\lv_misc/lv_area.c **** 
+   6:..\lvgl\lv_misc/lv_area.c **** /*********************
+   7:..\lvgl\lv_misc/lv_area.c ****  *      INCLUDES
+   8:..\lvgl\lv_misc/lv_area.c ****  *********************/
+   9:..\lvgl\lv_misc/lv_area.c **** #include "lv_area.h"
+  10:..\lvgl\lv_misc/lv_area.c **** #include "lv_math.h"
+  11:..\lvgl\lv_misc/lv_area.c **** 
+  12:..\lvgl\lv_misc/lv_area.c **** /*********************
+  13:..\lvgl\lv_misc/lv_area.c ****  *      DEFINES
+  14:..\lvgl\lv_misc/lv_area.c ****  *********************/
+  15:..\lvgl\lv_misc/lv_area.c **** 
+  16:..\lvgl\lv_misc/lv_area.c **** /**********************
+  17:..\lvgl\lv_misc/lv_area.c ****  *      TYPEDEFS
+  18:..\lvgl\lv_misc/lv_area.c ****  **********************/
+  19:..\lvgl\lv_misc/lv_area.c **** 
+  20:..\lvgl\lv_misc/lv_area.c **** /**********************
+  21:..\lvgl\lv_misc/lv_area.c ****  *  STATIC PROTOTYPES
+  22:..\lvgl\lv_misc/lv_area.c ****  **********************/
+  23:..\lvgl\lv_misc/lv_area.c **** 
+  24:..\lvgl\lv_misc/lv_area.c **** /**********************
+  25:..\lvgl\lv_misc/lv_area.c ****  *  STATIC VARIABLES
+  26:..\lvgl\lv_misc/lv_area.c ****  **********************/
+  27:..\lvgl\lv_misc/lv_area.c **** 
+  28:..\lvgl\lv_misc/lv_area.c **** /**********************
+  29:..\lvgl\lv_misc/lv_area.c ****  *      MACROS
+  30:..\lvgl\lv_misc/lv_area.c ****  **********************/
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 2
+
+
+  31:..\lvgl\lv_misc/lv_area.c **** 
+  32:..\lvgl\lv_misc/lv_area.c **** /**********************
+  33:..\lvgl\lv_misc/lv_area.c ****  *   GLOBAL FUNCTIONS
+  34:..\lvgl\lv_misc/lv_area.c ****  **********************/
+  35:..\lvgl\lv_misc/lv_area.c **** 
+  36:..\lvgl\lv_misc/lv_area.c **** /**
+  37:..\lvgl\lv_misc/lv_area.c ****  * Initialize an area
+  38:..\lvgl\lv_misc/lv_area.c ****  * @param area_p pointer to an area
+  39:..\lvgl\lv_misc/lv_area.c ****  * @param x1 left coordinate of the area
+  40:..\lvgl\lv_misc/lv_area.c ****  * @param y1 top coordinate of the area
+  41:..\lvgl\lv_misc/lv_area.c ****  * @param x2 right coordinate of the area
+  42:..\lvgl\lv_misc/lv_area.c ****  * @param y2 bottom coordinate of the area
+  43:..\lvgl\lv_misc/lv_area.c ****  */
+  44:..\lvgl\lv_misc/lv_area.c **** void lv_area_set(lv_area_t * area_p, lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2)
+  45:..\lvgl\lv_misc/lv_area.c **** {
+  28              		.loc 1 45 0
+  29              		.cfi_startproc
+  30              		@ args = 4, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+  46:..\lvgl\lv_misc/lv_area.c ****     area_p->x1 = x1;
+  34              		.loc 1 46 0
+  35 0000 0180     		strh	r1, [r0]	@ movhi
+  47:..\lvgl\lv_misc/lv_area.c ****     area_p->y1 = y1;
+  36              		.loc 1 47 0
+  37 0002 4280     		strh	r2, [r0, #2]	@ movhi
+  48:..\lvgl\lv_misc/lv_area.c ****     area_p->x2 = x2;
+  38              		.loc 1 48 0
+  39 0004 8380     		strh	r3, [r0, #4]	@ movhi
+  49:..\lvgl\lv_misc/lv_area.c ****     area_p->y2 = y2;
+  40              		.loc 1 49 0
+  41 0006 BDF90030 		ldrsh	r3, [sp]
+  42              	.LVL1:
+  43 000a C380     		strh	r3, [r0, #6]	@ movhi
+  44 000c 7047     		bx	lr
+  45              		.cfi_endproc
+  46              	.LFE3:
+  47              		.size	lv_area_set, .-lv_area_set
+  48 000e 00BF     		.section	.text.lv_area_set_width,"ax",%progbits
+  49              		.align	2
+  50              		.global	lv_area_set_width
+  51              		.thumb
+  52              		.thumb_func
+  53              		.type	lv_area_set_width, %function
+  54              	lv_area_set_width:
+  55              	.LFB4:
+  50:..\lvgl\lv_misc/lv_area.c **** }
+  51:..\lvgl\lv_misc/lv_area.c **** 
+  52:..\lvgl\lv_misc/lv_area.c **** /**
+  53:..\lvgl\lv_misc/lv_area.c ****  * Set the width of an area
+  54:..\lvgl\lv_misc/lv_area.c ****  * @param area_p pointer to an area
+  55:..\lvgl\lv_misc/lv_area.c ****  * @param w the new width of the area (w == 1 makes x1 == x2)
+  56:..\lvgl\lv_misc/lv_area.c ****  */
+  57:..\lvgl\lv_misc/lv_area.c **** void lv_area_set_width(lv_area_t * area_p, lv_coord_t w)
+  58:..\lvgl\lv_misc/lv_area.c **** {
+  56              		.loc 1 58 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 3
+
+
+  57              		.cfi_startproc
+  58              		@ args = 0, pretend = 0, frame = 0
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              		@ link register save eliminated.
+  61              	.LVL2:
+  59:..\lvgl\lv_misc/lv_area.c ****     area_p->x2 = area_p->x1 + w - 1;
+  62              		.loc 1 59 0
+  63 0000 B0F90030 		ldrsh	r3, [r0]
+  64 0004 1944     		add	r1, r1, r3
+  65              	.LVL3:
+  66 0006 0139     		subs	r1, r1, #1
+  67 0008 8180     		strh	r1, [r0, #4]	@ movhi
+  68 000a 7047     		bx	lr
+  69              		.cfi_endproc
+  70              	.LFE4:
+  71              		.size	lv_area_set_width, .-lv_area_set_width
+  72              		.section	.text.lv_area_set_height,"ax",%progbits
+  73              		.align	2
+  74              		.global	lv_area_set_height
+  75              		.thumb
+  76              		.thumb_func
+  77              		.type	lv_area_set_height, %function
+  78              	lv_area_set_height:
+  79              	.LFB5:
+  60:..\lvgl\lv_misc/lv_area.c **** }
+  61:..\lvgl\lv_misc/lv_area.c **** 
+  62:..\lvgl\lv_misc/lv_area.c **** /**
+  63:..\lvgl\lv_misc/lv_area.c ****  * Set the height of an area
+  64:..\lvgl\lv_misc/lv_area.c ****  * @param area_p pointer to an area
+  65:..\lvgl\lv_misc/lv_area.c ****  * @param h the new height of the area (h == 1 makes y1 == y2)
+  66:..\lvgl\lv_misc/lv_area.c ****  */
+  67:..\lvgl\lv_misc/lv_area.c **** void lv_area_set_height(lv_area_t * area_p, lv_coord_t h)
+  68:..\lvgl\lv_misc/lv_area.c **** {
+  80              		.loc 1 68 0
+  81              		.cfi_startproc
+  82              		@ args = 0, pretend = 0, frame = 0
+  83              		@ frame_needed = 0, uses_anonymous_args = 0
+  84              		@ link register save eliminated.
+  85              	.LVL4:
+  69:..\lvgl\lv_misc/lv_area.c ****     area_p->y2 = area_p->y1 + h - 1;
+  86              		.loc 1 69 0
+  87 0000 B0F90230 		ldrsh	r3, [r0, #2]
+  88 0004 1944     		add	r1, r1, r3
+  89              	.LVL5:
+  90 0006 0139     		subs	r1, r1, #1
+  91 0008 C180     		strh	r1, [r0, #6]	@ movhi
+  92 000a 7047     		bx	lr
+  93              		.cfi_endproc
+  94              	.LFE5:
+  95              		.size	lv_area_set_height, .-lv_area_set_height
+  96              		.section	.text.lv_area_set_pos,"ax",%progbits
+  97              		.align	2
+  98              		.global	lv_area_set_pos
+  99              		.thumb
+ 100              		.thumb_func
+ 101              		.type	lv_area_set_pos, %function
+ 102              	lv_area_set_pos:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 4
+
+
+ 103              	.LFB6:
+  70:..\lvgl\lv_misc/lv_area.c **** }
+  71:..\lvgl\lv_misc/lv_area.c **** 
+  72:..\lvgl\lv_misc/lv_area.c **** /**
+  73:..\lvgl\lv_misc/lv_area.c ****  * Set the position of an area (width and height will be kept)
+  74:..\lvgl\lv_misc/lv_area.c ****  * @param area_p pointer to an area
+  75:..\lvgl\lv_misc/lv_area.c ****  * @param x the new x coordinate of the area
+  76:..\lvgl\lv_misc/lv_area.c ****  * @param y the new y coordinate of the area
+  77:..\lvgl\lv_misc/lv_area.c ****  */
+  78:..\lvgl\lv_misc/lv_area.c **** void lv_area_set_pos(lv_area_t * area_p, lv_coord_t x, lv_coord_t y)
+  79:..\lvgl\lv_misc/lv_area.c **** {
+ 104              		.loc 1 79 0
+ 105              		.cfi_startproc
+ 106              		@ args = 0, pretend = 0, frame = 0
+ 107              		@ frame_needed = 0, uses_anonymous_args = 0
+ 108              	.LVL6:
+ 109 0000 70B5     		push	{r4, r5, r6, lr}
+ 110              		.cfi_def_cfa_offset 16
+ 111              		.cfi_offset 4, -16
+ 112              		.cfi_offset 5, -12
+ 113              		.cfi_offset 6, -8
+ 114              		.cfi_offset 14, -4
+ 115 0002 0446     		mov	r4, r0
+ 116              	.LVL7:
+ 117              	.LBB6:
+ 118              	.LBB7:
+ 119              		.file 2 "..\\lvgl\\lv_misc\\lv_area.h"
+   1:..\lvgl\lv_misc/lv_area.h **** /**
+   2:..\lvgl\lv_misc/lv_area.h ****  * @file lv_area.h
+   3:..\lvgl\lv_misc/lv_area.h ****  *
+   4:..\lvgl\lv_misc/lv_area.h ****  */
+   5:..\lvgl\lv_misc/lv_area.h **** 
+   6:..\lvgl\lv_misc/lv_area.h **** #ifndef LV_AREA_H
+   7:..\lvgl\lv_misc/lv_area.h **** #define LV_AREA_H
+   8:..\lvgl\lv_misc/lv_area.h **** 
+   9:..\lvgl\lv_misc/lv_area.h **** #ifdef __cplusplus
+  10:..\lvgl\lv_misc/lv_area.h **** extern "C" {
+  11:..\lvgl\lv_misc/lv_area.h **** #endif
+  12:..\lvgl\lv_misc/lv_area.h **** 
+  13:..\lvgl\lv_misc/lv_area.h **** 
+  14:..\lvgl\lv_misc/lv_area.h **** /*********************
+  15:..\lvgl\lv_misc/lv_area.h ****  *      INCLUDES
+  16:..\lvgl\lv_misc/lv_area.h ****  *********************/
+  17:..\lvgl\lv_misc/lv_area.h **** #include <string.h>
+  18:..\lvgl\lv_misc/lv_area.h **** #include <stdbool.h>
+  19:..\lvgl\lv_misc/lv_area.h **** #include <stdint.h>
+  20:..\lvgl\lv_misc/lv_area.h **** 
+  21:..\lvgl\lv_misc/lv_area.h **** /*********************
+  22:..\lvgl\lv_misc/lv_area.h ****  *      DEFINES
+  23:..\lvgl\lv_misc/lv_area.h ****  *********************/
+  24:..\lvgl\lv_misc/lv_area.h **** #define LV_COORD_MAX     (16383)    /*To avoid overflow don't let the max [-32,32k] range */
+  25:..\lvgl\lv_misc/lv_area.h **** #define LV_COORD_MIN     (-16384)
+  26:..\lvgl\lv_misc/lv_area.h **** 
+  27:..\lvgl\lv_misc/lv_area.h **** /**********************
+  28:..\lvgl\lv_misc/lv_area.h ****  *      TYPEDEFS
+  29:..\lvgl\lv_misc/lv_area.h ****  **********************/
+  30:..\lvgl\lv_misc/lv_area.h **** typedef int16_t lv_coord_t;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 5
+
+
+  31:..\lvgl\lv_misc/lv_area.h **** 
+  32:..\lvgl\lv_misc/lv_area.h **** typedef struct
+  33:..\lvgl\lv_misc/lv_area.h **** {
+  34:..\lvgl\lv_misc/lv_area.h ****     lv_coord_t x;
+  35:..\lvgl\lv_misc/lv_area.h ****     lv_coord_t y;
+  36:..\lvgl\lv_misc/lv_area.h **** } lv_point_t;
+  37:..\lvgl\lv_misc/lv_area.h **** 
+  38:..\lvgl\lv_misc/lv_area.h **** typedef struct
+  39:..\lvgl\lv_misc/lv_area.h **** {
+  40:..\lvgl\lv_misc/lv_area.h ****     lv_coord_t x1;
+  41:..\lvgl\lv_misc/lv_area.h ****     lv_coord_t y1;
+  42:..\lvgl\lv_misc/lv_area.h ****     lv_coord_t x2;
+  43:..\lvgl\lv_misc/lv_area.h ****     lv_coord_t y2;
+  44:..\lvgl\lv_misc/lv_area.h **** } lv_area_t;
+  45:..\lvgl\lv_misc/lv_area.h **** 
+  46:..\lvgl\lv_misc/lv_area.h **** /**********************
+  47:..\lvgl\lv_misc/lv_area.h ****  * GLOBAL PROTOTYPES
+  48:..\lvgl\lv_misc/lv_area.h ****  **********************/
+  49:..\lvgl\lv_misc/lv_area.h **** 
+  50:..\lvgl\lv_misc/lv_area.h **** /**
+  51:..\lvgl\lv_misc/lv_area.h ****  * Initialize an area
+  52:..\lvgl\lv_misc/lv_area.h ****  * @param area_p pointer to an area
+  53:..\lvgl\lv_misc/lv_area.h ****  * @param x1 left coordinate of the area
+  54:..\lvgl\lv_misc/lv_area.h ****  * @param y1 top coordinate of the area
+  55:..\lvgl\lv_misc/lv_area.h ****  * @param x2 right coordinate of the area
+  56:..\lvgl\lv_misc/lv_area.h ****  * @param y2 bottom coordinate of the area
+  57:..\lvgl\lv_misc/lv_area.h ****  */
+  58:..\lvgl\lv_misc/lv_area.h **** void lv_area_set(lv_area_t * area_p, lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2);
+  59:..\lvgl\lv_misc/lv_area.h **** 
+  60:..\lvgl\lv_misc/lv_area.h **** /**
+  61:..\lvgl\lv_misc/lv_area.h ****  * Copy an area
+  62:..\lvgl\lv_misc/lv_area.h ****  * @param dest pointer to the destination area
+  63:..\lvgl\lv_misc/lv_area.h ****  * @param src pointer to the source area
+  64:..\lvgl\lv_misc/lv_area.h ****  */
+  65:..\lvgl\lv_misc/lv_area.h **** inline static void lv_area_copy(lv_area_t * dest, const lv_area_t * src)
+  66:..\lvgl\lv_misc/lv_area.h **** {
+  67:..\lvgl\lv_misc/lv_area.h ****     memcpy(dest, src, sizeof(lv_area_t));
+  68:..\lvgl\lv_misc/lv_area.h **** }
+  69:..\lvgl\lv_misc/lv_area.h **** 
+  70:..\lvgl\lv_misc/lv_area.h **** /**
+  71:..\lvgl\lv_misc/lv_area.h ****  * Get the width of an area
+  72:..\lvgl\lv_misc/lv_area.h ****  * @param area_p pointer to an area
+  73:..\lvgl\lv_misc/lv_area.h ****  * @return the width of the area (if x1 == x2 -> width = 1)
+  74:..\lvgl\lv_misc/lv_area.h ****  */
+  75:..\lvgl\lv_misc/lv_area.h **** static inline lv_coord_t lv_area_get_width(const lv_area_t * area_p)
+  76:..\lvgl\lv_misc/lv_area.h **** {
+  77:..\lvgl\lv_misc/lv_area.h ****     return area_p->x2 - area_p->x1 + 1;
+ 120              		.loc 2 77 0
+ 121 0004 B0F90430 		ldrsh	r3, [r0, #4]
+ 122 0008 B0F90060 		ldrsh	r6, [r0]
+ 123 000c 9E1B     		subs	r6, r3, r6
+ 124 000e 0136     		adds	r6, r6, #1
+ 125              	.LVL8:
+ 126              	.LBE7:
+ 127              	.LBE6:
+ 128              	.LBB8:
+ 129              	.LBB9:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 6
+
+
+  78:..\lvgl\lv_misc/lv_area.h **** }
+  79:..\lvgl\lv_misc/lv_area.h **** 
+  80:..\lvgl\lv_misc/lv_area.h **** /**
+  81:..\lvgl\lv_misc/lv_area.h ****  * Get the height of an area
+  82:..\lvgl\lv_misc/lv_area.h ****  * @param area_p pointer to an area
+  83:..\lvgl\lv_misc/lv_area.h ****  * @return the height of the area (if y1 == y2 -> height = 1)
+  84:..\lvgl\lv_misc/lv_area.h ****  */
+  85:..\lvgl\lv_misc/lv_area.h **** static inline lv_coord_t lv_area_get_height(const lv_area_t * area_p)
+  86:..\lvgl\lv_misc/lv_area.h **** {
+  87:..\lvgl\lv_misc/lv_area.h ****     return area_p->y2 - area_p->y1 + 1;
+ 130              		.loc 2 87 0
+ 131 0010 B0F90630 		ldrsh	r3, [r0, #6]
+ 132 0014 B0F90250 		ldrsh	r5, [r0, #2]
+ 133 0018 5D1B     		subs	r5, r3, r5
+ 134 001a 0135     		adds	r5, r5, #1
+ 135 001c 2DB2     		sxth	r5, r5
+ 136              	.LVL9:
+ 137              	.LBE9:
+ 138              	.LBE8:
+  80:..\lvgl\lv_misc/lv_area.c ****     lv_coord_t w = lv_area_get_width(area_p);
+  81:..\lvgl\lv_misc/lv_area.c ****     lv_coord_t h = lv_area_get_height(area_p);
+  82:..\lvgl\lv_misc/lv_area.c ****     area_p->x1 = x;
+ 139              		.loc 1 82 0
+ 140 001e 0180     		strh	r1, [r0]	@ movhi
+  83:..\lvgl\lv_misc/lv_area.c ****     area_p->y1 = y;
+ 141              		.loc 1 83 0
+ 142 0020 4280     		strh	r2, [r0, #2]	@ movhi
+  84:..\lvgl\lv_misc/lv_area.c ****     lv_area_set_width(area_p, w);
+ 143              		.loc 1 84 0
+ 144 0022 31B2     		sxth	r1, r6
+ 145              	.LVL10:
+ 146 0024 FFF7FEFF 		bl	lv_area_set_width
+ 147              	.LVL11:
+  85:..\lvgl\lv_misc/lv_area.c ****     lv_area_set_height(area_p, h);
+ 148              		.loc 1 85 0
+ 149 0028 2946     		mov	r1, r5
+ 150 002a 2046     		mov	r0, r4
+ 151 002c FFF7FEFF 		bl	lv_area_set_height
+ 152              	.LVL12:
+ 153 0030 70BD     		pop	{r4, r5, r6, pc}
+ 154              		.cfi_endproc
+ 155              	.LFE6:
+ 156              		.size	lv_area_set_pos, .-lv_area_set_pos
+ 157 0032 00BF     		.section	.text.lv_area_get_size,"ax",%progbits
+ 158              		.align	2
+ 159              		.global	lv_area_get_size
+ 160              		.thumb
+ 161              		.thumb_func
+ 162              		.type	lv_area_get_size, %function
+ 163              	lv_area_get_size:
+ 164              	.LFB7:
+  86:..\lvgl\lv_misc/lv_area.c **** }
+  87:..\lvgl\lv_misc/lv_area.c **** 
+  88:..\lvgl\lv_misc/lv_area.c **** /**
+  89:..\lvgl\lv_misc/lv_area.c ****  * Return with area of an area (x * y)
+  90:..\lvgl\lv_misc/lv_area.c ****  * @param area_p pointer to an area
+  91:..\lvgl\lv_misc/lv_area.c ****  * @return size of area
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 7
+
+
+  92:..\lvgl\lv_misc/lv_area.c ****  */
+  93:..\lvgl\lv_misc/lv_area.c **** uint32_t lv_area_get_size(const lv_area_t * area_p)
+  94:..\lvgl\lv_misc/lv_area.c **** {
+ 165              		.loc 1 94 0
+ 166              		.cfi_startproc
+ 167              		@ args = 0, pretend = 0, frame = 0
+ 168              		@ frame_needed = 0, uses_anonymous_args = 0
+ 169              		@ link register save eliminated.
+ 170              	.LVL13:
+  95:..\lvgl\lv_misc/lv_area.c ****     uint32_t size;
+  96:..\lvgl\lv_misc/lv_area.c **** 
+  97:..\lvgl\lv_misc/lv_area.c ****     size = (uint32_t)(area_p->x2 - area_p->x1 + 1) *
+ 171              		.loc 1 97 0
+ 172 0000 B0F90430 		ldrsh	r3, [r0, #4]
+ 173 0004 B0F90020 		ldrsh	r2, [r0]
+ 174 0008 9A1A     		subs	r2, r3, r2
+  98:..\lvgl\lv_misc/lv_area.c ****            (area_p->y2 - area_p->y1 + 1);
+ 175              		.loc 1 98 0
+ 176 000a B0F90630 		ldrsh	r3, [r0, #6]
+ 177 000e B0F90200 		ldrsh	r0, [r0, #2]
+ 178              	.LVL14:
+ 179 0012 181A     		subs	r0, r3, r0
+ 180 0014 0130     		adds	r0, r0, #1
+ 181              	.LVL15:
+  99:..\lvgl\lv_misc/lv_area.c **** 
+ 100:..\lvgl\lv_misc/lv_area.c ****     return size;
+ 101:..\lvgl\lv_misc/lv_area.c **** }
+ 182              		.loc 1 101 0
+ 183 0016 02FB0000 		mla	r0, r2, r0, r0
+ 184              	.LVL16:
+ 185 001a 7047     		bx	lr
+ 186              		.cfi_endproc
+ 187              	.LFE7:
+ 188              		.size	lv_area_get_size, .-lv_area_get_size
+ 189              		.section	.text.lv_area_intersect,"ax",%progbits
+ 190              		.align	2
+ 191              		.global	lv_area_intersect
+ 192              		.thumb
+ 193              		.thumb_func
+ 194              		.type	lv_area_intersect, %function
+ 195              	lv_area_intersect:
+ 196              	.LFB8:
+ 102:..\lvgl\lv_misc/lv_area.c **** 
+ 103:..\lvgl\lv_misc/lv_area.c **** /**
+ 104:..\lvgl\lv_misc/lv_area.c ****  * Get the common parts of two areas
+ 105:..\lvgl\lv_misc/lv_area.c ****  * @param res_p pointer to an area, the result will be stored here
+ 106:..\lvgl\lv_misc/lv_area.c ****  * @param a1_p pointer to the first area
+ 107:..\lvgl\lv_misc/lv_area.c ****  * @param a2_p pointer to the second area
+ 108:..\lvgl\lv_misc/lv_area.c ****  * @return false: the two area has NO common parts, res_p is invalid
+ 109:..\lvgl\lv_misc/lv_area.c ****  */
+ 110:..\lvgl\lv_misc/lv_area.c **** bool lv_area_intersect(lv_area_t * res_p, const lv_area_t * a1_p, const lv_area_t * a2_p)
+ 111:..\lvgl\lv_misc/lv_area.c **** {
+ 197              		.loc 1 111 0
+ 198              		.cfi_startproc
+ 199              		@ args = 0, pretend = 0, frame = 0
+ 200              		@ frame_needed = 0, uses_anonymous_args = 0
+ 201              		@ link register save eliminated.
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 8
+
+
+ 202              	.LVL17:
+ 203 0000 70B4     		push	{r4, r5, r6}
+ 204              		.cfi_def_cfa_offset 12
+ 205              		.cfi_offset 4, -12
+ 206              		.cfi_offset 5, -8
+ 207              		.cfi_offset 6, -4
+ 112:..\lvgl\lv_misc/lv_area.c ****     /* Get the smaller area from 'a1_p' and 'a2_p' */
+ 113:..\lvgl\lv_misc/lv_area.c ****     res_p->x1 = LV_MATH_MAX(a1_p->x1, a2_p->x1);
+ 208              		.loc 1 113 0
+ 209 0002 B2F90040 		ldrsh	r4, [r2]
+ 210 0006 B1F90030 		ldrsh	r3, [r1]
+ 211 000a 9C42     		cmp	r4, r3
+ 212 000c B8BF     		it	lt
+ 213 000e 1C46     		movlt	r4, r3
+ 214 0010 0480     		strh	r4, [r0]	@ movhi
+ 114:..\lvgl\lv_misc/lv_area.c ****     res_p->y1 = LV_MATH_MAX(a1_p->y1, a2_p->y1);
+ 215              		.loc 1 114 0
+ 216 0012 B2F90250 		ldrsh	r5, [r2, #2]
+ 217 0016 B1F90230 		ldrsh	r3, [r1, #2]
+ 218 001a 9D42     		cmp	r5, r3
+ 219 001c B8BF     		it	lt
+ 220 001e 1D46     		movlt	r5, r3
+ 221 0020 4580     		strh	r5, [r0, #2]	@ movhi
+ 115:..\lvgl\lv_misc/lv_area.c ****     res_p->x2 = LV_MATH_MIN(a1_p->x2, a2_p->x2);
+ 222              		.loc 1 115 0
+ 223 0022 B2F90460 		ldrsh	r6, [r2, #4]
+ 224 0026 B1F90430 		ldrsh	r3, [r1, #4]
+ 225 002a B342     		cmp	r3, r6
+ 226 002c A8BF     		it	ge
+ 227 002e 3346     		movge	r3, r6
+ 228 0030 8380     		strh	r3, [r0, #4]	@ movhi
+ 116:..\lvgl\lv_misc/lv_area.c ****     res_p->y2 = LV_MATH_MIN(a1_p->y2, a2_p->y2);
+ 229              		.loc 1 116 0
+ 230 0032 B2F90660 		ldrsh	r6, [r2, #6]
+ 231 0036 B1F90620 		ldrsh	r2, [r1, #6]
+ 232              	.LVL18:
+ 233 003a B242     		cmp	r2, r6
+ 234 003c A8BF     		it	ge
+ 235 003e 3246     		movge	r2, r6
+ 236 0040 C280     		strh	r2, [r0, #6]	@ movhi
+ 237              	.LVL19:
+ 117:..\lvgl\lv_misc/lv_area.c **** 
+ 118:..\lvgl\lv_misc/lv_area.c ****     /*If x1 or y1 greater then x2 or y2 then the areas union is empty*/
+ 119:..\lvgl\lv_misc/lv_area.c ****     bool union_ok = true;
+ 120:..\lvgl\lv_misc/lv_area.c ****     if((res_p->x1 > res_p->x2) ||
+ 238              		.loc 1 120 0
+ 239 0042 9C42     		cmp	r4, r3
+ 240 0044 03DC     		bgt	.L9
+ 241              		.loc 1 120 0 is_stmt 0 discriminator 1
+ 242 0046 9542     		cmp	r5, r2
+ 243 0048 03DC     		bgt	.L10
+ 119:..\lvgl\lv_misc/lv_area.c ****     if((res_p->x1 > res_p->x2) ||
+ 244              		.loc 1 119 0 is_stmt 1
+ 245 004a 0120     		movs	r0, #1
+ 246              	.LVL20:
+ 247 004c 02E0     		b	.L8
+ 248              	.LVL21:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 9
+
+
+ 249              	.L9:
+ 121:..\lvgl\lv_misc/lv_area.c ****             (res_p->y1 > res_p->y2)) {
+ 122:..\lvgl\lv_misc/lv_area.c ****         union_ok = false;
+ 250              		.loc 1 122 0
+ 251 004e 0020     		movs	r0, #0
+ 252              	.LVL22:
+ 253 0050 00E0     		b	.L8
+ 254              	.LVL23:
+ 255              	.L10:
+ 256 0052 0020     		movs	r0, #0
+ 257              	.LVL24:
+ 258              	.L8:
+ 123:..\lvgl\lv_misc/lv_area.c ****     }
+ 124:..\lvgl\lv_misc/lv_area.c **** 
+ 125:..\lvgl\lv_misc/lv_area.c ****     return union_ok;
+ 126:..\lvgl\lv_misc/lv_area.c **** }
+ 259              		.loc 1 126 0
+ 260 0054 70BC     		pop	{r4, r5, r6}
+ 261              		.cfi_restore 6
+ 262              		.cfi_restore 5
+ 263              		.cfi_restore 4
+ 264              		.cfi_def_cfa_offset 0
+ 265 0056 7047     		bx	lr
+ 266              		.cfi_endproc
+ 267              	.LFE8:
+ 268              		.size	lv_area_intersect, .-lv_area_intersect
+ 269              		.section	.text.lv_area_join,"ax",%progbits
+ 270              		.align	2
+ 271              		.global	lv_area_join
+ 272              		.thumb
+ 273              		.thumb_func
+ 274              		.type	lv_area_join, %function
+ 275              	lv_area_join:
+ 276              	.LFB9:
+ 127:..\lvgl\lv_misc/lv_area.c **** /**
+ 128:..\lvgl\lv_misc/lv_area.c ****  * Join two areas into a third which involves the other two
+ 129:..\lvgl\lv_misc/lv_area.c ****  * @param res_p pointer to an area, the result will be stored here
+ 130:..\lvgl\lv_misc/lv_area.c ****  * @param a1_p pointer to the first area
+ 131:..\lvgl\lv_misc/lv_area.c ****  * @param a2_p pointer to the second area
+ 132:..\lvgl\lv_misc/lv_area.c ****  */
+ 133:..\lvgl\lv_misc/lv_area.c **** void lv_area_join(lv_area_t * a_res_p, const lv_area_t * a1_p, const lv_area_t * a2_p)
+ 134:..\lvgl\lv_misc/lv_area.c **** {
+ 277              		.loc 1 134 0
+ 278              		.cfi_startproc
+ 279              		@ args = 0, pretend = 0, frame = 0
+ 280              		@ frame_needed = 0, uses_anonymous_args = 0
+ 281              		@ link register save eliminated.
+ 282              	.LVL25:
+ 283 0000 10B4     		push	{r4}
+ 284              		.cfi_def_cfa_offset 4
+ 285              		.cfi_offset 4, -4
+ 135:..\lvgl\lv_misc/lv_area.c ****     a_res_p->x1 = LV_MATH_MIN(a1_p->x1, a2_p->x1);
+ 286              		.loc 1 135 0
+ 287 0002 B2F90040 		ldrsh	r4, [r2]
+ 288 0006 B1F90030 		ldrsh	r3, [r1]
+ 289 000a A342     		cmp	r3, r4
+ 290 000c A8BF     		it	ge
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 10
+
+
+ 291 000e 2346     		movge	r3, r4
+ 292 0010 0380     		strh	r3, [r0]	@ movhi
+ 136:..\lvgl\lv_misc/lv_area.c ****     a_res_p->y1 = LV_MATH_MIN(a1_p->y1, a2_p->y1);
+ 293              		.loc 1 136 0
+ 294 0012 B2F90240 		ldrsh	r4, [r2, #2]
+ 295 0016 B1F90230 		ldrsh	r3, [r1, #2]
+ 296 001a A342     		cmp	r3, r4
+ 297 001c A8BF     		it	ge
+ 298 001e 2346     		movge	r3, r4
+ 299 0020 4380     		strh	r3, [r0, #2]	@ movhi
+ 137:..\lvgl\lv_misc/lv_area.c ****     a_res_p->x2 = LV_MATH_MAX(a1_p->x2, a2_p->x2);
+ 300              		.loc 1 137 0
+ 301 0022 B2F90440 		ldrsh	r4, [r2, #4]
+ 302 0026 B1F90430 		ldrsh	r3, [r1, #4]
+ 303 002a A342     		cmp	r3, r4
+ 304 002c B8BF     		it	lt
+ 305 002e 2346     		movlt	r3, r4
+ 306 0030 8380     		strh	r3, [r0, #4]	@ movhi
+ 138:..\lvgl\lv_misc/lv_area.c ****     a_res_p->y2 = LV_MATH_MAX(a1_p->y2, a2_p->y2);
+ 307              		.loc 1 138 0
+ 308 0032 B2F90620 		ldrsh	r2, [r2, #6]
+ 309              	.LVL26:
+ 310 0036 B1F90630 		ldrsh	r3, [r1, #6]
+ 311 003a 9342     		cmp	r3, r2
+ 312 003c B8BF     		it	lt
+ 313 003e 1346     		movlt	r3, r2
+ 314 0040 C380     		strh	r3, [r0, #6]	@ movhi
+ 139:..\lvgl\lv_misc/lv_area.c **** }
+ 315              		.loc 1 139 0
+ 316 0042 10BC     		pop	{r4}
+ 317              		.cfi_restore 4
+ 318              		.cfi_def_cfa_offset 0
+ 319 0044 7047     		bx	lr
+ 320              		.cfi_endproc
+ 321              	.LFE9:
+ 322              		.size	lv_area_join, .-lv_area_join
+ 323 0046 00BF     		.section	.text.lv_area_is_point_on,"ax",%progbits
+ 324              		.align	2
+ 325              		.global	lv_area_is_point_on
+ 326              		.thumb
+ 327              		.thumb_func
+ 328              		.type	lv_area_is_point_on, %function
+ 329              	lv_area_is_point_on:
+ 330              	.LFB10:
+ 140:..\lvgl\lv_misc/lv_area.c **** 
+ 141:..\lvgl\lv_misc/lv_area.c **** /**
+ 142:..\lvgl\lv_misc/lv_area.c ****  * Check if a point is on an area
+ 143:..\lvgl\lv_misc/lv_area.c ****  * @param a_p pointer to an area
+ 144:..\lvgl\lv_misc/lv_area.c ****  * @param p_p pointer to a point
+ 145:..\lvgl\lv_misc/lv_area.c ****  * @return false:the point is out of the area
+ 146:..\lvgl\lv_misc/lv_area.c ****  */
+ 147:..\lvgl\lv_misc/lv_area.c **** bool lv_area_is_point_on(const lv_area_t * a_p, const lv_point_t * p_p)
+ 148:..\lvgl\lv_misc/lv_area.c **** {
+ 331              		.loc 1 148 0
+ 332              		.cfi_startproc
+ 333              		@ args = 0, pretend = 0, frame = 0
+ 334              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 11
+
+
+ 335              		@ link register save eliminated.
+ 336              	.LVL27:
+ 149:..\lvgl\lv_misc/lv_area.c ****     bool is_on = false;
+ 150:..\lvgl\lv_misc/lv_area.c **** 
+ 151:..\lvgl\lv_misc/lv_area.c ****     if((p_p->x >= a_p->x1 && p_p->x <= a_p->x2) &&
+ 337              		.loc 1 151 0
+ 338 0000 B1F90030 		ldrsh	r3, [r1]
+ 339 0004 B0F90020 		ldrsh	r2, [r0]
+ 340 0008 9342     		cmp	r3, r2
+ 341 000a 0FDB     		blt	.L16
+ 342              		.loc 1 151 0 is_stmt 0 discriminator 1
+ 343 000c B0F90420 		ldrsh	r2, [r0, #4]
+ 344 0010 9342     		cmp	r3, r2
+ 345 0012 0DDC     		bgt	.L17
+ 152:..\lvgl\lv_misc/lv_area.c ****             ((p_p->y >= a_p->y1 && p_p->y <= a_p->y2))) {
+ 346              		.loc 1 152 0 is_stmt 1 discriminator 2
+ 347 0014 B1F90230 		ldrsh	r3, [r1, #2]
+ 348 0018 B0F90220 		ldrsh	r2, [r0, #2]
+ 151:..\lvgl\lv_misc/lv_area.c ****             ((p_p->y >= a_p->y1 && p_p->y <= a_p->y2))) {
+ 349              		.loc 1 151 0 discriminator 2
+ 350 001c 9342     		cmp	r3, r2
+ 351 001e 09DB     		blt	.L18
+ 352              		.loc 1 152 0
+ 353 0020 B0F90620 		ldrsh	r2, [r0, #6]
+ 354 0024 9342     		cmp	r3, r2
+ 355 0026 07DD     		ble	.L19
+ 149:..\lvgl\lv_misc/lv_area.c ****     bool is_on = false;
+ 356              		.loc 1 149 0
+ 357 0028 0020     		movs	r0, #0
+ 358              	.LVL28:
+ 359 002a 7047     		bx	lr
+ 360              	.LVL29:
+ 361              	.L16:
+ 362 002c 0020     		movs	r0, #0
+ 363              	.LVL30:
+ 364 002e 7047     		bx	lr
+ 365              	.LVL31:
+ 366              	.L17:
+ 367 0030 0020     		movs	r0, #0
+ 368              	.LVL32:
+ 369 0032 7047     		bx	lr
+ 370              	.LVL33:
+ 371              	.L18:
+ 372 0034 0020     		movs	r0, #0
+ 373              	.LVL34:
+ 374 0036 7047     		bx	lr
+ 375              	.LVL35:
+ 376              	.L19:
+ 153:..\lvgl\lv_misc/lv_area.c ****         is_on = true;
+ 377              		.loc 1 153 0
+ 378 0038 0120     		movs	r0, #1
+ 379              	.LVL36:
+ 154:..\lvgl\lv_misc/lv_area.c ****     }
+ 155:..\lvgl\lv_misc/lv_area.c **** 
+ 156:..\lvgl\lv_misc/lv_area.c ****     return is_on;
+ 157:..\lvgl\lv_misc/lv_area.c **** }
+ 380              		.loc 1 157 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 12
+
+
+ 381 003a 7047     		bx	lr
+ 382              		.cfi_endproc
+ 383              	.LFE10:
+ 384              		.size	lv_area_is_point_on, .-lv_area_is_point_on
+ 385              		.section	.text.lv_area_is_on,"ax",%progbits
+ 386              		.align	2
+ 387              		.global	lv_area_is_on
+ 388              		.thumb
+ 389              		.thumb_func
+ 390              		.type	lv_area_is_on, %function
+ 391              	lv_area_is_on:
+ 392              	.LFB11:
+ 158:..\lvgl\lv_misc/lv_area.c **** 
+ 159:..\lvgl\lv_misc/lv_area.c **** /**
+ 160:..\lvgl\lv_misc/lv_area.c ****  * Check if two area has common parts
+ 161:..\lvgl\lv_misc/lv_area.c ****  * @param a1_p pointer to an area.
+ 162:..\lvgl\lv_misc/lv_area.c ****  * @param a2_p pointer to an other area
+ 163:..\lvgl\lv_misc/lv_area.c ****  * @return false: a1_p and a2_p has no common parts
+ 164:..\lvgl\lv_misc/lv_area.c ****  */
+ 165:..\lvgl\lv_misc/lv_area.c **** bool lv_area_is_on(const lv_area_t * a1_p, const lv_area_t * a2_p)
+ 166:..\lvgl\lv_misc/lv_area.c **** {
+ 393              		.loc 1 166 0
+ 394              		.cfi_startproc
+ 395              		@ args = 0, pretend = 0, frame = 0
+ 396              		@ frame_needed = 0, uses_anonymous_args = 0
+ 397              		@ link register save eliminated.
+ 398              	.LVL37:
+ 167:..\lvgl\lv_misc/lv_area.c ****     if((a1_p->x1 <= a2_p->x2) &&
+ 399              		.loc 1 167 0
+ 400 0000 B0F90020 		ldrsh	r2, [r0]
+ 401 0004 B1F90430 		ldrsh	r3, [r1, #4]
+ 402 0008 9A42     		cmp	r2, r3
+ 403 000a 13DC     		bgt	.L22
+ 168:..\lvgl\lv_misc/lv_area.c ****             (a1_p->x2 >= a2_p->x1) &&
+ 404              		.loc 1 168 0 discriminator 1
+ 405 000c B0F90420 		ldrsh	r2, [r0, #4]
+ 406 0010 B1F90030 		ldrsh	r3, [r1]
+ 167:..\lvgl\lv_misc/lv_area.c ****     if((a1_p->x1 <= a2_p->x2) &&
+ 407              		.loc 1 167 0 discriminator 1
+ 408 0014 9A42     		cmp	r2, r3
+ 409 0016 0FDB     		blt	.L23
+ 169:..\lvgl\lv_misc/lv_area.c ****             (a1_p->y1 <= a2_p->y2) &&
+ 410              		.loc 1 169 0
+ 411 0018 B0F90220 		ldrsh	r2, [r0, #2]
+ 412 001c B1F90630 		ldrsh	r3, [r1, #6]
+ 168:..\lvgl\lv_misc/lv_area.c ****             (a1_p->x2 >= a2_p->x1) &&
+ 413              		.loc 1 168 0
+ 414 0020 9A42     		cmp	r2, r3
+ 415 0022 0BDC     		bgt	.L24
+ 170:..\lvgl\lv_misc/lv_area.c ****             (a1_p->y2 >= a2_p->y1)) {
+ 416              		.loc 1 170 0
+ 417 0024 B0F90620 		ldrsh	r2, [r0, #6]
+ 418 0028 B1F90230 		ldrsh	r3, [r1, #2]
+ 169:..\lvgl\lv_misc/lv_area.c ****             (a1_p->y1 <= a2_p->y2) &&
+ 419              		.loc 1 169 0
+ 420 002c 9A42     		cmp	r2, r3
+ 421 002e 07DA     		bge	.L25
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 13
+
+
+ 171:..\lvgl\lv_misc/lv_area.c ****         return true;
+ 172:..\lvgl\lv_misc/lv_area.c ****     } else {
+ 173:..\lvgl\lv_misc/lv_area.c ****         return false;
+ 422              		.loc 1 173 0
+ 423 0030 0020     		movs	r0, #0
+ 424              	.LVL38:
+ 425 0032 7047     		bx	lr
+ 426              	.LVL39:
+ 427              	.L22:
+ 428 0034 0020     		movs	r0, #0
+ 429              	.LVL40:
+ 430 0036 7047     		bx	lr
+ 431              	.LVL41:
+ 432              	.L23:
+ 433 0038 0020     		movs	r0, #0
+ 434              	.LVL42:
+ 435 003a 7047     		bx	lr
+ 436              	.LVL43:
+ 437              	.L24:
+ 438 003c 0020     		movs	r0, #0
+ 439              	.LVL44:
+ 440 003e 7047     		bx	lr
+ 441              	.LVL45:
+ 442              	.L25:
+ 171:..\lvgl\lv_misc/lv_area.c ****         return true;
+ 443              		.loc 1 171 0
+ 444 0040 0120     		movs	r0, #1
+ 445              	.LVL46:
+ 174:..\lvgl\lv_misc/lv_area.c ****     }
+ 175:..\lvgl\lv_misc/lv_area.c **** 
+ 176:..\lvgl\lv_misc/lv_area.c **** }
+ 446              		.loc 1 176 0
+ 447 0042 7047     		bx	lr
+ 448              		.cfi_endproc
+ 449              	.LFE11:
+ 450              		.size	lv_area_is_on, .-lv_area_is_on
+ 451              		.section	.text.lv_area_is_in,"ax",%progbits
+ 452              		.align	2
+ 453              		.global	lv_area_is_in
+ 454              		.thumb
+ 455              		.thumb_func
+ 456              		.type	lv_area_is_in, %function
+ 457              	lv_area_is_in:
+ 458              	.LFB12:
+ 177:..\lvgl\lv_misc/lv_area.c **** 
+ 178:..\lvgl\lv_misc/lv_area.c **** /**
+ 179:..\lvgl\lv_misc/lv_area.c ****  * Check if an area is fully on an other
+ 180:..\lvgl\lv_misc/lv_area.c ****  * @param ain_p pointer to an area which could be in 'aholder_p'
+ 181:..\lvgl\lv_misc/lv_area.c ****  * @param aholder pointer to an area which could involve 'ain_p'
+ 182:..\lvgl\lv_misc/lv_area.c ****  * @return
+ 183:..\lvgl\lv_misc/lv_area.c ****  */
+ 184:..\lvgl\lv_misc/lv_area.c **** bool lv_area_is_in(const lv_area_t * ain_p, const lv_area_t * aholder_p)
+ 185:..\lvgl\lv_misc/lv_area.c **** {
+ 459              		.loc 1 185 0
+ 460              		.cfi_startproc
+ 461              		@ args = 0, pretend = 0, frame = 0
+ 462              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 14
+
+
+ 463              		@ link register save eliminated.
+ 464              	.LVL47:
+ 186:..\lvgl\lv_misc/lv_area.c ****     bool is_in = false;
+ 187:..\lvgl\lv_misc/lv_area.c **** 
+ 188:..\lvgl\lv_misc/lv_area.c ****     if(ain_p->x1  >= aholder_p->x1 &&
+ 465              		.loc 1 188 0
+ 466 0000 B0F90020 		ldrsh	r2, [r0]
+ 467 0004 B1F90030 		ldrsh	r3, [r1]
+ 468 0008 9A42     		cmp	r2, r3
+ 469 000a 13DB     		blt	.L28
+ 189:..\lvgl\lv_misc/lv_area.c ****             ain_p->y1  >= aholder_p->y1 &&
+ 470              		.loc 1 189 0 discriminator 1
+ 471 000c B0F90220 		ldrsh	r2, [r0, #2]
+ 472 0010 B1F90230 		ldrsh	r3, [r1, #2]
+ 188:..\lvgl\lv_misc/lv_area.c ****             ain_p->y1  >= aholder_p->y1 &&
+ 473              		.loc 1 188 0 discriminator 1
+ 474 0014 9A42     		cmp	r2, r3
+ 475 0016 0FDB     		blt	.L29
+ 190:..\lvgl\lv_misc/lv_area.c ****             ain_p->x2  <= aholder_p->x2 &&
+ 476              		.loc 1 190 0
+ 477 0018 B0F90420 		ldrsh	r2, [r0, #4]
+ 478 001c B1F90430 		ldrsh	r3, [r1, #4]
+ 189:..\lvgl\lv_misc/lv_area.c ****             ain_p->y1  >= aholder_p->y1 &&
+ 479              		.loc 1 189 0
+ 480 0020 9A42     		cmp	r2, r3
+ 481 0022 0BDC     		bgt	.L30
+ 191:..\lvgl\lv_misc/lv_area.c ****             ain_p->y2  <= aholder_p->y2) {
+ 482              		.loc 1 191 0
+ 483 0024 B0F90620 		ldrsh	r2, [r0, #6]
+ 484 0028 B1F90630 		ldrsh	r3, [r1, #6]
+ 190:..\lvgl\lv_misc/lv_area.c ****             ain_p->x2  <= aholder_p->x2 &&
+ 485              		.loc 1 190 0
+ 486 002c 9A42     		cmp	r2, r3
+ 487 002e 07DD     		ble	.L31
+ 186:..\lvgl\lv_misc/lv_area.c **** 
+ 488              		.loc 1 186 0
+ 489 0030 0020     		movs	r0, #0
+ 490              	.LVL48:
+ 491 0032 7047     		bx	lr
+ 492              	.LVL49:
+ 493              	.L28:
+ 494 0034 0020     		movs	r0, #0
+ 495              	.LVL50:
+ 496 0036 7047     		bx	lr
+ 497              	.LVL51:
+ 498              	.L29:
+ 499 0038 0020     		movs	r0, #0
+ 500              	.LVL52:
+ 501 003a 7047     		bx	lr
+ 502              	.LVL53:
+ 503              	.L30:
+ 504 003c 0020     		movs	r0, #0
+ 505              	.LVL54:
+ 506 003e 7047     		bx	lr
+ 507              	.LVL55:
+ 508              	.L31:
+ 192:..\lvgl\lv_misc/lv_area.c ****         is_in = true;
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 15
+
+
+ 509              		.loc 1 192 0
+ 510 0040 0120     		movs	r0, #1
+ 511              	.LVL56:
+ 193:..\lvgl\lv_misc/lv_area.c ****     }
+ 194:..\lvgl\lv_misc/lv_area.c **** 
+ 195:..\lvgl\lv_misc/lv_area.c ****     return is_in;
+ 196:..\lvgl\lv_misc/lv_area.c **** }
+ 512              		.loc 1 196 0
+ 513 0042 7047     		bx	lr
+ 514              		.cfi_endproc
+ 515              	.LFE12:
+ 516              		.size	lv_area_is_in, .-lv_area_is_in
+ 517              		.text
+ 518              	.Letext0:
+ 519              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 520              		.file 4 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 521              		.section	.debug_info,"",%progbits
+ 522              	.Ldebug_info0:
+ 523 0000 6F040000 		.4byte	0x46f
+ 524 0004 0400     		.2byte	0x4
+ 525 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 526 000a 04       		.byte	0x4
+ 527 000b 01       		.uleb128 0x1
+ 528 000c BA000000 		.4byte	.LASF43
+ 529 0010 0C       		.byte	0xc
+ 530 0011 F0010000 		.4byte	.LASF44
+ 531 0015 78010000 		.4byte	.LASF45
+ 532 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 533 001d 00000000 		.4byte	0
+ 534 0021 00000000 		.4byte	.Ldebug_line0
+ 535 0025 02       		.uleb128 0x2
+ 536 0026 04       		.byte	0x4
+ 537 0027 05       		.byte	0x5
+ 538 0028 696E7400 		.ascii	"int\000"
+ 539 002c 03       		.uleb128 0x3
+ 540 002d 04       		.byte	0x4
+ 541 002e 07       		.byte	0x7
+ 542 002f 22020000 		.4byte	.LASF0
+ 543 0033 03       		.uleb128 0x3
+ 544 0034 08       		.byte	0x8
+ 545 0035 05       		.byte	0x5
+ 546 0036 57020000 		.4byte	.LASF1
+ 547 003a 03       		.uleb128 0x3
+ 548 003b 08       		.byte	0x8
+ 549 003c 04       		.byte	0x4
+ 550 003d B4020000 		.4byte	.LASF2
+ 551 0041 03       		.uleb128 0x3
+ 552 0042 01       		.byte	0x1
+ 553 0043 06       		.byte	0x6
+ 554 0044 C0020000 		.4byte	.LASF3
+ 555 0048 03       		.uleb128 0x3
+ 556 0049 01       		.byte	0x1
+ 557 004a 08       		.byte	0x8
+ 558 004b E2010000 		.4byte	.LASF4
+ 559 004f 04       		.uleb128 0x4
+ 560 0050 23000000 		.4byte	.LASF8
+ 561 0054 03       		.byte	0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 16
+
+
+ 562 0055 29       		.byte	0x29
+ 563 0056 5A000000 		.4byte	0x5a
+ 564 005a 03       		.uleb128 0x3
+ 565 005b 02       		.byte	0x2
+ 566 005c 05       		.byte	0x5
+ 567 005d 7A000000 		.4byte	.LASF5
+ 568 0061 03       		.uleb128 0x3
+ 569 0062 02       		.byte	0x2
+ 570 0063 07       		.byte	0x7
+ 571 0064 65010000 		.4byte	.LASF6
+ 572 0068 03       		.uleb128 0x3
+ 573 0069 04       		.byte	0x4
+ 574 006a 05       		.byte	0x5
+ 575 006b A5020000 		.4byte	.LASF7
+ 576 006f 04       		.uleb128 0x4
+ 577 0070 0A020000 		.4byte	.LASF9
+ 578 0074 03       		.byte	0x3
+ 579 0075 41       		.byte	0x41
+ 580 0076 7A000000 		.4byte	0x7a
+ 581 007a 03       		.uleb128 0x3
+ 582 007b 04       		.byte	0x4
+ 583 007c 07       		.byte	0x7
+ 584 007d 53010000 		.4byte	.LASF10
+ 585 0081 03       		.uleb128 0x3
+ 586 0082 08       		.byte	0x8
+ 587 0083 07       		.byte	0x7
+ 588 0084 2F020000 		.4byte	.LASF11
+ 589 0088 03       		.uleb128 0x3
+ 590 0089 04       		.byte	0x4
+ 591 008a 07       		.byte	0x7
+ 592 008b 4E020000 		.4byte	.LASF12
+ 593 008f 03       		.uleb128 0x3
+ 594 0090 01       		.byte	0x1
+ 595 0091 08       		.byte	0x8
+ 596 0092 71020000 		.4byte	.LASF13
+ 597 0096 04       		.uleb128 0x4
+ 598 0097 46020000 		.4byte	.LASF14
+ 599 009b 04       		.byte	0x4
+ 600 009c 20       		.byte	0x20
+ 601 009d 4F000000 		.4byte	0x4f
+ 602 00a1 04       		.uleb128 0x4
+ 603 00a2 9C020000 		.4byte	.LASF15
+ 604 00a6 04       		.byte	0x4
+ 605 00a7 30       		.byte	0x30
+ 606 00a8 6F000000 		.4byte	0x6f
+ 607 00ac 04       		.uleb128 0x4
+ 608 00ad 10000000 		.4byte	.LASF16
+ 609 00b1 02       		.byte	0x2
+ 610 00b2 1E       		.byte	0x1e
+ 611 00b3 96000000 		.4byte	0x96
+ 612 00b7 05       		.uleb128 0x5
+ 613 00b8 04       		.byte	0x4
+ 614 00b9 02       		.byte	0x2
+ 615 00ba 20       		.byte	0x20
+ 616 00bb D4000000 		.4byte	0xd4
+ 617 00bf 06       		.uleb128 0x6
+ 618 00c0 7800     		.ascii	"x\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 17
+
+
+ 619 00c2 02       		.byte	0x2
+ 620 00c3 22       		.byte	0x22
+ 621 00c4 AC000000 		.4byte	0xac
+ 622 00c8 00       		.byte	0
+ 623 00c9 06       		.uleb128 0x6
+ 624 00ca 7900     		.ascii	"y\000"
+ 625 00cc 02       		.byte	0x2
+ 626 00cd 23       		.byte	0x23
+ 627 00ce AC000000 		.4byte	0xac
+ 628 00d2 02       		.byte	0x2
+ 629 00d3 00       		.byte	0
+ 630 00d4 04       		.uleb128 0x4
+ 631 00d5 48010000 		.4byte	.LASF17
+ 632 00d9 02       		.byte	0x2
+ 633 00da 24       		.byte	0x24
+ 634 00db B7000000 		.4byte	0xb7
+ 635 00df 05       		.uleb128 0x5
+ 636 00e0 08       		.byte	0x8
+ 637 00e1 02       		.byte	0x2
+ 638 00e2 26       		.byte	0x26
+ 639 00e3 14010000 		.4byte	0x114
+ 640 00e7 06       		.uleb128 0x6
+ 641 00e8 783100   		.ascii	"x1\000"
+ 642 00eb 02       		.byte	0x2
+ 643 00ec 28       		.byte	0x28
+ 644 00ed AC000000 		.4byte	0xac
+ 645 00f1 00       		.byte	0
+ 646 00f2 06       		.uleb128 0x6
+ 647 00f3 793100   		.ascii	"y1\000"
+ 648 00f6 02       		.byte	0x2
+ 649 00f7 29       		.byte	0x29
+ 650 00f8 AC000000 		.4byte	0xac
+ 651 00fc 02       		.byte	0x2
+ 652 00fd 06       		.uleb128 0x6
+ 653 00fe 783200   		.ascii	"x2\000"
+ 654 0101 02       		.byte	0x2
+ 655 0102 2A       		.byte	0x2a
+ 656 0103 AC000000 		.4byte	0xac
+ 657 0107 04       		.byte	0x4
+ 658 0108 06       		.uleb128 0x6
+ 659 0109 793200   		.ascii	"y2\000"
+ 660 010c 02       		.byte	0x2
+ 661 010d 2B       		.byte	0x2b
+ 662 010e AC000000 		.4byte	0xac
+ 663 0112 06       		.byte	0x6
+ 664 0113 00       		.byte	0
+ 665 0114 04       		.uleb128 0x4
+ 666 0115 A5000000 		.4byte	.LASF18
+ 667 0119 02       		.byte	0x2
+ 668 011a 2C       		.byte	0x2c
+ 669 011b DF000000 		.4byte	0xdf
+ 670 011f 07       		.uleb128 0x7
+ 671 0120 84000000 		.4byte	.LASF19
+ 672 0124 02       		.byte	0x2
+ 673 0125 55       		.byte	0x55
+ 674 0126 AC000000 		.4byte	0xac
+ 675 012a 03       		.byte	0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 18
+
+
+ 676 012b 3B010000 		.4byte	0x13b
+ 677 012f 08       		.uleb128 0x8
+ 678 0130 6A020000 		.4byte	.LASF21
+ 679 0134 02       		.byte	0x2
+ 680 0135 55       		.byte	0x55
+ 681 0136 3B010000 		.4byte	0x13b
+ 682 013a 00       		.byte	0
+ 683 013b 09       		.uleb128 0x9
+ 684 013c 04       		.byte	0x4
+ 685 013d 41010000 		.4byte	0x141
+ 686 0141 0A       		.uleb128 0xa
+ 687 0142 14010000 		.4byte	0x114
+ 688 0146 07       		.uleb128 0x7
+ 689 0147 76020000 		.4byte	.LASF20
+ 690 014b 02       		.byte	0x2
+ 691 014c 4B       		.byte	0x4b
+ 692 014d AC000000 		.4byte	0xac
+ 693 0151 03       		.byte	0x3
+ 694 0152 62010000 		.4byte	0x162
+ 695 0156 08       		.uleb128 0x8
+ 696 0157 6A020000 		.4byte	.LASF21
+ 697 015b 02       		.byte	0x2
+ 698 015c 4B       		.byte	0x4b
+ 699 015d 3B010000 		.4byte	0x13b
+ 700 0161 00       		.byte	0
+ 701 0162 0B       		.uleb128 0xb
+ 702 0163 6E000000 		.4byte	.LASF22
+ 703 0167 01       		.byte	0x1
+ 704 0168 2C       		.byte	0x2c
+ 705 0169 00000000 		.4byte	.LFB3
+ 706 016d 0E000000 		.4byte	.LFE3-.LFB3
+ 707 0171 01       		.uleb128 0x1
+ 708 0172 9C       		.byte	0x9c
+ 709 0173 B8010000 		.4byte	0x1b8
+ 710 0177 0C       		.uleb128 0xc
+ 711 0178 6A020000 		.4byte	.LASF21
+ 712 017c 01       		.byte	0x1
+ 713 017d 2C       		.byte	0x2c
+ 714 017e B8010000 		.4byte	0x1b8
+ 715 0182 01       		.uleb128 0x1
+ 716 0183 50       		.byte	0x50
+ 717 0184 0D       		.uleb128 0xd
+ 718 0185 783100   		.ascii	"x1\000"
+ 719 0188 01       		.byte	0x1
+ 720 0189 2C       		.byte	0x2c
+ 721 018a AC000000 		.4byte	0xac
+ 722 018e 01       		.uleb128 0x1
+ 723 018f 51       		.byte	0x51
+ 724 0190 0D       		.uleb128 0xd
+ 725 0191 793100   		.ascii	"y1\000"
+ 726 0194 01       		.byte	0x1
+ 727 0195 2C       		.byte	0x2c
+ 728 0196 AC000000 		.4byte	0xac
+ 729 019a 01       		.uleb128 0x1
+ 730 019b 52       		.byte	0x52
+ 731 019c 0E       		.uleb128 0xe
+ 732 019d 783200   		.ascii	"x2\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 19
+
+
+ 733 01a0 01       		.byte	0x1
+ 734 01a1 2C       		.byte	0x2c
+ 735 01a2 AC000000 		.4byte	0xac
+ 736 01a6 00000000 		.4byte	.LLST0
+ 737 01aa 0D       		.uleb128 0xd
+ 738 01ab 793200   		.ascii	"y2\000"
+ 739 01ae 01       		.byte	0x1
+ 740 01af 2C       		.byte	0x2c
+ 741 01b0 AC000000 		.4byte	0xac
+ 742 01b4 02       		.uleb128 0x2
+ 743 01b5 91       		.byte	0x91
+ 744 01b6 00       		.sleb128 0
+ 745 01b7 00       		.byte	0
+ 746 01b8 09       		.uleb128 0x9
+ 747 01b9 04       		.byte	0x4
+ 748 01ba 14010000 		.4byte	0x114
+ 749 01be 0B       		.uleb128 0xb
+ 750 01bf 4A000000 		.4byte	.LASF23
+ 751 01c3 01       		.byte	0x1
+ 752 01c4 39       		.byte	0x39
+ 753 01c5 00000000 		.4byte	.LFB4
+ 754 01c9 0C000000 		.4byte	.LFE4-.LFB4
+ 755 01cd 01       		.uleb128 0x1
+ 756 01ce 9C       		.byte	0x9c
+ 757 01cf EE010000 		.4byte	0x1ee
+ 758 01d3 0C       		.uleb128 0xc
+ 759 01d4 6A020000 		.4byte	.LASF21
+ 760 01d8 01       		.byte	0x1
+ 761 01d9 39       		.byte	0x39
+ 762 01da B8010000 		.4byte	0x1b8
+ 763 01de 01       		.uleb128 0x1
+ 764 01df 50       		.byte	0x50
+ 765 01e0 0E       		.uleb128 0xe
+ 766 01e1 7700     		.ascii	"w\000"
+ 767 01e3 01       		.byte	0x1
+ 768 01e4 39       		.byte	0x39
+ 769 01e5 AC000000 		.4byte	0xac
+ 770 01e9 1F000000 		.4byte	.LLST1
+ 771 01ed 00       		.byte	0
+ 772 01ee 0B       		.uleb128 0xb
+ 773 01ef BE010000 		.4byte	.LASF24
+ 774 01f3 01       		.byte	0x1
+ 775 01f4 43       		.byte	0x43
+ 776 01f5 00000000 		.4byte	.LFB5
+ 777 01f9 0C000000 		.4byte	.LFE5-.LFB5
+ 778 01fd 01       		.uleb128 0x1
+ 779 01fe 9C       		.byte	0x9c
+ 780 01ff 1E020000 		.4byte	0x21e
+ 781 0203 0C       		.uleb128 0xc
+ 782 0204 6A020000 		.4byte	.LASF21
+ 783 0208 01       		.byte	0x1
+ 784 0209 43       		.byte	0x43
+ 785 020a B8010000 		.4byte	0x1b8
+ 786 020e 01       		.uleb128 0x1
+ 787 020f 50       		.byte	0x50
+ 788 0210 0E       		.uleb128 0xe
+ 789 0211 6800     		.ascii	"h\000"
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 20
+
+
+ 790 0213 01       		.byte	0x1
+ 791 0214 43       		.byte	0x43
+ 792 0215 AC000000 		.4byte	0xac
+ 793 0219 40000000 		.4byte	.LLST2
+ 794 021d 00       		.byte	0
+ 795 021e 0B       		.uleb128 0xb
+ 796 021f 00000000 		.4byte	.LASF25
+ 797 0223 01       		.byte	0x1
+ 798 0224 4E       		.byte	0x4e
+ 799 0225 00000000 		.4byte	.LFB6
+ 800 0229 32000000 		.4byte	.LFE6-.LFB6
+ 801 022d 01       		.uleb128 0x1
+ 802 022e 9C       		.byte	0x9c
+ 803 022f D9020000 		.4byte	0x2d9
+ 804 0233 0F       		.uleb128 0xf
+ 805 0234 6A020000 		.4byte	.LASF21
+ 806 0238 01       		.byte	0x1
+ 807 0239 4E       		.byte	0x4e
+ 808 023a B8010000 		.4byte	0x1b8
+ 809 023e 61000000 		.4byte	.LLST3
+ 810 0242 0E       		.uleb128 0xe
+ 811 0243 7800     		.ascii	"x\000"
+ 812 0245 01       		.byte	0x1
+ 813 0246 4E       		.byte	0x4e
+ 814 0247 AC000000 		.4byte	0xac
+ 815 024b 7F000000 		.4byte	.LLST4
+ 816 024f 0E       		.uleb128 0xe
+ 817 0250 7900     		.ascii	"y\000"
+ 818 0252 01       		.byte	0x1
+ 819 0253 4E       		.byte	0x4e
+ 820 0254 AC000000 		.4byte	0xac
+ 821 0258 AC000000 		.4byte	.LLST5
+ 822 025c 10       		.uleb128 0x10
+ 823 025d 7700     		.ascii	"w\000"
+ 824 025f 01       		.byte	0x1
+ 825 0260 50       		.byte	0x50
+ 826 0261 AC000000 		.4byte	0xac
+ 827 0265 10       		.uleb128 0x10
+ 828 0266 6800     		.ascii	"h\000"
+ 829 0268 01       		.byte	0x1
+ 830 0269 51       		.byte	0x51
+ 831 026a AC000000 		.4byte	0xac
+ 832 026e 11       		.uleb128 0x11
+ 833 026f 46010000 		.4byte	0x146
+ 834 0273 04000000 		.4byte	.LBB6
+ 835 0277 0C000000 		.4byte	.LBE6-.LBB6
+ 836 027b 01       		.byte	0x1
+ 837 027c 50       		.byte	0x50
+ 838 027d 8B020000 		.4byte	0x28b
+ 839 0281 12       		.uleb128 0x12
+ 840 0282 56010000 		.4byte	0x156
+ 841 0286 CD000000 		.4byte	.LLST6
+ 842 028a 00       		.byte	0
+ 843 028b 11       		.uleb128 0x11
+ 844 028c 1F010000 		.4byte	0x11f
+ 845 0290 10000000 		.4byte	.LBB8
+ 846 0294 0E000000 		.4byte	.LBE8-.LBB8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 21
+
+
+ 847 0298 01       		.byte	0x1
+ 848 0299 51       		.byte	0x51
+ 849 029a A8020000 		.4byte	0x2a8
+ 850 029e 12       		.uleb128 0x12
+ 851 029f 2F010000 		.4byte	0x12f
+ 852 02a3 E0000000 		.4byte	.LLST7
+ 853 02a7 00       		.byte	0
+ 854 02a8 13       		.uleb128 0x13
+ 855 02a9 28000000 		.4byte	.LVL11
+ 856 02ad BE010000 		.4byte	0x1be
+ 857 02b1 C2020000 		.4byte	0x2c2
+ 858 02b5 14       		.uleb128 0x14
+ 859 02b6 01       		.uleb128 0x1
+ 860 02b7 50       		.byte	0x50
+ 861 02b8 02       		.uleb128 0x2
+ 862 02b9 74       		.byte	0x74
+ 863 02ba 00       		.sleb128 0
+ 864 02bb 14       		.uleb128 0x14
+ 865 02bc 01       		.uleb128 0x1
+ 866 02bd 51       		.byte	0x51
+ 867 02be 02       		.uleb128 0x2
+ 868 02bf 76       		.byte	0x76
+ 869 02c0 00       		.sleb128 0
+ 870 02c1 00       		.byte	0
+ 871 02c2 15       		.uleb128 0x15
+ 872 02c3 30000000 		.4byte	.LVL12
+ 873 02c7 EE010000 		.4byte	0x1ee
+ 874 02cb 14       		.uleb128 0x14
+ 875 02cc 01       		.uleb128 0x1
+ 876 02cd 50       		.byte	0x50
+ 877 02ce 02       		.uleb128 0x2
+ 878 02cf 74       		.byte	0x74
+ 879 02d0 00       		.sleb128 0
+ 880 02d1 14       		.uleb128 0x14
+ 881 02d2 01       		.uleb128 0x1
+ 882 02d3 51       		.byte	0x51
+ 883 02d4 02       		.uleb128 0x2
+ 884 02d5 75       		.byte	0x75
+ 885 02d6 00       		.sleb128 0
+ 886 02d7 00       		.byte	0
+ 887 02d8 00       		.byte	0
+ 888 02d9 16       		.uleb128 0x16
+ 889 02da D1010000 		.4byte	.LASF26
+ 890 02de 01       		.byte	0x1
+ 891 02df 5D       		.byte	0x5d
+ 892 02e0 A1000000 		.4byte	0xa1
+ 893 02e4 00000000 		.4byte	.LFB7
+ 894 02e8 1C000000 		.4byte	.LFE7-.LFB7
+ 895 02ec 01       		.uleb128 0x1
+ 896 02ed 9C       		.byte	0x9c
+ 897 02ee 11030000 		.4byte	0x311
+ 898 02f2 0F       		.uleb128 0xf
+ 899 02f3 6A020000 		.4byte	.LASF21
+ 900 02f7 01       		.byte	0x1
+ 901 02f8 5D       		.byte	0x5d
+ 902 02f9 3B010000 		.4byte	0x13b
+ 903 02fd F3000000 		.4byte	.LLST8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 22
+
+
+ 904 0301 17       		.uleb128 0x17
+ 905 0302 B5000000 		.4byte	.LASF31
+ 906 0306 01       		.byte	0x1
+ 907 0307 5F       		.byte	0x5f
+ 908 0308 A1000000 		.4byte	0xa1
+ 909 030c 14010000 		.4byte	.LLST9
+ 910 0310 00       		.byte	0
+ 911 0311 16       		.uleb128 0x16
+ 912 0312 5C000000 		.4byte	.LASF27
+ 913 0316 01       		.byte	0x1
+ 914 0317 6E       		.byte	0x6e
+ 915 0318 65030000 		.4byte	0x365
+ 916 031c 00000000 		.4byte	.LFB8
+ 917 0320 58000000 		.4byte	.LFE8-.LFB8
+ 918 0324 01       		.uleb128 0x1
+ 919 0325 9C       		.byte	0x9c
+ 920 0326 65030000 		.4byte	0x365
+ 921 032a 0F       		.uleb128 0xf
+ 922 032b AE020000 		.4byte	.LASF28
+ 923 032f 01       		.byte	0x1
+ 924 0330 6E       		.byte	0x6e
+ 925 0331 B8010000 		.4byte	0x1b8
+ 926 0335 3A010000 		.4byte	.LLST10
+ 927 0339 0C       		.uleb128 0xc
+ 928 033a 65020000 		.4byte	.LASF29
+ 929 033e 01       		.byte	0x1
+ 930 033f 6E       		.byte	0x6e
+ 931 0340 3B010000 		.4byte	0x13b
+ 932 0344 01       		.uleb128 0x1
+ 933 0345 51       		.byte	0x51
+ 934 0346 0F       		.uleb128 0xf
+ 935 0347 E2020000 		.4byte	.LASF30
+ 936 034b 01       		.byte	0x1
+ 937 034c 6E       		.byte	0x6e
+ 938 034d 3B010000 		.4byte	0x13b
+ 939 0351 8D010000 		.4byte	.LLST11
+ 940 0355 17       		.uleb128 0x17
+ 941 0356 2D000000 		.4byte	.LASF32
+ 942 035a 01       		.byte	0x1
+ 943 035b 77       		.byte	0x77
+ 944 035c 65030000 		.4byte	0x365
+ 945 0360 AE010000 		.4byte	.LLST12
+ 946 0364 00       		.byte	0
+ 947 0365 03       		.uleb128 0x3
+ 948 0366 01       		.byte	0x1
+ 949 0367 02       		.byte	0x2
+ 950 0368 D6020000 		.4byte	.LASF33
+ 951 036c 0B       		.uleb128 0xb
+ 952 036d 15020000 		.4byte	.LASF34
+ 953 0371 01       		.byte	0x1
+ 954 0372 85       		.byte	0x85
+ 955 0373 00000000 		.4byte	.LFB9
+ 956 0377 46000000 		.4byte	.LFE9-.LFB9
+ 957 037b 01       		.uleb128 0x1
+ 958 037c 9C       		.byte	0x9c
+ 959 037d AB030000 		.4byte	0x3ab
+ 960 0381 0C       		.uleb128 0xc
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 23
+
+
+ 961 0382 1B000000 		.4byte	.LASF35
+ 962 0386 01       		.byte	0x1
+ 963 0387 85       		.byte	0x85
+ 964 0388 B8010000 		.4byte	0x1b8
+ 965 038c 01       		.uleb128 0x1
+ 966 038d 50       		.byte	0x50
+ 967 038e 0C       		.uleb128 0xc
+ 968 038f 65020000 		.4byte	.LASF29
+ 969 0393 01       		.byte	0x1
+ 970 0394 85       		.byte	0x85
+ 971 0395 3B010000 		.4byte	0x13b
+ 972 0399 01       		.uleb128 0x1
+ 973 039a 51       		.byte	0x51
+ 974 039b 0F       		.uleb128 0xf
+ 975 039c E2020000 		.4byte	.LASF30
+ 976 03a0 01       		.byte	0x1
+ 977 03a1 85       		.byte	0x85
+ 978 03a2 3B010000 		.4byte	0x13b
+ 979 03a6 CD010000 		.4byte	.LLST13
+ 980 03aa 00       		.byte	0
+ 981 03ab 16       		.uleb128 0x16
+ 982 03ac 88020000 		.4byte	.LASF36
+ 983 03b0 01       		.byte	0x1
+ 984 03b1 93       		.byte	0x93
+ 985 03b2 65030000 		.4byte	0x365
+ 986 03b6 00000000 		.4byte	.LFB10
+ 987 03ba 3C000000 		.4byte	.LFE10-.LFB10
+ 988 03be 01       		.uleb128 0x1
+ 989 03bf 9C       		.byte	0x9c
+ 990 03c0 F0030000 		.4byte	0x3f0
+ 991 03c4 0E       		.uleb128 0xe
+ 992 03c5 615F7000 		.ascii	"a_p\000"
+ 993 03c9 01       		.byte	0x1
+ 994 03ca 93       		.byte	0x93
+ 995 03cb 3B010000 		.4byte	0x13b
+ 996 03cf EE010000 		.4byte	.LLST14
+ 997 03d3 0D       		.uleb128 0xd
+ 998 03d4 705F7000 		.ascii	"p_p\000"
+ 999 03d8 01       		.byte	0x1
+ 1000 03d9 93       		.byte	0x93
+ 1001 03da F0030000 		.4byte	0x3f0
+ 1002 03de 01       		.uleb128 0x1
+ 1003 03df 51       		.byte	0x51
+ 1004 03e0 17       		.uleb128 0x17
+ 1005 03e1 AF000000 		.4byte	.LASF37
+ 1006 03e5 01       		.byte	0x1
+ 1007 03e6 95       		.byte	0x95
+ 1008 03e7 65030000 		.4byte	0x365
+ 1009 03eb 73020000 		.4byte	.LLST15
+ 1010 03ef 00       		.byte	0
+ 1011 03f0 09       		.uleb128 0x9
+ 1012 03f1 04       		.byte	0x4
+ 1013 03f2 F6030000 		.4byte	0x3f6
+ 1014 03f6 0A       		.uleb128 0xa
+ 1015 03f7 D4000000 		.4byte	0xd4
+ 1016 03fb 16       		.uleb128 0x16
+ 1017 03fc 36000000 		.4byte	.LASF38
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 24
+
+
+ 1018 0400 01       		.byte	0x1
+ 1019 0401 A5       		.byte	0xa5
+ 1020 0402 65030000 		.4byte	0x365
+ 1021 0406 00000000 		.4byte	.LFB11
+ 1022 040a 44000000 		.4byte	.LFE11-.LFB11
+ 1023 040e 01       		.uleb128 0x1
+ 1024 040f 9C       		.byte	0x9c
+ 1025 0410 31040000 		.4byte	0x431
+ 1026 0414 0F       		.uleb128 0xf
+ 1027 0415 65020000 		.4byte	.LASF29
+ 1028 0419 01       		.byte	0x1
+ 1029 041a A5       		.byte	0xa5
+ 1030 041b 3B010000 		.4byte	0x13b
+ 1031 041f 92020000 		.4byte	.LLST16
+ 1032 0423 0C       		.uleb128 0xc
+ 1033 0424 E2020000 		.4byte	.LASF30
+ 1034 0428 01       		.byte	0x1
+ 1035 0429 A5       		.byte	0xa5
+ 1036 042a 3B010000 		.4byte	0x13b
+ 1037 042e 01       		.uleb128 0x1
+ 1038 042f 51       		.byte	0x51
+ 1039 0430 00       		.byte	0
+ 1040 0431 18       		.uleb128 0x18
+ 1041 0432 97000000 		.4byte	.LASF39
+ 1042 0436 01       		.byte	0x1
+ 1043 0437 B8       		.byte	0xb8
+ 1044 0438 65030000 		.4byte	0x365
+ 1045 043c 00000000 		.4byte	.LFB12
+ 1046 0440 44000000 		.4byte	.LFE12-.LFB12
+ 1047 0444 01       		.uleb128 0x1
+ 1048 0445 9C       		.byte	0x9c
+ 1049 0446 0F       		.uleb128 0xf
+ 1050 0447 DC020000 		.4byte	.LASF40
+ 1051 044b 01       		.byte	0x1
+ 1052 044c B8       		.byte	0xb8
+ 1053 044d 3B010000 		.4byte	0x13b
+ 1054 0451 17030000 		.4byte	.LLST17
+ 1055 0455 0C       		.uleb128 0xc
+ 1056 0456 CC020000 		.4byte	.LASF41
+ 1057 045a 01       		.byte	0x1
+ 1058 045b B8       		.byte	0xb8
+ 1059 045c 3B010000 		.4byte	0x13b
+ 1060 0460 01       		.uleb128 0x1
+ 1061 0461 51       		.byte	0x51
+ 1062 0462 17       		.uleb128 0x17
+ 1063 0463 44000000 		.4byte	.LASF42
+ 1064 0467 01       		.byte	0x1
+ 1065 0468 BA       		.byte	0xba
+ 1066 0469 65030000 		.4byte	0x365
+ 1067 046d 9C030000 		.4byte	.LLST18
+ 1068 0471 00       		.byte	0
+ 1069 0472 00       		.byte	0
+ 1070              		.section	.debug_abbrev,"",%progbits
+ 1071              	.Ldebug_abbrev0:
+ 1072 0000 01       		.uleb128 0x1
+ 1073 0001 11       		.uleb128 0x11
+ 1074 0002 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 25
+
+
+ 1075 0003 25       		.uleb128 0x25
+ 1076 0004 0E       		.uleb128 0xe
+ 1077 0005 13       		.uleb128 0x13
+ 1078 0006 0B       		.uleb128 0xb
+ 1079 0007 03       		.uleb128 0x3
+ 1080 0008 0E       		.uleb128 0xe
+ 1081 0009 1B       		.uleb128 0x1b
+ 1082 000a 0E       		.uleb128 0xe
+ 1083 000b 55       		.uleb128 0x55
+ 1084 000c 17       		.uleb128 0x17
+ 1085 000d 11       		.uleb128 0x11
+ 1086 000e 01       		.uleb128 0x1
+ 1087 000f 10       		.uleb128 0x10
+ 1088 0010 17       		.uleb128 0x17
+ 1089 0011 00       		.byte	0
+ 1090 0012 00       		.byte	0
+ 1091 0013 02       		.uleb128 0x2
+ 1092 0014 24       		.uleb128 0x24
+ 1093 0015 00       		.byte	0
+ 1094 0016 0B       		.uleb128 0xb
+ 1095 0017 0B       		.uleb128 0xb
+ 1096 0018 3E       		.uleb128 0x3e
+ 1097 0019 0B       		.uleb128 0xb
+ 1098 001a 03       		.uleb128 0x3
+ 1099 001b 08       		.uleb128 0x8
+ 1100 001c 00       		.byte	0
+ 1101 001d 00       		.byte	0
+ 1102 001e 03       		.uleb128 0x3
+ 1103 001f 24       		.uleb128 0x24
+ 1104 0020 00       		.byte	0
+ 1105 0021 0B       		.uleb128 0xb
+ 1106 0022 0B       		.uleb128 0xb
+ 1107 0023 3E       		.uleb128 0x3e
+ 1108 0024 0B       		.uleb128 0xb
+ 1109 0025 03       		.uleb128 0x3
+ 1110 0026 0E       		.uleb128 0xe
+ 1111 0027 00       		.byte	0
+ 1112 0028 00       		.byte	0
+ 1113 0029 04       		.uleb128 0x4
+ 1114 002a 16       		.uleb128 0x16
+ 1115 002b 00       		.byte	0
+ 1116 002c 03       		.uleb128 0x3
+ 1117 002d 0E       		.uleb128 0xe
+ 1118 002e 3A       		.uleb128 0x3a
+ 1119 002f 0B       		.uleb128 0xb
+ 1120 0030 3B       		.uleb128 0x3b
+ 1121 0031 0B       		.uleb128 0xb
+ 1122 0032 49       		.uleb128 0x49
+ 1123 0033 13       		.uleb128 0x13
+ 1124 0034 00       		.byte	0
+ 1125 0035 00       		.byte	0
+ 1126 0036 05       		.uleb128 0x5
+ 1127 0037 13       		.uleb128 0x13
+ 1128 0038 01       		.byte	0x1
+ 1129 0039 0B       		.uleb128 0xb
+ 1130 003a 0B       		.uleb128 0xb
+ 1131 003b 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 26
+
+
+ 1132 003c 0B       		.uleb128 0xb
+ 1133 003d 3B       		.uleb128 0x3b
+ 1134 003e 0B       		.uleb128 0xb
+ 1135 003f 01       		.uleb128 0x1
+ 1136 0040 13       		.uleb128 0x13
+ 1137 0041 00       		.byte	0
+ 1138 0042 00       		.byte	0
+ 1139 0043 06       		.uleb128 0x6
+ 1140 0044 0D       		.uleb128 0xd
+ 1141 0045 00       		.byte	0
+ 1142 0046 03       		.uleb128 0x3
+ 1143 0047 08       		.uleb128 0x8
+ 1144 0048 3A       		.uleb128 0x3a
+ 1145 0049 0B       		.uleb128 0xb
+ 1146 004a 3B       		.uleb128 0x3b
+ 1147 004b 0B       		.uleb128 0xb
+ 1148 004c 49       		.uleb128 0x49
+ 1149 004d 13       		.uleb128 0x13
+ 1150 004e 38       		.uleb128 0x38
+ 1151 004f 0B       		.uleb128 0xb
+ 1152 0050 00       		.byte	0
+ 1153 0051 00       		.byte	0
+ 1154 0052 07       		.uleb128 0x7
+ 1155 0053 2E       		.uleb128 0x2e
+ 1156 0054 01       		.byte	0x1
+ 1157 0055 03       		.uleb128 0x3
+ 1158 0056 0E       		.uleb128 0xe
+ 1159 0057 3A       		.uleb128 0x3a
+ 1160 0058 0B       		.uleb128 0xb
+ 1161 0059 3B       		.uleb128 0x3b
+ 1162 005a 0B       		.uleb128 0xb
+ 1163 005b 27       		.uleb128 0x27
+ 1164 005c 19       		.uleb128 0x19
+ 1165 005d 49       		.uleb128 0x49
+ 1166 005e 13       		.uleb128 0x13
+ 1167 005f 20       		.uleb128 0x20
+ 1168 0060 0B       		.uleb128 0xb
+ 1169 0061 01       		.uleb128 0x1
+ 1170 0062 13       		.uleb128 0x13
+ 1171 0063 00       		.byte	0
+ 1172 0064 00       		.byte	0
+ 1173 0065 08       		.uleb128 0x8
+ 1174 0066 05       		.uleb128 0x5
+ 1175 0067 00       		.byte	0
+ 1176 0068 03       		.uleb128 0x3
+ 1177 0069 0E       		.uleb128 0xe
+ 1178 006a 3A       		.uleb128 0x3a
+ 1179 006b 0B       		.uleb128 0xb
+ 1180 006c 3B       		.uleb128 0x3b
+ 1181 006d 0B       		.uleb128 0xb
+ 1182 006e 49       		.uleb128 0x49
+ 1183 006f 13       		.uleb128 0x13
+ 1184 0070 00       		.byte	0
+ 1185 0071 00       		.byte	0
+ 1186 0072 09       		.uleb128 0x9
+ 1187 0073 0F       		.uleb128 0xf
+ 1188 0074 00       		.byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 27
+
+
+ 1189 0075 0B       		.uleb128 0xb
+ 1190 0076 0B       		.uleb128 0xb
+ 1191 0077 49       		.uleb128 0x49
+ 1192 0078 13       		.uleb128 0x13
+ 1193 0079 00       		.byte	0
+ 1194 007a 00       		.byte	0
+ 1195 007b 0A       		.uleb128 0xa
+ 1196 007c 26       		.uleb128 0x26
+ 1197 007d 00       		.byte	0
+ 1198 007e 49       		.uleb128 0x49
+ 1199 007f 13       		.uleb128 0x13
+ 1200 0080 00       		.byte	0
+ 1201 0081 00       		.byte	0
+ 1202 0082 0B       		.uleb128 0xb
+ 1203 0083 2E       		.uleb128 0x2e
+ 1204 0084 01       		.byte	0x1
+ 1205 0085 3F       		.uleb128 0x3f
+ 1206 0086 19       		.uleb128 0x19
+ 1207 0087 03       		.uleb128 0x3
+ 1208 0088 0E       		.uleb128 0xe
+ 1209 0089 3A       		.uleb128 0x3a
+ 1210 008a 0B       		.uleb128 0xb
+ 1211 008b 3B       		.uleb128 0x3b
+ 1212 008c 0B       		.uleb128 0xb
+ 1213 008d 27       		.uleb128 0x27
+ 1214 008e 19       		.uleb128 0x19
+ 1215 008f 11       		.uleb128 0x11
+ 1216 0090 01       		.uleb128 0x1
+ 1217 0091 12       		.uleb128 0x12
+ 1218 0092 06       		.uleb128 0x6
+ 1219 0093 40       		.uleb128 0x40
+ 1220 0094 18       		.uleb128 0x18
+ 1221 0095 9742     		.uleb128 0x2117
+ 1222 0097 19       		.uleb128 0x19
+ 1223 0098 01       		.uleb128 0x1
+ 1224 0099 13       		.uleb128 0x13
+ 1225 009a 00       		.byte	0
+ 1226 009b 00       		.byte	0
+ 1227 009c 0C       		.uleb128 0xc
+ 1228 009d 05       		.uleb128 0x5
+ 1229 009e 00       		.byte	0
+ 1230 009f 03       		.uleb128 0x3
+ 1231 00a0 0E       		.uleb128 0xe
+ 1232 00a1 3A       		.uleb128 0x3a
+ 1233 00a2 0B       		.uleb128 0xb
+ 1234 00a3 3B       		.uleb128 0x3b
+ 1235 00a4 0B       		.uleb128 0xb
+ 1236 00a5 49       		.uleb128 0x49
+ 1237 00a6 13       		.uleb128 0x13
+ 1238 00a7 02       		.uleb128 0x2
+ 1239 00a8 18       		.uleb128 0x18
+ 1240 00a9 00       		.byte	0
+ 1241 00aa 00       		.byte	0
+ 1242 00ab 0D       		.uleb128 0xd
+ 1243 00ac 05       		.uleb128 0x5
+ 1244 00ad 00       		.byte	0
+ 1245 00ae 03       		.uleb128 0x3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 28
+
+
+ 1246 00af 08       		.uleb128 0x8
+ 1247 00b0 3A       		.uleb128 0x3a
+ 1248 00b1 0B       		.uleb128 0xb
+ 1249 00b2 3B       		.uleb128 0x3b
+ 1250 00b3 0B       		.uleb128 0xb
+ 1251 00b4 49       		.uleb128 0x49
+ 1252 00b5 13       		.uleb128 0x13
+ 1253 00b6 02       		.uleb128 0x2
+ 1254 00b7 18       		.uleb128 0x18
+ 1255 00b8 00       		.byte	0
+ 1256 00b9 00       		.byte	0
+ 1257 00ba 0E       		.uleb128 0xe
+ 1258 00bb 05       		.uleb128 0x5
+ 1259 00bc 00       		.byte	0
+ 1260 00bd 03       		.uleb128 0x3
+ 1261 00be 08       		.uleb128 0x8
+ 1262 00bf 3A       		.uleb128 0x3a
+ 1263 00c0 0B       		.uleb128 0xb
+ 1264 00c1 3B       		.uleb128 0x3b
+ 1265 00c2 0B       		.uleb128 0xb
+ 1266 00c3 49       		.uleb128 0x49
+ 1267 00c4 13       		.uleb128 0x13
+ 1268 00c5 02       		.uleb128 0x2
+ 1269 00c6 17       		.uleb128 0x17
+ 1270 00c7 00       		.byte	0
+ 1271 00c8 00       		.byte	0
+ 1272 00c9 0F       		.uleb128 0xf
+ 1273 00ca 05       		.uleb128 0x5
+ 1274 00cb 00       		.byte	0
+ 1275 00cc 03       		.uleb128 0x3
+ 1276 00cd 0E       		.uleb128 0xe
+ 1277 00ce 3A       		.uleb128 0x3a
+ 1278 00cf 0B       		.uleb128 0xb
+ 1279 00d0 3B       		.uleb128 0x3b
+ 1280 00d1 0B       		.uleb128 0xb
+ 1281 00d2 49       		.uleb128 0x49
+ 1282 00d3 13       		.uleb128 0x13
+ 1283 00d4 02       		.uleb128 0x2
+ 1284 00d5 17       		.uleb128 0x17
+ 1285 00d6 00       		.byte	0
+ 1286 00d7 00       		.byte	0
+ 1287 00d8 10       		.uleb128 0x10
+ 1288 00d9 34       		.uleb128 0x34
+ 1289 00da 00       		.byte	0
+ 1290 00db 03       		.uleb128 0x3
+ 1291 00dc 08       		.uleb128 0x8
+ 1292 00dd 3A       		.uleb128 0x3a
+ 1293 00de 0B       		.uleb128 0xb
+ 1294 00df 3B       		.uleb128 0x3b
+ 1295 00e0 0B       		.uleb128 0xb
+ 1296 00e1 49       		.uleb128 0x49
+ 1297 00e2 13       		.uleb128 0x13
+ 1298 00e3 00       		.byte	0
+ 1299 00e4 00       		.byte	0
+ 1300 00e5 11       		.uleb128 0x11
+ 1301 00e6 1D       		.uleb128 0x1d
+ 1302 00e7 01       		.byte	0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 29
+
+
+ 1303 00e8 31       		.uleb128 0x31
+ 1304 00e9 13       		.uleb128 0x13
+ 1305 00ea 11       		.uleb128 0x11
+ 1306 00eb 01       		.uleb128 0x1
+ 1307 00ec 12       		.uleb128 0x12
+ 1308 00ed 06       		.uleb128 0x6
+ 1309 00ee 58       		.uleb128 0x58
+ 1310 00ef 0B       		.uleb128 0xb
+ 1311 00f0 59       		.uleb128 0x59
+ 1312 00f1 0B       		.uleb128 0xb
+ 1313 00f2 01       		.uleb128 0x1
+ 1314 00f3 13       		.uleb128 0x13
+ 1315 00f4 00       		.byte	0
+ 1316 00f5 00       		.byte	0
+ 1317 00f6 12       		.uleb128 0x12
+ 1318 00f7 05       		.uleb128 0x5
+ 1319 00f8 00       		.byte	0
+ 1320 00f9 31       		.uleb128 0x31
+ 1321 00fa 13       		.uleb128 0x13
+ 1322 00fb 02       		.uleb128 0x2
+ 1323 00fc 17       		.uleb128 0x17
+ 1324 00fd 00       		.byte	0
+ 1325 00fe 00       		.byte	0
+ 1326 00ff 13       		.uleb128 0x13
+ 1327 0100 898201   		.uleb128 0x4109
+ 1328 0103 01       		.byte	0x1
+ 1329 0104 11       		.uleb128 0x11
+ 1330 0105 01       		.uleb128 0x1
+ 1331 0106 31       		.uleb128 0x31
+ 1332 0107 13       		.uleb128 0x13
+ 1333 0108 01       		.uleb128 0x1
+ 1334 0109 13       		.uleb128 0x13
+ 1335 010a 00       		.byte	0
+ 1336 010b 00       		.byte	0
+ 1337 010c 14       		.uleb128 0x14
+ 1338 010d 8A8201   		.uleb128 0x410a
+ 1339 0110 00       		.byte	0
+ 1340 0111 02       		.uleb128 0x2
+ 1341 0112 18       		.uleb128 0x18
+ 1342 0113 9142     		.uleb128 0x2111
+ 1343 0115 18       		.uleb128 0x18
+ 1344 0116 00       		.byte	0
+ 1345 0117 00       		.byte	0
+ 1346 0118 15       		.uleb128 0x15
+ 1347 0119 898201   		.uleb128 0x4109
+ 1348 011c 01       		.byte	0x1
+ 1349 011d 11       		.uleb128 0x11
+ 1350 011e 01       		.uleb128 0x1
+ 1351 011f 31       		.uleb128 0x31
+ 1352 0120 13       		.uleb128 0x13
+ 1353 0121 00       		.byte	0
+ 1354 0122 00       		.byte	0
+ 1355 0123 16       		.uleb128 0x16
+ 1356 0124 2E       		.uleb128 0x2e
+ 1357 0125 01       		.byte	0x1
+ 1358 0126 3F       		.uleb128 0x3f
+ 1359 0127 19       		.uleb128 0x19
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 30
+
+
+ 1360 0128 03       		.uleb128 0x3
+ 1361 0129 0E       		.uleb128 0xe
+ 1362 012a 3A       		.uleb128 0x3a
+ 1363 012b 0B       		.uleb128 0xb
+ 1364 012c 3B       		.uleb128 0x3b
+ 1365 012d 0B       		.uleb128 0xb
+ 1366 012e 27       		.uleb128 0x27
+ 1367 012f 19       		.uleb128 0x19
+ 1368 0130 49       		.uleb128 0x49
+ 1369 0131 13       		.uleb128 0x13
+ 1370 0132 11       		.uleb128 0x11
+ 1371 0133 01       		.uleb128 0x1
+ 1372 0134 12       		.uleb128 0x12
+ 1373 0135 06       		.uleb128 0x6
+ 1374 0136 40       		.uleb128 0x40
+ 1375 0137 18       		.uleb128 0x18
+ 1376 0138 9742     		.uleb128 0x2117
+ 1377 013a 19       		.uleb128 0x19
+ 1378 013b 01       		.uleb128 0x1
+ 1379 013c 13       		.uleb128 0x13
+ 1380 013d 00       		.byte	0
+ 1381 013e 00       		.byte	0
+ 1382 013f 17       		.uleb128 0x17
+ 1383 0140 34       		.uleb128 0x34
+ 1384 0141 00       		.byte	0
+ 1385 0142 03       		.uleb128 0x3
+ 1386 0143 0E       		.uleb128 0xe
+ 1387 0144 3A       		.uleb128 0x3a
+ 1388 0145 0B       		.uleb128 0xb
+ 1389 0146 3B       		.uleb128 0x3b
+ 1390 0147 0B       		.uleb128 0xb
+ 1391 0148 49       		.uleb128 0x49
+ 1392 0149 13       		.uleb128 0x13
+ 1393 014a 02       		.uleb128 0x2
+ 1394 014b 17       		.uleb128 0x17
+ 1395 014c 00       		.byte	0
+ 1396 014d 00       		.byte	0
+ 1397 014e 18       		.uleb128 0x18
+ 1398 014f 2E       		.uleb128 0x2e
+ 1399 0150 01       		.byte	0x1
+ 1400 0151 3F       		.uleb128 0x3f
+ 1401 0152 19       		.uleb128 0x19
+ 1402 0153 03       		.uleb128 0x3
+ 1403 0154 0E       		.uleb128 0xe
+ 1404 0155 3A       		.uleb128 0x3a
+ 1405 0156 0B       		.uleb128 0xb
+ 1406 0157 3B       		.uleb128 0x3b
+ 1407 0158 0B       		.uleb128 0xb
+ 1408 0159 27       		.uleb128 0x27
+ 1409 015a 19       		.uleb128 0x19
+ 1410 015b 49       		.uleb128 0x49
+ 1411 015c 13       		.uleb128 0x13
+ 1412 015d 11       		.uleb128 0x11
+ 1413 015e 01       		.uleb128 0x1
+ 1414 015f 12       		.uleb128 0x12
+ 1415 0160 06       		.uleb128 0x6
+ 1416 0161 40       		.uleb128 0x40
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 31
+
+
+ 1417 0162 18       		.uleb128 0x18
+ 1418 0163 9742     		.uleb128 0x2117
+ 1419 0165 19       		.uleb128 0x19
+ 1420 0166 00       		.byte	0
+ 1421 0167 00       		.byte	0
+ 1422 0168 00       		.byte	0
+ 1423              		.section	.debug_loc,"",%progbits
+ 1424              	.Ldebug_loc0:
+ 1425              	.LLST0:
+ 1426 0000 00000000 		.4byte	.LVL0
+ 1427 0004 0A000000 		.4byte	.LVL1
+ 1428 0008 0100     		.2byte	0x1
+ 1429 000a 53       		.byte	0x53
+ 1430 000b 0A000000 		.4byte	.LVL1
+ 1431 000f 0E000000 		.4byte	.LFE3
+ 1432 0013 0200     		.2byte	0x2
+ 1433 0015 70       		.byte	0x70
+ 1434 0016 04       		.sleb128 4
+ 1435 0017 00000000 		.4byte	0
+ 1436 001b 00000000 		.4byte	0
+ 1437              	.LLST1:
+ 1438 001f 00000000 		.4byte	.LVL2
+ 1439 0023 06000000 		.4byte	.LVL3
+ 1440 0027 0100     		.2byte	0x1
+ 1441 0029 51       		.byte	0x51
+ 1442 002a 06000000 		.4byte	.LVL3
+ 1443 002e 0C000000 		.4byte	.LFE4
+ 1444 0032 0400     		.2byte	0x4
+ 1445 0034 F3       		.byte	0xf3
+ 1446 0035 01       		.uleb128 0x1
+ 1447 0036 51       		.byte	0x51
+ 1448 0037 9F       		.byte	0x9f
+ 1449 0038 00000000 		.4byte	0
+ 1450 003c 00000000 		.4byte	0
+ 1451              	.LLST2:
+ 1452 0040 00000000 		.4byte	.LVL4
+ 1453 0044 06000000 		.4byte	.LVL5
+ 1454 0048 0100     		.2byte	0x1
+ 1455 004a 51       		.byte	0x51
+ 1456 004b 06000000 		.4byte	.LVL5
+ 1457 004f 0C000000 		.4byte	.LFE5
+ 1458 0053 0400     		.2byte	0x4
+ 1459 0055 F3       		.byte	0xf3
+ 1460 0056 01       		.uleb128 0x1
+ 1461 0057 51       		.byte	0x51
+ 1462 0058 9F       		.byte	0x9f
+ 1463 0059 00000000 		.4byte	0
+ 1464 005d 00000000 		.4byte	0
+ 1465              	.LLST3:
+ 1466 0061 00000000 		.4byte	.LVL6
+ 1467 0065 27000000 		.4byte	.LVL11-1
+ 1468 0069 0100     		.2byte	0x1
+ 1469 006b 50       		.byte	0x50
+ 1470 006c 27000000 		.4byte	.LVL11-1
+ 1471 0070 32000000 		.4byte	.LFE6
+ 1472 0074 0100     		.2byte	0x1
+ 1473 0076 54       		.byte	0x54
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 32
+
+
+ 1474 0077 00000000 		.4byte	0
+ 1475 007b 00000000 		.4byte	0
+ 1476              	.LLST4:
+ 1477 007f 00000000 		.4byte	.LVL6
+ 1478 0083 24000000 		.4byte	.LVL10
+ 1479 0087 0100     		.2byte	0x1
+ 1480 0089 51       		.byte	0x51
+ 1481 008a 24000000 		.4byte	.LVL10
+ 1482 008e 27000000 		.4byte	.LVL11-1
+ 1483 0092 0200     		.2byte	0x2
+ 1484 0094 70       		.byte	0x70
+ 1485 0095 00       		.sleb128 0
+ 1486 0096 27000000 		.4byte	.LVL11-1
+ 1487 009a 32000000 		.4byte	.LFE6
+ 1488 009e 0400     		.2byte	0x4
+ 1489 00a0 F3       		.byte	0xf3
+ 1490 00a1 01       		.uleb128 0x1
+ 1491 00a2 51       		.byte	0x51
+ 1492 00a3 9F       		.byte	0x9f
+ 1493 00a4 00000000 		.4byte	0
+ 1494 00a8 00000000 		.4byte	0
+ 1495              	.LLST5:
+ 1496 00ac 00000000 		.4byte	.LVL6
+ 1497 00b0 27000000 		.4byte	.LVL11-1
+ 1498 00b4 0100     		.2byte	0x1
+ 1499 00b6 52       		.byte	0x52
+ 1500 00b7 27000000 		.4byte	.LVL11-1
+ 1501 00bb 32000000 		.4byte	.LFE6
+ 1502 00bf 0400     		.2byte	0x4
+ 1503 00c1 F3       		.byte	0xf3
+ 1504 00c2 01       		.uleb128 0x1
+ 1505 00c3 52       		.byte	0x52
+ 1506 00c4 9F       		.byte	0x9f
+ 1507 00c5 00000000 		.4byte	0
+ 1508 00c9 00000000 		.4byte	0
+ 1509              	.LLST6:
+ 1510 00cd 04000000 		.4byte	.LVL7
+ 1511 00d1 10000000 		.4byte	.LVL8
+ 1512 00d5 0100     		.2byte	0x1
+ 1513 00d7 50       		.byte	0x50
+ 1514 00d8 00000000 		.4byte	0
+ 1515 00dc 00000000 		.4byte	0
+ 1516              	.LLST7:
+ 1517 00e0 10000000 		.4byte	.LVL8
+ 1518 00e4 1E000000 		.4byte	.LVL9
+ 1519 00e8 0100     		.2byte	0x1
+ 1520 00ea 50       		.byte	0x50
+ 1521 00eb 00000000 		.4byte	0
+ 1522 00ef 00000000 		.4byte	0
+ 1523              	.LLST8:
+ 1524 00f3 00000000 		.4byte	.LVL13
+ 1525 00f7 12000000 		.4byte	.LVL14
+ 1526 00fb 0100     		.2byte	0x1
+ 1527 00fd 50       		.byte	0x50
+ 1528 00fe 12000000 		.4byte	.LVL14
+ 1529 0102 1C000000 		.4byte	.LFE7
+ 1530 0106 0400     		.2byte	0x4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 33
+
+
+ 1531 0108 F3       		.byte	0xf3
+ 1532 0109 01       		.uleb128 0x1
+ 1533 010a 50       		.byte	0x50
+ 1534 010b 9F       		.byte	0x9f
+ 1535 010c 00000000 		.4byte	0
+ 1536 0110 00000000 		.4byte	0
+ 1537              	.LLST9:
+ 1538 0114 16000000 		.4byte	.LVL15
+ 1539 0118 1A000000 		.4byte	.LVL16
+ 1540 011c 0900     		.2byte	0x9
+ 1541 011e 72       		.byte	0x72
+ 1542 011f 00       		.sleb128 0
+ 1543 0120 70       		.byte	0x70
+ 1544 0121 00       		.sleb128 0
+ 1545 0122 1E       		.byte	0x1e
+ 1546 0123 70       		.byte	0x70
+ 1547 0124 00       		.sleb128 0
+ 1548 0125 22       		.byte	0x22
+ 1549 0126 9F       		.byte	0x9f
+ 1550 0127 1A000000 		.4byte	.LVL16
+ 1551 012b 1C000000 		.4byte	.LFE7
+ 1552 012f 0100     		.2byte	0x1
+ 1553 0131 50       		.byte	0x50
+ 1554 0132 00000000 		.4byte	0
+ 1555 0136 00000000 		.4byte	0
+ 1556              	.LLST10:
+ 1557 013a 00000000 		.4byte	.LVL17
+ 1558 013e 4C000000 		.4byte	.LVL20
+ 1559 0142 0100     		.2byte	0x1
+ 1560 0144 50       		.byte	0x50
+ 1561 0145 4C000000 		.4byte	.LVL20
+ 1562 0149 4E000000 		.4byte	.LVL21
+ 1563 014d 0400     		.2byte	0x4
+ 1564 014f F3       		.byte	0xf3
+ 1565 0150 01       		.uleb128 0x1
+ 1566 0151 50       		.byte	0x50
+ 1567 0152 9F       		.byte	0x9f
+ 1568 0153 4E000000 		.4byte	.LVL21
+ 1569 0157 50000000 		.4byte	.LVL22
+ 1570 015b 0100     		.2byte	0x1
+ 1571 015d 50       		.byte	0x50
+ 1572 015e 50000000 		.4byte	.LVL22
+ 1573 0162 52000000 		.4byte	.LVL23
+ 1574 0166 0400     		.2byte	0x4
+ 1575 0168 F3       		.byte	0xf3
+ 1576 0169 01       		.uleb128 0x1
+ 1577 016a 50       		.byte	0x50
+ 1578 016b 9F       		.byte	0x9f
+ 1579 016c 52000000 		.4byte	.LVL23
+ 1580 0170 54000000 		.4byte	.LVL24
+ 1581 0174 0100     		.2byte	0x1
+ 1582 0176 50       		.byte	0x50
+ 1583 0177 54000000 		.4byte	.LVL24
+ 1584 017b 58000000 		.4byte	.LFE8
+ 1585 017f 0400     		.2byte	0x4
+ 1586 0181 F3       		.byte	0xf3
+ 1587 0182 01       		.uleb128 0x1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 34
+
+
+ 1588 0183 50       		.byte	0x50
+ 1589 0184 9F       		.byte	0x9f
+ 1590 0185 00000000 		.4byte	0
+ 1591 0189 00000000 		.4byte	0
+ 1592              	.LLST11:
+ 1593 018d 00000000 		.4byte	.LVL17
+ 1594 0191 3A000000 		.4byte	.LVL18
+ 1595 0195 0100     		.2byte	0x1
+ 1596 0197 52       		.byte	0x52
+ 1597 0198 3A000000 		.4byte	.LVL18
+ 1598 019c 58000000 		.4byte	.LFE8
+ 1599 01a0 0400     		.2byte	0x4
+ 1600 01a2 F3       		.byte	0xf3
+ 1601 01a3 01       		.uleb128 0x1
+ 1602 01a4 52       		.byte	0x52
+ 1603 01a5 9F       		.byte	0x9f
+ 1604 01a6 00000000 		.4byte	0
+ 1605 01aa 00000000 		.4byte	0
+ 1606              	.LLST12:
+ 1607 01ae 42000000 		.4byte	.LVL19
+ 1608 01b2 54000000 		.4byte	.LVL24
+ 1609 01b6 0200     		.2byte	0x2
+ 1610 01b8 31       		.byte	0x31
+ 1611 01b9 9F       		.byte	0x9f
+ 1612 01ba 54000000 		.4byte	.LVL24
+ 1613 01be 58000000 		.4byte	.LFE8
+ 1614 01c2 0100     		.2byte	0x1
+ 1615 01c4 50       		.byte	0x50
+ 1616 01c5 00000000 		.4byte	0
+ 1617 01c9 00000000 		.4byte	0
+ 1618              	.LLST13:
+ 1619 01cd 00000000 		.4byte	.LVL25
+ 1620 01d1 36000000 		.4byte	.LVL26
+ 1621 01d5 0100     		.2byte	0x1
+ 1622 01d7 52       		.byte	0x52
+ 1623 01d8 36000000 		.4byte	.LVL26
+ 1624 01dc 46000000 		.4byte	.LFE9
+ 1625 01e0 0400     		.2byte	0x4
+ 1626 01e2 F3       		.byte	0xf3
+ 1627 01e3 01       		.uleb128 0x1
+ 1628 01e4 52       		.byte	0x52
+ 1629 01e5 9F       		.byte	0x9f
+ 1630 01e6 00000000 		.4byte	0
+ 1631 01ea 00000000 		.4byte	0
+ 1632              	.LLST14:
+ 1633 01ee 00000000 		.4byte	.LVL27
+ 1634 01f2 2A000000 		.4byte	.LVL28
+ 1635 01f6 0100     		.2byte	0x1
+ 1636 01f8 50       		.byte	0x50
+ 1637 01f9 2A000000 		.4byte	.LVL28
+ 1638 01fd 2C000000 		.4byte	.LVL29
+ 1639 0201 0400     		.2byte	0x4
+ 1640 0203 F3       		.byte	0xf3
+ 1641 0204 01       		.uleb128 0x1
+ 1642 0205 50       		.byte	0x50
+ 1643 0206 9F       		.byte	0x9f
+ 1644 0207 2C000000 		.4byte	.LVL29
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 35
+
+
+ 1645 020b 2E000000 		.4byte	.LVL30
+ 1646 020f 0100     		.2byte	0x1
+ 1647 0211 50       		.byte	0x50
+ 1648 0212 2E000000 		.4byte	.LVL30
+ 1649 0216 30000000 		.4byte	.LVL31
+ 1650 021a 0400     		.2byte	0x4
+ 1651 021c F3       		.byte	0xf3
+ 1652 021d 01       		.uleb128 0x1
+ 1653 021e 50       		.byte	0x50
+ 1654 021f 9F       		.byte	0x9f
+ 1655 0220 30000000 		.4byte	.LVL31
+ 1656 0224 32000000 		.4byte	.LVL32
+ 1657 0228 0100     		.2byte	0x1
+ 1658 022a 50       		.byte	0x50
+ 1659 022b 32000000 		.4byte	.LVL32
+ 1660 022f 34000000 		.4byte	.LVL33
+ 1661 0233 0400     		.2byte	0x4
+ 1662 0235 F3       		.byte	0xf3
+ 1663 0236 01       		.uleb128 0x1
+ 1664 0237 50       		.byte	0x50
+ 1665 0238 9F       		.byte	0x9f
+ 1666 0239 34000000 		.4byte	.LVL33
+ 1667 023d 36000000 		.4byte	.LVL34
+ 1668 0241 0100     		.2byte	0x1
+ 1669 0243 50       		.byte	0x50
+ 1670 0244 36000000 		.4byte	.LVL34
+ 1671 0248 38000000 		.4byte	.LVL35
+ 1672 024c 0400     		.2byte	0x4
+ 1673 024e F3       		.byte	0xf3
+ 1674 024f 01       		.uleb128 0x1
+ 1675 0250 50       		.byte	0x50
+ 1676 0251 9F       		.byte	0x9f
+ 1677 0252 38000000 		.4byte	.LVL35
+ 1678 0256 3A000000 		.4byte	.LVL36
+ 1679 025a 0100     		.2byte	0x1
+ 1680 025c 50       		.byte	0x50
+ 1681 025d 3A000000 		.4byte	.LVL36
+ 1682 0261 3C000000 		.4byte	.LFE10
+ 1683 0265 0400     		.2byte	0x4
+ 1684 0267 F3       		.byte	0xf3
+ 1685 0268 01       		.uleb128 0x1
+ 1686 0269 50       		.byte	0x50
+ 1687 026a 9F       		.byte	0x9f
+ 1688 026b 00000000 		.4byte	0
+ 1689 026f 00000000 		.4byte	0
+ 1690              	.LLST15:
+ 1691 0273 00000000 		.4byte	.LVL27
+ 1692 0277 3A000000 		.4byte	.LVL36
+ 1693 027b 0200     		.2byte	0x2
+ 1694 027d 30       		.byte	0x30
+ 1695 027e 9F       		.byte	0x9f
+ 1696 027f 3A000000 		.4byte	.LVL36
+ 1697 0283 3C000000 		.4byte	.LFE10
+ 1698 0287 0100     		.2byte	0x1
+ 1699 0289 50       		.byte	0x50
+ 1700 028a 00000000 		.4byte	0
+ 1701 028e 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 36
+
+
+ 1702              	.LLST16:
+ 1703 0292 00000000 		.4byte	.LVL37
+ 1704 0296 32000000 		.4byte	.LVL38
+ 1705 029a 0100     		.2byte	0x1
+ 1706 029c 50       		.byte	0x50
+ 1707 029d 32000000 		.4byte	.LVL38
+ 1708 02a1 34000000 		.4byte	.LVL39
+ 1709 02a5 0400     		.2byte	0x4
+ 1710 02a7 F3       		.byte	0xf3
+ 1711 02a8 01       		.uleb128 0x1
+ 1712 02a9 50       		.byte	0x50
+ 1713 02aa 9F       		.byte	0x9f
+ 1714 02ab 34000000 		.4byte	.LVL39
+ 1715 02af 36000000 		.4byte	.LVL40
+ 1716 02b3 0100     		.2byte	0x1
+ 1717 02b5 50       		.byte	0x50
+ 1718 02b6 36000000 		.4byte	.LVL40
+ 1719 02ba 38000000 		.4byte	.LVL41
+ 1720 02be 0400     		.2byte	0x4
+ 1721 02c0 F3       		.byte	0xf3
+ 1722 02c1 01       		.uleb128 0x1
+ 1723 02c2 50       		.byte	0x50
+ 1724 02c3 9F       		.byte	0x9f
+ 1725 02c4 38000000 		.4byte	.LVL41
+ 1726 02c8 3A000000 		.4byte	.LVL42
+ 1727 02cc 0100     		.2byte	0x1
+ 1728 02ce 50       		.byte	0x50
+ 1729 02cf 3A000000 		.4byte	.LVL42
+ 1730 02d3 3C000000 		.4byte	.LVL43
+ 1731 02d7 0400     		.2byte	0x4
+ 1732 02d9 F3       		.byte	0xf3
+ 1733 02da 01       		.uleb128 0x1
+ 1734 02db 50       		.byte	0x50
+ 1735 02dc 9F       		.byte	0x9f
+ 1736 02dd 3C000000 		.4byte	.LVL43
+ 1737 02e1 3E000000 		.4byte	.LVL44
+ 1738 02e5 0100     		.2byte	0x1
+ 1739 02e7 50       		.byte	0x50
+ 1740 02e8 3E000000 		.4byte	.LVL44
+ 1741 02ec 40000000 		.4byte	.LVL45
+ 1742 02f0 0400     		.2byte	0x4
+ 1743 02f2 F3       		.byte	0xf3
+ 1744 02f3 01       		.uleb128 0x1
+ 1745 02f4 50       		.byte	0x50
+ 1746 02f5 9F       		.byte	0x9f
+ 1747 02f6 40000000 		.4byte	.LVL45
+ 1748 02fa 42000000 		.4byte	.LVL46
+ 1749 02fe 0100     		.2byte	0x1
+ 1750 0300 50       		.byte	0x50
+ 1751 0301 42000000 		.4byte	.LVL46
+ 1752 0305 44000000 		.4byte	.LFE11
+ 1753 0309 0400     		.2byte	0x4
+ 1754 030b F3       		.byte	0xf3
+ 1755 030c 01       		.uleb128 0x1
+ 1756 030d 50       		.byte	0x50
+ 1757 030e 9F       		.byte	0x9f
+ 1758 030f 00000000 		.4byte	0
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 37
+
+
+ 1759 0313 00000000 		.4byte	0
+ 1760              	.LLST17:
+ 1761 0317 00000000 		.4byte	.LVL47
+ 1762 031b 32000000 		.4byte	.LVL48
+ 1763 031f 0100     		.2byte	0x1
+ 1764 0321 50       		.byte	0x50
+ 1765 0322 32000000 		.4byte	.LVL48
+ 1766 0326 34000000 		.4byte	.LVL49
+ 1767 032a 0400     		.2byte	0x4
+ 1768 032c F3       		.byte	0xf3
+ 1769 032d 01       		.uleb128 0x1
+ 1770 032e 50       		.byte	0x50
+ 1771 032f 9F       		.byte	0x9f
+ 1772 0330 34000000 		.4byte	.LVL49
+ 1773 0334 36000000 		.4byte	.LVL50
+ 1774 0338 0100     		.2byte	0x1
+ 1775 033a 50       		.byte	0x50
+ 1776 033b 36000000 		.4byte	.LVL50
+ 1777 033f 38000000 		.4byte	.LVL51
+ 1778 0343 0400     		.2byte	0x4
+ 1779 0345 F3       		.byte	0xf3
+ 1780 0346 01       		.uleb128 0x1
+ 1781 0347 50       		.byte	0x50
+ 1782 0348 9F       		.byte	0x9f
+ 1783 0349 38000000 		.4byte	.LVL51
+ 1784 034d 3A000000 		.4byte	.LVL52
+ 1785 0351 0100     		.2byte	0x1
+ 1786 0353 50       		.byte	0x50
+ 1787 0354 3A000000 		.4byte	.LVL52
+ 1788 0358 3C000000 		.4byte	.LVL53
+ 1789 035c 0400     		.2byte	0x4
+ 1790 035e F3       		.byte	0xf3
+ 1791 035f 01       		.uleb128 0x1
+ 1792 0360 50       		.byte	0x50
+ 1793 0361 9F       		.byte	0x9f
+ 1794 0362 3C000000 		.4byte	.LVL53
+ 1795 0366 3E000000 		.4byte	.LVL54
+ 1796 036a 0100     		.2byte	0x1
+ 1797 036c 50       		.byte	0x50
+ 1798 036d 3E000000 		.4byte	.LVL54
+ 1799 0371 40000000 		.4byte	.LVL55
+ 1800 0375 0400     		.2byte	0x4
+ 1801 0377 F3       		.byte	0xf3
+ 1802 0378 01       		.uleb128 0x1
+ 1803 0379 50       		.byte	0x50
+ 1804 037a 9F       		.byte	0x9f
+ 1805 037b 40000000 		.4byte	.LVL55
+ 1806 037f 42000000 		.4byte	.LVL56
+ 1807 0383 0100     		.2byte	0x1
+ 1808 0385 50       		.byte	0x50
+ 1809 0386 42000000 		.4byte	.LVL56
+ 1810 038a 44000000 		.4byte	.LFE12
+ 1811 038e 0400     		.2byte	0x4
+ 1812 0390 F3       		.byte	0xf3
+ 1813 0391 01       		.uleb128 0x1
+ 1814 0392 50       		.byte	0x50
+ 1815 0393 9F       		.byte	0x9f
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 38
+
+
+ 1816 0394 00000000 		.4byte	0
+ 1817 0398 00000000 		.4byte	0
+ 1818              	.LLST18:
+ 1819 039c 00000000 		.4byte	.LVL47
+ 1820 03a0 42000000 		.4byte	.LVL56
+ 1821 03a4 0200     		.2byte	0x2
+ 1822 03a6 30       		.byte	0x30
+ 1823 03a7 9F       		.byte	0x9f
+ 1824 03a8 42000000 		.4byte	.LVL56
+ 1825 03ac 44000000 		.4byte	.LFE12
+ 1826 03b0 0100     		.2byte	0x1
+ 1827 03b2 50       		.byte	0x50
+ 1828 03b3 00000000 		.4byte	0
+ 1829 03b7 00000000 		.4byte	0
+ 1830              		.section	.debug_aranges,"",%progbits
+ 1831 0000 64000000 		.4byte	0x64
+ 1832 0004 0200     		.2byte	0x2
+ 1833 0006 00000000 		.4byte	.Ldebug_info0
+ 1834 000a 04       		.byte	0x4
+ 1835 000b 00       		.byte	0
+ 1836 000c 0000     		.2byte	0
+ 1837 000e 0000     		.2byte	0
+ 1838 0010 00000000 		.4byte	.LFB3
+ 1839 0014 0E000000 		.4byte	.LFE3-.LFB3
+ 1840 0018 00000000 		.4byte	.LFB4
+ 1841 001c 0C000000 		.4byte	.LFE4-.LFB4
+ 1842 0020 00000000 		.4byte	.LFB5
+ 1843 0024 0C000000 		.4byte	.LFE5-.LFB5
+ 1844 0028 00000000 		.4byte	.LFB6
+ 1845 002c 32000000 		.4byte	.LFE6-.LFB6
+ 1846 0030 00000000 		.4byte	.LFB7
+ 1847 0034 1C000000 		.4byte	.LFE7-.LFB7
+ 1848 0038 00000000 		.4byte	.LFB8
+ 1849 003c 58000000 		.4byte	.LFE8-.LFB8
+ 1850 0040 00000000 		.4byte	.LFB9
+ 1851 0044 46000000 		.4byte	.LFE9-.LFB9
+ 1852 0048 00000000 		.4byte	.LFB10
+ 1853 004c 3C000000 		.4byte	.LFE10-.LFB10
+ 1854 0050 00000000 		.4byte	.LFB11
+ 1855 0054 44000000 		.4byte	.LFE11-.LFB11
+ 1856 0058 00000000 		.4byte	.LFB12
+ 1857 005c 44000000 		.4byte	.LFE12-.LFB12
+ 1858 0060 00000000 		.4byte	0
+ 1859 0064 00000000 		.4byte	0
+ 1860              		.section	.debug_ranges,"",%progbits
+ 1861              	.Ldebug_ranges0:
+ 1862 0000 00000000 		.4byte	.LFB3
+ 1863 0004 0E000000 		.4byte	.LFE3
+ 1864 0008 00000000 		.4byte	.LFB4
+ 1865 000c 0C000000 		.4byte	.LFE4
+ 1866 0010 00000000 		.4byte	.LFB5
+ 1867 0014 0C000000 		.4byte	.LFE5
+ 1868 0018 00000000 		.4byte	.LFB6
+ 1869 001c 32000000 		.4byte	.LFE6
+ 1870 0020 00000000 		.4byte	.LFB7
+ 1871 0024 1C000000 		.4byte	.LFE7
+ 1872 0028 00000000 		.4byte	.LFB8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 39
+
+
+ 1873 002c 58000000 		.4byte	.LFE8
+ 1874 0030 00000000 		.4byte	.LFB9
+ 1875 0034 46000000 		.4byte	.LFE9
+ 1876 0038 00000000 		.4byte	.LFB10
+ 1877 003c 3C000000 		.4byte	.LFE10
+ 1878 0040 00000000 		.4byte	.LFB11
+ 1879 0044 44000000 		.4byte	.LFE11
+ 1880 0048 00000000 		.4byte	.LFB12
+ 1881 004c 44000000 		.4byte	.LFE12
+ 1882 0050 00000000 		.4byte	0
+ 1883 0054 00000000 		.4byte	0
+ 1884              		.section	.debug_line,"",%progbits
+ 1885              	.Ldebug_line0:
+ 1886 0000 41020000 		.section	.debug_str,"MS",%progbits,1
+ 1886      02003A01 
+ 1886      00000201 
+ 1886      FB0E0D00 
+ 1886      01010101 
+ 1887              	.LASF25:
+ 1888 0000 6C765F61 		.ascii	"lv_area_set_pos\000"
+ 1888      7265615F 
+ 1888      7365745F 
+ 1888      706F7300 
+ 1889              	.LASF16:
+ 1890 0010 6C765F63 		.ascii	"lv_coord_t\000"
+ 1890      6F6F7264 
+ 1890      5F7400
+ 1891              	.LASF35:
+ 1892 001b 615F7265 		.ascii	"a_res_p\000"
+ 1892      735F7000 
+ 1893              	.LASF8:
+ 1894 0023 5F5F696E 		.ascii	"__int16_t\000"
+ 1894      7431365F 
+ 1894      7400
+ 1895              	.LASF32:
+ 1896 002d 756E696F 		.ascii	"union_ok\000"
+ 1896      6E5F6F6B 
+ 1896      00
+ 1897              	.LASF38:
+ 1898 0036 6C765F61 		.ascii	"lv_area_is_on\000"
+ 1898      7265615F 
+ 1898      69735F6F 
+ 1898      6E00
+ 1899              	.LASF42:
+ 1900 0044 69735F69 		.ascii	"is_in\000"
+ 1900      6E00
+ 1901              	.LASF23:
+ 1902 004a 6C765F61 		.ascii	"lv_area_set_width\000"
+ 1902      7265615F 
+ 1902      7365745F 
+ 1902      77696474 
+ 1902      6800
+ 1903              	.LASF27:
+ 1904 005c 6C765F61 		.ascii	"lv_area_intersect\000"
+ 1904      7265615F 
+ 1904      696E7465 
+ 1904      72736563 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 40
+
+
+ 1904      7400
+ 1905              	.LASF22:
+ 1906 006e 6C765F61 		.ascii	"lv_area_set\000"
+ 1906      7265615F 
+ 1906      73657400 
+ 1907              	.LASF5:
+ 1908 007a 73686F72 		.ascii	"short int\000"
+ 1908      7420696E 
+ 1908      7400
+ 1909              	.LASF19:
+ 1910 0084 6C765F61 		.ascii	"lv_area_get_height\000"
+ 1910      7265615F 
+ 1910      6765745F 
+ 1910      68656967 
+ 1910      687400
+ 1911              	.LASF39:
+ 1912 0097 6C765F61 		.ascii	"lv_area_is_in\000"
+ 1912      7265615F 
+ 1912      69735F69 
+ 1912      6E00
+ 1913              	.LASF18:
+ 1914 00a5 6C765F61 		.ascii	"lv_area_t\000"
+ 1914      7265615F 
+ 1914      7400
+ 1915              	.LASF37:
+ 1916 00af 69735F6F 		.ascii	"is_on\000"
+ 1916      6E00
+ 1917              	.LASF31:
+ 1918 00b5 73697A65 		.ascii	"size\000"
+ 1918      00
+ 1919              	.LASF43:
+ 1920 00ba 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 1920      43313120 
+ 1920      352E342E 
+ 1920      31203230 
+ 1920      31363036 
+ 1921 00ed 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 1921      20726576 
+ 1921      6973696F 
+ 1921      6E203233 
+ 1921      37373135 
+ 1922 0120 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1922      66756E63 
+ 1922      74696F6E 
+ 1922      2D736563 
+ 1922      74696F6E 
+ 1923              	.LASF17:
+ 1924 0148 6C765F70 		.ascii	"lv_point_t\000"
+ 1924      6F696E74 
+ 1924      5F7400
+ 1925              	.LASF10:
+ 1926 0153 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1926      20756E73 
+ 1926      69676E65 
+ 1926      6420696E 
+ 1926      7400
+ 1927              	.LASF6:
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 41
+
+
+ 1928 0165 73686F72 		.ascii	"short unsigned int\000"
+ 1928      7420756E 
+ 1928      7369676E 
+ 1928      65642069 
+ 1928      6E7400
+ 1929              	.LASF45:
+ 1930 0178 433A5C55 		.ascii	"C:\\Users\\d3bug\\Documents\\Creator\\lvgl_ssd1306\\"
+ 1930      73657273 
+ 1930      5C643362 
+ 1930      75675C44 
+ 1930      6F63756D 
+ 1931 01a6 68656C6C 		.ascii	"hello_world_label.cydsn\000"
+ 1931      6F5F776F 
+ 1931      726C645F 
+ 1931      6C616265 
+ 1931      6C2E6379 
+ 1932              	.LASF24:
+ 1933 01be 6C765F61 		.ascii	"lv_area_set_height\000"
+ 1933      7265615F 
+ 1933      7365745F 
+ 1933      68656967 
+ 1933      687400
+ 1934              	.LASF26:
+ 1935 01d1 6C765F61 		.ascii	"lv_area_get_size\000"
+ 1935      7265615F 
+ 1935      6765745F 
+ 1935      73697A65 
+ 1935      00
+ 1936              	.LASF4:
+ 1937 01e2 756E7369 		.ascii	"unsigned char\000"
+ 1937      676E6564 
+ 1937      20636861 
+ 1937      7200
+ 1938              	.LASF44:
+ 1939 01f0 2E2E5C6C 		.ascii	"..\\lvgl\\lv_misc\\lv_area.c\000"
+ 1939      76676C5C 
+ 1939      6C765F6D 
+ 1939      6973635C 
+ 1939      6C765F61 
+ 1940              	.LASF9:
+ 1941 020a 5F5F7569 		.ascii	"__uint32_t\000"
+ 1941      6E743332 
+ 1941      5F7400
+ 1942              	.LASF34:
+ 1943 0215 6C765F61 		.ascii	"lv_area_join\000"
+ 1943      7265615F 
+ 1943      6A6F696E 
+ 1943      00
+ 1944              	.LASF0:
+ 1945 0222 756E7369 		.ascii	"unsigned int\000"
+ 1945      676E6564 
+ 1945      20696E74 
+ 1945      00
+ 1946              	.LASF11:
+ 1947 022f 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1947      206C6F6E 
+ 1947      6720756E 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 42
+
+
+ 1947      7369676E 
+ 1947      65642069 
+ 1948              	.LASF14:
+ 1949 0246 696E7431 		.ascii	"int16_t\000"
+ 1949      365F7400 
+ 1950              	.LASF12:
+ 1951 024e 73697A65 		.ascii	"sizetype\000"
+ 1951      74797065 
+ 1951      00
+ 1952              	.LASF1:
+ 1953 0257 6C6F6E67 		.ascii	"long long int\000"
+ 1953      206C6F6E 
+ 1953      6720696E 
+ 1953      7400
+ 1954              	.LASF29:
+ 1955 0265 61315F70 		.ascii	"a1_p\000"
+ 1955      00
+ 1956              	.LASF21:
+ 1957 026a 61726561 		.ascii	"area_p\000"
+ 1957      5F7000
+ 1958              	.LASF13:
+ 1959 0271 63686172 		.ascii	"char\000"
+ 1959      00
+ 1960              	.LASF20:
+ 1961 0276 6C765F61 		.ascii	"lv_area_get_width\000"
+ 1961      7265615F 
+ 1961      6765745F 
+ 1961      77696474 
+ 1961      6800
+ 1962              	.LASF36:
+ 1963 0288 6C765F61 		.ascii	"lv_area_is_point_on\000"
+ 1963      7265615F 
+ 1963      69735F70 
+ 1963      6F696E74 
+ 1963      5F6F6E00 
+ 1964              	.LASF15:
+ 1965 029c 75696E74 		.ascii	"uint32_t\000"
+ 1965      33325F74 
+ 1965      00
+ 1966              	.LASF7:
+ 1967 02a5 6C6F6E67 		.ascii	"long int\000"
+ 1967      20696E74 
+ 1967      00
+ 1968              	.LASF28:
+ 1969 02ae 7265735F 		.ascii	"res_p\000"
+ 1969      7000
+ 1970              	.LASF2:
+ 1971 02b4 6C6F6E67 		.ascii	"long double\000"
+ 1971      20646F75 
+ 1971      626C6500 
+ 1972              	.LASF3:
+ 1973 02c0 7369676E 		.ascii	"signed char\000"
+ 1973      65642063 
+ 1973      68617200 
+ 1974              	.LASF41:
+ 1975 02cc 61686F6C 		.ascii	"aholder_p\000"
+ 1975      6465725F 
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cckjyPuZ.s 			page 43
+
+
+ 1975      7000
+ 1976              	.LASF33:
+ 1977 02d6 5F426F6F 		.ascii	"_Bool\000"
+ 1977      6C00
+ 1978              	.LASF40:
+ 1979 02dc 61696E5F 		.ascii	"ain_p\000"
+ 1979      7000
+ 1980              	.LASF30:
+ 1981 02e2 61325F70 		.ascii	"a2_p\000"
+ 1981      00
+ 1982              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran
