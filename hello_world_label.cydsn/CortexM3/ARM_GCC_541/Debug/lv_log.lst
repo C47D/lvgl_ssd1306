@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 1
 
 
    1              		.syntax unified
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
   28:..\lvgl\lv_misc/lv_log.c ****  *  STATIC VARIABLES
   29:..\lvgl\lv_misc/lv_log.c ****  **********************/
   30:..\lvgl\lv_misc/lv_log.c **** static void (*print_cb)(lv_log_level_t, const char *, uint32_t,  const char *);
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 2
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 2
 
 
   31:..\lvgl\lv_misc/lv_log.c **** 
@@ -118,7 +118,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
   54              		.cfi_startproc
   55              		@ args = 0, pretend = 0, frame = 0
   56              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 3
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 3
 
 
   57              	.LVL1:
@@ -130,7 +130,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
   61:..\lvgl\lv_misc/lv_log.c ****     if(level >= LV_LOG_LEVEL) {
   61              		.loc 1 61 0
   62 0004 0028     		cmp	r0, #0
-  63 0006 05DB     		blt	.L7
+  63 0006 05DD     		ble	.L7
   58:..\lvgl\lv_misc/lv_log.c ****     if(level >= _LV_LOG_LEVEL_NUM) return;      /*Invalid level*/
   64              		.loc 1 58 0
   65 0008 10B5     		push	{r4, lr}
@@ -178,7 +178,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  101              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
  102              		.file 4 "..\\lvgl\\lv_misc\\lv_log.h"
  103              		.section	.debug_info,"",%progbits
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 4
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 4
 
 
  104              	.Ldebug_info0:
@@ -238,7 +238,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  158 006f 83010000 		.4byte	.LASF9
  159 0073 04       		.uleb128 0x4
  160 0074 04       		.byte	0x4
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 5
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 5
 
 
  161 0075 05       		.byte	0x5
@@ -298,7 +298,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  215 00e5 08       		.byte	0x8
  216 00e6 AD010000 		.4byte	.LASF14
  217 00ea 0A       		.uleb128 0xa
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 6
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 6
 
 
  218 00eb E3000000 		.4byte	0xe3
@@ -358,7 +358,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  272 015a 01       		.uleb128 0x1
  273 015b 52       		.byte	0x52
  274 015c 0E       		.uleb128 0xe
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 7
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 7
 
 
  275 015d 01       		.uleb128 0x1
@@ -418,7 +418,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  329 0023 0B       		.uleb128 0xb
  330 0024 0B       		.uleb128 0xb
  331 0025 3E       		.uleb128 0x3e
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 8
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 8
 
 
  332 0026 0B       		.uleb128 0xb
@@ -478,7 +478,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  386 005d 00       		.byte	0
  387 005e 00       		.byte	0
  388 005f 07       		.uleb128 0x7
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 9
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 9
 
 
  389 0060 15       		.uleb128 0x15
@@ -538,7 +538,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  443 0096 0B       		.uleb128 0xb
  444 0097 49       		.uleb128 0x49
  445 0098 13       		.uleb128 0x13
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 10
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 10
 
 
  446 0099 02       		.uleb128 0x2
@@ -598,7 +598,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  500 0021 0100     		.2byte	0x1
  501 0023 50       		.byte	0x50
  502 0024 00000000 		.4byte	0
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 11
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 11
 
 
  503 0028 00000000 		.4byte	0
@@ -658,7 +658,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  557 00ac 00000000 		.4byte	0
  558              		.section	.debug_aranges,"",%progbits
  559 0000 24000000 		.4byte	0x24
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 12
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 12
 
 
  560 0004 0200     		.2byte	0x2
@@ -718,7 +718,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  596      31363036 
  597 0067 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
  597      20726576 
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 13
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 13
 
 
  597      6973696F 
@@ -778,7 +778,7 @@ ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 1
  615      676E6564 
  615      20696E74 
  615      00
-ARM GAS  C:\Users\d3bug\AppData\Local\Temp\cc51igQK.s 			page 14
+ARM GAS  C:\Users\d3bug\AppData\Local\Temp\ccecav7A.s 			page 14
 
 
  616              	.LASF9:

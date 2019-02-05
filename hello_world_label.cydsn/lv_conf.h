@@ -70,8 +70,8 @@
 /* Size of the VDB in pixels. Typical size: ~1/10 screen. Must be >= LV_HOR_RES
  * Setting it to 0 will disable VDB and `disp_drv.disp_fill` and `disp_drv.disp_map` functions
  * will be called to draw to the frame buffer directly*/
-#define LV_VDB_SIZE         ((LV_VER_RES * LV_HOR_RES) / 10) // 7.8% flash, 56.2% SRAM
-// #define LV_VDB_SIZE         (LV_HOR_RES * 10)
+// #define LV_VDB_SIZE         ((LV_VER_RES * LV_HOR_RES) / 10) // 7.8% flash, 56.2% SRAM
+#define LV_VDB_SIZE         (LV_HOR_RES * 10)
 
  /* Bit-per-pixel of VDB. Useful for monochrome or non-standard color format displays.
   * Special formats are handled with `disp_drv.vdb_wr`)*/
@@ -157,7 +157,7 @@
  * LV_LOG_LEVEL_WARN        Log if something unwanted happened but didn't caused problem
  * LV_LOG_LEVEL_ERROR       Only critical issue, when the system may fail
  */
-#  define LV_LOG_LEVEL    LV_LOG_LEVEL_TRACE
+#  define LV_LOG_LEVEL    LV_LOG_LEVEL_INFO
 /* 1: Print the log with 'printf'; 0: user need to register a callback*/
 
 #  define LV_LOG_PRINTF   0

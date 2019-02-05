@@ -36,8 +36,11 @@
 static int inline _load_frame_buffer(uint8_t *buf, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
     // Convert to page
-    y1 = y1 >> 3; // >> 3 es lo mismo que dividir entre 8
-    y2 = y2 >> 3; // ditto, asi pasamos de coord 64 a pagina 8 (7, porque las paginas empiezan en 0)
+    // By shifting the y1 and y2 values 3 positions to the right we are effectively
+    // dividing it's values by 8, this allow us to map the whole 64 height pixels
+    // into the ( pages of the SSD1306.
+    y1 = y1 >> 3;
+    y2 = y2 >> 3;
     
     ssd_set_column_addr(x1, x2);
     ssd_set_page_addr(y1, y2);
@@ -46,14 +49,12 @@ static int inline _load_frame_buffer(uint8_t *buf, uint8_t x1, uint8_t y1, uint8
     // https://github.com/littlevgl/lv_drivers/issues/29
     
     const uint16_t col_step = 16;
-#if 0
+
     uint8_t col_len = (x2 - x1) + 1;
     uint8_t page_len = (y2 - y1) + 1;
     
-    // Iteramos las paginas
     for (uint8_t page = 0; page < page_len; page++) {
-        // Mandamos el contenido de las columnas
-        for (uint8_t col = 0; col < col_len; /* col += col_step */) {
+        for (uint8_t col = 0; col < col_len; ) {
             if((col + col_step) <= col_len) {
                 uint8_t *data = &buf[page * col_len + col];
                 ssd_send_buffer(data, col_step);
@@ -66,20 +67,6 @@ static int inline _load_frame_buffer(uint8_t *buf, uint8_t x1, uint8_t y1, uint8
             }
         }
     }
-#else
-    uint8_t col_len = x2 - x1;
-    uint8_t page_len = y2 - y1;
-    lv_coord_t area_w = x2 - x1 + 1;
-    
-    // Iteramos las paginas
-    for (uint8_t page = 0; page < page_len; page++) {
-        // Mandamos el contenido de las columnas
-        for (uint8_t col = 0; col < col_len; col++) {
-            uint8_t data = buf[page * area_w + col];
-            ssd_send_data(data);
-        }
-    }
-#endif
 
     return 0;
 }
@@ -110,16 +97,9 @@ void timer_handler(void)
 
 static void print_log(lv_log_level_t level, const char * file, uint32_t line, const char * dsc)
 {
-/*
-#define LV_LOG_LEVEL_TRACE 0
-#define LV_LOG_LEVEL_INFO  1
-#define LV_LOG_LEVEL_WARN  2
-#define LV_LOG_LEVEL_ERROR 3
-#define _LV_LOG_LEVEL_NUM  4
-*/
     (void) level;
     
-    DBG_println("%s : %s : %s", file, line, dsc);
+    DBG_println("%s: %lu: %s", file, line, dsc);
 }
 
 int main(void)
@@ -132,11 +112,10 @@ int main(void)
     I2C_Start();
     DBG_clear_screen();
     
-    lv_init();
-    
-    lv_log_register_print(print_log);
-    
     ssd_init();
+    
+    lv_init();
+    lv_log_register_print(print_log);
     
     Timer_Start();
 
@@ -145,7 +124,6 @@ int main(void)
     disp_drv.disp_flush = ssd1306_flush;
     lv_disp_drv_register(&disp_drv);
     
-#if 0
     /*Create a Label on the currently active screen*/
     lv_obj_t *label1 = lv_label_create(lv_scr_act(), NULL);
     
@@ -154,7 +132,6 @@ int main(void)
 
     /* NULL means align on parent (which is the screen now) */
     lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
-#endif
 
     for(;;) {
         lv_task_handler();

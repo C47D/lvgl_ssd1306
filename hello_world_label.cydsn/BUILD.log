@@ -1,11 +1,6 @@
---------------- Build Started: 02/04/2019 17:11:59 Project: hello_world_label, Configuration: ARM GCC 5.4-2016-q2-update Debug ---------------
+--------------- Build Started: 02/04/2019 21:59:06 Project: hello_world_label, Configuration: ARM GCC 5.4-2016-q2-update Debug ---------------
 The code generation step is up to date.
 arm-none-eabi-gcc.exe -mcpu=cortex-m3 -mthumb -I..\DBG -I..\SSD1306 -I..\lvgl -I..\lvgl\lv_core -I..\lvgl\lv_draw -I..\lvgl\lv_fonts -I..\lvgl\lv_hal -I..\lvgl\lv_misc -I..\lvgl\lv_objx -I..\lvgl\lv_porting -I..\lvgl\lv_themes -I. -IGenerated_Source\PSoC5 -Wa,-alh=.\CortexM3\ARM_GCC_541\Debug/main.lst -g -D DEBUG -D CY_CORE_ID=0 -D LV_CONF_INCLUDE_SIMPLE -Wall -ffunction-sections -ffat-lto-objects -Og -c main.c -o .\CortexM3\ARM_GCC_541\Debug\main.o
-main.c: In function '_load_frame_buffer':
-main.c:48:20: warning: unused variable 'col_step' [-Wunused-variable]
-     const uint16_t col_step = 16;
-                    ^
-arm-none-eabi-gcc.exe -mcpu=cortex-m3 -mthumb -I..\DBG -I..\SSD1306 -I..\lvgl -I..\lvgl\lv_core -I..\lvgl\lv_draw -I..\lvgl\lv_fonts -I..\lvgl\lv_hal -I..\lvgl\lv_misc -I..\lvgl\lv_objx -I..\lvgl\lv_porting -I..\lvgl\lv_themes -I. -IGenerated_Source\PSoC5 -Wa,-alh=.\CortexM3\ARM_GCC_541\Debug/DBG.lst -g -D DEBUG -D CY_CORE_ID=0 -D LV_CONF_INCLUDE_SIMPLE -Wall -ffunction-sections -ffat-lto-objects -Og -c ..\DBG\DBG.c -o .\CortexM3\ARM_GCC_541\Debug\DBG.o
 arm-none-eabi-gcc.exe -mcpu=cortex-m3 -mthumb -I..\DBG -I..\SSD1306 -I..\lvgl -I..\lvgl\lv_core -I..\lvgl\lv_draw -I..\lvgl\lv_fonts -I..\lvgl\lv_hal -I..\lvgl\lv_misc -I..\lvgl\lv_objx -I..\lvgl\lv_porting -I..\lvgl\lv_themes -I. -IGenerated_Source\PSoC5 -Wa,-alh=.\CortexM3\ARM_GCC_541\Debug/lv_group.lst -g -D DEBUG -D CY_CORE_ID=0 -D LV_CONF_INCLUDE_SIMPLE -Wall -ffunction-sections -ffat-lto-objects -Og -c ..\lvgl\lv_core\lv_group.c -o .\CortexM3\ARM_GCC_541\Debug\lv_group.o
 arm-none-eabi-gcc.exe -mcpu=cortex-m3 -mthumb -I..\DBG -I..\SSD1306 -I..\lvgl -I..\lvgl\lv_core -I..\lvgl\lv_draw -I..\lvgl\lv_fonts -I..\lvgl\lv_hal -I..\lvgl\lv_misc -I..\lvgl\lv_objx -I..\lvgl\lv_porting -I..\lvgl\lv_themes -I. -IGenerated_Source\PSoC5 -Wa,-alh=.\CortexM3\ARM_GCC_541\Debug/lv_indev.lst -g -D DEBUG -D CY_CORE_ID=0 -D LV_CONF_INCLUDE_SIMPLE -Wall -ffunction-sections -ffat-lto-objects -Og -c ..\lvgl\lv_core\lv_indev.c -o .\CortexM3\ARM_GCC_541\Debug\lv_indev.o
 arm-none-eabi-gcc.exe -mcpu=cortex-m3 -mthumb -I..\DBG -I..\SSD1306 -I..\lvgl -I..\lvgl\lv_core -I..\lvgl\lv_draw -I..\lvgl\lv_fonts -I..\lvgl\lv_hal -I..\lvgl\lv_misc -I..\lvgl\lv_objx -I..\lvgl\lv_porting -I..\lvgl\lv_themes -I. -IGenerated_Source\PSoC5 -Wa,-alh=.\CortexM3\ARM_GCC_541\Debug/lv_lang.lst -g -D DEBUG -D CY_CORE_ID=0 -D LV_CONF_INCLUDE_SIMPLE -Wall -ffunction-sections -ffat-lto-objects -Og -c ..\lvgl\lv_core\lv_lang.c -o .\CortexM3\ARM_GCC_541\Debug\lv_lang.o
@@ -102,6 +97,6 @@ No ELF section .cychecksum found, creating one
 Application checksum calculated and stored in ELF section .cychecksum
 Checksum calculated and stored in ELF section .cymeta
 cyelftool.exe -S C:\Users\d3bug\Documents\Creator\lvgl_ssd1306\hello_world_label.cydsn\CortexM3\ARM_GCC_541\Debug\hello_world_label.elf
-Flash used: 27096 of 262144 bytes (10.3 %).
-SRAM used: 37921 of 65536 bytes (57.9 %). Stack: 2048 bytes. Heap: 128 bytes.
---------------- Build Succeeded: 02/04/2019 17:13:47 ---------------
+Flash used: 34152 of 262144 bytes (13.0 %).
+SRAM used: 38417 of 65536 bytes (58.6 %). Stack: 2048 bytes. Heap: 128 bytes.
+--------------- Build Succeeded: 02/04/2019 22:00:45 ---------------
