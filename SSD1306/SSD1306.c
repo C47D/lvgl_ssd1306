@@ -45,7 +45,7 @@ void ssd_init(void)
     ssd_send_command(0x12); // alternative com configuration (RESET)
     // ssd1306_set_contrast(dev, 0x9F)
     ssd_send_command(SET_CONTRAST_CONTROL);
-    ssd_send_command(0x0f);
+    ssd_send_command(0x01);
     // ssd1306_set_precharge_period(dev, 0xF1)
     ssd_send_command(SET_PRECHARGE_PERIOD);
     ssd_send_command(0xf1);
@@ -106,11 +106,6 @@ void ssd_send_data(uint8_t data)
 
 void ssd_send_buffer(uint8_t *data, size_t len)
 {
-#if 0
-    for (size_t i = 0; i < len; i++) {
-        ssd_send_data(data[i]);
-    }
-#else
     uint8_t dummy[len + 1];
     dummy[0] = 0x40;
     memcpy(&dummy[1], data, len);
@@ -119,7 +114,6 @@ void ssd_send_buffer(uint8_t *data, size_t len)
     while (I2C_MSTAT_WR_CMPLT != I2C_MasterStatus()) {
         CyDelay(1);
     }
-#endif
 }
 
 /* [] END OF FILE */

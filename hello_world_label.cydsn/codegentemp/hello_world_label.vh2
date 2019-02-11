@@ -2,7 +2,7 @@
 --	Conversion of hello_world_label.v to vh2:
 --
 --	Cypress Semiconductor - WARP Version 6.3 IR 41
---	Mon Feb 04 16:58:53 2019
+--	Sun Feb 10 01:48:11 2019
 --
 
 USE cypress.cypress.all;
@@ -391,9 +391,9 @@ LED:cy_psoc3_pins_v1_10
 timer_clock:cy_clock_v1_0
 	GENERIC MAP(cy_registers=>"",
 		id=>"c0fb34bd-1044-4931-9788-16b01ce89812",
-		source_clock_id=>"315365C3-2E3E-4f04-84A2-BB564A173261",
+		source_clock_id=>"",
 		divisor=>0,
-		period=>"1000000000000",
+		period=>"10000000000",
 		is_direct=>'0',
 		is_digital=>'1')
 	PORT MAP(clock_out=>Net_13,

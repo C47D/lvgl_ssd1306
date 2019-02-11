@@ -6,7 +6,7 @@
 
 #Build Date:         Dec  5 2017 15:35:27
 
-#File Generated:     Feb 4 2019 16:58:58
+#File Generated:     Feb 10 2019 01:48:20
 
 #Purpose:            
 
@@ -93,5 +93,5 @@ D2088: Phase 8, elapsed time : 0.0 (sec)
 
 D2054: Placement of the design completed successfully
 
-I2076: Total run-time: 3.3 sec.
+I2076: Total run-time: 6.1 sec.
 

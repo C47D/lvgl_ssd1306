@@ -70,8 +70,8 @@
 /* Size of the VDB in pixels. Typical size: ~1/10 screen. Must be >= LV_HOR_RES
  * Setting it to 0 will disable VDB and `disp_drv.disp_fill` and `disp_drv.disp_map` functions
  * will be called to draw to the frame buffer directly*/
-// #define LV_VDB_SIZE         ((LV_VER_RES * LV_HOR_RES) / 10) // 7.8% flash, 56.2% SRAM
-#define LV_VDB_SIZE         (LV_HOR_RES * 10)
+#define LV_VDB_SIZE         ((LV_VER_RES * LV_HOR_RES) / 10) // 7.8% flash, 56.2% SRAM
+// #define LV_VDB_SIZE         (LV_HOR_RES * 10)
 
  /* Bit-per-pixel of VDB. Useful for monochrome or non-standard color format displays.
   * Special formats are handled with `disp_drv.vdb_wr`)*/
@@ -259,7 +259,7 @@
  *******************/
 
 /*Container (dependencies: -*/
-#define USE_LV_CONT     0
+#define USE_LV_CONT     1
 
 /*Page (dependencies: lv_cont)*/
 #define USE_LV_PAGE     0
@@ -335,9 +335,9 @@
  *************************/
 
 /*Button (dependencies: lv_cont*/
-#define USE_LV_BTN      0
+#define USE_LV_BTN      1
 #if USE_LV_BTN != 0
-#  define LV_BTN_INK_EFFECT   1       /*Enable button-state animations - draw a circle on click (dependencies: USE_LV_ANIMATION)*/
+#  define LV_BTN_INK_EFFECT   0       /*Enable button-state animations - draw a circle on click (dependencies: USE_LV_ANIMATION)*/
 #endif
 
 /*Image Button (dependencies: lv_btn*/

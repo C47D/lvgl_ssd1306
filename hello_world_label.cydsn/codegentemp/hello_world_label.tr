@@ -23,8 +23,8 @@ Clock: CyILO                        | N/A  | Target: 0.00 MHz   |
 Clock: CyIMO                        | N/A  | Target: 3.00 MHz   | 
 Clock: CyMASTER_CLK                 | N/A  | Target: 24.00 MHz  | 
 Clock: CyPLL_OUT                    | N/A  | Target: 24.00 MHz  | 
-Clock: timer_clock                  | N/A  | Target: 0.00 MHz   | 
-Clock: timer_clock(fixed-function)  | N/A  | Target: 0.00 MHz   | 
+Clock: timer_clock                  | N/A  | Target: 0.10 MHz   | 
+Clock: timer_clock(fixed-function)  | N/A  | Target: 0.10 MHz   | 
 
  =====================================================================
                     End of Clock Frequency Summary
